@@ -1,0 +1,31 @@
+{
+  "name": "darlene",
+  "version": "0.1.0",
+  "description": "Personal Assistant for the Camunda Modeler",
+  "main": "index.js",
+  "scripts": {
+    "build": "browserify client/client.js > client/client-bundle.js",
+    "auto-build": "watchify client/client.js -o client/client-bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/camunda/camunda-modeler-plugins.git"
+  },
+  "keywords": [
+    "camunda",
+    "modeler",
+    "plugin"
+  ],
+  "author": "Philipp Fromme",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/camunda/camunda-modeler-plugins/issues"
+  },
+  "homepage": "https://github.com/camunda/camunda-modeler-plugins#readme",
+  "devDependencies": {
+    "browserify": "^14.1.0",
+    "camunda-modeler-plugin-helpers": "^1.7.0",
+    "min-dom": "^0.2.0",
+    "watchify": "^3.9.0"
+  }
+}
