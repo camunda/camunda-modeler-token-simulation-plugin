@@ -2,20 +2,7 @@
 
 module.exports = function(electronApp, menuState) {
   return [{
-    label: 'Toggle Darlene',
-    accelerator: 'CommandOrControl+d',
-    enabled: function() {
-
-      // only enabled for BPMN diagrams
-      return menuState.bpmn;
-    },
-    action: function() {
-
-      // will be forwarded to bpmn-js eventually
-      electronApp.emit('menu:action', 'toggleDarlene');
-    }
-  }, {
-    label: 'Say "Hello"',
+    label: 'Toggle Token Simulation',
     accelerator: 'CommandOrControl+t',
     enabled: function() {
 
@@ -25,20 +12,7 @@ module.exports = function(electronApp, menuState) {
     action: function() {
 
       // will be forwarded to bpmn-js eventually
-      electronApp.emit('menu:action', 'sayHello');
-    }
-  }, {
-    label: 'Say "Bye"',
-    accelerator: 'CommandOrControl+r',
-    enabled: function() {
-
-      // only enabled for BPMN diagrams
-      return menuState.bpmn;
-    },
-    action: function() {
-
-      // will be forwarded to bpmn-js eventually
-      electronApp.emit('menu:action', 'sayThankYou');
+      electronApp.emit('menu:action', 'toggleTokenSimulation');
     }
   }];
 };

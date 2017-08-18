@@ -1,7 +1,7 @@
 {
-  "name": "darlene",
+  "name": "bpmn-js-token-simulation-plugin",
   "version": "0.1.0",
-  "description": "Personal Assistant for the Camunda Modeler",
+  "description": "Token Simulation for bpmn-js",
   "main": "index.js",
   "scripts": {
     "build": "browserify client/client.js > client/client-bundle.js",
@@ -27,5 +27,8 @@
     "camunda-modeler-plugin-helpers": "^1.7.0",
     "min-dom": "^0.2.0",
     "watchify": "^3.9.0"
+  },
+  "dependencies": {
+    "bpmn-js-token-simulation": "^0.2.0"
   }
 }
