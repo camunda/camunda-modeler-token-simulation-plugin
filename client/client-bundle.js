@@ -5,10 +5,10 @@ var tokenSimulation = require('bpmn-js-token-simulation');
 
 registerBpmnJSPlugin(tokenSimulation);
 
-},{"bpmn-js-token-simulation":2,"camunda-modeler-plugin-helpers":24}],2:[function(require,module,exports){
+},{"bpmn-js-token-simulation":2,"camunda-modeler-plugin-helpers":23}],2:[function(require,module,exports){
 module.exports = require('./lib');
 
-},{"./lib":21}],3:[function(require,module,exports){
+},{"./lib":20}],3:[function(require,module,exports){
 'use strict';
 
 var SVG = require('svg.js');
@@ -176,7 +176,7 @@ _Animation.prototype.cancel = function() {
 
   this.gfx.remove();
 }
-},{"./util/GeometryUtil":23,"min-dom/lib/query":70,"svg.js":71}],4:[function(require,module,exports){
+},{"./util/GeometryUtil":22,"min-dom/lib/query":69,"svg.js":70}],4:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -239,7 +239,7 @@ CatchEventTrigger.$inject = [ 'eventBus', 'overlays' ];
 
 module.exports = CatchEventTrigger;
 
-},{"min-dom/lib/domify":68,"min-dom/lib/event":69}],5:[function(require,module,exports){
+},{"min-dom/lib/domify":67,"min-dom/lib/event":68}],5:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -270,6 +270,7 @@ function isLabel(element) {
 function CheckElementSupport(eventBus, elementRegistry, overlays, modeling, canvas) {
   var self = this;
 
+  this._eventBus = eventBus;
   this._elementRegistry = elementRegistry;
   this._overlays = overlays;
   this._modeling = modeling;
@@ -281,11 +282,6 @@ function CheckElementSupport(eventBus, elementRegistry, overlays, modeling, canv
 
     if (!self.allElementsSupported()) {
       self.showWarnings();
-
-      eventBus.fire('tokenSimulation.showNotification', {
-        text: 'Can\'t simulate, not all elements supported',
-        notificationType: 'warning'
-      });
 
       domClasses(canvasParent).add('warning');
       
@@ -322,6 +318,8 @@ CheckElementSupport.prototype.allElementsSupported = function() {
 CheckElementSupport.prototype.showWarnings = function(elements) {
   var self = this;
 
+  var typesWarnings = [];
+
   this._elementRegistry.forEach(function(element) {
     if (!is(element, IGNORED_ELEMENTS) 
         && !is(element, SUPPORTED_ELEMENTS)
@@ -329,7 +327,14 @@ CheckElementSupport.prototype.showWarnings = function(elements) {
     ) {
       self.showWarning(element);
 
-      console.log(element.type + ' not supported');
+      if (typesWarnings.indexOf(element.type)) {
+        self._eventBus.fire('tokenSimulation.showNotification', {
+          text: element.type + ' not supported',
+          notificationType: 'warning'
+        });
+
+        typesWarnings.push(element.type);
+      }
     }
   });
 };
@@ -353,7 +358,7 @@ CheckElementSupport.prototype.removeAllWarnings = function() {
 CheckElementSupport.$inject = [ 'eventBus', 'elementRegistry', 'overlays', 'modeling', 'canvas' ];
 
 module.exports = CheckElementSupport;
-},{"./util/ElementHelper":22,"min-dom/lib/classes":67,"min-dom/lib/domify":68,"min-dom/lib/event":69}],6:[function(require,module,exports){
+},{"./util/ElementHelper":21,"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68}],6:[function(require,module,exports){
 'use strict';
 
 var is = require('./util/ElementHelper').is;
@@ -507,10 +512,11 @@ CheckGatewayConfiguration.prototype.reset = function() {
 CheckGatewayConfiguration.$inject = [ 'eventBus', 'elementRegistry', 'graphicsFactory' ];
 
 module.exports = CheckGatewayConfiguration;
-},{"./util/ElementHelper":22}],7:[function(require,module,exports){
+},{"./util/ElementHelper":21}],7:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
+    domClasses = require('min-dom/lib/classes'),
     domEvent = require('min-dom/lib/event');
 
 var is = require('./util/ElementHelper').is;
@@ -518,52 +524,55 @@ var is = require('./util/ElementHelper').is;
 var OFFSET_TOP = -20,
     OFFSET_LEFT = -15;
 
-function ContextMenu(overlays, eventBus, simulationState) {
+function ContextMenus(overlays, eventBus, elementRegistry, simulationState) {
   var self = this;
 
   this._overlays = overlays;
   this._eventBus = eventBus;
+  this._elementRegistry = elementRegistry;
   this._simulationState = simulationState;
 
-  this.selectedElement = undefined;
-
-  this.isActive = false;
+  this.contextMenus = [];
 
   eventBus.on('tokenSimulation.start', function() {
-    self.close();
+    self.hideContextMenus({ type: 'bpmn:StartEvent' });
   });
 
   eventBus.on([ 'tokenSimulation.stop', 'tokenSimulation.reset' ], function() {
-    if (self.selectedElement && is(self.selectedElement, 'bpmn:StartEvent')) {
-      self.open(self.selectedElement);
-    }
+    self.showContextMenus({ type: 'bpmn:StartEvent' });
   });
 
   eventBus.on('tokenSimulation.switchMode', function(context) {
     var mode = context.mode;
 
     if (mode === 'simulation') {
-      self.isActive = true;
-
-      if (self.selectedElement && is(self.selectedElement, 'bpmn:StartEvent')) {
-        self.open(self.selectedElement);
-      }
+      self.createContextMenus();
     } else {
-      self.close();
-
-      self.isActive = false;
+      self.closeContextMenus();
     }
   });
 }
 
-ContextMenu.prototype.open = function(element) {  
+ContextMenus.prototype.createContextMenus = function(filter) {
   var self = this;
 
-  this.selectedElement = element;
+  var elements;
 
-  if (!this.isActive) {
-    return;
+  if (filter) {
+    elements = this._elementRegistry.filter(function(element) {
+      return element.type === filter.type;
+    });
+  } else {
+    elements = this._elementRegistry.getAll();
   }
+
+  elements.forEach(function(element) {
+    self.createContextMenu(element);
+  });
+};
+
+ContextMenus.prototype.createContextMenu = function(element) {
+  var self = this;
 
   var html;
 
@@ -597,86 +606,80 @@ ContextMenu.prototype.open = function(element) {
 
   var position = { top: OFFSET_TOP, left: OFFSET_LEFT };
 
-  this.overlay = this._overlays.add(element, 'token-simulation', {
+  var overlayId = this._overlays.add(element, 'context-menu', {
     position: position,
+    html: html
+  });
+
+  this.contextMenus.push({
+    element: element,
+    overlay: overlayId,
     html: html
   });
 };
 
-ContextMenu.prototype.close = function() {
-  if (this.overlay) {
-    this._overlays.remove(this.overlay);
-
-    this.overlay = undefined;
-  }
-};
-
-ContextMenu.$inject = [ 'overlays', 'eventBus', 'simulationState' ];
-
-module.exports = ContextMenu;
-},{"./util/ElementHelper":22,"min-dom/lib/domify":68,"min-dom/lib/event":69}],8:[function(require,module,exports){
-'use strict';
-
-var domify = require('min-dom/lib/domify');
-
-var is = require('./util/ElementHelper').is;
-
-var OFFSET_TOP = -20,
-    OFFSET_LEFT = -15;
-
-function ContextMenuPreview(eventBus, elementRegistry, overlays) {
+ContextMenus.prototype.closeContextMenus = function(filter) {
   var self = this;
 
-  this._overlays = overlays;
-
-  eventBus.on('tokenSimulation.switchMode', 10000, function(context) {
-    var mode = context.mode;
-
-    if (mode === 'simulation') {
-      elementRegistry.forEach(function(element) {
-      
-        if (is(element, [ 'bpmn:StartEvent', 'bpmn:ExclusiveGateway' ])) {
-          self.appendPreview(element);
-        }
-
-      });
-    } else {
-      self.removeAll();
-    }
-  });
-}
-
-ContextMenuPreview.prototype.appendPreview = function(element) {
-  var html;
-
-  if (is(element, 'bpmn:StartEvent')) {
-    html = domify('<div class="context-menu preview"><i class="fa fa-play"></i></div>');
-  }
-
-  if (is(element, 'bpmn:ExclusiveGateway') && element.outgoing.length > 1) {
-    html = domify('<div class="context-menu preview"><i class="fa fa-code-fork"></i></div>');
-  }
-
-  if (!html) {
-    return;
-  }
-
-  var position = { top: OFFSET_TOP, left: OFFSET_LEFT };
+  var contextMenus;
   
-  this._overlays.add(element, 'token-simulation-context-menu-preview', {
-    position: position,
-    html: html
-  });
-}
+  if (filter) {
+    contextMenus = this.contextMenus.filter(function(contextMenu) {
+      return contextMenu.element.type === filter.type;
+    });
+  } else {
+    contextMenus = this.contextMenus;
+  }
 
-ContextMenuPreview.prototype.removeAll = function() {
-  this._overlays.remove({ type: 'token-simulation-context-menu-preview' });
+  contextMenus.forEach(function(contextMenu) {
+    self._overlays.remove(contextMenu.overlay);
+
+    self.contextMenus = self.contextMenus.filter(function(c) {
+      return c.overlay !== contextMenu.overlay;
+    });
+  });
 };
 
-ContextMenuPreview.$inject = [ 'eventBus', 'elementRegistry', 'overlays' ];
+ContextMenus.prototype.showContextMenus = function(filter) {
+  var contextMenus;
 
-module.exports = ContextMenuPreview;
-},{"./util/ElementHelper":22,"min-dom/lib/domify":68}],9:[function(require,module,exports){
+  if (filter) {
+    contextMenus = this.contextMenus.filter(function(contextMenu) {
+      return contextMenu.element.type === filter.type;
+    });
+  } else {
+    contextMenus = this.contextMenus;
+  }
+
+  contextMenus.forEach(function(contextMenu) {
+    var html = contextMenu.html;
+    
+    domClasses(html).remove('hidden');
+  });
+};
+
+ContextMenus.prototype.hideContextMenus = function(filter) {
+  var contextMenus;
+  
+  if (filter) {
+    contextMenus = this.contextMenus.filter(function(contextMenu) {
+      return contextMenu.element.type === filter.type;
+    });
+  } else {
+    contextMenus = this.contextMenus;
+  }
+
+  contextMenus.forEach(function(contextMenu) {
+    var html = contextMenu.html;
+    
+    domClasses(html).add('hidden');
+  });
+};
+
+ContextMenus.$inject = [ 'overlays', 'eventBus', 'elementRegistry', 'simulationState' ];
+
+module.exports = ContextMenus;
+},{"./util/ElementHelper":21,"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68}],8:[function(require,module,exports){
 'use strict';
 
 function EditorActions(editorActions, eventBus, switchMode) {
@@ -690,7 +693,7 @@ function EditorActions(editorActions, eventBus, switchMode) {
 EditorActions.$inject = [ 'editorActions', 'eventBus', 'switchMode' ];
 
 module.exports = EditorActions;
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 'use strict';
 
 var NO_CONFIGURATION_COLOR = '#999';
@@ -772,7 +775,7 @@ GatewayConfiguration.prototype.setConfiguredSequenceflow = function(gateway, con
 GatewayConfiguration.$inject = [ 'eventBus', 'elementRegistry', 'graphicsFactory' ];
 
 module.exports = GatewayConfiguration;
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -825,7 +828,7 @@ GlobalReset.prototype.init = function() {
 GlobalReset.$inject = [ 'canvas', 'eventBus' ];
 
 module.exports = GlobalReset;
-},{"min-dom/lib/classes":67,"min-dom/lib/domify":68,"min-dom/lib/event":69}],12:[function(require,module,exports){
+},{"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68}],11:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -921,7 +924,7 @@ Log.prototype._init = function() {
 
   this.content = domQuery('.content', this.container);
 
-  domEvent.bind(this.content, 'scroll', function(e) {
+  domEvent.bind(this.content, 'wheel', function(e) {
     e.stopPropagation();
   });
 
@@ -981,7 +984,7 @@ Log.$inject = [ 'eventBus', 'canvas' ];
 
 module.exports = Log;
 
-},{"./util/ElementHelper":22,"min-dom/lib/classes":67,"min-dom/lib/domify":68,"min-dom/lib/event":69,"min-dom/lib/query":70}],13:[function(require,module,exports){
+},{"./util/ElementHelper":21,"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68,"min-dom/lib/query":69}],12:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1024,8 +1027,8 @@ Notifications.prototype._init = function() {
 Notifications.prototype.showNotification = function(text, type, icon) {
   var notification = domify(`
     <div class="notification ${type}">
-      <i class="${icon || 'fa fa-info'}" aria-hidden="true"></i>
-      &nbsp;&nbsp;&nbsp;${text}
+      <i class="${icon || 'fa fa-info'}"></i>
+      ${text}
     </div>
   `);
 
@@ -1050,7 +1053,7 @@ Notifications.prototype.removeAll = function() {
 Notifications.$inject = [ 'eventBus', 'canvas' ];
 
 module.exports = Notifications;
-},{"min-dom/lib/classes":67,"min-dom/lib/domify":68,"min-dom/lib/event":69}],14:[function(require,module,exports){
+},{"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68}],13:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1168,7 +1171,7 @@ PlayPause.prototype._init = function() {
 PlayPause.$inject = [ 'canvas', 'tokenSimulationBehavior', 'eventBus' ];
 
 module.exports = PlayPause;
-},{"min-dom/lib/classes":67,"min-dom/lib/domify":68,"min-dom/lib/event":69,"min-dom/lib/query":70}],15:[function(require,module,exports){
+},{"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68,"min-dom/lib/query":69}],14:[function(require,module,exports){
 'use strict';
 
 var forEach = require('lodash/forEach');
@@ -1314,7 +1317,7 @@ ReadOnly.prototype.readOnly = function (readOnly) {
   this._eventBus.fire('readOnly.changed', { readOnly: newValue });
   return newValue;
 };
-},{"lodash/forEach":54}],16:[function(require,module,exports){
+},{"lodash/forEach":53}],15:[function(require,module,exports){
 'use strict';
 
 function SimulationState(eventBus, elementRegistry, tokenDisplay, catchEventTrigger) {
@@ -1357,7 +1360,7 @@ SimulationState.prototype.isActive = function() {
 SimulationState.$inject = [ 'eventBus', 'elementRegistry', 'tokenDisplay', 'catchEventTrigger' ];
 
 module.exports = SimulationState;
-},{}],17:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1368,11 +1371,13 @@ var domify = require('min-dom/lib/domify'),
 var MODELING_MODE = 'modeling',
     SIMULATION_MODE = 'simulation';
 
-function SwitchMode(eventBus, canvas) {
+function SwitchMode(eventBus, canvas, selection, contextPad) {
   var self = this;
 
   this._eventBus = eventBus;
   this._canvas = canvas;
+  this._selection = selection;
+  this._contextPad = contextPad;
 
   this.mode = MODELING_MODE;
 
@@ -1423,13 +1428,19 @@ SwitchMode.prototype.switch = function() {
     });
 
     this._eventBus.fire('tokenSimulation.switchMode', { mode: MODELING_MODE });
+
+    var elements = this._selection.get();
+
+    if (elements.length === 1) {
+      this._contextPad.open(elements[0]);
+    }
   }
 };
 
-SwitchMode.$inject = [ 'eventBus', 'canvas' ];
+SwitchMode.$inject = [ 'eventBus', 'canvas', 'selection', 'contextPad' ];
 
 module.exports = SwitchMode;
-},{"min-dom/lib/classes":67,"min-dom/lib/domify":68,"min-dom/lib/event":69,"min-dom/lib/query":70}],18:[function(require,module,exports){
+},{"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68,"min-dom/lib/query":69}],17:[function(require,module,exports){
 'use strict';
 
 var forEach = require('lodash/forEach');
@@ -1533,7 +1544,7 @@ TokenDisplay.$inject = [ 'overlays', 'elementRegistry', 'eventBus' ];
 
 module.exports = TokenDisplay;
 
-},{"./util/ElementHelper":22,"lodash/forEach":54}],19:[function(require,module,exports){
+},{"./util/ElementHelper":21,"lodash/forEach":53}],18:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1555,14 +1566,14 @@ TokenGraphics.$inject = [];
 module.exports = TokenGraphics;
 
 
-},{"min-dom/lib/classes":67,"min-dom/lib/domify":68,"min-dom/lib/event":69}],20:[function(require,module,exports){
+},{"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68}],19:[function(require,module,exports){
 'use strict';
 
 var is = require('./util/ElementHelper').is;
 
 var forEach = require('lodash/forEach');
 
-function TokenSimulationBehavior(eventBus, contextMenu, tokenDisplay, animation, elementRegistry) {
+function TokenSimulationBehavior(eventBus, tokenDisplay, animation, elementRegistry) {
   var self = this;
 
   this.runningAnimations = [];
@@ -1573,18 +1584,6 @@ function TokenSimulationBehavior(eventBus, contextMenu, tokenDisplay, animation,
     });
 
     self.runningAnimations = [];
-  });
-
-  eventBus.on('selection.changed', function(event) {
-    var selection = event.newSelection;
-
-    contextMenu.close();
-
-    if (selection.length === 1) {
-      var element = selection[0];
-
-      contextMenu.open(element);
-    }
   });
 
   eventBus.on('tokenSimulation.createToken', function(event) {
@@ -1665,15 +1664,15 @@ function TokenSimulationBehavior(eventBus, contextMenu, tokenDisplay, animation,
   });
 }
 
-TokenSimulationBehavior.$inject = [ 'eventBus', 'contextMenu', 'tokenDisplay', 'animation', 'elementRegistry' ];
+TokenSimulationBehavior.$inject = [ 'eventBus', 'tokenDisplay', 'animation', 'elementRegistry' ];
 
 module.exports = TokenSimulationBehavior;
 
-},{"./util/ElementHelper":22,"lodash/forEach":54}],21:[function(require,module,exports){
+},{"./util/ElementHelper":21,"lodash/forEach":53}],20:[function(require,module,exports){
 module.exports = {
   __init__: [
     'tokenSimulationBehavior',
-    'contextMenu',
+    'contextMenus',
     'animation',
     'globalReset',
     'tokenDisplay',
@@ -1685,14 +1684,13 @@ module.exports = {
     'tokenGraphics',
     'log',
     'playPause',
-    'contextMenuPreview',
     'checkElementSupport',
     'switchMode',
     'readOnly',
     'tokenSimulationEditorActions'
   ],
   'tokenSimulationBehavior': [ 'type', require('./TokenSimulationBehavior') ],
-  'contextMenu': [ 'type', require('./ContextMenu') ],
+  'contextMenus': [ 'type', require('./ContextMenus') ],
   'animation': [ 'type', require('./Animation') ],
   'globalReset': [ 'type', require('./GlobalReset') ],
   'tokenDisplay': [ 'type', require('./TokenDisplay') ],
@@ -1704,14 +1702,13 @@ module.exports = {
   'tokenGraphics': [ 'type', require('./TokenGraphics')],
   'playPause': [ 'type', require('./PlayPause')],
   'log': [ 'type', require('./Log') ],
-  'contextMenuPreview': [ 'type', require('./ContextMenuPreview') ],
   'checkElementSupport': [ 'type', require('./CheckElementSupport') ],
   'switchMode': [ 'type', require('./SwitchMode') ],
   'readOnly': [ 'type', require('./ReadOnly') ],
   'tokenSimulationEditorActions': [ 'type', require('./EditorActions') ]
 };
 
-},{"./Animation":3,"./CatchEventTrigger":4,"./CheckElementSupport":5,"./CheckGatewayConfiguration":6,"./ContextMenu":7,"./ContextMenuPreview":8,"./EditorActions":9,"./GatewayConfiguration":10,"./GlobalReset":11,"./Log":12,"./Notifications":13,"./PlayPause":14,"./ReadOnly":15,"./SimulationState":16,"./SwitchMode":17,"./TokenDisplay":18,"./TokenGraphics":19,"./TokenSimulationBehavior":20}],22:[function(require,module,exports){
+},{"./Animation":3,"./CatchEventTrigger":4,"./CheckElementSupport":5,"./CheckGatewayConfiguration":6,"./ContextMenus":7,"./EditorActions":8,"./GatewayConfiguration":9,"./GlobalReset":10,"./Log":11,"./Notifications":12,"./PlayPause":13,"./ReadOnly":14,"./SimulationState":15,"./SwitchMode":16,"./TokenDisplay":17,"./TokenGraphics":18,"./TokenSimulationBehavior":19}],21:[function(require,module,exports){
 'use strict';
 
 module.exports.is = function(element, types) {
@@ -1736,7 +1733,7 @@ module.exports.is = function(element, types) {
 
   return isType;
 };
-},{}],23:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 module.exports.getMid = function(element) {
   var bbox = element.bbox();
 
@@ -1758,7 +1755,7 @@ module.exports.toGfxMid = function(gfx, point) {
 module.exports.distance = function(a, b) {
   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 }
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /**
  * Validate and register a client plugin.
  *
@@ -1801,7 +1798,7 @@ function registerBpmnJSPlugin(plugin) {
 
 module.exports.registerBpmnJSPlugin = registerBpmnJSPlugin;
 
-},{}],25:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -1994,7 +1991,7 @@ ClassList.prototype.contains = function(name){
     : !! ~index(this.array(), name);
 };
 
-},{"component-indexof":27,"indexof":27}],26:[function(require,module,exports){
+},{"component-indexof":26,"indexof":26}],25:[function(require,module,exports){
 var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
     unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
     prefix = bind !== 'addEventListener' ? 'on' : '';
@@ -2030,7 +2027,7 @@ exports.unbind = function(el, type, fn, capture){
   el[unbind](prefix + type, fn, capture || false);
   return fn;
 };
-},{}],27:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 module.exports = function(arr, obj){
   if (arr.indexOf) return arr.indexOf(obj);
   for (var i = 0; i < arr.length; ++i) {
@@ -2038,7 +2035,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],28:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 function one(selector, el) {
   return el.querySelector(selector);
 }
@@ -2061,7 +2058,7 @@ exports.engine = function(obj){
   return exports;
 };
 
-},{}],29:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 
 /**
  * Expose `parse`.
@@ -2175,7 +2172,7 @@ function parse(html, doc) {
   return fragment;
 }
 
-},{}],30:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 var root = require('./_root');
 
 /** Built-in value references. */
@@ -2183,7 +2180,7 @@ var Symbol = root.Symbol;
 
 module.exports = Symbol;
 
-},{"./_root":53}],31:[function(require,module,exports){
+},{"./_root":52}],30:[function(require,module,exports){
 /**
  * A specialized version of `_.forEach` for arrays without support for
  * iteratee shorthands.
@@ -2207,7 +2204,7 @@ function arrayEach(array, iteratee) {
 
 module.exports = arrayEach;
 
-},{}],32:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 var baseTimes = require('./_baseTimes'),
     isArguments = require('./isArguments'),
     isArray = require('./isArray'),
@@ -2258,7 +2255,7 @@ function arrayLikeKeys(value, inherited) {
 
 module.exports = arrayLikeKeys;
 
-},{"./_baseTimes":40,"./_isIndex":47,"./isArguments":56,"./isArray":57,"./isBuffer":59,"./isTypedArray":64}],33:[function(require,module,exports){
+},{"./_baseTimes":39,"./_isIndex":46,"./isArguments":55,"./isArray":56,"./isBuffer":58,"./isTypedArray":63}],32:[function(require,module,exports){
 var baseForOwn = require('./_baseForOwn'),
     createBaseEach = require('./_createBaseEach');
 
@@ -2274,7 +2271,7 @@ var baseEach = createBaseEach(baseForOwn);
 
 module.exports = baseEach;
 
-},{"./_baseForOwn":35,"./_createBaseEach":43}],34:[function(require,module,exports){
+},{"./_baseForOwn":34,"./_createBaseEach":42}],33:[function(require,module,exports){
 var createBaseFor = require('./_createBaseFor');
 
 /**
@@ -2292,7 +2289,7 @@ var baseFor = createBaseFor();
 
 module.exports = baseFor;
 
-},{"./_createBaseFor":44}],35:[function(require,module,exports){
+},{"./_createBaseFor":43}],34:[function(require,module,exports){
 var baseFor = require('./_baseFor'),
     keys = require('./keys');
 
@@ -2310,7 +2307,7 @@ function baseForOwn(object, iteratee) {
 
 module.exports = baseForOwn;
 
-},{"./_baseFor":34,"./keys":65}],36:[function(require,module,exports){
+},{"./_baseFor":33,"./keys":64}],35:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     getRawTag = require('./_getRawTag'),
     objectToString = require('./_objectToString');
@@ -2340,7 +2337,7 @@ function baseGetTag(value) {
 
 module.exports = baseGetTag;
 
-},{"./_Symbol":30,"./_getRawTag":46,"./_objectToString":51}],37:[function(require,module,exports){
+},{"./_Symbol":29,"./_getRawTag":45,"./_objectToString":50}],36:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isObjectLike = require('./isObjectLike');
 
@@ -2360,7 +2357,7 @@ function baseIsArguments(value) {
 
 module.exports = baseIsArguments;
 
-},{"./_baseGetTag":36,"./isObjectLike":63}],38:[function(require,module,exports){
+},{"./_baseGetTag":35,"./isObjectLike":62}],37:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isLength = require('./isLength'),
     isObjectLike = require('./isObjectLike');
@@ -2422,7 +2419,7 @@ function baseIsTypedArray(value) {
 
 module.exports = baseIsTypedArray;
 
-},{"./_baseGetTag":36,"./isLength":61,"./isObjectLike":63}],39:[function(require,module,exports){
+},{"./_baseGetTag":35,"./isLength":60,"./isObjectLike":62}],38:[function(require,module,exports){
 var isPrototype = require('./_isPrototype'),
     nativeKeys = require('./_nativeKeys');
 
@@ -2454,7 +2451,7 @@ function baseKeys(object) {
 
 module.exports = baseKeys;
 
-},{"./_isPrototype":48,"./_nativeKeys":49}],40:[function(require,module,exports){
+},{"./_isPrototype":47,"./_nativeKeys":48}],39:[function(require,module,exports){
 /**
  * The base implementation of `_.times` without support for iteratee shorthands
  * or max array length checks.
@@ -2476,7 +2473,7 @@ function baseTimes(n, iteratee) {
 
 module.exports = baseTimes;
 
-},{}],41:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 /**
  * The base implementation of `_.unary` without support for storing metadata.
  *
@@ -2492,7 +2489,7 @@ function baseUnary(func) {
 
 module.exports = baseUnary;
 
-},{}],42:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 var identity = require('./identity');
 
 /**
@@ -2508,7 +2505,7 @@ function castFunction(value) {
 
 module.exports = castFunction;
 
-},{"./identity":55}],43:[function(require,module,exports){
+},{"./identity":54}],42:[function(require,module,exports){
 var isArrayLike = require('./isArrayLike');
 
 /**
@@ -2542,7 +2539,7 @@ function createBaseEach(eachFunc, fromRight) {
 
 module.exports = createBaseEach;
 
-},{"./isArrayLike":58}],44:[function(require,module,exports){
+},{"./isArrayLike":57}],43:[function(require,module,exports){
 /**
  * Creates a base function for methods like `_.forIn` and `_.forOwn`.
  *
@@ -2569,7 +2566,7 @@ function createBaseFor(fromRight) {
 
 module.exports = createBaseFor;
 
-},{}],45:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 (function (global){
 /** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
@@ -2577,7 +2574,7 @@ var freeGlobal = typeof global == 'object' && global && global.Object === Object
 module.exports = freeGlobal;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],46:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var Symbol = require('./_Symbol');
 
 /** Used for built-in method references. */
@@ -2625,7 +2622,7 @@ function getRawTag(value) {
 
 module.exports = getRawTag;
 
-},{"./_Symbol":30}],47:[function(require,module,exports){
+},{"./_Symbol":29}],46:[function(require,module,exports){
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER = 9007199254740991;
 
@@ -2649,7 +2646,7 @@ function isIndex(value, length) {
 
 module.exports = isIndex;
 
-},{}],48:[function(require,module,exports){
+},{}],47:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -2669,7 +2666,7 @@ function isPrototype(value) {
 
 module.exports = isPrototype;
 
-},{}],49:[function(require,module,exports){
+},{}],48:[function(require,module,exports){
 var overArg = require('./_overArg');
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
@@ -2677,7 +2674,7 @@ var nativeKeys = overArg(Object.keys, Object);
 
 module.exports = nativeKeys;
 
-},{"./_overArg":52}],50:[function(require,module,exports){
+},{"./_overArg":51}],49:[function(require,module,exports){
 var freeGlobal = require('./_freeGlobal');
 
 /** Detect free variable `exports`. */
@@ -2701,7 +2698,7 @@ var nodeUtil = (function() {
 
 module.exports = nodeUtil;
 
-},{"./_freeGlobal":45}],51:[function(require,module,exports){
+},{"./_freeGlobal":44}],50:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -2725,7 +2722,7 @@ function objectToString(value) {
 
 module.exports = objectToString;
 
-},{}],52:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /**
  * Creates a unary function that invokes `func` with its argument transformed.
  *
@@ -2742,7 +2739,7 @@ function overArg(func, transform) {
 
 module.exports = overArg;
 
-},{}],53:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var freeGlobal = require('./_freeGlobal');
 
 /** Detect free variable `self`. */
@@ -2753,7 +2750,7 @@ var root = freeGlobal || freeSelf || Function('return this')();
 
 module.exports = root;
 
-},{"./_freeGlobal":45}],54:[function(require,module,exports){
+},{"./_freeGlobal":44}],53:[function(require,module,exports){
 var arrayEach = require('./_arrayEach'),
     baseEach = require('./_baseEach'),
     castFunction = require('./_castFunction'),
@@ -2796,7 +2793,7 @@ function forEach(collection, iteratee) {
 
 module.exports = forEach;
 
-},{"./_arrayEach":31,"./_baseEach":33,"./_castFunction":42,"./isArray":57}],55:[function(require,module,exports){
+},{"./_arrayEach":30,"./_baseEach":32,"./_castFunction":41,"./isArray":56}],54:[function(require,module,exports){
 /**
  * This method returns the first argument it receives.
  *
@@ -2819,7 +2816,7 @@ function identity(value) {
 
 module.exports = identity;
 
-},{}],56:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 var baseIsArguments = require('./_baseIsArguments'),
     isObjectLike = require('./isObjectLike');
 
@@ -2857,7 +2854,7 @@ var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsAr
 
 module.exports = isArguments;
 
-},{"./_baseIsArguments":37,"./isObjectLike":63}],57:[function(require,module,exports){
+},{"./_baseIsArguments":36,"./isObjectLike":62}],56:[function(require,module,exports){
 /**
  * Checks if `value` is classified as an `Array` object.
  *
@@ -2885,7 +2882,7 @@ var isArray = Array.isArray;
 
 module.exports = isArray;
 
-},{}],58:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var isFunction = require('./isFunction'),
     isLength = require('./isLength');
 
@@ -2920,7 +2917,7 @@ function isArrayLike(value) {
 
 module.exports = isArrayLike;
 
-},{"./isFunction":60,"./isLength":61}],59:[function(require,module,exports){
+},{"./isFunction":59,"./isLength":60}],58:[function(require,module,exports){
 var root = require('./_root'),
     stubFalse = require('./stubFalse');
 
@@ -2960,7 +2957,7 @@ var isBuffer = nativeIsBuffer || stubFalse;
 
 module.exports = isBuffer;
 
-},{"./_root":53,"./stubFalse":66}],60:[function(require,module,exports){
+},{"./_root":52,"./stubFalse":65}],59:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isObject = require('./isObject');
 
@@ -2999,7 +2996,7 @@ function isFunction(value) {
 
 module.exports = isFunction;
 
-},{"./_baseGetTag":36,"./isObject":62}],61:[function(require,module,exports){
+},{"./_baseGetTag":35,"./isObject":61}],60:[function(require,module,exports){
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER = 9007199254740991;
 
@@ -3036,7 +3033,7 @@ function isLength(value) {
 
 module.exports = isLength;
 
-},{}],62:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 /**
  * Checks if `value` is the
  * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
@@ -3069,7 +3066,7 @@ function isObject(value) {
 
 module.exports = isObject;
 
-},{}],63:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 /**
  * Checks if `value` is object-like. A value is object-like if it's not `null`
  * and has a `typeof` result of "object".
@@ -3100,7 +3097,7 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],64:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 var baseIsTypedArray = require('./_baseIsTypedArray'),
     baseUnary = require('./_baseUnary'),
     nodeUtil = require('./_nodeUtil');
@@ -3129,7 +3126,7 @@ var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedA
 
 module.exports = isTypedArray;
 
-},{"./_baseIsTypedArray":38,"./_baseUnary":41,"./_nodeUtil":50}],65:[function(require,module,exports){
+},{"./_baseIsTypedArray":37,"./_baseUnary":40,"./_nodeUtil":49}],64:[function(require,module,exports){
 var arrayLikeKeys = require('./_arrayLikeKeys'),
     baseKeys = require('./_baseKeys'),
     isArrayLike = require('./isArrayLike');
@@ -3168,7 +3165,7 @@ function keys(object) {
 
 module.exports = keys;
 
-},{"./_arrayLikeKeys":32,"./_baseKeys":39,"./isArrayLike":58}],66:[function(require,module,exports){
+},{"./_arrayLikeKeys":31,"./_baseKeys":38,"./isArrayLike":57}],65:[function(require,module,exports){
 /**
  * This method returns `false`.
  *
@@ -3188,15 +3185,15 @@ function stubFalse() {
 
 module.exports = stubFalse;
 
-},{}],67:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 module.exports = require('component-classes');
-},{"component-classes":25}],68:[function(require,module,exports){
+},{"component-classes":24}],67:[function(require,module,exports){
 module.exports = require('domify');
-},{"domify":29}],69:[function(require,module,exports){
+},{"domify":28}],68:[function(require,module,exports){
 module.exports = require('component-event');
-},{"component-event":26}],70:[function(require,module,exports){
+},{"component-event":25}],69:[function(require,module,exports){
 module.exports = require('component-query');
-},{"component-query":28}],71:[function(require,module,exports){
+},{"component-query":27}],70:[function(require,module,exports){
 /*!
 * svg.js - A lightweight library for manipulating and animating SVG.
 * @version 2.6.3
