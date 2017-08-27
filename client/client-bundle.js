@@ -1,23 +1,69 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+'use strict';
+
+var domClasses = require('min-dom/lib/classes'),
+    domQuery = require('min-dom/lib/query');
+
+var TOGGLE_MODE_EVENT = require('bpmn-js-token-simulation/lib/util/EventHelper').TOGGLE_MODE_EVENT;
+
+function HidePropertiesPanel(eventBus) {
+  var css = '.properties.hidden { display: none; }',
+      head = document.head,
+      style = document.createElement('style');
+
+  style.type = 'text/css';
+
+  style.appendChild(document.createTextNode(css));
+
+  head.appendChild(style);
+
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    var propertiesPanel = domQuery('.properties');
+
+    if (simulationModeActive) {
+      domClasses(propertiesPanel).add('hidden');
+    } else {
+      domClasses(propertiesPanel).remove('hidden');
+    }
+  });
+}
+
+HidePropertiesPanel.$inject = [ 'eventBus' ];
+
+module.exports = HidePropertiesPanel;
+},{"bpmn-js-token-simulation/lib/util/EventHelper":49,"min-dom/lib/classes":94,"min-dom/lib/query":97}],2:[function(require,module,exports){
 var registerBpmnJSPlugin = require('camunda-modeler-plugin-helpers').registerBpmnJSPlugin;
 
-var tokenSimulation = require('bpmn-js-token-simulation');
+var tokenSimulation = require('bpmn-js-token-simulation'),
+    HidePropertiesPanel = require('./HidePropertiesPanel');
+
+tokenSimulation.__init__.push('hidePropertiesPanel');
+tokenSimulation.hidePropertiesPanel = [ 'type', HidePropertiesPanel ];
 
 registerBpmnJSPlugin(tokenSimulation);
 
-},{"bpmn-js-token-simulation":2,"camunda-modeler-plugin-helpers":23}],2:[function(require,module,exports){
-module.exports = require('./lib');
+},{"./HidePropertiesPanel":1,"bpmn-js-token-simulation":3,"camunda-modeler-plugin-helpers":51}],3:[function(require,module,exports){
+module.exports = require('./lib/modeler');
 
-},{"./lib":20}],3:[function(require,module,exports){
+},{"./lib/modeler":47}],4:[function(require,module,exports){
 'use strict';
 
 var SVG = require('svg.js');
 
 var domQuery = require('min-dom/lib/query');
 
-var geometryUtil = require('./util/GeometryUtil'),
-    distance = geometryUtil.distance,
-    toGfxMid = geometryUtil.toGfxMid;
+var geometryUtil = require('../util/GeometryUtil'),
+    distance = geometryUtil.distance;
+
+function isFirstSegment(index) {
+  return index === 1;
+}
+
+function isSingleSegment(waypoints) {
+  return waypoints.length == 2;
+}
 
 var DELAY = 0;
 var SPEED = 1;
@@ -29,10 +75,10 @@ var EASE_LINEAR = '-',
 
 var TOKEN_SIZE = 20;
 
-function Animation(canvas, eventBus, tokenGraphics) {
+function Animation(canvas, eventBus) {
   var self = this;
 
-  this._tokenGraphics = tokenGraphics;
+  this.animations = [];
 
   eventBus.on('import.done', function() {
     var draw = SVG(canvas._svg);
@@ -47,260 +93,654 @@ function Animation(canvas, eventBus, tokenGraphics) {
 
     groupParent.put(self.group);
   });
+
+  eventBus.on('tokenSimulation.resetSimulation', function() {
+    self.animations.forEach(function(animation) {
+      animation.stop();
+    });
+
+    self.animations = [];
+  });
+
+  eventBus.on('tokenSimulation.pauseSimulation', function() {
+    self.animations.forEach(function(animation) {
+      animation.pause();
+    });
+  });
+
+  eventBus.on('tokenSimulation.playSimulation', function() {
+    self.animations.forEach(function(animation) {
+      animation.play();
+    });
+  });
 }
 
-Animation.prototype.createAnimation = function(connection, after) {
-  var tokenGfx = this._createToken(connection);
-
-  if (!after) {
-    after = function() {}
+Animation.prototype.createAnimation = function(connection, done) {
+  var self = this;
+  
+  if (!this.group) {
+    return;
   }
 
-  return new _Animation({
-    gfx: tokenGfx,
-    waypoints: connection.waypoints,
-    after: after
+  var tokenGfx = this._createTokenGfx(connection);
+
+  var animation;
+
+  animation = new _Animation(tokenGfx, connection.waypoints, function() {
+    self.animations = self.animations.filter(function(a) {
+      return a !== animation;
+    });
+
+    if (done) {
+      done();
+    }
   });
+
+  this.animations.push(animation);
+
+  return animation;
 };
 
-Animation.prototype._createToken = function(connection) {
-  var position = connection.waypoints[0];
-
-  var tokenGfx = this._tokenGraphics.getToken(this.group, TOKEN_SIZE);
-  
-  tokenGfx
-    .move(position.x, position.y)
+Animation.prototype._createTokenGfx = function() {
+  return this.group
+    .circle(TOKEN_SIZE, TOKEN_SIZE)
+    .attr('class', 'token')
     .hide();
-
-  return tokenGfx;
 }
 
-Animation.$inject = [ 'canvas', 'eventBus', 'tokenGraphics' ];
+Animation.$inject = [ 'canvas', 'eventBus' ];
 
 module.exports = Animation;
 
-// new instance of this will be returned
-function _Animation (config) {
-  var self = this;
+function _Animation(gfx, waypoints, done) {
+  this.gfx = this.fx = gfx;
+  this.waypoints = waypoints;
+  this.done = done;
 
-  var gfx = this.gfx = config.gfx,
-      waypoints = config.waypoints,
-      after = config.after;
-
-  this.animations = [];
-  this.actualAnimation = undefined;
-
-  function hasNext(index) {
-    return index < self.animations.length - 1;
-  }
-
-  function getNext(index) {
-    return self.animations[index + 1];
-  }
-
-  function isFirst(index) {
-    return index === 1;
-  }
-
-  waypoints.forEach(function(waypoint, index) {
-    if (index === 0) {
-      var animation = function() {
-        var point = toGfxMid(gfx, waypoint);
-
-        gfx.move(point.x, point.y);
-
-        // animation only if at least two waypoints
-        if (hasNext(index)) {
-          getNext(index)();
-        }
-      }
-
-      self.animations.push(animation);
-    } else {
-      var animation = function() {
-        var point = toGfxMid(gfx, waypoint);
-
-        var duration = distance(waypoints[index - 1], waypoint) * 10 / SPEED;
-
-        if (hasNext(index)) {
-          var ease = isFirst(index) ? EASE_IN : EASE_LINEAR;
-
-          if (waypoints.length == 2) {
-            ease = EASE_IN_OUT;
-          }
-
-          self.actualAnimation = gfx
-            .animate(duration, ease, DELAY) // should be configurable
-            .move(point.x, point.y)
-            .after(function() {
-              getNext(index)(); // call next
-            });
-        } else {
-
-          self.actualAnimation = gfx
-            .animate(duration, EASE_OUT, DELAY) // should be configurable
-            .move(point.x, point.y)
-            .after(function() {
-              after();
-
-              gfx.remove();
-            });
-        }
-      }
-
-      self.animations.push(animation);
-    }
-  });
+  this.create();
 }
 
-_Animation.prototype.start = function(index) {
-  if (!index) {
-    index = 0;
-  }
+_Animation.prototype.create = function() {
+  var gfx = this.gfx,
+      waypoints = this.waypoints,
+      done = this.done,
+      fx = this.fx;
+  
+  gfx
+    .show()
+    .move(waypoints[0].x - TOKEN_SIZE / 2, waypoints[0].y - TOKEN_SIZE / 2);
 
-  this.gfx.show();
+  waypoints.forEach(function(waypoint, index) {
+    if (index > 0) {
+      var x = waypoint.x - TOKEN_SIZE / 2,
+          y = waypoint.y - TOKEN_SIZE / 2;
 
-  this.animations[index]();
+      var ease = isFirstSegment(index) ? EASE_IN : EASE_LINEAR;
+
+      if (isSingleSegment(waypoints)) {
+        ease = EASE_IN_OUT;
+      }
+
+      var duration = distance(waypoints[index - 1], waypoint) * 10 / SPEED;
+
+      fx = fx
+        .animate(duration, ease, DELAY)
+        .move(x, y);
+    }
+  });
+
+  fx.after(function() {
+    gfx.remove();
+
+    done();
+  });
+};
+
+_Animation.prototype.play = function() {
+  this.gfx.play();
 };
 
 _Animation.prototype.pause = function() {
-  this.actualAnimation.pause();
-}
-
-_Animation.prototype.play = function() {
-  this.actualAnimation.play();
-}
-
-_Animation.prototype.cancel = function() {
-  this.actualAnimation.stop();
-
-  this.gfx.remove();
-}
-},{"./util/GeometryUtil":22,"min-dom/lib/query":69,"svg.js":70}],4:[function(require,module,exports){
-'use strict';
-
-var domify = require('min-dom/lib/domify'),
-    domEvent = require('min-dom/lib/event');
-
-function CatchEventTrigger(eventBus, overlays) {
-  var self = this;
-  
-  this._overlays = overlays;
-
-  this.contextMenus = [];
-
-  eventBus.on('tokenSimulation.activateCatchEventTrigger', function(event) {
-    var done = event.done;
-    var element = event.element;
-
-    var overlay = overlays.get({ type: 'token-simulation.event-trigger' })[0];
-
-    if (overlay) {
-      return;
-    }
-
-    var html = domify('<div class="context-menu"><i class="fa fa-play"></i></div>');
-
-    var contextMenu = overlays.add(element, 'token-simulation', {
-      position: { top: -20, left: -15 },
-      html: html
-    });
-
-    self.contextMenus.push(contextMenu);
-
-    domEvent.bind(html, 'click', function() {
-      if (element.tokens === 1) {
-        overlays.remove(contextMenu);
-      }
-      done();
-    });
-  });
-
-  eventBus.on('tokenSimulation.switchMode', 10000, function(context) {
-    var mode = context.mode;
-
-    if (mode === 'modeling') {
-      self.closeAllContextMenus();
-    }
-  });
-}
-
-CatchEventTrigger.prototype.closeAllContextMenus = function() {
-  var self = this;
-
-  this.contextMenus.forEach(function(contextMenu) {
-    self._overlays.remove(contextMenu);
-  });
-
-  this.contextMenus = [];
+  this.gfx.pause();
 };
 
-CatchEventTrigger.$inject = [ 'eventBus', 'overlays' ];
+_Animation.prototype.stop = function() {
+  this.fx.stop();
+  this.gfx.remove();
+};
+},{"../util/GeometryUtil":50,"min-dom/lib/query":97,"svg.js":98}],5:[function(require,module,exports){
+'use strict';
 
-module.exports = CatchEventTrigger;
+var is = require('../../util/ElementHelper').is;
 
-},{"min-dom/lib/domify":67,"min-dom/lib/event":68}],5:[function(require,module,exports){
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
+
+var ExclusiveGatewayHandler = require('./handler/ExclusiveGatewayHandler'),
+    IntermediateCatchEventHandler = require('./handler/IntermediateCatchEventHandler'),
+    StartEventHandler = require('./handler/StartEventHandler');
+
+var LOW_PRIORITY = 500;
+
+var OFFSET_TOP = -15,
+    OFFSET_LEFT = -15;
+
+function ContextPads(eventBus, elementRegistry, overlays, injector) {
+  var self = this;
+
+  this._elementRegistry = elementRegistry;
+  this._overlays = overlays;
+  this._injector = injector;
+
+  this.overlayIds = {};
+
+  this.handlers = {};
+
+  this.registerHandler('bpmn:ExclusiveGateway', ExclusiveGatewayHandler);
+  this.registerHandler('bpmn:IntermediateCatchEvent', IntermediateCatchEventHandler);
+  this.registerHandler('bpmn:StartEvent', StartEventHandler);
+
+  eventBus.on(TOGGLE_MODE_EVENT, LOW_PRIORITY, function(context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (simulationModeActive) {
+      self.openContextPads();
+    } else {
+      self.closeContextPads();
+    }
+  });
+
+  eventBus.on(RESET_SIMULATION_EVENT, function() {
+    self.closeContextPads();
+    self.openContextPads();
+  });
+
+  eventBus.on(GENERATE_TOKEN_EVENT, LOW_PRIORITY, function(context) {
+    var element = context.element;
+
+    if (is(element, 'bpmn:StartEvent')) {
+      var startEvents = elementRegistry.filter(function(element) {
+        return is(element, 'bpmn:StartEvent');
+      });
+
+      startEvents.forEach(function(startEvent) {
+        self.closeContextPad(startEvent);
+      });
+    } else {
+      self.closeContextPad(element);
+      self.openContextPad(element);
+    }
+  });
+
+  eventBus.on(CONSUME_TOKEN_EVENT, LOW_PRIORITY, function(context) {
+    var element = context.element;
+
+    self.closeContextPad(element);
+    self.openContextPad(element);
+  });
+}
+
+ContextPads.prototype.registerHandler = function(type, handlerCls) {
+  var handler = this._injector.instantiate(handlerCls);
+
+  this.handlers[type] = handler;
+};
+
+ContextPads.prototype.openContextPads = function() {
+  var self = this;
+
+  this._elementRegistry.forEach(function(element) {
+    if (self.handlers[element.type]) {
+      self.openContextPad(element);
+    }
+  });
+};
+
+ContextPads.prototype.openContextPad = function(element) {
+  if (!this.handlers[element.type]) {
+    return;
+  }
+
+  var contextPad = this.handlers[element.type].createContextPad(element);
+  
+  if (!contextPad) {
+    return;
+  }
+
+  var position = { top: OFFSET_TOP, left: OFFSET_LEFT };
+
+  var overlayId = this._overlays.add(element, 'context-menu', {
+    position: position,
+    html: contextPad,
+    show: {
+      minZoom: 0.5
+    }
+  });
+
+  this.overlayIds[element.id] = overlayId;
+};
+
+ContextPads.prototype.closeContextPads = function(type) {
+  var self = this;
+  
+  this._elementRegistry.forEach(function(element) {
+    if (!type || (type && type === is(element, type))) {
+      self.closeContextPad(element);
+    }
+  });
+};
+
+ContextPads.prototype.closeContextPad = function(element) {
+  var overlayId = this.overlayIds[element.id];
+
+  if (!overlayId) {
+    return;
+  }
+
+  this._overlays.remove(overlayId);
+
+  delete this.overlayIds[element.id];
+};
+
+ContextPads.$inject = [ 'eventBus', 'elementRegistry', 'overlays', 'injector' ];
+
+module.exports = ContextPads;
+},{"../../util/ElementHelper":48,"../../util/EventHelper":49,"./handler/ExclusiveGatewayHandler":6,"./handler/IntermediateCatchEventHandler":7,"./handler/StartEventHandler":8}],6:[function(require,module,exports){
+'use strict';
+
+var is = require('../../../util/ElementHelper').is;
+
+var domify = require('min-dom/lib/domify'),
+    domClasses = require('min-dom/lib/classes'),
+    domEvent = require('min-dom/lib/event');
+
+function ExclusiveGatewayHandler(exluciveGatewaySettings) {
+  this._exclusiveGatewaySettings = exluciveGatewaySettings;
+}
+
+ExclusiveGatewayHandler.prototype.createContextPad = function(element) {
+  var self = this;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  if (outgoingSequenceFlows.length < 2) {
+    return;
+  }
+
+  var contextPad = domify('<div class="context-pad" title="Set Sequence Flow"><i class="fa fa-code-fork"></i></div>');
+  
+  domEvent.bind(contextPad, 'click', function() {
+    self._exclusiveGatewaySettings.setSequenceFlow(element);
+  });
+
+  return contextPad;
+};
+
+ExclusiveGatewayHandler.$inject = [ 'exclusiveGatewaySettings' ];
+
+module.exports = ExclusiveGatewayHandler;
+},{"../../../util/ElementHelper":48,"min-dom/lib/classes":94,"min-dom/lib/domify":95,"min-dom/lib/event":96}],7:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
     domClasses = require('min-dom/lib/classes'),
     domEvent = require('min-dom/lib/event');
 
-var is = require('./util/ElementHelper').is;
+var is = require('../../../util/ElementHelper').is;
 
-var SUPPORTED_ELEMENTS = [
-  'bpmn:EndEvent',
-  'bpmn:ExclusiveGateway',
-  'bpmn:IntermediateCatchEvent',
-  'bpmn:IntermediateThrowEvent',
-  'bpmn:ParallelGateway',
-  'bpmn:SequenceFlow',
-  'bpmn:StartEvent',
-  'bpmn:Task'
+var events = require('../../../util/EventHelper'),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function IntermeditateCatchEventHandler(eventBus) {
+  this._eventBus = eventBus;
+}
+
+IntermeditateCatchEventHandler.prototype.createContextPad = function(element) {
+  var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  if (!element.tokenCount || !outgoingSequenceFlows.length) {
+    return;
+  }
+
+  var self = this;
+
+  var contextPad = domify('<div class="context-pad" title="Trigger Event"><i class="fa fa-play"></i></div>');
+  
+  domEvent.bind(contextPad, 'click', function() {
+    element.tokenCount--;
+
+    self._eventBus.fire(GENERATE_TOKEN_EVENT, {
+      element: element
+    });
+  });
+
+  return contextPad;
+};
+
+IntermeditateCatchEventHandler.$inject = [ 'eventBus' ];
+
+module.exports = IntermeditateCatchEventHandler;
+},{"../../../util/ElementHelper":48,"../../../util/EventHelper":49,"min-dom/lib/classes":94,"min-dom/lib/domify":95,"min-dom/lib/event":96}],8:[function(require,module,exports){
+'use strict';
+
+var domify = require('min-dom/lib/domify'),
+    domClasses = require('min-dom/lib/classes'),
+    domEvent = require('min-dom/lib/event');
+
+var events = require('../../../util/EventHelper'),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function StartEventHandler(eventBus) {
+  this._eventBus = eventBus;
+}
+
+StartEventHandler.prototype.createContextPad = function(element) {
+  var self = this;
+
+  var contextPad = domify('<div class="context-pad"><i class="fa fa-play"></i></div>');
+  
+  domEvent.bind(contextPad, 'click', function() {
+    self._eventBus.fire(GENERATE_TOKEN_EVENT, {
+      element: element
+    });
+  });
+
+  return contextPad;
+};
+
+StartEventHandler.$inject = [ 'eventBus' ];
+
+module.exports = StartEventHandler;
+},{"../../../util/EventHelper":49,"min-dom/lib/classes":94,"min-dom/lib/domify":95,"min-dom/lib/event":96}],9:[function(require,module,exports){
+module.exports = require('./ContextPads');
+},{"./ContextPads":5}],10:[function(require,module,exports){
+'use strict';
+
+var forEach = require('lodash/forEach');
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+var HIGH_PRIORITY = 10001;
+
+function DisableModeling(
+  eventBus,
+  contextPad,
+  dragging,
+  directEditing,
+  editorActions,
+  modeling,
+  palette,
+  paletteProvider) {
+    var self = this;
+
+    this._eventBus = eventBus;
+
+    this.modelingDisabled = false;
+
+    eventBus.on(TOGGLE_MODE_EVENT, HIGH_PRIORITY, function (context) {
+      var simulationModeActive = context.simulationModeActive;
+
+      self.modelingDisabled = simulationModeActive;
+
+      if (self.modelingDisabled) {
+        directEditing.cancel();
+        contextPad.close();
+        dragging.cancel();
+      }
+
+      palette._update();
+    });
+
+    function intercept(obj, fnName, cb) {
+      var fn = obj[fnName];
+      obj[fnName] = function () {
+        return cb.call(this, fn, arguments);
+      };
+    }
+
+    function ignoreIfModelingDisabled(obj, fnName) {
+      intercept(obj, fnName, function (fn, args) {
+        if (self.modelingDisabled) {
+          return;
+        }
+
+        return fn.apply(this, args);
+      });
+    }
+
+    function throwIfModelingDisabled(obj, fnName) {
+      intercept(obj, fnName, function (fn, args) {
+        if (self.modelingDisabled) {
+          throw new Error('model is read-only');
+        }
+
+        return fn.apply(this, args);
+      });
+    }
+
+    ignoreIfModelingDisabled(contextPad, 'open');
+
+    ignoreIfModelingDisabled(dragging, 'init');
+
+    ignoreIfModelingDisabled(directEditing, 'activate');
+
+    ignoreIfModelingDisabled(editorActions._actions, 'undo');
+    ignoreIfModelingDisabled(editorActions._actions, 'redo');
+    ignoreIfModelingDisabled(editorActions._actions, 'copy');
+    ignoreIfModelingDisabled(editorActions._actions, 'paste');
+    ignoreIfModelingDisabled(editorActions._actions, 'removeSelection');
+    ignoreIfModelingDisabled(editorActions._actions, 'spaceTool');
+    ignoreIfModelingDisabled(editorActions._actions, 'lassoTool');
+    ignoreIfModelingDisabled(editorActions._actions, 'globalConnectTool');
+    ignoreIfModelingDisabled(editorActions._actions, 'distributeElements');
+    ignoreIfModelingDisabled(editorActions._actions, 'alignElements');
+    ignoreIfModelingDisabled(editorActions._actions, 'directEditing');
+
+    throwIfModelingDisabled(modeling, 'moveShape');
+    throwIfModelingDisabled(modeling, 'updateAttachment');
+    throwIfModelingDisabled(modeling, 'moveElements');
+    throwIfModelingDisabled(modeling, 'moveConnection');
+    throwIfModelingDisabled(modeling, 'layoutConnection');
+    throwIfModelingDisabled(modeling, 'createConnection');
+    throwIfModelingDisabled(modeling, 'createShape');
+    throwIfModelingDisabled(modeling, 'createLabel');
+    throwIfModelingDisabled(modeling, 'appendShape');
+    throwIfModelingDisabled(modeling, 'removeElements');
+    throwIfModelingDisabled(modeling, 'distributeElements');
+    throwIfModelingDisabled(modeling, 'removeShape');
+    throwIfModelingDisabled(modeling, 'removeConnection');
+    throwIfModelingDisabled(modeling, 'replaceShape');
+    throwIfModelingDisabled(modeling, 'pasteElements');
+    throwIfModelingDisabled(modeling, 'alignElements');
+    throwIfModelingDisabled(modeling, 'resizeShape');
+    throwIfModelingDisabled(modeling, 'createSpace');
+    throwIfModelingDisabled(modeling, 'updateWaypoints');
+    throwIfModelingDisabled(modeling, 'reconnectStart');
+    throwIfModelingDisabled(modeling, 'reconnectEnd');
+}
+
+DisableModeling.$inject = [
+  'eventBus',
+  'contextPad',
+  'dragging',
+  'directEditing',
+  'editorActions',
+  'modeling',
+  'palette',
+  'paletteProvider',
 ];
+
+module.exports = DisableModeling;
+},{"../../util/EventHelper":49,"lodash/forEach":81}],11:[function(require,module,exports){
+module.exports = require('./DisableModeling');
+},{"./DisableModeling":10}],12:[function(require,module,exports){
+'use strict';
+
+function EditorActions(eventBus, toggleMode, editorActions) {
+  editorActions.register({
+    toggleTokenSimulation: function() {
+      toggleMode.toggleMode();
+    }
+  });
+}
+
+EditorActions.$inject = [ 'eventBus', 'toggleMode', 'editorActions' ];
+
+module.exports = EditorActions;
+},{}],13:[function(require,module,exports){
+module.exports = require('./EditorActions');
+},{"./EditorActions":12}],14:[function(require,module,exports){
+'use strict';
+
+var domify = require('min-dom/lib/domify');
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
+
+var OFFSET_TOP = -15,
+    OFFSET_RIGHT = 15;
+
+function ElementNotifications(overlays, eventBus) {
+  var self = this;
+
+  this._overlays = overlays;
+
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      self.removeElementNotifications();
+    }
+  });
+
+  eventBus.on(RESET_SIMULATION_EVENT, function() {
+    self.removeElementNotifications();
+  });
+}
+
+ElementNotifications.prototype.addElementNotifications = function(elements, options) {
+  var self = this;
+  
+  elements.forEach(function(element) {
+    self.addElementNotification(element, options);
+  });
+};
+
+ElementNotifications.prototype.addElementNotification = function(element, options) {
+  var position = {
+    top: OFFSET_TOP,
+    right: OFFSET_RIGHT
+  };
+
+  var markup = 
+    '<div class="element-notification ' + (options.type || '') + '">' +
+      (options.icon ? '<i class="fa ' + options.icon + '"></i>' : '') +
+      ('<span class="text">' + options.text + '</span>' || '') +
+    '</div>';
+
+  var html = domify(markup);
+
+  this._overlays.add(element, 'element-notification', {
+    position: position,
+    html: html,
+    show: {
+      minZoom: 0.5
+    }
+  });
+};
+
+ElementNotifications.prototype.removeElementNotifications = function(elements) {
+  var self = this;
+
+  if (!elements) {
+    this._overlays.remove({ type: 'element-notification' });
+  } else {
+    elements.forEach(function(element) {
+      self.removeElementNotification(element);
+    });
+  }
+};
+
+ElementNotifications.prototype.removeElementNotification = function(element) {
+  this._overlays.remove({ element: element });
+};
+
+ElementNotifications.$inject = [ 'overlays', 'eventBus' ];
+
+module.exports = ElementNotifications;
+},{"../../util/EventHelper":49,"min-dom/lib/domify":95}],15:[function(require,module,exports){
+module.exports = require('./ElementNotifications');
+},{"./ElementNotifications":14}],16:[function(require,module,exports){
+'use strict';
+
+var domClasses = require('min-dom/lib/classes');
+
+var elementHelper = require('../../util/ElementHelper'),
+    is = elementHelper.is,
+    SUPPORTED_ELEMENTS = elementHelper.supportedElements;
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
 
 var IGNORED_ELEMENTS = [ 
-  'bpmn:Process'
+  'bpmn:Process',
+  'bpmn:Collaboration'
 ];
+
+var OFFSET_TOP = -15,
+    OFFSET_RIGHT = 15;
 
 function isLabel(element) {
   return element.labelTarget;
 }
 
-function CheckElementSupport(eventBus, elementRegistry, overlays, modeling, canvas) {
+function ElementSupport(eventBus, elementRegistry, canvas, notifications, elementNotifications) {
   var self = this;
 
   this._eventBus = eventBus;
   this._elementRegistry = elementRegistry;
-  this._overlays = overlays;
-  this._modeling = modeling;
+  this._elementNotifications = elementNotifications;
+  this._notifications = notifications;
 
-  var canvasParent = this.canvasParent = canvas.getContainer().parentNode;
+  this.canvasParent = canvas.getContainer().parentNode;
 
-  eventBus.on('tokenSimulation.createToken', 20000, function() {
-    self.removeAllWarnings();
+  eventBus.on(GENERATE_TOKEN_EVENT, 20000, function(context) {
+    var element = context.element;
+    
+    if (!is(element, 'bpmn:StartEvent')) {
+      return;
+    }
 
     if (!self.allElementsSupported()) {
       self.showWarnings();
 
-      domClasses(canvasParent).add('warning');
+      domClasses(self.canvasParent).add('warning');
       
+      // cancel event
       return true;
     }
   });
 
-  eventBus.on('tokenSimulation.switchMode', 10000, function(context) {
-    var mode = context.mode;
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
 
-    if (mode === 'modeling') {
-      self.removeAllWarnings();
-
-      domClasses(canvasParent).remove('warning');
+    if (!simulationModeActive) {
+      domClasses(self.canvasParent).remove('warning');
     }
   });
 }
 
-CheckElementSupport.prototype.allElementsSupported = function() {
+ElementSupport.prototype.allElementsSupported = function() {
   var allElementsSupported = true;
 
   this._elementRegistry.forEach(function(element) {
@@ -315,10 +755,10 @@ CheckElementSupport.prototype.allElementsSupported = function() {
   return allElementsSupported;
 };
 
-CheckElementSupport.prototype.showWarnings = function(elements) {
+ElementSupport.prototype.showWarnings = function(elements) {
   var self = this;
 
-  var typesWarnings = [];
+  var warnings = [];
 
   this._elementRegistry.forEach(function(element) {
     if (!is(element, IGNORED_ELEMENTS) 
@@ -327,381 +767,42 @@ CheckElementSupport.prototype.showWarnings = function(elements) {
     ) {
       self.showWarning(element);
 
-      if (typesWarnings.indexOf(element.type)) {
-        self._eventBus.fire('tokenSimulation.showNotification', {
-          text: element.type + ' not supported',
-          notificationType: 'warning'
-        });
+      if (warnings.indexOf(element.type)) {
+        self._notifications.showNotification(element.type + ' not supported', 'warning');
 
-        typesWarnings.push(element.type);
+        warnings.push(element.type);
       }
     }
   });
 };
 
-CheckElementSupport.prototype.showWarning = function(element) {
-  var position = {
-    top: 0,
-    right: 0
-  };
-
-  this._overlays.add(element, 'element-support-warning', {
-    position: position,
-    html: domify('<div class="element-support-warning"><i class="fa fa-exclamation-triangle"></i></div>')
+ElementSupport.prototype.showWarning = function(element) {
+  this._elementNotifications.addElementNotification(element, {
+    type: 'warning',
+    icon: 'fa-exclamation-triangle',
+    text: 'Not supported'
   });
 };
 
-CheckElementSupport.prototype.removeAllWarnings = function() {
-  this._overlays.remove({ type: 'element-support-warning' });
-};
+ElementSupport.$inject = [ 'eventBus', 'elementRegistry', 'canvas', 'notifications', 'elementNotifications' ];
 
-CheckElementSupport.$inject = [ 'eventBus', 'elementRegistry', 'overlays', 'modeling', 'canvas' ];
-
-module.exports = CheckElementSupport;
-},{"./util/ElementHelper":21,"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68}],6:[function(require,module,exports){
+module.exports = ElementSupport;
+},{"../../util/ElementHelper":48,"../../util/EventHelper":49,"min-dom/lib/classes":94}],17:[function(require,module,exports){
+module.exports = require('./ElementSupport');
+},{"./ElementSupport":16}],18:[function(require,module,exports){
 'use strict';
 
-var is = require('./util/ElementHelper').is;
+var is = require('../../util/ElementHelper').is;
 
-var WARNING_COLOR = '#cc0000',
-    WARNING_TIME_TO_LIVE = 2000; // ms
-
-var NO_CONFIGURATION_COLOR = '#999';
-
-var DEFAULT_CONFIG = true;
-
-function setColor(element, colors, elementRegistry, graphicsFactory) {
-  var businessObject = element.businessObject;
-
-  if (colors.stroke) {
-    businessObject.di.set('stroke', colors.stroke);
-  }
-
-  if (colors.fill) {
-    businessObject.di.set('fill', colors.fill);
-  }
-
-  var gfx = elementRegistry.getGraphics(element);
- 
-  graphicsFactory.update('connection', element, gfx);
-}
-
-/** 
- * Checks if all EXCLUSIVE gateways have been configured.
- * Shows warning if not.
- * 
- */
-function CheckGatewayConfiguration(eventBus, elementRegistry, graphicsFactory) {
-  var self = this;
-
-  this._elementRegistry = elementRegistry;
-  this._graphicsFactory = graphicsFactory;
-
-  eventBus.on('tokenSimulation.switchMode', function(context) {
-    var mode = context.mode;
-
-    if (mode === 'simulation') {
-      self._init();
-    } else {
-      self.reset();
-    }
-  });
-
-  eventBus.on('tokenSimulation.createToken', 10000, function() {
-    if (!self.allGatewaysConfigured()) {
-      eventBus.fire('tokenSimulation.showNotification', {
-        text: 'Not all exclusive gateways are configured',
-        notificationType: 'warning'
-      });
-
-      self.showWarning();
-      
-      return true;
-    }
-  });
-}
-
-CheckGatewayConfiguration.prototype._init = function() {
-  var self = this;
-
-  var gateways = this._elementRegistry.filter(function(element) {
-    return is(element, 'bpmn:ExclusiveGateway');
-  });
-
-  gateways.forEach(function(element) {
-    if (DEFAULT_CONFIG) {
-      element.configuredSequenceFlow = element.outgoing[0];
-
-      element.outgoing.forEach(function(outgoing) {
-        if (outgoing !== element.configuredSequenceFlow) {
-          setColor(outgoing, { stroke: NO_CONFIGURATION_COLOR }, self._elementRegistry, self._graphicsFactory);
-        }
-      });
-    } else {
-      if (element.outgoing.length === 1) {
-        element.configuredSequenceFlow = element.outgoing[0];
-      } else if (element.outgoing.length > 1) {
-        element.outgoing.forEach(function(outgoing) {
-          setColor(outgoing, { stroke: NO_CONFIGURATION_COLOR }, self._elementRegistry, self._graphicsFactory);
-        });
-      }
-    }
-  });
-};
-
-CheckGatewayConfiguration.prototype.allGatewaysConfigured = function() {
-  var gateways = this._elementRegistry.filter(function(element) {
-    return is(element, 'bpmn:ExclusiveGateway');
-  });
-
-  var areConfigured = true;
-
-  gateways.forEach(function(element) {
-    if (!element.configuredSequenceFlow) {
-      areConfigured = false;
-    }
-  });
-
-  return areConfigured;
-};
-
-CheckGatewayConfiguration.prototype.showWarning = function() {
-  var self = this;
-
-  var gateways = this._elementRegistry.filter(function(element) {
-    return is(element, 'bpmn:ExclusiveGateway');
-  });
-
-  var gatewaysWithoutConfiguration = [];
-
-  gateways.forEach(function(element) {
-    if (!element.configuredSequenceFlow) {
-      gatewaysWithoutConfiguration.push(element);
-    }
-  });
-
-  gatewaysWithoutConfiguration.forEach(function(element) {
-    setColor(element, { stroke: WARNING_COLOR }, self._elementRegistry, self._graphicsFactory);
-
-    setTimeout(function() {
-      setColor(element, { stroke: '#000' }, self._elementRegistry, self._graphicsFactory);
-    }, WARNING_TIME_TO_LIVE);
-  });
-};
-
-CheckGatewayConfiguration.prototype.reset = function() {
-  var self = this;
-
-  var gateways = this._elementRegistry.filter(function(element) {
-    return is(element, 'bpmn:ExclusiveGateway');
-  });
-
-  gateways.forEach(function(element) {
-    if (element.configuredSequenceFlow) {
-      delete element.configuredSequenceFlow;
-    }
-
-    element.outgoing.forEach(function(outgoing) {
-      if (outgoing !== element.configuredSequenceFlow) {
-        setColor(outgoing, { stroke: '#000' }, self._elementRegistry, self._graphicsFactory);
-      }
-    });
-  });
-};
-
-CheckGatewayConfiguration.$inject = [ 'eventBus', 'elementRegistry', 'graphicsFactory' ];
-
-module.exports = CheckGatewayConfiguration;
-},{"./util/ElementHelper":21}],7:[function(require,module,exports){
-'use strict';
-
-var domify = require('min-dom/lib/domify'),
-    domClasses = require('min-dom/lib/classes'),
-    domEvent = require('min-dom/lib/event');
-
-var is = require('./util/ElementHelper').is;
-
-var OFFSET_TOP = -20,
-    OFFSET_LEFT = -15;
-
-function ContextMenus(overlays, eventBus, elementRegistry, simulationState) {
-  var self = this;
-
-  this._overlays = overlays;
-  this._eventBus = eventBus;
-  this._elementRegistry = elementRegistry;
-  this._simulationState = simulationState;
-
-  this.contextMenus = [];
-
-  eventBus.on('tokenSimulation.start', function() {
-    self.hideContextMenus({ type: 'bpmn:StartEvent' });
-  });
-
-  eventBus.on([ 'tokenSimulation.stop', 'tokenSimulation.reset' ], function() {
-    self.showContextMenus({ type: 'bpmn:StartEvent' });
-  });
-
-  eventBus.on('tokenSimulation.switchMode', function(context) {
-    var mode = context.mode;
-
-    if (mode === 'simulation') {
-      self.createContextMenus();
-    } else {
-      self.closeContextMenus();
-    }
-  });
-}
-
-ContextMenus.prototype.createContextMenus = function(filter) {
-  var self = this;
-
-  var elements;
-
-  if (filter) {
-    elements = this._elementRegistry.filter(function(element) {
-      return element.type === filter.type;
-    });
-  } else {
-    elements = this._elementRegistry.getAll();
-  }
-
-  elements.forEach(function(element) {
-    self.createContextMenu(element);
-  });
-};
-
-ContextMenus.prototype.createContextMenu = function(element) {
-  var self = this;
-
-  var html;
-
-  // Start Event
-  if (is(element, 'bpmn:StartEvent')) {
-    if (!this._simulationState.isActive()) {
-      html = domify('<div class="context-menu"><i class="fa fa-play"></i></div>');
-
-      domEvent.bind(html, 'click', function() {
-        self._eventBus.fire('tokenSimulation.createToken', {
-          element: element
-        });
-      });
-    }
-  }
-
-  // Exclusive Gateway
-  if (is(element, 'bpmn:ExclusiveGateway') && element.outgoing.length > 1) {
-    html = domify('<div class="context-menu"><i class="fa fa-code-fork"></i></div>');
-
-    domEvent.bind(html, 'click', function() {
-      self._eventBus.fire('tokenSimulation.configureGateway', {
-        element: element
-      });
-    });
-  }
-
-  if (!html) {
-    return;
-  }
-
-  var position = { top: OFFSET_TOP, left: OFFSET_LEFT };
-
-  var overlayId = this._overlays.add(element, 'context-menu', {
-    position: position,
-    html: html
-  });
-
-  this.contextMenus.push({
-    element: element,
-    overlay: overlayId,
-    html: html
-  });
-};
-
-ContextMenus.prototype.closeContextMenus = function(filter) {
-  var self = this;
-
-  var contextMenus;
-  
-  if (filter) {
-    contextMenus = this.contextMenus.filter(function(contextMenu) {
-      return contextMenu.element.type === filter.type;
-    });
-  } else {
-    contextMenus = this.contextMenus;
-  }
-
-  contextMenus.forEach(function(contextMenu) {
-    self._overlays.remove(contextMenu.overlay);
-
-    self.contextMenus = self.contextMenus.filter(function(c) {
-      return c.overlay !== contextMenu.overlay;
-    });
-  });
-};
-
-ContextMenus.prototype.showContextMenus = function(filter) {
-  var contextMenus;
-
-  if (filter) {
-    contextMenus = this.contextMenus.filter(function(contextMenu) {
-      return contextMenu.element.type === filter.type;
-    });
-  } else {
-    contextMenus = this.contextMenus;
-  }
-
-  contextMenus.forEach(function(contextMenu) {
-    var html = contextMenu.html;
-    
-    domClasses(html).remove('hidden');
-  });
-};
-
-ContextMenus.prototype.hideContextMenus = function(filter) {
-  var contextMenus;
-  
-  if (filter) {
-    contextMenus = this.contextMenus.filter(function(contextMenu) {
-      return contextMenu.element.type === filter.type;
-    });
-  } else {
-    contextMenus = this.contextMenus;
-  }
-
-  contextMenus.forEach(function(contextMenu) {
-    var html = contextMenu.html;
-    
-    domClasses(html).add('hidden');
-  });
-};
-
-ContextMenus.$inject = [ 'overlays', 'eventBus', 'elementRegistry', 'simulationState' ];
-
-module.exports = ContextMenus;
-},{"./util/ElementHelper":21,"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68}],8:[function(require,module,exports){
-'use strict';
-
-function EditorActions(editorActions, eventBus, switchMode) {
-  editorActions.register({
-    toggleTokenSimulation: function() {
-      switchMode.switch();
-    }
-  });
-}
-
-EditorActions.$inject = [ 'editorActions', 'eventBus', 'switchMode' ];
-
-module.exports = EditorActions;
-},{}],9:[function(require,module,exports){
-'use strict';
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
 
 var NO_CONFIGURATION_COLOR = '#999';
 
 function getNext(gateway) {
   var outgoing = gateway.outgoing;
 
-  var index = outgoing.indexOf(gateway.configuredSequenceFlow);
+  var index = outgoing.indexOf(gateway.sequenceFlow);
 
   if (outgoing[index + 1]) {
     return outgoing[index + 1];
@@ -710,125 +811,128 @@ function getNext(gateway) {
   }
 }
 
-function setColor(element, colors, elementRegistry, graphicsFactory) {
-  var businessObject = element.businessObject;
-
-  if (colors.stroke) {
-    businessObject.di.set('stroke', colors.stroke);
-  }
-
-  if (colors.fill) {
-    businessObject.di.set('fill', colors.fill);
-  }
-
-  var gfx = elementRegistry.getGraphics(element);
- 
-  graphicsFactory.update('connection', element, gfx);
-}
-
-function GatewayConfiguration(eventBus, elementRegistry, graphicsFactory) {
+function ExclusiveGatewaySettings(eventBus, elementRegistry, graphicsFactory) {
   var self = this;
 
   this._elementRegistry = elementRegistry;
   this._graphicsFactory = graphicsFactory;
-  
-  eventBus.on('tokenSimulation.configureGateway', function(context) {
-    var gateway = context.element;
 
-    var outgoing = gateway.outgoing;
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
 
-    if (!outgoing.length) {
-      return;
-    }
-
-    // check all outgoing sequence flows
-    // check for configured sequence flow
-    var configuredSequenceFlow = gateway.configuredSequenceFlow;
-
-    if (configuredSequenceFlow) {
-      
-      // choose next sequence flow
-      self.setConfiguredSequenceflow(gateway, getNext(gateway));
+    if (!simulationModeActive) {
+      self.resetSequenceFlows();
     } else {
-
-      // choose first sequence flow
-      self.setConfiguredSequenceflow(gateway, gateway.outgoing[0]);
+      self.setSequenceFlowsDefault();
     }
   });
 }
 
-GatewayConfiguration.prototype.setConfiguredSequenceflow = function(gateway, configuredSequenceFlow) {
+ExclusiveGatewaySettings.prototype.setSequenceFlowsDefault = function() {
   var self = this;
 
-  gateway.configuredSequenceFlow = configuredSequenceFlow;
+  var exclusiveGateways = this._elementRegistry.filter(function(element) {
+    return is(element, 'bpmn:ExclusiveGateway');
+  });
 
-  // update colors
-  gateway.outgoing.forEach(function(outgoing) {
-    if (outgoing === configuredSequenceFlow) {
-      setColor(outgoing, { stroke: '#000' }, self._elementRegistry, self._graphicsFactory);
-    } else {
-      setColor(outgoing, { stroke: NO_CONFIGURATION_COLOR }, self._elementRegistry, self._graphicsFactory);
+  exclusiveGateways.forEach(function(exclusiveGateway) {
+    if (exclusiveGateway.outgoing.length) {
+      self.setSequenceFlow(exclusiveGateway, exclusiveGateway.outgoing[0]);
     }
   });
 };
 
-GatewayConfiguration.$inject = [ 'eventBus', 'elementRegistry', 'graphicsFactory' ];
-
-module.exports = GatewayConfiguration;
-},{}],10:[function(require,module,exports){
-'use strict';
-
-var domify = require('min-dom/lib/domify'),
-    domClasses = require('min-dom/lib/classes'),
-    domEvent = require('min-dom/lib/event');
-
-function GlobalReset(canvas, eventBus) {
+ExclusiveGatewaySettings.prototype.resetSequenceFlows = function() {
   var self = this;
 
-  this._canvas = canvas;
-  this._eventBus = eventBus;
+  var exclusiveGateways = this._elementRegistry.filter(function(element) {
+    return is(element, 'bpmn:ExclusiveGateway');
+  });
 
-  this.init();
+  exclusiveGateways.forEach(function(exclusiveGateway) {
+    if (exclusiveGateway.outgoing.length) {
+      self.resetSequenceFlow(exclusiveGateway);
+    }
+  });
+};
+
+ExclusiveGatewaySettings.prototype.resetSequenceFlow = function(gateway) {
+  var self = this;
   
-  this.active = false;
+  if (gateway.sequenceFlow) {
+    delete gateway.sequenceFlow;
+  }
 
-  eventBus.on('tokenSimulation.start', function() {
-    domClasses(self.button).add('active');
-
-    self.active = true;
+  gateway.outgoing.forEach(function(sequenceFlow) {
+    self.setColor(sequenceFlow, '#000');
   });
+};
 
-  eventBus.on('tokenSimulation.switchMode', function(context) {
-    var mode = context.mode;
-
-    if (mode === 'modeling') {
-      self._eventBus.fire('tokenSimulation.globalReset');
-    }
-  });
-}
-
-GlobalReset.prototype.init = function() {
+ExclusiveGatewaySettings.prototype.setSequenceFlow = function(gateway) {
   var self = this;
 
-  this.button = domify('<div class="simulation-button hidden global-reset"><i class="fa fa-refresh"></i></div>');
+  var outgoing = gateway.outgoing;
+  
+  if (!outgoing.length) {
+    return;
+  }
 
-  domEvent.bind(this.button, 'click', function() {
-    if (self.active) {
-      self._eventBus.fire('tokenSimulation.globalReset');
+  var sequenceFlow = gateway.sequenceFlow;
 
-      domClasses(self.button).remove('active');
+  if (sequenceFlow) {
+    
+    // set next sequence flow
+    gateway.sequenceFlow = getNext(gateway);
+  } else {
 
-      self.active = true;
+    // set first sequence flow
+    gateway.sequenceFlow = gateway.outgoing[0];
+  }
+
+  // set colors
+  gateway.outgoing.forEach(function(outgoing) {
+    if (outgoing === gateway.sequenceFlow) {
+      self.setColor(outgoing, '#000');
+    } else {
+      self.setColor(outgoing, NO_CONFIGURATION_COLOR);
     }
   });
+};
 
-  this._canvas.getContainer().appendChild(this.button);
+ExclusiveGatewaySettings.prototype.setColor = function(sequenceFlow, color) {
+  var businessObject = sequenceFlow.businessObject;
+  
+  businessObject.di.set('stroke', color);
+
+  var gfx = this._elementRegistry.getGraphics(sequenceFlow);
+  
+  this._graphicsFactory.update('connection', sequenceFlow, gfx);
+};
+
+ExclusiveGatewaySettings.$inject = [ 'eventBus', 'elementRegistry', 'graphicsFactory' ];
+
+module.exports = ExclusiveGatewaySettings;
+},{"../../util/ElementHelper":48,"../../util/EventHelper":49}],19:[function(require,module,exports){
+module.exports = require('./ExclusiveGatewaySettings');
+},{"./ExclusiveGatewaySettings":18}],20:[function(require,module,exports){
+var domEvent = require('min-dom/lib/event');
+
+function KeyboardBindings(pauseSimulation) {
+  domEvent.bind(document, 'keydown', function(e) {
+    if (e.keyCode === 32) {
+      pauseSimulation.toggle();
+
+      return true;
+    }
+  });
 }
 
-GlobalReset.$inject = [ 'canvas', 'eventBus' ];
+KeyboardBindings.$inject = [ 'pauseSimulation' ];
 
-module.exports = GlobalReset;
-},{"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68}],11:[function(require,module,exports){
+module.exports = KeyboardBindings;
+},{"min-dom/lib/event":96}],21:[function(require,module,exports){
+module.exports = require('./KeyboardBindings');
+},{"./KeyboardBindings":20}],22:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -836,91 +940,98 @@ var domify = require('min-dom/lib/domify'),
     domEvent = require('min-dom/lib/event'),
     domQuery = require('min-dom/lib/query');
 
-var is = require('./util/ElementHelper').is;
+var is = require('../../util/ElementHelper').is;
 
-function getName(element) {
+var events = require('../../util/EventHelper'),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
+
+function getElementName(element) {
   return (element && element.businessObject.name);
 }
 
-function Log(eventBus, canvas) {
+function Log(eventBus, notifications, tokenSimulationPalette, canvas) {
   var self = this;
 
-  this._eventBus = eventBus;
+  this._notifications = notifications;
+  this._tokenSimulationPalette = tokenSimulationPalette;
   this._canvas = canvas;
-
-  this.events = [];
 
   this._init();
 
-  eventBus.on('tokenSimulation.tokenProcessed', function(event) {
-    var element = event.element;
+  eventBus.on(GENERATE_TOKEN_EVENT, function(context) {
+    var element = context.element,
+        elementName = getElementName(element);
 
-    if (!element) return;
-
-    var elementName = getName(element);
-
-    if (is(element, 'bpmn:ExclusiveGateway')) {
+    if (is(element, 'bpmn:StartEvent')) {
+      self.log(elementName || 'Start Event', 'info', 'bpmn-icon-start-event-none');
+    } else if (is(element, 'bpmn:Task')) {
+      self.log(elementName || 'Start Event', 'info', 'bpmn-icon-task');
+    } else if (is(element, 'bpmn:ExclusiveGateway')) {
       if (element.outgoing.length < 2) {
         return;
       }
 
-      var icon = 'bpmn-icon-gateway-xor';
-      var sequenceFlowName = getName(element.configuredSequenceFlow);
+      var sequenceFlowName = getElementName(element.sequenceFlow);
 
       var text = elementName || 'Gateway';
 
       if (sequenceFlowName) {
         text = text.concat(' <i class="fa fa-angle-right" aria-hidden="true"></i> ' + sequenceFlowName);
       }
-      self.log(text, icon);
 
-    } else if (is(element, 'bpmn:Task')) {
-      self.log(elementName || 'Task', 'bpmn-icon-task');
-
+      self.log(text, 'info', 'bpmn-icon-gateway-xor');
     } else if (is(element, ['bpmn:IntermediateCatchEvent', 'bpmn:IntermediateThrowEvent'])) {
-      self.log(elementName || 'Intermediate Event', 'bpmn-icon-intermediate-event-none');
+      self.log(elementName || 'Intermediate Event', 'info', 'bpmn-icon-intermediate-event-none');
     }
   });
 
-  eventBus.on('tokenSimulation.createToken', function(event) {
-    var element = event.element;
-    if (!element) return;
+  eventBus.on(CONSUME_TOKEN_EVENT, function(context) {
+    var element = context.element,
+        elementName = getElementName(element);
 
-    var elementName = getName(element);
-
-    if (is(element, ['bpmn:StartEvent'])) {
-      self.log(elementName || 'Start Event', 'bpmn-icon-start-event-none');
+    if (is(element, 'bpmn:EndEvent')) {
+      self.log(elementName || 'End Event', 'info', 'bpmn-icon-end-event-none');
     }
   });
 
-  eventBus.on('tokenSimulation.tokenArrived', function(event) {
-    var element = event.element;
-    if (!element) return;
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
 
-    var elementName = getName(element);
+    if (!simulationModeActive) {
+      self.emptyLog();
 
-    if (is(element, ['bpmn:EndEvent'])) {
-      self.log(elementName || 'Start Event', 'bpmn-icon-end-event-none');
+      domClasses(self.container).add('hidden');
     }
+  });
+
+  eventBus.on(RESET_SIMULATION_EVENT, function(context) {
+    self.emptyLog();
+
+    domClasses(self.container).add('hidden');
   });
 }
 
 Log.prototype._init = function() {
   var self = this;
 
-  this.tint = domify('<div class="tint hidden"></div>');
-
-  this.container = domify(`
-    <div class="token-simulation-log hidden">
-      <div class="head">
-        Log
-        <button class="close">
-          <i class="fa fa-times" aria-hidden="true"></i>
-        </button>
-      </div>
-      <div class="content"></div>
-    </div>`
+  this.container = domify(
+    '<div class="token-simulation-log hidden">' +
+      '<div class="header">' +
+        '<i class="fa fa-align-left"></i>' +
+        '<button class="close">' +
+          '<i class="fa fa-times" aria-hidden="true"></i>' +
+        '</button>' +
+      '</div>' +
+      '<div class="content">' +
+        '<p class="entry placeholder">No Entries</p>' +
+      '</div>' +
+    '</div>'
   );
+
+  this.placeholder = domQuery('.placeholder', this.container);
 
   this.content = domQuery('.content', this.container);
 
@@ -928,68 +1039,81 @@ Log.prototype._init = function() {
     e.stopPropagation();
   });
 
-  this.closeButton = domQuery('.close', this.container);
+  this.close = domQuery('.close', this.container);
 
-  domEvent.bind(this.closeButton, 'click', function() {
+  domEvent.bind(this.close, 'click', function() {
     domClasses(self.container).add('hidden');
-    domClasses(self.tint).add('hidden');
   });
 
-  this.openButton = domify('<div class="simulation-button hidden open-log"><i class="fa fa-file-text-o" aria-hidden="true"></i></div>');
+  this.icon = domQuery('.fa-align-left', this.container);
 
-  domEvent.bind(this.openButton, 'click', function() {
-    domClasses(self.container).remove('hidden');
-    domClasses(self.tint).remove('hidden');
+  domEvent.bind(this.icon, 'click', function() {
+    domClasses(self.container).add('hidden');
   });
 
-  this._canvas.getContainer().appendChild(this.tint);
   this._canvas.getContainer().appendChild(this.container);
-  this._canvas.getContainer().appendChild(this.openButton);
+  
+  this.paletteEntry = domify('<div class="entry" title="Show Simulation Log"><i class="fa fa-align-left"></i></div>');
+
+  domEvent.bind(this.paletteEntry, 'click', function() {
+    domClasses(self.container).remove('hidden');
+  });
+
+  this._tokenSimulationPalette.addEntry(this.paletteEntry, 3);
 };
 
-Log.prototype.log = function(text, icon) {
-  if (!text.trim().length) {
-    return;
+Log.prototype.log = function(text, type, icon) {
+  domClasses(this.placeholder).add('hidden');
+
+  var date = new Date();
+
+  var dateString = date.toLocaleTimeString() + ':' + date.getUTCMilliseconds();
+
+  this._notifications.showNotification(text, type, icon);
+
+  var iconMarkup;
+
+  if (!icon) {
+    icon = 'fa-info';
   }
 
-  var timestamp = new Date().toUTCString();
+  if (icon.includes('bpmn')) {
+    iconMarkup = '<span class="icon ' + icon + '">';
+  } else {
+    iconMarkup = '<i class="icon fa ' + icon + '"></i>';
+  }
 
-  this.events.push({
-    timestamp: timestamp,
-    text: text
-  });
-
-  this._eventBus.fire('tokenSimulation.showNotification', {
-    text: text,
-    notificationType: 'info',
-    icon: icon
-  });
-
-  var logEntry = domify(`
-    <p class="log-entry ${icon}">
-      ${text}
-    </p>`
-  );
+  var logEntry = domify('<p class="entry ' + type + '"><span class="date">' + dateString + '</span>' + iconMarkup + '</span>' + text + '</p>');
 
   this.content.appendChild(logEntry);
-
+  
   this.content.scrollTop = this.content.scrollHeight;
 };
 
-Log.prototype.getLog = function() {
-  return this.events;
+Log.prototype.emptyLog = function() {
+  while (this.content.firstChild) {
+    this.content.removeChild(this.content.firstChild);
+  }
+
+  this.placeholder = domify('<p class="entry placeholder">No Entries</p>');
+
+  this.content.appendChild(this.placeholder);
 };
 
-Log.$inject = [ 'eventBus', 'canvas' ];
+Log.$inject = [ 'eventBus', 'notifications', 'tokenSimulationPalette', 'canvas' ];
 
 module.exports = Log;
-
-},{"./util/ElementHelper":21,"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68,"min-dom/lib/query":69}],12:[function(require,module,exports){
+},{"../../util/ElementHelper":48,"../../util/EventHelper":49,"min-dom/lib/classes":94,"min-dom/lib/domify":95,"min-dom/lib/event":96,"min-dom/lib/query":97}],23:[function(require,module,exports){
+module.exports = require('./Log');
+},{"./Log":22}],24:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
     domClasses = require('min-dom/lib/classes'),
     domEvent = require('min-dom/lib/event');
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
 
 var NOTIFICATION_TIME_TO_LIVE = 2000; // ms
 
@@ -1001,18 +1125,10 @@ function Notifications(eventBus, canvas) {
 
   this._init();
 
-  eventBus.on('tokenSimulation.showNotification', function(context) {
-    var text = context.text,
-        type = context.notificationType,
-        icon = context.icon;
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
 
-    self.showNotification(text, type, icon);
-  });
-
-  eventBus.on('tokenSimulation.switchMode', function(context) {
-    var mode = context.mode;
-
-    if (mode === 'modeling') {
+    if (!simulationModeActive) {
       self.removeAll();
     }
   });
@@ -1025,12 +1141,24 @@ Notifications.prototype._init = function() {
 };
 
 Notifications.prototype.showNotification = function(text, type, icon) {
-  var notification = domify(`
-    <div class="notification ${type}">
-      <i class="${icon || 'fa fa-info'}"></i>
-      ${text}
-    </div>
-  `);
+  var iconMarkup;
+  
+  if (!icon) {
+    icon = 'fa-info';
+  }
+
+  if (icon.includes('bpmn')) {
+    iconMarkup = '<span class="icon ' + icon + '"></span>';
+  } else {
+    iconMarkup = '<i class="icon fa ' + icon + '"></i>';
+  }
+
+  var notification = domify(
+    '<div class="notification ' + type + '">' +
+      iconMarkup +
+      text +
+    '</div>'
+  );
 
   this.container.appendChild(notification);
 
@@ -1053,7 +1181,9 @@ Notifications.prototype.removeAll = function() {
 Notifications.$inject = [ 'eventBus', 'canvas' ];
 
 module.exports = Notifications;
-},{"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68}],13:[function(require,module,exports){
+},{"../../util/EventHelper":49,"min-dom/lib/classes":94,"min-dom/lib/domify":95,"min-dom/lib/event":96}],25:[function(require,module,exports){
+module.exports = require('./Notifications');
+},{"./Notifications":24}],26:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1061,306 +1191,348 @@ var domify = require('min-dom/lib/domify'),
     domEvent = require('min-dom/lib/event'),
     domQuery = require('min-dom/lib/query');
 
-function PlayPause(canvas, tokenSimulationBehavior, eventBus) {
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+function Palette(eventBus, canvas) {
   var self = this;
 
   this._canvas = canvas;
-  this._tokenSimulationBehavior = tokenSimulationBehavior;
-  this._eventBus = eventBus;
 
-  this.isActive = false;
-  this.isPlaying = false;
-
-  var canvasParent = this.canvasParent =  canvas.getContainer().parentNode;
+  this.entries = [];
 
   this._init();
 
-  eventBus.on('import.done', function() {
-    domClasses(canvasParent).add('paused');
-  });
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
 
-  eventBus.on('tokenSimulation.start', function() {
-    domClasses(self.button).add('active');
-    domClasses(self.button).add('playing');
-
-    domClasses(canvasParent).remove('paused');
-
-    self.active = true;
-    self.isPlaying = true;
-
-    self.button.innerHTML = '<i class="fa fa-play" aria-hidden="true"></i>';
-
-    eventBus.fire('tokenSimulation.showNotification', {
-      text: 'Start simulation'
-    });
-  });
-
-  eventBus.on('tokenSimulation.reset', function() {
-    domClasses(self.button).remove('active');
-    domClasses(self.button).remove('playing');
-
-    domClasses(canvasParent).add('paused');
-
-    self.active = false;
-    self.isPlaying = false;
-
-    self.button.innerHTML = '<i class="fa fa-play" aria-hidden="true"></i>';
-
-    self._eventBus.fire('tokenSimulation.showNotification', {
-      text: 'Reset simulation'
-    });
+    if (simulationModeActive) {
+      domClasses(self.container).remove('hidden');
+    } else {
+      domClasses(self.container).add('hidden');
+    }
   });
 }
 
-PlayPause.prototype._init = function() {
-  var self = this;
+Palette.prototype._init = function() {
+  this.container = domify('<div class="token-simulation-palette hidden"></div>');
 
-  var button = this.button = domify('<div class="simulation-button hidden play-pause"><i class="fa fa-play" aria-hidden="true"></i></div>');
-
-  domEvent.bind(button, 'click', function() {
-    if (!self.active) return;
-
-    if (self.isPlaying) {
-      domClasses(button).remove('playing');
-
-      button.innerHTML = '<i class="fa fa-pause" aria-hidden="true"></i>';
-
-      self._tokenSimulationBehavior.runningAnimations.forEach(function(animation) {
-        animation.pause();
-      });
-
-      var contextMenus = domQuery.all('.context-menu');
-
-      contextMenus.forEach(function(contextMenu) {
-        domClasses(contextMenu).add('disabled');
-      });
-
-      self._eventBus.fire('tokenSimulation.showNotification', {
-        text: 'Pause simulation'
-      });
-
-      domClasses(self.canvasParent).add('paused');
-    } else {
-      domClasses(button).add('playing');
-
-      button.innerHTML = '<i class="fa fa-play" aria-hidden="true"></i>';
-
-      self._tokenSimulationBehavior.runningAnimations.forEach(function(animation) {
-        animation.play();
-      });
-
-      var contextMenus = domQuery.all('.context-menu');
-
-      contextMenus.forEach(function(contextMenu) {
-        domClasses(contextMenu).remove('disabled');
-      });
-
-      self._eventBus.fire('tokenSimulation.showNotification', {
-        text: 'Resume simulation'
-      });
-
-      domClasses(self.canvasParent).remove('paused');
-    }
-
-    self.isPlaying = !self.isPlaying;
-  });
-
-  this._canvas.getContainer().appendChild(button);
+  this._canvas.getContainer().appendChild(this.container);
 };
 
-PlayPause.$inject = [ 'canvas', 'tokenSimulationBehavior', 'eventBus' ];
+Palette.prototype.addEntry = function(entry, index) {
+  var childIndex = 0;
+  
+  this.entries.forEach(function(entry) {
+    if (index >= entry.index) {
+      childIndex++;
+    }
+  });
 
-module.exports = PlayPause;
-},{"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68,"min-dom/lib/query":69}],14:[function(require,module,exports){
+  this.container.insertBefore(entry, this.container.childNodes[childIndex]);
+
+  this.entries.push({
+    entry: entry,
+    index: index
+  });
+};
+
+Palette.$inject = [ 'eventBus', 'canvas' ];
+
+module.exports = Palette;
+},{"../../util/EventHelper":49,"min-dom/lib/classes":94,"min-dom/lib/domify":95,"min-dom/lib/event":96,"min-dom/lib/query":97}],27:[function(require,module,exports){
+module.exports = require('./Palette');
+},{"./Palette":26}],28:[function(require,module,exports){
 'use strict';
 
-var forEach = require('lodash/forEach');
+var domify = require('min-dom/lib/domify'),
+    domClasses = require('min-dom/lib/classes'),
+    domEvent = require('min-dom/lib/event');
 
-var HIGH_PRIORITY = 10001;
+var is = require('../../util/ElementHelper').is;
 
-function ReadOnly(
-  eventBus,
-  contextPad,
-  dragging,
-  directEditing,
-  editorActions,
-  modeling,
-  palette,
-  paletteProvider) {
+var events = require('../../util/EventHelper'),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    PLAY_SIMULATION_EVENT = events.PLAY_SIMULATION_EVENT,
+    PAUSE_SIMULATION_EVENT = events.PAUSE_SIMULATION_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
 
-    this._readOnly = false;
-    this._eventBus = eventBus;
+function PauseSimulation(eventBus, tokenSimulationPalette, notifications, canvas) {
+  var self = this;
+  
+  this._eventBus = eventBus;
+  this._tokenSimulationPalette = tokenSimulationPalette;
+  this._notifications = notifications;
 
-    var self = this;
+  this.canvasParent =  canvas.getContainer().parentNode;
+  
+  this.isActive = false;
+  this.isPaused = false;
 
-    eventBus.on('tokenSimulation.switchMode', HIGH_PRIORITY, function (context) {
-      var mode = context.mode;
+  this._init();
 
-      self._readOnly = mode === 'simulation';
-
-      if (self._readOnly) {
-        directEditing.cancel();
-        contextPad.close();
-        dragging.cancel();
-      }
-
-      palette._update();
-    });
-
-    function intercept(obj, fnName, cb) {
-      var fn = obj[fnName];
-      obj[fnName] = function () {
-        return cb.call(this, fn, arguments);
-      };
+  eventBus.on(GENERATE_TOKEN_EVENT, function(context) {
+    if (!is(context.element, 'bpmn:StartEvent')) {
+      return;
     }
 
-    function ignoreWhenReadOnly(obj, fnName) {
-      intercept(obj, fnName, function (fn, args) {
-        if (self._readOnly) {
-          return;
-        }
+    self.isActive = true;
+    self.isPaused = false;
 
-        return fn.apply(this, args);
-      });
-    }
+    domClasses(self.paletteEntry).remove('disabled');
+    domClasses(self.paletteEntry).add('active');
 
-    function throwIfReadOnly(obj, fnName) {
-      intercept(obj, fnName, function (fn, args) {
-        if (self._readOnly) {
-          throw new Error('model is read-only');
-        }
+    self.paletteEntry.innerHTML = '<i class="fa fa-play"></i>';
 
-        return fn.apply(this, args);
-      });
-    }
+    notifications.showNotification('Start Simulation', 'info');
 
-    ignoreWhenReadOnly(contextPad, 'open');
+    domClasses(self.canvasParent).remove('paused');
+  });
 
-    ignoreWhenReadOnly(dragging, 'init');
+  eventBus.on([
+    RESET_SIMULATION_EVENT,
+    TOGGLE_MODE_EVENT
+  ], function() {
+    self.isActive = false;
+    self.isPaused = false;
 
-    ignoreWhenReadOnly(directEditing, 'activate');
+    domClasses(self.paletteEntry).add('disabled');
+    domClasses(self.paletteEntry).remove('active');
 
-    ignoreWhenReadOnly(editorActions._actions, 'undo');
-    ignoreWhenReadOnly(editorActions._actions, 'redo');
-    ignoreWhenReadOnly(editorActions._actions, 'copy');
-    ignoreWhenReadOnly(editorActions._actions, 'paste');
-    ignoreWhenReadOnly(editorActions._actions, 'removeSelection');
-    // BpmnEditorActions
-    ignoreWhenReadOnly(editorActions._actions, 'spaceTool');
-    ignoreWhenReadOnly(editorActions._actions, 'lassoTool');
-    ignoreWhenReadOnly(editorActions._actions, 'globalConnectTool');
-    ignoreWhenReadOnly(editorActions._actions, 'distributeElements');
-    ignoreWhenReadOnly(editorActions._actions, 'alignElements');
-    ignoreWhenReadOnly(editorActions._actions, 'directEditing');
+    self.paletteEntry.innerHTML = '<i class="fa fa-play"></i>';
 
-    throwIfReadOnly(modeling, 'moveShape');
-    throwIfReadOnly(modeling, 'updateAttachment');
-    throwIfReadOnly(modeling, 'moveElements');
-    throwIfReadOnly(modeling, 'moveConnection');
-    throwIfReadOnly(modeling, 'layoutConnection');
-    throwIfReadOnly(modeling, 'createConnection');
-    throwIfReadOnly(modeling, 'createShape');
-    throwIfReadOnly(modeling, 'createLabel');
-    throwIfReadOnly(modeling, 'appendShape');
-    throwIfReadOnly(modeling, 'removeElements');
-    throwIfReadOnly(modeling, 'distributeElements');
-    throwIfReadOnly(modeling, 'removeShape');
-    throwIfReadOnly(modeling, 'removeConnection');
-    throwIfReadOnly(modeling, 'replaceShape');
-    throwIfReadOnly(modeling, 'pasteElements');
-    throwIfReadOnly(modeling, 'alignElements');
-    throwIfReadOnly(modeling, 'resizeShape');
-    throwIfReadOnly(modeling, 'createSpace');
-    throwIfReadOnly(modeling, 'updateWaypoints');
-    throwIfReadOnly(modeling, 'reconnectStart');
-    throwIfReadOnly(modeling, 'reconnectEnd');
-
-    // intercept(paletteProvider, 'getPaletteEntries', function (fn, args) {
-    //   var entries = fn.apply(this, args);
-    //   if (self._readOnly) {
-    //     var allowedEntries = [
-    //       'hand-tool'
-    //     ];
-
-    //     forEach(entries, function (value, key) {
-    //       if (allowedEntries.indexOf(key) === -1) {
-    //         delete entries[key];
-    //       }
-    //     });
-    //   }
-    //   return entries;
-    // });
+    domClasses(self.canvasParent).remove('paused');
+  });
 }
 
-ReadOnly.$inject = [
-  'eventBus',
-  'contextPad',
-  'dragging',
-  'directEditing',
-  'editorActions',
-  'modeling',
-  'palette',
-  'paletteProvider',
-];
+PauseSimulation.prototype._init = function() {
+  this.paletteEntry = domify('<div class="entry disabled" title="Play/Pause Simulation"><i class="fa fa-play"></i></div>');
 
-module.exports = ReadOnly;
+  domEvent.bind(this.paletteEntry, 'click', this.toggle.bind(this));
 
-ReadOnly.prototype.readOnly = function (readOnly) {
-  var newValue = !!readOnly,
-      oldValue = !!this._readOnly;
+  this._tokenSimulationPalette.addEntry(this.paletteEntry, 1);
+};
 
-  if (readOnly === undefined || newValue === oldValue) {
-    return oldValue;
+PauseSimulation.prototype.toggle = function() {
+  if (!this.isActive) {
+    return;
   }
 
-  this._readOnly = newValue;
-  this._eventBus.fire('readOnly.changed', { readOnly: newValue });
-  return newValue;
+  if (this.isPaused) {
+    domClasses(this.paletteEntry).add('active');
+    domClasses(this.canvasParent).remove('paused');
+
+    this.paletteEntry.innerHTML = '<i class="fa fa-play"></i>';
+
+    this._eventBus.fire(PLAY_SIMULATION_EVENT);
+
+    this._notifications.showNotification('Play Simulation', 'info');
+  } else {
+    domClasses(this.paletteEntry).remove('active');
+    domClasses(this.canvasParent).add('paused');
+
+    this.paletteEntry.innerHTML = '<i class="fa fa-pause"></i>';
+
+    this._eventBus.fire(PAUSE_SIMULATION_EVENT);
+
+    this._notifications.showNotification('Pause Simulation', 'info');
+  }
+
+  this.isPaused = !this.isPaused;
 };
-},{"lodash/forEach":53}],15:[function(require,module,exports){
+
+PauseSimulation.$inject = [ 'eventBus', 'tokenSimulationPalette', 'notifications', 'canvas' ];
+
+module.exports = PauseSimulation;
+},{"../../util/ElementHelper":48,"../../util/EventHelper":49,"min-dom/lib/classes":94,"min-dom/lib/domify":95,"min-dom/lib/event":96}],29:[function(require,module,exports){
+module.exports = require('./PauseSimulation');
+},{"./PauseSimulation":28}],30:[function(require,module,exports){
 'use strict';
 
-function SimulationState(eventBus, elementRegistry, tokenDisplay, catchEventTrigger) {
+var domify = require('min-dom/lib/domify'),
+    domClasses = require('min-dom/lib/classes'),
+    domEvent = require('min-dom/lib/event');
+
+var is = require('../../util/ElementHelper').is;
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
+
+function ResetSimulation(eventBus, tokenSimulationPalette, notifications, elementRegistry) {
   var self = this;
+  
+  this._eventBus = eventBus;
+  this._tokenSimulationPalette = tokenSimulationPalette;
+  this._notifications = notifications;
+  this._elementRegistry = elementRegistry;
+  
+  this._init();
 
-  this.state = {
-    active: false
-  };
+  eventBus.on(GENERATE_TOKEN_EVENT, function(context) {
+    if (!is(context.element, 'bpmn:StartEvent')) {
+      return;
+    }
 
-  // start simulation
-  eventBus.on('tokenSimulation.createToken', function() {
-    self.state.active = true;
-
-    eventBus.fire('tokenSimulation.start');
+    domClasses(self.paletteEntry).remove('disabled');
   });
 
-  eventBus.on('tokenSimulation.globalReset', function() {
-    if (self.state.active) {
-      // reset by deleting all tokens and stopping all animations
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
 
-      self.state.active = false;
-
-      eventBus.fire('tokenSimulation.reset');
-
-      // delete all token counters
-      elementRegistry.forEach(function(element) {
-        tokenDisplay.removeAllTokens(element);
-      });
-
-      // close all context menus
-      catchEventTrigger.closeAllContextMenus();
+    if (!simulationModeActive) {
+      self.resetSimulation();
     }
   });
 }
 
-SimulationState.prototype.isActive = function() {
-  return this.state.active;
+ResetSimulation.prototype._init = function() {
+  var self = this;
+
+  this.paletteEntry = domify('<div class="entry disabled" title="Reset Simulation"><i class="fa fa-refresh"></i></div>');
+
+  domEvent.bind(this.paletteEntry, 'click', function() {
+    self.resetSimulation();
+
+    self._notifications.showNotification('Reset Simulation', 'info');
+  });
+
+  this._tokenSimulationPalette.addEntry(this.paletteEntry, 2);
+};
+
+ResetSimulation.prototype.resetSimulation = function() {
+  domClasses(this.paletteEntry).add('disabled');
+
+  this._elementRegistry.forEach(function(element) {
+    if (element.tokenCount !== undefined) {
+      delete element.tokenCount;
+    }
+  });
+
+  this._eventBus.fire(RESET_SIMULATION_EVENT);
+};
+
+ResetSimulation.$inject = [ 'eventBus', 'tokenSimulationPalette', 'notifications', 'elementRegistry' ];
+
+module.exports = ResetSimulation;
+},{"../../util/ElementHelper":48,"../../util/EventHelper":49,"min-dom/lib/classes":94,"min-dom/lib/domify":95,"min-dom/lib/event":96}],31:[function(require,module,exports){
+module.exports = require('./ResetSimulation');
+},{"./ResetSimulation":30}],32:[function(require,module,exports){
+'use strict';
+
+var is = require('../../util/ElementHelper').is;
+
+var events = require('../../util/EventHelper'),
+  TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+  CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT;
+
+var LOW_PRIORITY = 500;
+
+function SimulationState(eventBus, animation, elementRegistry, log, elementNotifications) {
+  var self = this;
+
+  this._animation = animation;
+  this._elementRegistry = elementRegistry;
+  this._log = log;
+  this._elementNotifications = elementNotifications;
+
+  eventBus.on(CONSUME_TOKEN_EVENT, LOW_PRIORITY, function(context) {
+    var element = context.element;
+
+    if (is(element, 'bpmn:EndEvent')) {
+      self.isFinished(element);
+    }
+
+    self.isDeadlock();
+    
+  });
 }
 
-SimulationState.$inject = [ 'eventBus', 'elementRegistry', 'tokenDisplay', 'catchEventTrigger' ];
+SimulationState.prototype.isDeadlock = function() {
+  var self = this;
+
+  var hasTokens = [];
+  
+  this._elementRegistry.forEach(function(element) {
+    if (element.tokenCount) {
+      hasTokens.push(element);
+    }
+  });
+
+  var cannotContinue = [];
+
+  hasTokens.forEach(function(element) {
+    var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
+      return is(outgoing, 'bpmn:SequenceFlow');
+    });
+
+    // has tokens but no outgoing sequence flows
+    if (!outgoingSequenceFlows.length) {
+      cannotContinue.push(element);
+    }
+
+    // parallel gateway after exclusive gateway
+    if (is(element, 'bpmn:ParallelGateway')) {
+      var incomingSequenceFlows = element.incoming.filter(function(incoming) {
+        return is(incoming, 'bpmn:SequenceFlow');
+      });
+
+      if (incomingSequenceFlows.length > element.tokenCount) {
+        cannotContinue.push(element);
+      }
+    }
+
+  });
+
+  var hasAnimations = this._animation.animations.length;
+
+  if (hasTokens.length && cannotContinue.length && !this._animation.animations.length) {
+    self._log.log('Deadlock', 'warning', 'fa-exclamation-triangle');
+
+    cannotContinue.forEach(function(element) {
+      self._elementNotifications.addElementNotification(element, {
+        type: 'warning',
+        icon: 'fa-exclamation-triangle',
+        text: 'Deadlock'
+      });
+    });
+  }
+};
+
+SimulationState.prototype.isFinished = function(element) {
+  var hasTokens = false;
+  
+  this._elementRegistry.forEach(function(element) {
+    if (element.tokenCount) {
+      hasTokens = true;
+    }
+  });
+
+  if (!hasTokens && !this._animation.animations.length) {
+    this._log.log('Process finished', 'success', 'fa-check-circle');
+
+    this._elementNotifications.addElementNotification(element, {
+      type: 'success',
+      icon: 'fa-check-circle',
+      text: 'Finished'
+    });
+  }
+};
+
+SimulationState.$inject = [ 
+  'eventBus',
+  'animation',
+  'elementRegistry',
+  'log',
+  'elementNotifications'
+];
 
 module.exports = SimulationState;
-},{}],16:[function(require,module,exports){
+},{"../../util/ElementHelper":48,"../../util/EventHelper":49}],33:[function(require,module,exports){
+module.exports = require('./SimulationState');
+},{"./SimulationState":32}],34:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1368,10 +1540,10 @@ var domify = require('min-dom/lib/domify'),
     domEvent = require('min-dom/lib/event'),
     domQuery = require('min-dom/lib/query');
 
-var MODELING_MODE = 'modeling',
-    SIMULATION_MODE = 'simulation';
+var events = require('../../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
 
-function SwitchMode(eventBus, canvas, selection, contextPad) {
+function ToggleMode(eventBus, canvas, selection, contextPad) {
   var self = this;
 
   this._eventBus = eventBus;
@@ -1379,7 +1551,7 @@ function SwitchMode(eventBus, canvas, selection, contextPad) {
   this._selection = selection;
   this._contextPad = contextPad;
 
-  this.mode = MODELING_MODE;
+  this.simulationModeActive = false;
 
   eventBus.on('import.done', function() {
     self.canvasParent =  self._canvas.getContainer().parentNode;
@@ -1389,326 +1561,513 @@ function SwitchMode(eventBus, canvas, selection, contextPad) {
   });
 }
 
-SwitchMode.prototype._init = function() {
+ToggleMode.prototype._init = function() {
   this.container = domify(`
-    <div class="switch-mode">
+    <div class="toggle-mode">
       Token Simulation <span class="toggle"><i class="fa fa-toggle-off"></i></span>
     </div>
   `);
 
-  domEvent.bind(this.container, 'click', this.switch.bind(this));
+  domEvent.bind(this.container, 'click', this.toggleMode.bind(this));
 
   this._canvas.getContainer().appendChild(this.container);
 };
 
-SwitchMode.prototype.switch = function() {
-  if (this.mode === MODELING_MODE) {
-    this.mode = SIMULATION_MODE;
-
-    this.container.innerHTML = 'Token Simulation <span class="toggle"><i class="fa fa-toggle-on"></i></span>';
-
-    domClasses(this.canvasParent).add('simulation');
-    domClasses(this.palette).add('hidden');
-
-    domQuery.all('.simulation-button').forEach(function(element) {
-      domClasses(element).remove('hidden');
-    });
-
-    this._eventBus.fire('tokenSimulation.switchMode', { mode: SIMULATION_MODE });
-  } else {
-    this.mode = MODELING_MODE;
-
+ToggleMode.prototype.toggleMode = function() {
+  if (this.simulationModeActive) {
     this.container.innerHTML = 'Token Simulation <span class="toggle"><i class="fa fa-toggle-off"></i></span>';
 
     domClasses(this.canvasParent).remove('simulation');
     domClasses(this.palette).remove('hidden');
 
-    domQuery.all('.simulation-button').forEach(function(element) {
-      domClasses(element).add('hidden');
+    this._eventBus.fire(TOGGLE_MODE_EVENT, {
+      simulationModeActive: false
     });
-
-    this._eventBus.fire('tokenSimulation.switchMode', { mode: MODELING_MODE });
 
     var elements = this._selection.get();
 
     if (elements.length === 1) {
       this._contextPad.open(elements[0]);
     }
+  } else {
+    this.container.innerHTML = 'Token Simulation <span class="toggle"><i class="fa fa-toggle-on"></i></span>';
+
+    domClasses(this.canvasParent).add('simulation');
+    domClasses(this.palette).add('hidden');
+
+    this._eventBus.fire(TOGGLE_MODE_EVENT, {
+      simulationModeActive: true
+    });
   }
+
+  this.simulationModeActive = !this.simulationModeActive;
 };
 
-SwitchMode.$inject = [ 'eventBus', 'canvas', 'selection', 'contextPad' ];
+ToggleMode.$inject = [ 'eventBus', 'canvas', 'selection', 'contextPad' ];
 
-module.exports = SwitchMode;
-},{"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68,"min-dom/lib/query":69}],17:[function(require,module,exports){
+module.exports = ToggleMode;
+},{"../../../util/EventHelper":49,"min-dom/lib/classes":94,"min-dom/lib/domify":95,"min-dom/lib/event":96,"min-dom/lib/query":97}],35:[function(require,module,exports){
+module.exports = require('./ToggleMode.js');
+},{"./ToggleMode.js":34}],36:[function(require,module,exports){
 'use strict';
 
-var forEach = require('lodash/forEach');
+var domify = require('min-dom/lib/domify');
 
-var is = require('./util/ElementHelper').is;
+var is = require('../../util/ElementHelper').is;
 
-function TokenDisplay(overlays, elementRegistry, eventBus) {
-  this._overlays = overlays;
-  this._elementRegistry = elementRegistry
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
 
+var OFFSET_BOTTOM = 10,
+    OFFSET_LEFT = -15;
+
+var LOW_PRIORITY = 500;
+
+function TokenCount(eventBus, overlays) {  
   var self = this;
 
-  eventBus.on('tokenSimulation.switchMode', function(context) {
-    var mode = context.mode;
+  this._overlays = overlays;
 
-    if (mode === 'simulation') {
-      self.init();
-    } else {
-      self.destroy();
+  this.overlayIds = {};
+
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      self.removeTokenCounts();
     }
+  });
+
+  eventBus.on(RESET_SIMULATION_EVENT, function() {
+    self.removeTokenCounts();
+  });
+
+  eventBus.on([ GENERATE_TOKEN_EVENT, CONSUME_TOKEN_EVENT ], LOW_PRIORITY, function(context) {
+    var element = context.element;
+
+    self.removeTokenCount(element);
+    self.addTokenCount(element);
   });
 }
 
-TokenDisplay.prototype.init = function() {
-
-  var overlays = this._overlays;
-
-  var elements = this._elementRegistry.filter(function(element) {
-    return is(element, [ 'bpmn:ParallelGateway', 'bpmn:IntermediateCatchEvent' ]);
-  });
-
-  var position = {
-    bottom: 10,
-    left: -15
-  };
-
-  var html = '<div class="token-display">0</div>';
-
-  forEach(elements, function(element) {
-
-    if (is(element, 'bpmn:ParallelGateway') && element.incoming && element.incoming.length === 1) {
-      return;
-    }
-
-    overlays.add(element, 'token-display', {
-      position: position,
-      html: html
-    });
-  });
-};
-
-
-TokenDisplay.prototype.destroy = function() {
-  this._overlays.remove({ type: 'token-display' });
-};
-
-
-TokenDisplay.prototype.addToken = function(element) {
-  if (element.tokens === undefined) {
-    element.tokens = 0;
-  }
-
-  element.tokens += 1;
-  this._update(element);
-};
-
-
-TokenDisplay.prototype.removeAllTokens = function(element) {
-  if (element.tokens && element.tokens > 0) {
-    element.tokens = 0;
-    this._update(element);
-  }
-};
-
-
-TokenDisplay.prototype.removeToken = function(element) {
-  element.tokens -= 1;
-  this._update(element);
-};
-
-
-TokenDisplay.prototype._update = function(element) {
-  var overlay = this._overlays.get({ element: element, type: 'token-display'})[0];
-
-  if (!overlay) {
+TokenCount.prototype.addTokenCount = function(element) {
+  if (!element.tokenCount) {
     return;
   }
 
-  var overlayDiv = overlay.htmlContainer.querySelector('div')
+  var tokenCount = this.createTokenCount(element);
 
-  overlayDiv.textContent = element.tokens;
+  var position = { bottom: OFFSET_BOTTOM, left: OFFSET_LEFT };
+  
+  var overlayId = this._overlays.add(element, 'token-count', {
+    position: position,
+    html: tokenCount,
+    show: {
+      minZoom: 0.5
+    }
+  });
 
-  if (element.tokens > 0) {
-    overlayDiv.classList.add('waiting');
-  } else {
-    overlayDiv.classList.remove('waiting');
+  this.overlayIds[element.id] = overlayId;
+};
+
+TokenCount.prototype.createTokenCount = function(element) {
+  return domify('<div class="token-count waiting">' + element.tokenCount + '</div>');
+};
+
+TokenCount.prototype.removeTokenCounts = function() {
+  this._overlays.remove({ type: 'token-count' });
+};
+
+TokenCount.prototype.removeTokenCount = function(element) {
+  var overlayId = this.overlayIds[element.id];
+  
+  if (!overlayId) {
+    return;
+  }
+
+  this._overlays.remove(overlayId);
+
+  delete this.overlayIds[element.id];
+};
+
+TokenCount.$inject = [ 'eventBus', 'overlays' ];
+
+module.exports = TokenCount;
+},{"../../util/ElementHelper":48,"../../util/EventHelper":49,"min-dom/lib/domify":95}],37:[function(require,module,exports){
+module.exports = require('./TokenCount');
+},{"./TokenCount":36}],38:[function(require,module,exports){
+'use strict';
+
+var EndEventHandler = require('./handler/EndEventHandler'),
+    ExclusiveGatewayHandler = require('./handler/ExclusiveGatewayHandler'),
+    IntermediateCatchEventHandler = require('./handler/IntermediateCatchEventHandler'),
+    IntermediateThrowEventHandler = require('./handler/IntermediateThrowEventHandler'),
+    ParallelGatewayHandler = require('./handler/ParallelGatewayHandler'),
+    StartEventHandler = require('./handler/StartEventHandler'),
+    TaskHandler = require('./handler/TaskHandler');
+
+var events = require('../../util/EventHelper'),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT;
+
+function TokenSimulationBehavior(eventBus, animation, injector) {
+  var self = this;
+
+  this._injector = injector;
+
+  this.handlers = {};
+
+  this.registerHandler('bpmn:EndEvent', EndEventHandler);
+  this.registerHandler('bpmn:ExclusiveGateway', ExclusiveGatewayHandler);
+  this.registerHandler('bpmn:IntermediateCatchEvent', IntermediateCatchEventHandler);
+  this.registerHandler('bpmn:IntermediateThrowEvent', IntermediateThrowEventHandler);
+  this.registerHandler('bpmn:ParallelGateway', ParallelGatewayHandler);
+  this.registerHandler('bpmn:StartEvent', StartEventHandler);
+  this.registerHandler('bpmn:Task', TaskHandler);
+
+  // create animations on generate token
+  eventBus.on(GENERATE_TOKEN_EVENT, function(context) {
+    var element = context.element;
+    
+    if (!self.handlers[element.type]) {
+      throw new Error('no handler for type ' + element.type);
+    }
+
+    self.handlers[element.type].generate(element);
+  });
+
+  // call handler on consume token
+  eventBus.on(CONSUME_TOKEN_EVENT, function(context) {
+    var element = context.element;
+
+    if (!self.handlers[element.type]) {
+      throw new Error('no handler for type ' + element.type);
+    }
+
+    self.handlers[element.type].consume(element);
+  });
+}
+
+TokenSimulationBehavior.prototype.registerHandler = function(types, handlerCls) {
+  var self = this;
+
+  var handler = this._injector.instantiate(handlerCls);
+  
+  if (!Array.isArray(types)) {
+    types = [ types ];
+  }
+
+  types.forEach(function(type) {
+    self.handlers[type] = handler;
+  });
+};
+
+TokenSimulationBehavior.$inject = [ 'eventBus', 'animation', 'injector' ];
+
+module.exports = TokenSimulationBehavior;
+},{"../../util/EventHelper":49,"./handler/EndEventHandler":39,"./handler/ExclusiveGatewayHandler":40,"./handler/IntermediateCatchEventHandler":41,"./handler/IntermediateThrowEventHandler":42,"./handler/ParallelGatewayHandler":43,"./handler/StartEventHandler":44,"./handler/TaskHandler":45}],39:[function(require,module,exports){
+'use strict';
+
+function EndEventHandler() {};
+
+EndEventHandler.prototype.consume = function(element) {};
+
+EndEventHandler.prototype.generate = function(element) {};
+
+module.exports = EndEventHandler;
+},{}],40:[function(require,module,exports){
+'use strict';
+
+var events = require('../../../util/EventHelper'),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function ExclusiveGatewayHandler(eventBus, animation, elementRegistry) {
+  this._eventBus = eventBus;
+  this._animation = animation;
+  this._elementRegistry = elementRegistry;
+};
+
+ExclusiveGatewayHandler.prototype.consume = function(element) {
+  if (!element.sequenceFlow) {
+    throw new Error('no sequence flow configured for element ' + element.id);
+  }
+
+  this._eventBus.fire(GENERATE_TOKEN_EVENT, {
+    element: element
+  });
+};
+
+ExclusiveGatewayHandler.prototype.generate = function(element) {
+  if (!element.sequenceFlow) {
+    throw new Error('no sequence flow configured for element ' + element.id);
+  }
+
+  var self = this;
+
+  // property could be changed during animation
+  // therefore element.sequenceFlow can't be used
+  var sequenceFlow = this._elementRegistry.get(element.sequenceFlow.id);
+
+  this._animation.createAnimation(sequenceFlow, function() {
+    self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+      element: sequenceFlow.target
+    });
+  });
+};
+
+ExclusiveGatewayHandler.$inject = [ 'eventBus', 'animation', 'elementRegistry' ];
+
+module.exports = ExclusiveGatewayHandler;
+},{"../../../util/EventHelper":49}],41:[function(require,module,exports){
+'use strict';
+
+var is = require('../../../util/ElementHelper').is;
+
+var events = require('../../../util/EventHelper'),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function IntermediateCatchEventHandler(animation, eventBus) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+};
+
+IntermediateCatchEventHandler.prototype.consume = function(element) {
+  if (!element.tokenCount) {
+    element.tokenCount = 0;
+  }
+
+  element.tokenCount++;
+};
+
+IntermediateCatchEventHandler.prototype.generate = function(element) {
+  var self = this;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+  
+  outgoingSequenceFlows.forEach(function(connection) {
+    self._animation.createAnimation(connection, function() {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: connection.target
+      });
+    });
+  });
+};
+
+IntermediateCatchEventHandler.$inject = [ 'animation', 'eventBus' ];
+
+module.exports = IntermediateCatchEventHandler;
+},{"../../../util/ElementHelper":48,"../../../util/EventHelper":49}],42:[function(require,module,exports){
+'use strict';
+
+var is = require('../../../util/ElementHelper').is;
+
+var events = require('../../../util/EventHelper'),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function IntermediateThrowEventHandler(animation, eventBus) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+};
+
+IntermediateThrowEventHandler.prototype.consume = function(element) {
+  this._eventBus.fire(GENERATE_TOKEN_EVENT, {
+    element: element
+  });
+};
+
+IntermediateThrowEventHandler.prototype.generate = function(element) {
+  var self = this;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+  
+  outgoingSequenceFlows.forEach(function(connection) {
+    self._animation.createAnimation(connection, function() {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: connection.target
+      });
+    });
+  });
+};
+
+IntermediateThrowEventHandler.$inject = [ 'animation', 'eventBus' ];
+
+module.exports = IntermediateThrowEventHandler;
+},{"../../../util/ElementHelper":48,"../../../util/EventHelper":49}],43:[function(require,module,exports){
+'use strict';
+
+var is = require('../../../util/ElementHelper').is;
+
+var events = require('../../../util/EventHelper'),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function ParallelGatewayHandler(animation, eventBus) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+};
+
+ParallelGatewayHandler.prototype.consume = function(element) {
+  if (!element.tokenCount) {
+    element.tokenCount = 0;
+  }
+
+  element.tokenCount++;
+  
+  var incoming = element.incoming;
+  
+  if (incoming.length === element.tokenCount) {
+    this._eventBus.fire(GENERATE_TOKEN_EVENT, {
+      element: element
+    });
+    
+    element.tokenCount = 0;
   }
 };
 
-TokenDisplay.$inject = [ 'overlays', 'elementRegistry', 'eventBus' ];
-
-module.exports = TokenDisplay;
-
-},{"./util/ElementHelper":21,"lodash/forEach":53}],18:[function(require,module,exports){
-'use strict';
-
-var domify = require('min-dom/lib/domify'),
-    domClasses = require('min-dom/lib/classes'),
-    domEvent = require('min-dom/lib/event');
-
-function TokenGraphics() {
-}
-
-// could return different tokens in the future
-TokenGraphics.prototype.getToken = function(group, size) {
-  return group
-    .circle(size, size)
-    .attr('class', 'token');
+ParallelGatewayHandler.prototype.generate = function(element) {
+  var self = this;
+  
+  var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+  
+  outgoingSequenceFlows.forEach(function(connection) {
+    self._animation.createAnimation(connection, function() {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: connection.target
+      });
+    });
+  });
 };
 
-TokenGraphics.$inject = [];
+ParallelGatewayHandler.$inject = [ 'animation', 'eventBus' ];
 
-module.exports = TokenGraphics;
-
-
-},{"min-dom/lib/classes":66,"min-dom/lib/domify":67,"min-dom/lib/event":68}],19:[function(require,module,exports){
+module.exports = ParallelGatewayHandler;
+},{"../../../util/ElementHelper":48,"../../../util/EventHelper":49}],44:[function(require,module,exports){
 'use strict';
 
-var is = require('./util/ElementHelper').is;
+var is = require('../../../util/ElementHelper').is;
 
-var forEach = require('lodash/forEach');
+var events = require('../../../util/EventHelper'),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT;
 
-function TokenSimulationBehavior(eventBus, tokenDisplay, animation, elementRegistry) {
+function StartEventHandler(animation, eventBus) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+};
+
+StartEventHandler.prototype.consume = function(element) {};
+
+StartEventHandler.prototype.generate = function(element) {
   var self = this;
 
-  this.runningAnimations = [];
-
-  eventBus.on('tokenSimulation.reset', function() {
-    self.runningAnimations.forEach(function(runningAnimation) {
-      runningAnimation.cancel();
-    });
-
-    self.runningAnimations = [];
+  var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
   });
-
-  eventBus.on('tokenSimulation.createToken', function(event) {
-    eventBus.fire('tokenSimulation.tokenProcessed', { connections : event.element.outgoing });
-  });
-
-  eventBus.on('tokenSimulation.tokenProcessed', function(event) {
-    var connections = event.connections;
-
-    forEach(connections, function(connection) {
-      eventBus.fire('tokenSimulation.tokenStarted', { connection: connection, done: function() {
-        eventBus.fire('tokenSimulation.tokenArrived', { element: connection.target });
-      }});
-    });
-  });
-
-  eventBus.on('tokenSimulation.tokenStarted', function(event) {
-    var referenceToAnimation;
-
-    var createdAnimation = animation.createAnimation(event.connection, function() {
-
-      // remove animation once finished
-      self.runningAnimations = self.runningAnimations.filter(function(runningAnimation) {
-        return runningAnimation !== referenceToAnimation;
+  
+  outgoingSequenceFlows.forEach(function(connection) {
+    self._animation.createAnimation(connection, function() {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: connection.target
       });
-      
-      event.done();
     });
-
-    referenceToAnimation = createdAnimation;
-
-    createdAnimation.start();
-
-    self.runningAnimations.push(createdAnimation);
   });
-
-  eventBus.on('tokenSimulation.tokenArrived', function(event) {
-    var element = event.element;
-
-    // Tasks
-    if (is(element, [ 'bpmn:Task'] )) {
-      eventBus.fire('tokenSimulation.tokenProcessed', { element: element, connections : element.outgoing });
-
-    // Exclusive Gateways
-    } else if (is(element, [ 'bpmn:ExclusiveGateway' ])) {
-      var sequenceFlow = element.configuredSequenceFlow;
-
-      eventBus.fire('tokenSimulation.tokenProcessed', { element: element, connections : [sequenceFlow] });
-
-    // Parallel Gateways
-    } else if (is(element, [ 'bpmn:ParallelGateway' ])) {
-
-      tokenDisplay.addToken(element);
-
-      var incoming = element.incoming;
-
-      if (incoming.length === element.tokens) {
-        eventBus.fire('tokenSimulation.tokenProcessed', { element: element, connections : element.outgoing });
-        tokenDisplay.removeAllTokens(element);
-      }
-
-    // Throw Events
-    } else if (is(element, 'bpmn:ThrowEvent')) {
-      eventBus.fire('tokenSimulation.tokenProcessed', { element: element, connections : element.outgoing });
-
-    // Catch Events
-    } else if (is(element, 'bpmn:CatchEvent')) {
-
-      var done = function() {
-        tokenDisplay.removeToken(element);
-        eventBus.fire('tokenSimulation.tokenProcessed', { element: element, connections : element.outgoing });
-      }
-
-      tokenDisplay.addToken(element);
-
-      eventBus.fire('tokenSimulation.activateCatchEventTrigger', { done: done, element: element });
-    }
-  });
-}
-
-TokenSimulationBehavior.$inject = [ 'eventBus', 'tokenDisplay', 'animation', 'elementRegistry' ];
-
-module.exports = TokenSimulationBehavior;
-
-},{"./util/ElementHelper":21,"lodash/forEach":53}],20:[function(require,module,exports){
-module.exports = {
-  __init__: [
-    'tokenSimulationBehavior',
-    'contextMenus',
-    'animation',
-    'globalReset',
-    'tokenDisplay',
-    'gatewayConfiguration',
-    'checkGatewayConfiguration',
-    'notifications',
-    'catchEventTrigger',
-    'simulationState',
-    'tokenGraphics',
-    'log',
-    'playPause',
-    'checkElementSupport',
-    'switchMode',
-    'readOnly',
-    'tokenSimulationEditorActions'
-  ],
-  'tokenSimulationBehavior': [ 'type', require('./TokenSimulationBehavior') ],
-  'contextMenus': [ 'type', require('./ContextMenus') ],
-  'animation': [ 'type', require('./Animation') ],
-  'globalReset': [ 'type', require('./GlobalReset') ],
-  'tokenDisplay': [ 'type', require('./TokenDisplay') ],
-  'gatewayConfiguration': [ 'type', require('./GatewayConfiguration') ],
-  'checkGatewayConfiguration': [ 'type', require('./CheckGatewayConfiguration') ],
-  'notifications': [ 'type', require('./Notifications') ],
-  'catchEventTrigger': [ 'type', require('./CatchEventTrigger')],
-  'simulationState': [ 'type', require('./SimulationState')],
-  'tokenGraphics': [ 'type', require('./TokenGraphics')],
-  'playPause': [ 'type', require('./PlayPause')],
-  'log': [ 'type', require('./Log') ],
-  'checkElementSupport': [ 'type', require('./CheckElementSupport') ],
-  'switchMode': [ 'type', require('./SwitchMode') ],
-  'readOnly': [ 'type', require('./ReadOnly') ],
-  'tokenSimulationEditorActions': [ 'type', require('./EditorActions') ]
 };
 
-},{"./Animation":3,"./CatchEventTrigger":4,"./CheckElementSupport":5,"./CheckGatewayConfiguration":6,"./ContextMenus":7,"./EditorActions":8,"./GatewayConfiguration":9,"./GlobalReset":10,"./Log":11,"./Notifications":12,"./PlayPause":13,"./ReadOnly":14,"./SimulationState":15,"./SwitchMode":16,"./TokenDisplay":17,"./TokenGraphics":18,"./TokenSimulationBehavior":19}],21:[function(require,module,exports){
+StartEventHandler.$inject = [ 'animation', 'eventBus' ];
+
+module.exports = StartEventHandler;
+},{"../../../util/ElementHelper":48,"../../../util/EventHelper":49}],45:[function(require,module,exports){
+'use strict';
+
+var is = require('../../../util/ElementHelper').is;
+
+var events = require('../../../util/EventHelper'),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function TaskHandler(animation, eventBus) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+};
+
+TaskHandler.prototype.consume = function(element) {
+  this._eventBus.fire(GENERATE_TOKEN_EVENT, {
+    element: element
+  });
+};
+
+TaskHandler.prototype.generate = function(element) {
+  var self = this;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+  
+  outgoingSequenceFlows.forEach(function(connection) {
+    self._animation.createAnimation(connection, function() {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: connection.target
+      });
+    });
+  });
+};
+
+TaskHandler.$inject = [ 'animation', 'eventBus' ];
+
+module.exports = TaskHandler;
+},{"../../../util/ElementHelper":48,"../../../util/EventHelper":49}],46:[function(require,module,exports){
+module.exports = require('./TokenSimulationBehavior');
+},{"./TokenSimulationBehavior":38}],47:[function(require,module,exports){
+module.exports = {
+  __init__: [
+    'animation',
+    'contextPads',
+    'disableModeling',
+    'elementNotifications',
+    'elementSupport',
+    'exclusiveGatewaySettings',
+    'keyboardBindings',
+    'log',
+    'notifications',
+    'pauseSimulation',
+    'resetSimulation',
+    'simulationState',
+    'toggleMode',
+    'tokenCount',
+    'tokenSimulationBehavior',
+    'tokenSimulationEditorActions',
+    'tokenSimulationPalette'
+  ],
+  'animation': [ 'type', require('./animation/Animation') ],
+  'contextPads': [ 'type', require('./features/context-pads') ],
+  'disableModeling': [ 'type', require('./features/disable-modeling') ],
+  'elementNotifications': [ 'type', require('./features/element-notifications') ],
+  'elementSupport': [ 'type', require('./features/element-support') ],
+  'exclusiveGatewaySettings': [ 'type', require('./features/exclusive-gateway-settings') ],
+  'keyboardBindings': [ 'type', require('./features/keyboard-bindings') ],
+  'log': [ 'type', require('./features/log') ],
+  'notifications': [ 'type', require('./features/notifications') ],
+  'pauseSimulation': [ 'type', require('./features/pause-simulation') ],
+  'resetSimulation': [ 'type', require('./features/reset-simulation') ],
+  'simulationState': [ 'type', require('./features/simulation-state') ],
+  'toggleMode': [ 'type', require('./features/toggle-mode/modeler') ],
+  'tokenCount': [ 'type', require('./features/token-count') ],
+  'tokenSimulationBehavior': [ 'type', require('./features/token-simulation-behavior') ],
+  'tokenSimulationEditorActions': [ 'type', require('./features/editor-actions') ],
+  'tokenSimulationPalette': [ 'type', require('./features/palette') ]
+};
+},{"./animation/Animation":4,"./features/context-pads":9,"./features/disable-modeling":11,"./features/editor-actions":13,"./features/element-notifications":15,"./features/element-support":17,"./features/exclusive-gateway-settings":19,"./features/keyboard-bindings":21,"./features/log":23,"./features/notifications":25,"./features/palette":27,"./features/pause-simulation":29,"./features/reset-simulation":31,"./features/simulation-state":33,"./features/toggle-mode/modeler":35,"./features/token-count":37,"./features/token-simulation-behavior":46}],48:[function(require,module,exports){
 'use strict';
 
 module.exports.is = function(element, types) {
@@ -1733,7 +2092,34 @@ module.exports.is = function(element, types) {
 
   return isType;
 };
-},{}],22:[function(require,module,exports){
+
+module.exports.supportedElements = [
+  'bpmn:Association',
+  'bpmn:DataInputAssociation',
+  'bpmn:DataOutputAssociation',
+  'bpmn:DataObjectReference',
+  'bpmn:DataStoreReference',
+  'bpmn:EndEvent',
+  'bpmn:ExclusiveGateway',
+  'bpmn:IntermediateCatchEvent',
+  'bpmn:ParallelGateway',
+  'bpmn:SequenceFlow',
+  'bpmn:StartEvent',
+  'bpmn:Task',
+  'bpmn:TextAnnotation'
+];
+},{}],49:[function(require,module,exports){
+var prefix = 'tokenSimulation';
+
+module.exports = {
+  TOGGLE_MODE_EVENT: prefix + '.toggleMode',
+  GENERATE_TOKEN_EVENT: prefix + '.generateToken',
+  CONSUME_TOKEN_EVENT: prefix + '.consumeToken',
+  PLAY_SIMULATION_EVENT: prefix + '.playSimulation',
+  PAUSE_SIMULATION_EVENT: prefix + '.pauseSimulation',
+  RESET_SIMULATION_EVENT: prefix + '.resetSimulation'
+};
+},{}],50:[function(require,module,exports){
 module.exports.getMid = function(element) {
   var bbox = element.bbox();
 
@@ -1743,19 +2129,10 @@ module.exports.getMid = function(element) {
   };
 }
 
-module.exports.toGfxMid = function(gfx, point) {
-  const bbox = gfx.bbox();
-
-  return {
-    x: point.x - bbox.width / 2,
-    y: point.y - bbox.height / 2
-  }
-}
-
 module.exports.distance = function(a, b) {
   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 }
-},{}],23:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 /**
  * Validate and register a client plugin.
  *
@@ -1798,7 +2175,7 @@ function registerBpmnJSPlugin(plugin) {
 
 module.exports.registerBpmnJSPlugin = registerBpmnJSPlugin;
 
-},{}],24:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -1991,7 +2368,7 @@ ClassList.prototype.contains = function(name){
     : !! ~index(this.array(), name);
 };
 
-},{"component-indexof":26,"indexof":26}],25:[function(require,module,exports){
+},{"component-indexof":54,"indexof":54}],53:[function(require,module,exports){
 var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
     unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
     prefix = bind !== 'addEventListener' ? 'on' : '';
@@ -2027,7 +2404,7 @@ exports.unbind = function(el, type, fn, capture){
   el[unbind](prefix + type, fn, capture || false);
   return fn;
 };
-},{}],26:[function(require,module,exports){
+},{}],54:[function(require,module,exports){
 module.exports = function(arr, obj){
   if (arr.indexOf) return arr.indexOf(obj);
   for (var i = 0; i < arr.length; ++i) {
@@ -2035,7 +2412,7 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],27:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 function one(selector, el) {
   return el.querySelector(selector);
 }
@@ -2058,7 +2435,7 @@ exports.engine = function(obj){
   return exports;
 };
 
-},{}],28:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 
 /**
  * Expose `parse`.
@@ -2172,7 +2549,7 @@ function parse(html, doc) {
   return fragment;
 }
 
-},{}],29:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 var root = require('./_root');
 
 /** Built-in value references. */
@@ -2180,7 +2557,7 @@ var Symbol = root.Symbol;
 
 module.exports = Symbol;
 
-},{"./_root":52}],30:[function(require,module,exports){
+},{"./_root":80}],58:[function(require,module,exports){
 /**
  * A specialized version of `_.forEach` for arrays without support for
  * iteratee shorthands.
@@ -2204,7 +2581,7 @@ function arrayEach(array, iteratee) {
 
 module.exports = arrayEach;
 
-},{}],31:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 var baseTimes = require('./_baseTimes'),
     isArguments = require('./isArguments'),
     isArray = require('./isArray'),
@@ -2255,7 +2632,7 @@ function arrayLikeKeys(value, inherited) {
 
 module.exports = arrayLikeKeys;
 
-},{"./_baseTimes":39,"./_isIndex":46,"./isArguments":55,"./isArray":56,"./isBuffer":58,"./isTypedArray":63}],32:[function(require,module,exports){
+},{"./_baseTimes":67,"./_isIndex":74,"./isArguments":83,"./isArray":84,"./isBuffer":86,"./isTypedArray":91}],60:[function(require,module,exports){
 var baseForOwn = require('./_baseForOwn'),
     createBaseEach = require('./_createBaseEach');
 
@@ -2271,7 +2648,7 @@ var baseEach = createBaseEach(baseForOwn);
 
 module.exports = baseEach;
 
-},{"./_baseForOwn":34,"./_createBaseEach":42}],33:[function(require,module,exports){
+},{"./_baseForOwn":62,"./_createBaseEach":70}],61:[function(require,module,exports){
 var createBaseFor = require('./_createBaseFor');
 
 /**
@@ -2289,7 +2666,7 @@ var baseFor = createBaseFor();
 
 module.exports = baseFor;
 
-},{"./_createBaseFor":43}],34:[function(require,module,exports){
+},{"./_createBaseFor":71}],62:[function(require,module,exports){
 var baseFor = require('./_baseFor'),
     keys = require('./keys');
 
@@ -2307,7 +2684,7 @@ function baseForOwn(object, iteratee) {
 
 module.exports = baseForOwn;
 
-},{"./_baseFor":33,"./keys":64}],35:[function(require,module,exports){
+},{"./_baseFor":61,"./keys":92}],63:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     getRawTag = require('./_getRawTag'),
     objectToString = require('./_objectToString');
@@ -2337,7 +2714,7 @@ function baseGetTag(value) {
 
 module.exports = baseGetTag;
 
-},{"./_Symbol":29,"./_getRawTag":45,"./_objectToString":50}],36:[function(require,module,exports){
+},{"./_Symbol":57,"./_getRawTag":73,"./_objectToString":78}],64:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isObjectLike = require('./isObjectLike');
 
@@ -2357,7 +2734,7 @@ function baseIsArguments(value) {
 
 module.exports = baseIsArguments;
 
-},{"./_baseGetTag":35,"./isObjectLike":62}],37:[function(require,module,exports){
+},{"./_baseGetTag":63,"./isObjectLike":90}],65:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isLength = require('./isLength'),
     isObjectLike = require('./isObjectLike');
@@ -2419,7 +2796,7 @@ function baseIsTypedArray(value) {
 
 module.exports = baseIsTypedArray;
 
-},{"./_baseGetTag":35,"./isLength":60,"./isObjectLike":62}],38:[function(require,module,exports){
+},{"./_baseGetTag":63,"./isLength":88,"./isObjectLike":90}],66:[function(require,module,exports){
 var isPrototype = require('./_isPrototype'),
     nativeKeys = require('./_nativeKeys');
 
@@ -2451,7 +2828,7 @@ function baseKeys(object) {
 
 module.exports = baseKeys;
 
-},{"./_isPrototype":47,"./_nativeKeys":48}],39:[function(require,module,exports){
+},{"./_isPrototype":75,"./_nativeKeys":76}],67:[function(require,module,exports){
 /**
  * The base implementation of `_.times` without support for iteratee shorthands
  * or max array length checks.
@@ -2473,7 +2850,7 @@ function baseTimes(n, iteratee) {
 
 module.exports = baseTimes;
 
-},{}],40:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 /**
  * The base implementation of `_.unary` without support for storing metadata.
  *
@@ -2489,7 +2866,7 @@ function baseUnary(func) {
 
 module.exports = baseUnary;
 
-},{}],41:[function(require,module,exports){
+},{}],69:[function(require,module,exports){
 var identity = require('./identity');
 
 /**
@@ -2505,7 +2882,7 @@ function castFunction(value) {
 
 module.exports = castFunction;
 
-},{"./identity":54}],42:[function(require,module,exports){
+},{"./identity":82}],70:[function(require,module,exports){
 var isArrayLike = require('./isArrayLike');
 
 /**
@@ -2539,7 +2916,7 @@ function createBaseEach(eachFunc, fromRight) {
 
 module.exports = createBaseEach;
 
-},{"./isArrayLike":57}],43:[function(require,module,exports){
+},{"./isArrayLike":85}],71:[function(require,module,exports){
 /**
  * Creates a base function for methods like `_.forIn` and `_.forOwn`.
  *
@@ -2566,7 +2943,7 @@ function createBaseFor(fromRight) {
 
 module.exports = createBaseFor;
 
-},{}],44:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 (function (global){
 /** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
@@ -2574,7 +2951,7 @@ var freeGlobal = typeof global == 'object' && global && global.Object === Object
 module.exports = freeGlobal;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],45:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 var Symbol = require('./_Symbol');
 
 /** Used for built-in method references. */
@@ -2622,7 +2999,7 @@ function getRawTag(value) {
 
 module.exports = getRawTag;
 
-},{"./_Symbol":29}],46:[function(require,module,exports){
+},{"./_Symbol":57}],74:[function(require,module,exports){
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER = 9007199254740991;
 
@@ -2646,7 +3023,7 @@ function isIndex(value, length) {
 
 module.exports = isIndex;
 
-},{}],47:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -2666,7 +3043,7 @@ function isPrototype(value) {
 
 module.exports = isPrototype;
 
-},{}],48:[function(require,module,exports){
+},{}],76:[function(require,module,exports){
 var overArg = require('./_overArg');
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
@@ -2674,7 +3051,7 @@ var nativeKeys = overArg(Object.keys, Object);
 
 module.exports = nativeKeys;
 
-},{"./_overArg":51}],49:[function(require,module,exports){
+},{"./_overArg":79}],77:[function(require,module,exports){
 var freeGlobal = require('./_freeGlobal');
 
 /** Detect free variable `exports`. */
@@ -2698,7 +3075,7 @@ var nodeUtil = (function() {
 
 module.exports = nodeUtil;
 
-},{"./_freeGlobal":44}],50:[function(require,module,exports){
+},{"./_freeGlobal":72}],78:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -2722,7 +3099,7 @@ function objectToString(value) {
 
 module.exports = objectToString;
 
-},{}],51:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 /**
  * Creates a unary function that invokes `func` with its argument transformed.
  *
@@ -2739,7 +3116,7 @@ function overArg(func, transform) {
 
 module.exports = overArg;
 
-},{}],52:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 var freeGlobal = require('./_freeGlobal');
 
 /** Detect free variable `self`. */
@@ -2750,7 +3127,7 @@ var root = freeGlobal || freeSelf || Function('return this')();
 
 module.exports = root;
 
-},{"./_freeGlobal":44}],53:[function(require,module,exports){
+},{"./_freeGlobal":72}],81:[function(require,module,exports){
 var arrayEach = require('./_arrayEach'),
     baseEach = require('./_baseEach'),
     castFunction = require('./_castFunction'),
@@ -2793,7 +3170,7 @@ function forEach(collection, iteratee) {
 
 module.exports = forEach;
 
-},{"./_arrayEach":30,"./_baseEach":32,"./_castFunction":41,"./isArray":56}],54:[function(require,module,exports){
+},{"./_arrayEach":58,"./_baseEach":60,"./_castFunction":69,"./isArray":84}],82:[function(require,module,exports){
 /**
  * This method returns the first argument it receives.
  *
@@ -2816,7 +3193,7 @@ function identity(value) {
 
 module.exports = identity;
 
-},{}],55:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 var baseIsArguments = require('./_baseIsArguments'),
     isObjectLike = require('./isObjectLike');
 
@@ -2854,7 +3231,7 @@ var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsAr
 
 module.exports = isArguments;
 
-},{"./_baseIsArguments":36,"./isObjectLike":62}],56:[function(require,module,exports){
+},{"./_baseIsArguments":64,"./isObjectLike":90}],84:[function(require,module,exports){
 /**
  * Checks if `value` is classified as an `Array` object.
  *
@@ -2882,7 +3259,7 @@ var isArray = Array.isArray;
 
 module.exports = isArray;
 
-},{}],57:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 var isFunction = require('./isFunction'),
     isLength = require('./isLength');
 
@@ -2917,7 +3294,7 @@ function isArrayLike(value) {
 
 module.exports = isArrayLike;
 
-},{"./isFunction":59,"./isLength":60}],58:[function(require,module,exports){
+},{"./isFunction":87,"./isLength":88}],86:[function(require,module,exports){
 var root = require('./_root'),
     stubFalse = require('./stubFalse');
 
@@ -2957,7 +3334,7 @@ var isBuffer = nativeIsBuffer || stubFalse;
 
 module.exports = isBuffer;
 
-},{"./_root":52,"./stubFalse":65}],59:[function(require,module,exports){
+},{"./_root":80,"./stubFalse":93}],87:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isObject = require('./isObject');
 
@@ -2996,7 +3373,7 @@ function isFunction(value) {
 
 module.exports = isFunction;
 
-},{"./_baseGetTag":35,"./isObject":61}],60:[function(require,module,exports){
+},{"./_baseGetTag":63,"./isObject":89}],88:[function(require,module,exports){
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER = 9007199254740991;
 
@@ -3033,7 +3410,7 @@ function isLength(value) {
 
 module.exports = isLength;
 
-},{}],61:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 /**
  * Checks if `value` is the
  * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
@@ -3066,7 +3443,7 @@ function isObject(value) {
 
 module.exports = isObject;
 
-},{}],62:[function(require,module,exports){
+},{}],90:[function(require,module,exports){
 /**
  * Checks if `value` is object-like. A value is object-like if it's not `null`
  * and has a `typeof` result of "object".
@@ -3097,7 +3474,7 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],63:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 var baseIsTypedArray = require('./_baseIsTypedArray'),
     baseUnary = require('./_baseUnary'),
     nodeUtil = require('./_nodeUtil');
@@ -3126,7 +3503,7 @@ var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedA
 
 module.exports = isTypedArray;
 
-},{"./_baseIsTypedArray":37,"./_baseUnary":40,"./_nodeUtil":49}],64:[function(require,module,exports){
+},{"./_baseIsTypedArray":65,"./_baseUnary":68,"./_nodeUtil":77}],92:[function(require,module,exports){
 var arrayLikeKeys = require('./_arrayLikeKeys'),
     baseKeys = require('./_baseKeys'),
     isArrayLike = require('./isArrayLike');
@@ -3165,7 +3542,7 @@ function keys(object) {
 
 module.exports = keys;
 
-},{"./_arrayLikeKeys":31,"./_baseKeys":38,"./isArrayLike":57}],65:[function(require,module,exports){
+},{"./_arrayLikeKeys":59,"./_baseKeys":66,"./isArrayLike":85}],93:[function(require,module,exports){
 /**
  * This method returns `false`.
  *
@@ -3185,15 +3562,15 @@ function stubFalse() {
 
 module.exports = stubFalse;
 
-},{}],66:[function(require,module,exports){
+},{}],94:[function(require,module,exports){
 module.exports = require('component-classes');
-},{"component-classes":24}],67:[function(require,module,exports){
+},{"component-classes":52}],95:[function(require,module,exports){
 module.exports = require('domify');
-},{"domify":28}],68:[function(require,module,exports){
+},{"domify":56}],96:[function(require,module,exports){
 module.exports = require('component-event');
-},{"component-event":25}],69:[function(require,module,exports){
+},{"component-event":53}],97:[function(require,module,exports){
 module.exports = require('component-query');
-},{"component-query":27}],70:[function(require,module,exports){
+},{"component-query":55}],98:[function(require,module,exports){
 /*!
 * svg.js - A lightweight library for manipulating and animating SVG.
 * @version 2.6.3
@@ -8746,4 +9123,4 @@ if (typeof window.CustomEvent !== 'function') {
 return SVG
 
 }));
-},{}]},{},[1]);
+},{}]},{},[2]);

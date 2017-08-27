@@ -25,10 +25,10 @@
   "devDependencies": {
     "browserify": "^14.1.0",
     "camunda-modeler-plugin-helpers": "^1.7.0",
-    "min-dom": "^0.2.0",
     "watchify": "^3.9.0"
   },
   "dependencies": {
-    "bpmn-js-token-simulation": "^0.3.0"
+    "bpmn-js-token-simulation": "^0.4.0",
+    "min-dom": "^0.2.0"
   }
 }
