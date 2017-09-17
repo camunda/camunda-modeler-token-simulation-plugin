@@ -1,9 +1,9 @@
 var registerBpmnJSPlugin = require('camunda-modeler-plugin-helpers').registerBpmnJSPlugin;
 
 var tokenSimulation = require('bpmn-js-token-simulation'),
-    HidePropertiesPanel = require('./HidePropertiesPanel');
+    HideModelerElements = require('./HideModelerElements');
 
-tokenSimulation.__init__.push('hidePropertiesPanel');
-tokenSimulation.hidePropertiesPanel = [ 'type', HidePropertiesPanel ];
+tokenSimulation.__init__.push('hideModelerElements');
+tokenSimulation.hideModelerElements = [ 'type', HideModelerElements ];
 
 registerBpmnJSPlugin(tokenSimulation);

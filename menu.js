@@ -3,7 +3,7 @@
 module.exports = function(electronApp, menuState) {
   return [{
     label: 'Toggle Token Simulation',
-    accelerator: 'CommandOrControl+t',
+    accelerator: 't',
     enabled: function() {
 
       // only enabled for BPMN diagrams

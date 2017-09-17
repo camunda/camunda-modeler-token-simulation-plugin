@@ -6,8 +6,8 @@ var domClasses = require('min-dom/lib/classes'),
 
 var TOGGLE_MODE_EVENT = require('bpmn-js-token-simulation/lib/util/EventHelper').TOGGLE_MODE_EVENT;
 
-function HidePropertiesPanel(eventBus) {
-  var css = '.properties.hidden { display: none; }',
+function HideModelerElements(eventBus) {
+  var css = '.properties.hidden { display: none; } .tabs .tab.hidden { display: none; }',
       head = document.head,
       style = document.createElement('style');
 
@@ -21,33 +21,36 @@ function HidePropertiesPanel(eventBus) {
     var simulationModeActive = context.simulationModeActive;
 
     var propertiesPanel = domQuery('.properties');
+    var xmlTab = domQuery('.tabs a.tab:not(.active)');
 
     if (simulationModeActive) {
       domClasses(propertiesPanel).add('hidden');
+      domClasses(xmlTab).add('hidden');
     } else {
       domClasses(propertiesPanel).remove('hidden');
+      domClasses(xmlTab).remove('hidden');
     }
   });
 }
 
-HidePropertiesPanel.$inject = [ 'eventBus' ];
+HideModelerElements.$inject = [ 'eventBus' ];
 
-module.exports = HidePropertiesPanel;
-},{"bpmn-js-token-simulation/lib/util/EventHelper":51,"min-dom/lib/classes":187,"min-dom/lib/query":190}],2:[function(require,module,exports){
+module.exports = HideModelerElements;
+},{"bpmn-js-token-simulation/lib/util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/query":207}],2:[function(require,module,exports){
 var registerBpmnJSPlugin = require('camunda-modeler-plugin-helpers').registerBpmnJSPlugin;
 
 var tokenSimulation = require('bpmn-js-token-simulation'),
-    HidePropertiesPanel = require('./HidePropertiesPanel');
+    HideModelerElements = require('./HideModelerElements');
 
-tokenSimulation.__init__.push('hidePropertiesPanel');
-tokenSimulation.hidePropertiesPanel = [ 'type', HidePropertiesPanel ];
+tokenSimulation.__init__.push('hideModelerElements');
+tokenSimulation.hideModelerElements = [ 'type', HideModelerElements ];
 
 registerBpmnJSPlugin(tokenSimulation);
 
-},{"./HidePropertiesPanel":1,"bpmn-js-token-simulation":3,"camunda-modeler-plugin-helpers":53}],3:[function(require,module,exports){
+},{"./HideModelerElements":1,"bpmn-js-token-simulation":3,"camunda-modeler-plugin-helpers":66}],3:[function(require,module,exports){
 module.exports = require('./lib/modeler');
 
-},{"./lib/modeler":49}],4:[function(require,module,exports){
+},{"./lib/modeler":62}],4:[function(require,module,exports){
 'use strict';
 
 var SVG = require('svg.js');
@@ -61,9 +64,11 @@ var events = require('../util/EventHelper'),
     RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
     PLAY_SIMULATION_EVENT = events.PLAY_SIMULATION_EVENT,
     PAUSE_SIMULATION_EVENT = events.PAUSE_SIMULATION_EVENT,
-    TERMINATE_EVENT = events.TERMINATE_EVENT;
+    TERMINATE_EVENT = events.TERMINATE_EVENT,
+    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT,
+    ANIMATION_CREATED_EVENT = events.ANIMATION_CREATED_EVENT;
 
-var isParent = require('../util/ElementHelper').isParent;
+var isAncestor = require('../util/ElementHelper').isAncestor;
 
 var geometryUtil = require('../util/GeometryUtil'),
     distance = geometryUtil.distance;
@@ -77,7 +82,6 @@ function isSingleSegment(waypoints) {
 }
 
 var DELAY = 0;
-var SPEED = 1;
 
 var EASE_LINEAR = '-',
     EASE_IN = '<',
@@ -87,9 +91,13 @@ var EASE_LINEAR = '-',
 var TOKEN_SIZE = 20;
 
 function Animation(canvas, eventBus) {
-  var self = this;
+  var self = window.animation = this;
 
+  this._eventBus = eventBus;
   this.animations = [];
+  this.hiddenAnimations = [];
+
+  this.animationSpeed = 1;
 
   eventBus.on('import.done', function() {
     var draw = SVG(canvas._svg);
@@ -110,7 +118,7 @@ function Animation(canvas, eventBus) {
         parent = element.parent;
 
     self.animations.forEach(function(animation) {
-      if (isParent(parent, animation.element)) {
+      if (isAncestor(parent, animation.element)) {
         animation.animation.stop();
 
         self.animations = self.animations.filter(function(a) {
@@ -120,12 +128,29 @@ function Animation(canvas, eventBus) {
     });
   });
 
+  eventBus.on(PROCESS_INSTANCE_FINISHED_EVENT, function(context) {
+    var parent = context.parent;
+
+    if (!parent.parent) {
+      self.animations.forEach(function(animation) {
+        if (isAncestor(parent, animation.element)) {
+          animation.animation.stop();
+  
+          self.animations = self.animations.filter(function(a) {
+            return a !== animation;
+          });
+        }
+      });
+    }
+  });
+
   eventBus.on(RESET_SIMULATION_EVENT, function() {
     self.animations.forEach(function(animation) {
       animation.animation.stop();
     });
 
     self.animations = [];
+    self.hiddenAnimations = [];
   });
 
   eventBus.on(PAUSE_SIMULATION_EVENT, function() {
@@ -141,14 +166,14 @@ function Animation(canvas, eventBus) {
   });
 }
 
-Animation.prototype.createAnimation = function(connection, done) {
+Animation.prototype.createAnimation = function(connection, processInstanceId, done) {
   var self = this;
   
   if (!this.group) {
     return;
   }
 
-  var tokenGfx = this._createTokenGfx(connection);
+  var tokenGfx = this._createTokenGfx(processInstanceId);
 
   var animation;
 
@@ -162,19 +187,77 @@ Animation.prototype.createAnimation = function(connection, done) {
     }
   });
 
+  if (this.hiddenAnimations.includes(processInstanceId)) {
+    tokenGfx.hide();
+  }
+
+  tokenGfx.fx._speed = this.animationSpeed;
+
   this.animations.push({
+    tokenGfx: tokenGfx,
     animation: animation,
-    element: connection
+    element: connection,
+    processInstanceId: processInstanceId
+  });
+
+  this._eventBus.fire(ANIMATION_CREATED_EVENT, {
+    tokenGfx: tokenGfx,
+    animation: animation,
+    element: connection,
+    processInstanceId: processInstanceId
   });
 
   return animation;
 };
 
-Animation.prototype._createTokenGfx = function() {
-  return this.group
-    .circle(TOKEN_SIZE, TOKEN_SIZE)
+Animation.prototype.setAnimationSpeed = function(speed) {
+  this.animations.forEach(function(animation) {
+    animation.tokenGfx.fx._speed = speed;
+  });
+
+  this.animationSpeed = speed;
+};
+
+Animation.prototype._createTokenGfx = function(processInstanceId) {
+  var parent = this.group
+    .group()
     .attr('class', 'token')
     .hide();
+
+  parent
+    .circle(TOKEN_SIZE, TOKEN_SIZE)
+    .attr('fill', '#52b415')
+    .attr('class', 'circle');
+
+  parent
+    .text(processInstanceId.toString())
+    .attr('transform', 'translate(10, -7)')
+    .attr('text-anchor', 'middle')
+    .attr('class', 'text');
+
+  return parent;
+};
+
+Animation.prototype.showProcessInstanceAnimations = function(processInstanceId) {
+  this.animations.forEach(function(animation) {
+    if (animation.processInstanceId === processInstanceId) {
+      animation.tokenGfx.show();
+    }
+  });
+
+  this.hiddenAnimations = this.hiddenAnimations.filter(function(id) {
+    return id !== processInstanceId;
+  });
+};
+
+Animation.prototype.hideProcessInstanceAnimations = function(processInstanceId) {
+  this.animations.forEach(function(animation) {
+    if (animation.processInstanceId === processInstanceId) {
+      animation.tokenGfx.hide();
+    }
+  });
+
+  this.hiddenAnimations.push(processInstanceId);
 };
 
 Animation.$inject = [ 'canvas', 'eventBus' ];
@@ -212,7 +295,7 @@ _Animation.prototype.create = function() {
         ease = EASE_IN_OUT;
       }
 
-      var duration = distance(waypoints[index - 1], waypoint) * 10 / SPEED;
+      var duration = distance(waypoints[index - 1], waypoint) * 20;
 
       fx = fx
         .animate(duration, ease, DELAY)
@@ -239,22 +322,26 @@ _Animation.prototype.stop = function() {
   this.fx.stop();
   this.gfx.remove();
 };
-},{"../util/ElementHelper":50,"../util/EventHelper":51,"../util/GeometryUtil":52,"min-dom/lib/query":190,"svg.js":191}],5:[function(require,module,exports){
+},{"../util/ElementHelper":63,"../util/EventHelper":64,"../util/GeometryUtil":65,"min-dom/lib/query":207,"svg.js":208}],5:[function(require,module,exports){
 'use strict';
 
 var elementHelper = require('../../util/ElementHelper'),
     is = elementHelper.is,
-    isParent = elementHelper.isParent;
+    isAncestor = elementHelper.isAncestor;
 
 var events = require('../../util/EventHelper'),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
     GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
     CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
     RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
-    TERMINATE_EVENT = events.TERMINATE_EVENT;
+    TERMINATE_EVENT = events.TERMINATE_EVENT,
+    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT,
+    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT,
+    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT;
 
 var ExclusiveGatewayHandler = require('./handler/ExclusiveGatewayHandler'),
     IntermediateCatchEventHandler = require('./handler/IntermediateCatchEventHandler'),
+    ProcessHandler = require('./handler/ProcessHandler'),
     StartEventHandler = require('./handler/StartEventHandler');
 
 var LOW_PRIORITY = 500;
@@ -262,13 +349,14 @@ var LOW_PRIORITY = 500;
 var OFFSET_TOP = -15,
     OFFSET_LEFT = -15;
 
-function ContextPads(eventBus, elementRegistry, overlays, injector, canvas) {
+function ContextPads(eventBus, elementRegistry, overlays, injector, canvas, processInstances) {
   var self = this;
 
   this._elementRegistry = elementRegistry;
   this._overlays = overlays;
   this._injector = injector;
   this._canvas = canvas;
+  this._processInstances = processInstances;
 
   this.overlayIds = {};
 
@@ -276,6 +364,7 @@ function ContextPads(eventBus, elementRegistry, overlays, injector, canvas) {
 
   this.registerHandler('bpmn:ExclusiveGateway', ExclusiveGatewayHandler);
   this.registerHandler('bpmn:IntermediateCatchEvent', IntermediateCatchEventHandler);
+  this.registerHandler('bpmn:SubProcess', ProcessHandler);
   this.registerHandler('bpmn:StartEvent', StartEventHandler);
 
   eventBus.on(TOGGLE_MODE_EVENT, LOW_PRIORITY, function(context) {
@@ -294,23 +383,36 @@ function ContextPads(eventBus, elementRegistry, overlays, injector, canvas) {
   });
 
   eventBus.on(TERMINATE_EVENT, LOW_PRIORITY, function(context) {
-    var element = context.element;
+    var element = context.element,
+        parent = element.parent;
 
-    self.closeContextPads(element);
+    self.closeContextPads(parent);
   });
 
-  eventBus.on(GENERATE_TOKEN_EVENT, LOW_PRIORITY, function(context) {
-    var element = context.element;
+  eventBus.on(UPDATE_ELEMENTS_EVENT, LOW_PRIORITY, function(context) {
+    var elements = context.elements;
 
-    self.closeContextPads(element);
-    self.openContextPads(element);
+    elements.forEach(function(element) {
+      self.closeContextPad(element);
+      self.openContextPad(element);
+    });
   });
 
-  eventBus.on(CONSUME_TOKEN_EVENT, LOW_PRIORITY, function(context) {
+  eventBus.on(UPDATE_ELEMENT_EVENT, LOW_PRIORITY, function(context) {
     var element = context.element;
 
-    self.closeContextPads(element);
-    self.openContextPads(element)
+    self.closeContextPad(element);
+    self.openContextPad(element);
+  });
+
+  eventBus.on(PROCESS_INSTANCE_SHOWN_EVENT, function(context) {
+    var processInstanceId = context.processInstanceId;
+
+    var processInstance = processInstances.getProcessInstance(processInstanceId),
+        parent = processInstance.parent;
+
+    self.closeContextPads(parent);
+    self.openContextPads(parent);
   });
 }
 
@@ -320,10 +422,8 @@ ContextPads.prototype.registerHandler = function(type, handlerCls) {
   this.handlers[type] = handler;
 };
 
-ContextPads.prototype.openContextPads = function(element) {
+ContextPads.prototype.openContextPads = function(parent) {
   var self = this;
-
-  var parent = element && element.parent;
   
   if (!parent) {
     parent = this._canvas.getRootElement();
@@ -331,7 +431,7 @@ ContextPads.prototype.openContextPads = function(element) {
 
   this._elementRegistry.forEach(function(element) {
     if (self.handlers[element.type]
-        && isParent(parent, element)) {
+        && isAncestor(parent, element)) {
       self.openContextPad(element);
     }
   });
@@ -361,17 +461,15 @@ ContextPads.prototype.openContextPad = function(element) {
   this.overlayIds[element.id] = overlayId;
 };
 
-ContextPads.prototype.closeContextPads = function(element) {
+ContextPads.prototype.closeContextPads = function(parent) {
   var self = this;
-
-  var parent = element && element.parent;
 
   if (!parent) {
     parent = this._canvas.getRootElement();
   }
 
   this._elementRegistry.forEach(function(element) {
-    if (isParent(parent, element)) {
+    if (isAncestor(parent, element)) {
       self.closeContextPad(element);
     }
   });
@@ -389,10 +487,10 @@ ContextPads.prototype.closeContextPad = function(element) {
   delete this.overlayIds[element.id];
 };
 
-ContextPads.$inject = [ 'eventBus', 'elementRegistry', 'overlays', 'injector', 'canvas' ];
+ContextPads.$inject = [ 'eventBus', 'elementRegistry', 'overlays', 'injector', 'canvas', 'processInstances' ];
 
 module.exports = ContextPads;
-},{"../../util/ElementHelper":50,"../../util/EventHelper":51,"./handler/ExclusiveGatewayHandler":6,"./handler/IntermediateCatchEventHandler":7,"./handler/StartEventHandler":8}],6:[function(require,module,exports){
+},{"../../util/ElementHelper":63,"../../util/EventHelper":64,"./handler/ExclusiveGatewayHandler":6,"./handler/IntermediateCatchEventHandler":7,"./handler/ProcessHandler":8,"./handler/StartEventHandler":9}],6:[function(require,module,exports){
 'use strict';
 
 var is = require('../../../util/ElementHelper').is;
@@ -428,7 +526,7 @@ ExclusiveGatewayHandler.prototype.createContextPad = function(element) {
 ExclusiveGatewayHandler.$inject = [ 'exclusiveGatewaySettings' ];
 
 module.exports = ExclusiveGatewayHandler;
-},{"../../../util/ElementHelper":50,"min-dom/lib/classes":187,"min-dom/lib/domify":188,"min-dom/lib/event":189}],7:[function(require,module,exports){
+},{"../../../util/ElementHelper":63,"min-dom/lib/classes":202,"min-dom/lib/domify":205,"min-dom/lib/event":206}],7:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -445,6 +543,8 @@ function IntermeditateCatchEventHandler(eventBus) {
 }
 
 IntermeditateCatchEventHandler.prototype.createContextPad = function(element) {
+  var processInstanceId = element.parent.shownProcessInstance;
+
   var incomingSequenceFlows = element.incoming.filter(function(incoming) {
     return is(incoming, 'bpmn:SequenceFlow');
   });
@@ -454,7 +554,7 @@ IntermeditateCatchEventHandler.prototype.createContextPad = function(element) {
   incomingSequenceFlows.forEach(function(incoming) {
     var source = incoming.source;
     
-    if (is(source, 'bpmn:EventBasedGateway') && source.tokenCount) {
+    if (is(source, 'bpmn:EventBasedGateway') && source.tokenCount && source.tokenCount[processInstanceId]) {
       eventBasedGatewaysHaveTokens.push(source);
     }
   });
@@ -471,14 +571,15 @@ IntermeditateCatchEventHandler.prototype.createContextPad = function(element) {
 
   var contextPad;
 
-  if (element.tokenCount) {
+  if (element.tokenCount && element.tokenCount[processInstanceId]) {
     contextPad = domify('<div class="context-pad" title="Trigger Event"><i class="fa fa-play"></i></div>');
     
     domEvent.bind(contextPad, 'click', function() {
-      element.tokenCount--;
+      element.tokenCount[processInstanceId]--;
   
       self._eventBus.fire(GENERATE_TOKEN_EVENT, {
-        element: element
+        element: element,
+        processInstanceId: processInstanceId
       });
     });
   } else if (eventBasedGatewaysHaveTokens.length) {
@@ -486,11 +587,12 @@ IntermeditateCatchEventHandler.prototype.createContextPad = function(element) {
     
     domEvent.bind(contextPad, 'click', function() {
       eventBasedGatewaysHaveTokens.forEach(function(eventBasedGateway) {
-        eventBasedGateway.tokenCount--;
+        eventBasedGateway.tokenCount[processInstanceId]--;
       });
   
       self._eventBus.fire(GENERATE_TOKEN_EVENT, {
-        element: element
+        element: element,
+        processInstanceId: processInstanceId
       });
     });
   }
@@ -501,7 +603,48 @@ IntermeditateCatchEventHandler.prototype.createContextPad = function(element) {
 IntermeditateCatchEventHandler.$inject = [ 'eventBus' ];
 
 module.exports = IntermeditateCatchEventHandler;
-},{"../../../util/ElementHelper":50,"../../../util/EventHelper":51,"min-dom/lib/classes":187,"min-dom/lib/domify":188,"min-dom/lib/event":189}],8:[function(require,module,exports){
+},{"../../../util/ElementHelper":63,"../../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/domify":205,"min-dom/lib/event":206}],8:[function(require,module,exports){
+'use strict';
+
+var domify = require('min-dom/lib/domify'),
+    domClasses = require('min-dom/lib/classes'),
+    domEvent = require('min-dom/lib/event');
+
+/**
+ * Is used for subprocesses and participants.
+ */
+function ProcessHandler(processInstances, processInstanceSettings) {
+  this._processInstances = processInstances;
+  this._processInstanceSettings = processInstanceSettings;
+}
+
+ProcessHandler.prototype.createContextPad = function(element) {
+  var self = this;
+  
+  // check if multiple instances
+  var processInstances = this._processInstances
+    .getProcessInstances(element)
+    .filter(function(processInstance) {
+      return !processInstance.isFinished;
+    });
+
+  if (processInstances.length < 2) {
+    return;
+  }
+
+  var contextPad = domify('<div class="context-pad" title="View Process Instances"><i class="fa fa-list-ol"></i></div>');
+  
+  domEvent.bind(contextPad, 'click', function() {
+    self._processInstanceSettings.showNext(element);
+  });
+
+  return contextPad;
+};
+
+ProcessHandler.$inject = [ 'processInstances', 'processInstanceSettings' ];
+
+module.exports = ProcessHandler;
+},{"min-dom/lib/classes":202,"min-dom/lib/domify":205,"min-dom/lib/event":206}],9:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -524,13 +667,17 @@ StartEventHandler.prototype.createContextPad = function(element) {
 
   this._elementRegistry.forEach(function(element) {
     if (element.tokenCount) {
-      tokens = true;
+      Object.values(element.tokenCount).forEach(function(tokenCount) {
+        if (tokenCount) {
+          tokens = true;
+        }
+      });
     }
   });
 
-  if (is(element.parent, 'bpmn:SubProcess')
-      || tokens
-      || this._animation.animations.length) {
+  if (is(element.parent, 'bpmn:SubProcess') ||
+      tokens ||
+      this._animation.animations.length) {
     return;
   }
 
@@ -550,9 +697,9 @@ StartEventHandler.prototype.createContextPad = function(element) {
 StartEventHandler.$inject = [ 'eventBus', 'elementRegistry', 'animation' ];
 
 module.exports = StartEventHandler;
-},{"../../../util/ElementHelper":50,"../../../util/EventHelper":51,"min-dom/lib/classes":187,"min-dom/lib/domify":188,"min-dom/lib/event":189}],9:[function(require,module,exports){
+},{"../../../util/ElementHelper":63,"../../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/domify":205,"min-dom/lib/event":206}],10:[function(require,module,exports){
 module.exports = require('./ContextPads');
-},{"./ContextPads":5}],10:[function(require,module,exports){
+},{"./ContextPads":5}],11:[function(require,module,exports){
 'use strict';
 
 var forEach = require('lodash/forEach');
@@ -671,25 +818,57 @@ DisableModeling.$inject = [
 ];
 
 module.exports = DisableModeling;
-},{"../../util/EventHelper":51,"lodash/forEach":166}],11:[function(require,module,exports){
+},{"../../util/EventHelper":64,"lodash/forEach":181}],12:[function(require,module,exports){
 module.exports = require('./DisableModeling');
-},{"./DisableModeling":10}],12:[function(require,module,exports){
+},{"./DisableModeling":11}],13:[function(require,module,exports){
 'use strict';
 
-function EditorActions(eventBus, toggleMode, editorActions) {
+function EditorActions(
+  eventBus,
+  toggleMode,
+  pauseSimulation,
+  log,
+  resetSimulation,
+  editorActions
+) {
   editorActions.register({
     toggleTokenSimulation: function() {
       toggleMode.toggleMode();
     }
   });
+
+  editorActions.register({
+    togglePauseTokenSimulation: function() {
+      pauseSimulation.toggle();
+    }
+  });
+
+  editorActions.register({
+    resetTokenSimulation: function() {
+      resetSimulation.resetSimulation();
+    }
+  });
+
+  editorActions.register({
+    toggleTokenSimulationLog: function() {
+      log.toggle();
+    }
+  });
 }
 
-EditorActions.$inject = [ 'eventBus', 'toggleMode', 'editorActions' ];
+EditorActions.$inject = [
+  'eventBus',
+  'toggleMode',
+  'pauseSimulation',
+  'log',
+  'resetSimulation',
+  'editorActions'
+];
 
 module.exports = EditorActions;
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 module.exports = require('./EditorActions');
-},{"./EditorActions":12}],14:[function(require,module,exports){
+},{"./EditorActions":13}],15:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify');
@@ -773,9 +952,9 @@ ElementNotifications.prototype.removeElementNotification = function(element) {
 ElementNotifications.$inject = [ 'overlays', 'eventBus' ];
 
 module.exports = ElementNotifications;
-},{"../../util/EventHelper":51,"min-dom/lib/domify":188}],15:[function(require,module,exports){
+},{"../../util/EventHelper":64,"min-dom/lib/domify":205}],16:[function(require,module,exports){
 module.exports = require('./ElementNotifications');
-},{"./ElementNotifications":14}],16:[function(require,module,exports){
+},{"./ElementNotifications":15}],17:[function(require,module,exports){
 'use strict';
 
 var domClasses = require('min-dom/lib/classes');
@@ -883,9 +1062,9 @@ ElementSupport.prototype.showWarning = function(element) {
 ElementSupport.$inject = [ 'eventBus', 'elementRegistry', 'canvas', 'notifications', 'elementNotifications' ];
 
 module.exports = ElementSupport;
-},{"../../util/ElementHelper":50,"../../util/EventHelper":51,"min-dom/lib/classes":187}],17:[function(require,module,exports){
+},{"../../util/ElementHelper":63,"../../util/EventHelper":64,"min-dom/lib/classes":202}],18:[function(require,module,exports){
 module.exports = require('./ElementSupport');
-},{"./ElementSupport":16}],18:[function(require,module,exports){
+},{"./ElementSupport":17}],19:[function(require,module,exports){
 'use strict';
 
 var is = require('../../util/ElementHelper').is;
@@ -958,10 +1137,6 @@ ExclusiveGatewaySettings.prototype.resetSequenceFlow = function(gateway) {
   if (gateway.sequenceFlow) {
     delete gateway.sequenceFlow;
   }
-
-  gateway.outgoing.forEach(function(sequenceFlow) {
-    self.setColor(sequenceFlow, '#000');
-  });
 };
 
 ExclusiveGatewaySettings.prototype.setSequenceFlow = function(gateway) {
@@ -1008,27 +1183,120 @@ ExclusiveGatewaySettings.prototype.setColor = function(sequenceFlow, color) {
 ExclusiveGatewaySettings.$inject = [ 'eventBus', 'elementRegistry', 'graphicsFactory' ];
 
 module.exports = ExclusiveGatewaySettings;
-},{"../../util/ElementHelper":50,"../../util/EventHelper":51}],19:[function(require,module,exports){
+},{"../../util/ElementHelper":63,"../../util/EventHelper":64}],20:[function(require,module,exports){
 module.exports = require('./ExclusiveGatewaySettings');
-},{"./ExclusiveGatewaySettings":18}],20:[function(require,module,exports){
-var domEvent = require('min-dom/lib/event');
+},{"./ExclusiveGatewaySettings":19}],21:[function(require,module,exports){
+'use strict';
 
-function KeyboardBindings(pauseSimulation) {
-  domEvent.bind(document, 'keydown', function(e) {
-    if (e.keyCode === 32) {
-      pauseSimulation.toggle();
+var domClosest = require('min-dom/lib/closest'),
+    domClasses = require('min-dom/lib/classes'),
+    domEvent = require('min-dom/lib/event');
 
-      return true;
+var events = require('../../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+// TODO: find a better way to check if Camunda Modeler
+function isCamundaModeler(canvas) {
+  var container = canvas.getContainer();
+
+  return domClosest(container, '.editor-parent') &&
+         domClosest(container, '.editor-container') &&
+         domClosest(container, '.bpmn-editor') &&
+         domClosest(container, '.content');
+}
+
+function KeyboardBindings(canvas, eventBus, editorActions, keyboard) {
+
+  var isActive = false;
+
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (simulationModeActive) {
+      isActive = true;
+    } else {
+      isActive = false;
+    }
+  });
+
+  eventBus.on('import.done', function() {
+
+    // Camunda Modeler doesn't bind keyboard therefore needs special treatment
+    if (isCamundaModeler(canvas)) {
+      domEvent.bind(window, 'keydown', function(e) {
+        var key = e.keyCode;
+    
+        if (!isActive) {
+          return;
+        }
+    
+        // space
+        if (key === 32) {
+          editorActions.trigger('togglePauseTokenSimulation');
+        }
+    
+        // r
+        if (key === 82) {
+          editorActions.trigger('resetTokenSimulation');
+        }
+
+        // l
+        if (key === 76) {
+          editorActions.trigger('toggleTokenSimulationLog');
+        }
+      });
+    } else {
+      keyboard.addListener(function(key) {
+        
+        // t
+        if (key === 84) {
+          editorActions.trigger('toggleTokenSimulation');
+    
+          return true;
+        }
+    
+        if (!isActive) {
+          return;
+        }
+    
+        // space
+        if (key === 32) {
+          editorActions.trigger('togglePauseTokenSimulation');
+    
+          return true;
+        }
+    
+        // r
+        if (key === 82) {
+          editorActions.trigger('resetTokenSimulation');
+    
+          return true;
+        }
+      });
+    
+      // see https://github.com/bpmn-io/diagram-js/issues/226
+      keyboard._listeners.unshift(function(key) {
+        if (!isActive) {
+          return;
+        }
+    
+        // l
+        if (key === 76) {
+          editorActions.trigger('toggleTokenSimulationLog');
+    
+          return true;
+        }
+      });
     }
   });
 }
 
-KeyboardBindings.$inject = [ 'pauseSimulation' ];
+KeyboardBindings.$inject = [ 'canvas', 'eventBus', 'editorActions', 'keyboard' ];
 
 module.exports = KeyboardBindings;
-},{"min-dom/lib/event":189}],21:[function(require,module,exports){
+},{"../../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/closest":204,"min-dom/lib/event":206}],22:[function(require,module,exports){
 module.exports = require('./KeyboardBindings');
-},{"./KeyboardBindings":20}],22:[function(require,module,exports){
+},{"./KeyboardBindings":21}],23:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1039,14 +1307,15 @@ var domify = require('min-dom/lib/domify'),
 var elementHelper = require('../../util/ElementHelper'),
     getBusinessObject = elementHelper.getBusinessObject,
     is = elementHelper.is,
-    isTypedEvent = elementHelper.isTypedEvent,
-    isParent = elementHelper.isParent;
+    isTypedEvent = elementHelper.isTypedEvent;
 
 var events = require('../../util/EventHelper'),
     GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
     CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
-    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
+    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT,
+    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT;
 
 function getElementName(element) {
   return (element && element.businessObject.name);
@@ -1066,13 +1335,19 @@ function Log(eventBus, notifications, tokenSimulationPalette, canvas) {
         elementName = getElementName(element);
 
     if (is(element, 'bpmn:StartEvent')) {
-      if (element.parent === canvas.getRootElement()) {
-        self.log('Process started', 'success', 'fa-check');
-      }
-
       self.log(elementName || 'Start Event', 'info', 'bpmn-icon-start-event-none');
     } else if (is(element, 'bpmn:Task')) {
-      self.log(elementName || 'Start Event', 'info', 'bpmn-icon-task');
+      self.log(elementName || 'Task', 'info', 'bpmn-icon-task');
+    } else if (is(element, 'bpmn:BusinessRuleTask')) {
+      self.log(elementName || 'Business Rule Task', 'info', 'bpmn-icon-business-rule');
+    } else if (is(element, 'bpmn:ManualTask')) {
+      self.log(elementName || 'Manual Task', 'info', 'bpmn-icon-manual');
+    } else if (is(element, 'bpmn:ScriptTask')) {
+      self.log(elementName || 'Script Task', 'info', 'bpmn-icon-script');
+    } else if (is(element, 'bpmn:ServiceTask')) {
+      self.log(elementName || 'Service Task', 'info', 'bpmn-icon-service');
+    } else if (is(element, 'bpmn:UserTask')) {
+      self.log(elementName || 'User Task', 'info', 'bpmn-icon-user');
     } else if (is(element, 'bpmn:ExclusiveGateway')) {
       if (element.outgoing.length < 2) {
         return;
@@ -1103,6 +1378,17 @@ function Log(eventBus, notifications, tokenSimulationPalette, canvas) {
       } else {
         self.log(elementName || 'End Event', 'info', 'bpmn-icon-end-event-none');
       }
+    }
+  });
+
+  eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, function(context) {
+    var processInstanceId = context.processInstanceId,
+        parent = context.parent;
+
+    if (is(parent, 'bpmn:Process')) {
+      self.log('Process ' + processInstanceId + ' started', 'success', 'fa-check');
+    } else {
+      self.log('Subprocess ' + processInstanceId + ' started', 'info', 'fa-check');
     }
   });
 
@@ -1148,6 +1434,10 @@ Log.prototype._init = function() {
     e.stopPropagation();
   });
 
+  domEvent.bind(this.content, 'mousedown', function(e) {
+    e.stopPropagation();
+  });
+
   this.close = domQuery('.close', this.container);
 
   domEvent.bind(this.close, 'click', function() {
@@ -1169,6 +1459,16 @@ Log.prototype._init = function() {
   });
 
   this._tokenSimulationPalette.addEntry(this.paletteEntry, 3);
+};
+
+Log.prototype.toggle = function() {
+  var container = this.container;
+  
+  if (domClasses(container).has('hidden')) {
+    domClasses(container).remove('hidden');
+  } else {
+    domClasses(container).add('hidden');
+  }
 };
 
 Log.prototype.log = function(text, type, icon) {
@@ -1212,9 +1512,9 @@ Log.prototype.emptyLog = function() {
 Log.$inject = [ 'eventBus', 'notifications', 'tokenSimulationPalette', 'canvas' ];
 
 module.exports = Log;
-},{"../../util/ElementHelper":50,"../../util/EventHelper":51,"min-dom/lib/classes":187,"min-dom/lib/domify":188,"min-dom/lib/event":189,"min-dom/lib/query":190}],23:[function(require,module,exports){
+},{"../../util/ElementHelper":63,"../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/domify":205,"min-dom/lib/event":206,"min-dom/lib/query":207}],24:[function(require,module,exports){
 module.exports = require('./Log');
-},{"./Log":22}],24:[function(require,module,exports){
+},{"./Log":23}],25:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1290,9 +1590,9 @@ Notifications.prototype.removeAll = function() {
 Notifications.$inject = [ 'eventBus', 'canvas' ];
 
 module.exports = Notifications;
-},{"../../util/EventHelper":51,"min-dom/lib/classes":187,"min-dom/lib/domify":188,"min-dom/lib/event":189}],25:[function(require,module,exports){
+},{"../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/domify":205,"min-dom/lib/event":206}],26:[function(require,module,exports){
 module.exports = require('./Notifications');
-},{"./Notifications":24}],26:[function(require,module,exports){
+},{"./Notifications":25}],27:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1349,9 +1649,9 @@ Palette.prototype.addEntry = function(entry, index) {
 Palette.$inject = [ 'eventBus', 'canvas' ];
 
 module.exports = Palette;
-},{"../../util/EventHelper":51,"min-dom/lib/classes":187,"min-dom/lib/domify":188,"min-dom/lib/event":189,"min-dom/lib/query":190}],27:[function(require,module,exports){
+},{"../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/domify":205,"min-dom/lib/event":206,"min-dom/lib/query":207}],28:[function(require,module,exports){
 module.exports = require('./Palette');
-},{"./Palette":26}],28:[function(require,module,exports){
+},{"./Palette":27}],29:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1365,7 +1665,12 @@ var events = require('../../util/EventHelper'),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
     PLAY_SIMULATION_EVENT = events.PLAY_SIMULATION_EVENT,
     PAUSE_SIMULATION_EVENT = events.PAUSE_SIMULATION_EVENT,
-    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
+    ANIMATION_CREATED_EVENT = events.ANIMATION_CREATED_EVENT,
+    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT;
+
+var PLAY_MARKUP = '<i class="fa fa-play"></i>',
+    PAUSE_MARKUP = '<i class="fa fa-pause"></i>';
 
 function PauseSimulation(eventBus, tokenSimulationPalette, notifications, canvas) {
   var self = this;
@@ -1381,45 +1686,41 @@ function PauseSimulation(eventBus, tokenSimulationPalette, notifications, canvas
 
   this._init();
 
-  eventBus.on(GENERATE_TOKEN_EVENT, function(context) {
-    var element = context.element;
+  // unpause on simulation start
+  eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, function(context) {
+    var parent = context.parent;
     
-    if (!is(element, 'bpmn:StartEvent')
-        && element.parent === canvas.getRootElement()) {
-      return;
+    if (!parent.parent) {
+      self.activate();
+      self.unpause();
+
+      notifications.showNotification('Start Simulation', 'info');
     }
-
-    self.isActive = true;
-    self.isPaused = false;
-
-    domClasses(self.paletteEntry).remove('disabled');
-    domClasses(self.paletteEntry).add('active');
-
-    self.paletteEntry.innerHTML = '<i class="fa fa-play"></i>';
-
-    notifications.showNotification('Start Simulation', 'info');
-
-    domClasses(self.canvasParent).remove('paused');
   });
 
   eventBus.on([
     RESET_SIMULATION_EVENT,
     TOGGLE_MODE_EVENT
   ], function() {
-    self.isActive = false;
-    self.isPaused = false;
+    self.deactivate();
+    self.unpause();
+  });
 
-    domClasses(self.paletteEntry).add('disabled');
-    domClasses(self.paletteEntry).remove('active');
+  eventBus.on(ANIMATION_CREATED_EVENT, function(context) {
+    var animation = context.animation;
 
-    self.paletteEntry.innerHTML = '<i class="fa fa-play"></i>';
-
-    domClasses(self.canvasParent).remove('paused');
+    if (self.isPaused) {
+      animation.pause();
+    }
   });
 }
 
 PauseSimulation.prototype._init = function() {
-  this.paletteEntry = domify('<div class="entry disabled" title="Play/Pause Simulation"><i class="fa fa-play"></i></div>');
+  this.paletteEntry = domify(
+    '<div class="entry disabled" title="Play/Pause Simulation">' +
+      PLAY_MARKUP +
+    '</div>'
+  );
 
   domEvent.bind(this.paletteEntry, 'click', this.toggle.bind(this));
 
@@ -1432,34 +1733,384 @@ PauseSimulation.prototype.toggle = function() {
   }
 
   if (this.isPaused) {
-    domClasses(this.paletteEntry).add('active');
-    domClasses(this.canvasParent).remove('paused');
-
-    this.paletteEntry.innerHTML = '<i class="fa fa-play"></i>';
-
-    this._eventBus.fire(PLAY_SIMULATION_EVENT);
-
-    this._notifications.showNotification('Play Simulation', 'info');
+    this.unpause();
   } else {
-    domClasses(this.paletteEntry).remove('active');
-    domClasses(this.canvasParent).add('paused');
+    this.pause();
+  }
+};
 
-    this.paletteEntry.innerHTML = '<i class="fa fa-pause"></i>';
-
-    this._eventBus.fire(PAUSE_SIMULATION_EVENT);
-
-    this._notifications.showNotification('Pause Simulation', 'info');
+PauseSimulation.prototype.pause = function() {
+  if (!this.isActive) {
+    return;
   }
 
-  this.isPaused = !this.isPaused;
+  domClasses(this.paletteEntry).remove('active');
+  domClasses(this.canvasParent).add('paused');
+
+  this.paletteEntry.innerHTML = PLAY_MARKUP;
+
+  this._eventBus.fire(PAUSE_SIMULATION_EVENT);
+
+  this._notifications.showNotification('Pause Simulation', 'info');
+
+  this.isPaused = true;
+};
+
+PauseSimulation.prototype.unpause = function() {
+  if (!this.isActive) {
+    return;
+  }
+
+  domClasses(this.paletteEntry).add('active');
+  domClasses(this.canvasParent).remove('paused');
+
+  this.paletteEntry.innerHTML = PAUSE_MARKUP;
+
+  this._eventBus.fire(PLAY_SIMULATION_EVENT);
+
+  this._notifications.showNotification('Play Simulation', 'info');
+
+  this.isPaused = false;
+};
+
+PauseSimulation.prototype.activate = function() {
+  this.isActive = true;
+
+  domClasses(this.paletteEntry).remove('disabled');
+};
+
+PauseSimulation.prototype.deactivate = function() {
+  this.isActive = false;
+
+  domClasses(this.paletteEntry).remove('active');
+  domClasses(this.paletteEntry).add('disabled');
 };
 
 PauseSimulation.$inject = [ 'eventBus', 'tokenSimulationPalette', 'notifications', 'canvas' ];
 
 module.exports = PauseSimulation;
-},{"../../util/ElementHelper":50,"../../util/EventHelper":51,"min-dom/lib/classes":187,"min-dom/lib/domify":188,"min-dom/lib/event":189}],29:[function(require,module,exports){
+},{"../../util/ElementHelper":63,"../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/domify":205,"min-dom/lib/event":206}],30:[function(require,module,exports){
 module.exports = require('./PauseSimulation');
-},{"./PauseSimulation":28}],30:[function(require,module,exports){
+},{"./PauseSimulation":29}],31:[function(require,module,exports){
+'use strict';
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+var VERY_HIGH_PRIORITY = 50000;
+
+function PreserveElementColors(eventBus, elementRegistry, graphicsFactory) {
+  var self = this;
+
+  this._elementRegistry = elementRegistry;
+  this._graphicsFactory = graphicsFactory;
+
+  this.elementColors = {};
+
+  eventBus.on(TOGGLE_MODE_EVENT, VERY_HIGH_PRIORITY, function(context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      self.resetColors();
+    } else {
+      self.preserveColors();
+    }
+  });
+}
+
+PreserveElementColors.prototype.preserveColors = function() {
+  var self = this;
+
+  this._elementRegistry.forEach(function(element) {
+    self.elementColors[element.id] = {
+      stroke: element.businessObject.di.get('stroke'),
+      fill: element.businessObject.di.get('fill')
+    };
+    
+    self.setColor(element, '#000', '#fff');
+  });
+};
+
+PreserveElementColors.prototype.resetColors = function() {
+  var self = this;
+
+  this._elementRegistry.forEach(function(element) {
+    if (self.elementColors[element.id]) {
+      self.setColor(element, self.elementColors[element.id].stroke, self.elementColors[element.id].fill);
+    }
+  });
+
+  this.elementColors = {};
+};
+
+PreserveElementColors.prototype.setColor = function(element, stroke, fill) {
+  var businessObject = element.businessObject;
+
+  businessObject.di.set('stroke', stroke);
+  businessObject.di.set('fill', fill);
+  
+  var gfx = this._elementRegistry.getGraphics(element);
+
+  var type = element.waypoints ? 'connection' : 'shape';
+  
+  this._graphicsFactory.update(type, element, gfx);
+};
+
+PreserveElementColors.$inject = [ 'eventBus', 'elementRegistry', 'graphicsFactory' ];
+
+module.exports = PreserveElementColors;
+},{"../../util/EventHelper":64}],32:[function(require,module,exports){
+module.exports = require('./PreserveElementColors');
+},{"./PreserveElementColors":31}],33:[function(require,module,exports){
+'use strict';
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
+
+function ProcessInstanceIds(eventBus) {
+  var self = this;
+
+  this.nextProcessInstanceId = 1;
+
+  eventBus.on(TOGGLE_MODE_EVENT, this.reset.bind(this));
+
+  eventBus.on(RESET_SIMULATION_EVENT, this.reset.bind(this));
+}
+
+ProcessInstanceIds.prototype.getNext = function() {
+  var processInstanceId  = this.nextProcessInstanceId;
+
+  this.nextProcessInstanceId++;
+
+  return processInstanceId;
+};
+
+ProcessInstanceIds.prototype.reset = function() {
+  this.nextProcessInstanceId = 1;
+};
+
+ProcessInstanceIds.$inject = [ 'eventBus' ];
+
+module.exports = ProcessInstanceIds;
+},{"../../util/EventHelper":64}],34:[function(require,module,exports){
+module.exports = require('./ProcessInstanceIds');
+},{"./ProcessInstanceIds":33}],35:[function(require,module,exports){
+'use strict';
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT,
+    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT,
+    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT,
+    PROCESS_INSTANCE_HIDDEN_EVENT = events.PROCESS_INSTANCE_HIDDEN_EVENT;
+
+var LOW_PRIORITY = 500;
+
+function ProcessInstanceSettings(animation, eventBus, processInstances, elementRegistry) {
+  var self = this;
+  
+  this._animation = animation;
+  this._eventBus = eventBus;
+  this._processInstances = processInstances;
+  this._elementRegistry = elementRegistry;
+
+  this._eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, LOW_PRIORITY, function(context) {
+    var parent = context.parent,
+        processInstanceId = context.processInstanceId;
+
+    var processInstancesWithParent = processInstances.getProcessInstances(parent).filter(function(processInstance) {
+      return !processInstance.isFinished;
+    });
+
+    if (processInstancesWithParent.length === 1) {
+      self.showProcessInstance(processInstanceId, parent);
+    } else if (processInstancesWithParent.length > 1) {
+      self.hideProcessInstance(processInstanceId);
+    }
+  });
+
+  this._eventBus.on(PROCESS_INSTANCE_FINISHED_EVENT, LOW_PRIORITY, function(context) {
+    var parent = context.parent,
+        processInstanceId = context.processInstanceId;
+
+    var processInstancesWithParent = processInstances
+      .getProcessInstances(parent)
+      .filter(function(processInstance) {
+        return processInstanceId !== processInstance.processInstanceId && !processInstance.isFinished;
+      });
+
+    // show remaining process instance
+    if (processInstancesWithParent.length
+        && processInstanceId === parent.shownProcessInstance) {
+
+      self.showProcessInstance(processInstancesWithParent[0].processInstanceId, parent);
+
+    } else {
+      delete parent.shownProcessInstance;
+    }
+
+    // outer process is finished
+    if (!parent.parent) {
+      elementRegistry.forEach(function(element) {
+        delete element.shownProcessInstance;
+      });
+    }
+  });
+
+  eventBus.on(TOGGLE_MODE_EVENT, function() {
+    elementRegistry.forEach(function(element) {
+      delete element.shownProcessInstance;
+    });
+  });
+}
+
+ProcessInstanceSettings.prototype.showProcessInstance = function(processInstanceId, parent) {
+  this._animation.showProcessInstanceAnimations(processInstanceId);
+
+  parent.shownProcessInstance = processInstanceId;
+
+  this._eventBus.fire(PROCESS_INSTANCE_SHOWN_EVENT, {
+    processInstanceId: processInstanceId
+  });
+};
+
+ProcessInstanceSettings.prototype.hideProcessInstance = function(processInstanceId) {
+  this._animation.hideProcessInstanceAnimations(processInstanceId);
+
+  this._eventBus.fire(PROCESS_INSTANCE_HIDDEN_EVENT, {
+    processInstanceId: processInstanceId
+  });
+};
+
+ProcessInstanceSettings.prototype.showNext = function(parent) {
+  var self = this;
+
+  var processInstancesWithParent = this._processInstances.getProcessInstances(parent);
+
+  var shownProcessInstance = parent.shownProcessInstance;
+
+  var indexOfShownProcessInstance = 0;
+
+  for (let i = 0; i < processInstancesWithParent.length; i++) {
+    if (processInstancesWithParent[i].processInstanceId === shownProcessInstance) {
+      break;
+    } else {
+      indexOfShownProcessInstance++;
+    }
+  }
+
+  processInstancesWithParent.forEach(function(processInstance) {
+    self.hideProcessInstance(processInstance.processInstanceId);
+  });
+
+  if (indexOfShownProcessInstance === processInstancesWithParent.length - 1) {
+
+    // last index
+    this.showProcessInstance(processInstancesWithParent[0].processInstanceId, parent);
+  } else {
+
+    // not last index
+    this.showProcessInstance(processInstancesWithParent[indexOfShownProcessInstance + 1].processInstanceId, parent);
+  }
+};
+
+ProcessInstanceSettings.$inject = [ 'animation', 'eventBus', 'processInstances', 'elementRegistry' ];
+
+module.exports = ProcessInstanceSettings;
+},{"../../util/EventHelper":64}],36:[function(require,module,exports){
+module.exports = require('./ProcessInstanceSettings');
+},{"./ProcessInstanceSettings":35}],37:[function(require,module,exports){
+'use strict';
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
+    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT,
+    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT;
+
+function ProcessInstances(eventBus, processInstanceIds) {
+  var self = this;
+
+  this._eventBus = eventBus;
+  this._processInstanceIds = processInstanceIds;
+
+  this.processInstances = [];
+
+  // clear instances
+  eventBus.on([ TOGGLE_MODE_EVENT, RESET_SIMULATION_EVENT ], function() {
+    self.processInstances = [];
+  });
+}
+
+/**
+ * Create a new process instance.
+ * 
+ * @param {Object} parent - Parent element which contains all child elements of process definition.
+ * @param {string} [parentProcessInstanceId] - Optional ID of parent process instance.
+ */
+ProcessInstances.prototype.create = function(parent, parentProcessInstanceId) {
+  var processInstanceId = this._processInstanceIds.getNext();
+
+  var processInstance = {
+    parent: parent,
+    processInstanceId: processInstanceId,
+    parentProcessInstanceId: parentProcessInstanceId
+  };
+
+  this.processInstances.push(processInstance);
+
+  this._eventBus.fire(PROCESS_INSTANCE_CREATED_EVENT, processInstance);
+
+  return processInstanceId;
+};
+
+ProcessInstances.prototype.remove = function(processInstanceId) {
+  this.processInstances = this.processInstances.filter(function(processInstance) {
+    return processInstance.processInstanceId !== processInstanceId;
+  });
+};
+
+/**
+ * Finish a process instance.
+ * 
+ * @param {string} processInstanceId - ID of process instance.
+ */
+ProcessInstances.prototype.finish = function(processInstanceId) {
+  var processInstance = this.processInstances.find(function(processInstance) {
+    return processInstance.processInstanceId === processInstanceId;
+  });
+
+  this._eventBus.fire(PROCESS_INSTANCE_FINISHED_EVENT, processInstance);
+
+  processInstance.isFinished = true;
+};
+
+/**
+ * @param {Object} [parent] - Optional parent.
+ */
+ProcessInstances.prototype.getProcessInstances = function(parent) {
+  if (!parent) {
+    return this.processInstances;
+  }
+
+  return this.processInstances.filter(function(processInstance) {
+    return processInstance.parent === parent;
+  });
+};
+
+ProcessInstances.prototype.getProcessInstance = function(processInstanceId) {
+  return this.processInstances.find(function(processInstance) {
+    return processInstance.processInstanceId === processInstanceId;
+  });
+};
+
+ProcessInstances.$inject = [ 'eventBus', 'processInstanceIds' ];
+
+module.exports = ProcessInstances;
+},{"../../util/EventHelper":64}],38:[function(require,module,exports){
+module.exports = require('./ProcessInstances');
+},{"./ProcessInstances":37}],39:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1517,27 +2168,302 @@ ResetSimulation.prototype._init = function() {
 ResetSimulation.prototype.resetSimulation = function() {
   domClasses(this.paletteEntry).add('disabled');
 
-  this._eventBus.fire(RESET_SIMULATION_EVENT);
-
   this._elementRegistry.forEach(function(element) {
     if (element.tokenCount !== undefined) {
       delete element.tokenCount;
     }
   });
+  
+  this._eventBus.fire(RESET_SIMULATION_EVENT);
 };
 
 ResetSimulation.$inject = [ 'eventBus', 'tokenSimulationPalette', 'notifications', 'elementRegistry' ];
 
 module.exports = ResetSimulation;
-},{"../../util/ElementHelper":50,"../../util/EventHelper":51,"min-dom/lib/classes":187,"min-dom/lib/domify":188,"min-dom/lib/event":189}],31:[function(require,module,exports){
+},{"../../util/ElementHelper":63,"../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/domify":205,"min-dom/lib/event":206}],40:[function(require,module,exports){
 module.exports = require('./ResetSimulation');
-},{"./ResetSimulation":30}],32:[function(require,module,exports){
+},{"./ResetSimulation":39}],41:[function(require,module,exports){
+'use strict';
+
+var domify = require('min-dom/lib/domify'),
+    domClasses = require('min-dom/lib/classes'),
+    domEvent = require('min-dom/lib/event'),
+    domQuery = require('min-dom/lib/query'),
+    domClear = require('min-dom/lib/clear');
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+function SetAnimationSpeed(canvas, animation, eventBus) {
+  var self = this;
+
+  this._canvas = canvas;
+  this._animation = animation;
+  this._eventBus = eventBus;
+
+  this._init();
+
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      domClasses(self.container).add('hidden');
+    } else {
+      domClasses(self.container).remove('hidden');
+    }
+  });
+}
+
+SetAnimationSpeed.prototype._init = function() {
+  var self = this;
+
+  this.container = domify(
+    '<div class="set-animation-speed hidden">' +
+      '<i title="Set Animation Speed" class="fa fa-tachometer" aria-hidden="true"></i>' +
+      '<div class="animation-speed-buttons">' +
+        '<div title="Slow" id="animation-speed-1" class="animation-speed-button"><i class="fa fa-angle-right" aria-hidden="true"></i></div>' +
+        '<div title="Normal" id="animation-speed-2" class="animation-speed-button active"><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-angle-right" aria-hidden="true"></i></div>' +
+        '<div title="Fast" id="animation-speed-3" class="animation-speed-button"><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-angle-right" aria-hidden="true"></i></div>' +
+      '</div>' +
+    '</div>'
+  );
+
+  var speed1 = domQuery('#animation-speed-1', this.container),
+      speed2 = domQuery('#animation-speed-2', this.container),
+      speed3 = domQuery('#animation-speed-3', this.container);
+
+  domEvent.bind(speed1, 'click', function() {
+    self.setActive(speed1);
+
+    self._animation.setAnimationSpeed(0.5);
+  });
+
+  domEvent.bind(speed2, 'click', function() {
+    self.setActive(speed2);
+
+    self._animation.setAnimationSpeed(1);
+  });
+
+  domEvent.bind(speed3, 'click', function() {
+    self.setActive(speed3);
+
+    self._animation.setAnimationSpeed(1.5);
+  });
+  
+  this._canvas.getContainer().appendChild(this.container);
+};
+
+SetAnimationSpeed.prototype.setActive = function(element) {
+  domQuery.all('.animation-speed-button', this.container).forEach(function(button) {
+    domClasses(button).remove('active');
+  });
+
+  domClasses(element).add('active');
+};
+
+SetAnimationSpeed.$inject = [ 'canvas', 'animation', 'eventBus' ];
+
+module.exports = SetAnimationSpeed;
+},{"../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/clear":203,"min-dom/lib/domify":205,"min-dom/lib/event":206,"min-dom/lib/query":207}],42:[function(require,module,exports){
+module.exports = require('./SetAnimationSpeed');
+},{"./SetAnimationSpeed":41}],43:[function(require,module,exports){
+'use strict';
+
+var domify = require('min-dom/lib/domify'),
+    domClasses = require('min-dom/lib/classes'),
+    domEvent = require('min-dom/lib/event'),
+    domQuery = require('min-dom/lib/query'),
+    domClear = require('min-dom/lib/clear');
+
+var events = require('../../util/EventHelper'),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT,
+    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT,
+    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT,
+    PROCESS_INSTANCE_HIDDEN_EVENT = events.PROCESS_INSTANCE_HIDDEN_EVENT;
+
+function isNull(value) {
+  return value === null;
+}
+
+function ShowProcessInstance(
+  eventBus,
+  canvas,
+  processInstanceSettings,
+  processInstances,
+  graphicsFactory,
+  elementRegistry
+) {
+  var self = this;
+  
+  this._eventBus = eventBus;
+  this._canvas = canvas;
+  this._processInstanceSettings = processInstanceSettings;
+  this._processInstances = processInstances;
+  this._graphicsFactory = graphicsFactory;
+  this._elementRegistry = elementRegistry;
+
+  this.highlightedElement = null;
+
+  this._init();
+
+  eventBus.on(TOGGLE_MODE_EVENT, function(context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      domClasses(self.container).add('hidden');
+      domClear(self.container);
+
+      if (!isNull(self.highlightedElement)) {
+        self.removeHighlightFromProcess(self.highlightedElement.element);
+
+        self.highlightedElement = null;
+      } 
+    } else {
+      domClasses(self.container).remove('hidden');
+    }
+  });
+
+  eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, function(context) {
+    self.addInstance(context);
+  });
+
+  eventBus.on(PROCESS_INSTANCE_FINISHED_EVENT, function(context) {
+    self.removeInstance(context);
+  });
+
+  eventBus.on(PROCESS_INSTANCE_SHOWN_EVENT, function(context) {
+    self.setInstanceShown(context.processInstanceId);
+  });
+
+  eventBus.on(PROCESS_INSTANCE_HIDDEN_EVENT, function(context) {
+    self.setInstanceHidden(context.processInstanceId);
+  });
+}
+
+ShowProcessInstance.prototype._init = function() {
+  this.container = domify('<div class="process-instances hidden"></div>');
+  
+  this._canvas.getContainer().appendChild(this.container);
+};
+
+ShowProcessInstance.prototype.addInstance = function(context) {
+  var self = this;
+
+  var processInstanceId = context.processInstanceId,
+      parent = context.parent;
+  
+  var element = domify(
+    '<div id="instance-' + processInstanceId + '" class="process-instance" title="View Process Instance ' + processInstanceId + '">' +
+    processInstanceId +
+    '</div>'
+  );
+
+  domEvent.bind(element, 'click', function() {
+    var processInstancesWithParent = self._processInstances.getProcessInstances(parent);
+
+    processInstancesWithParent.forEach(function(processInstance) {
+      self._processInstanceSettings.hideProcessInstance(processInstance.processInstanceId);
+    });
+
+    self._processInstanceSettings.showProcessInstance(processInstanceId, parent);
+  });
+
+  domEvent.bind(element, 'mouseenter', function() {
+    self.highlightedElement = {
+      element: parent,
+      stroke: parent.businessObject.di.get('stroke'),
+      fill: parent.businessObject.di.get('fill')
+    };
+
+    self.addHighlightToProcess(parent);
+  });
+  
+  domEvent.bind(element, 'mouseleave', function() {
+    self.removeHighlightFromProcess(parent);
+    
+    self.highlightedElement = null;
+  });
+
+  this.container.appendChild(element);
+};
+
+ShowProcessInstance.prototype.removeInstance = function(context) {
+  var processInstanceId = context.processInstanceId;
+
+  var element = domQuery('#instance-' + processInstanceId, this.container);
+
+  if (element) {
+    element.remove();
+  }
+};
+
+ShowProcessInstance.prototype.setInstanceShown = function(processInstanceId) {
+  var element = domQuery('#instance-' + processInstanceId, this.container);
+  
+  if (element) {
+    domClasses(element).add('active');
+  }
+};
+
+ShowProcessInstance.prototype.setInstanceHidden = function(processInstanceId) {
+  var element = domQuery('#instance-' + processInstanceId, this.container);
+  
+  if (element) {
+    domClasses(element).remove('active');
+  }
+};
+
+ShowProcessInstance.prototype.addHighlightToProcess = function(element) {
+  this.setColor(element, '#52b415', '#ecfbe3');
+
+  if (!element.parent) {
+    domClasses(this._canvas.getContainer()).add('highlight');
+  }
+};
+
+ShowProcessInstance.prototype.removeHighlightFromProcess = function(element) {
+  if (isNull(this.highlightedElement)) {
+    return;
+  }
+
+  this.setColor(element, this.highlightedElement.stroke, this.highlightedElement.fill);
+
+  if (!element.parent) {
+    domClasses(this._canvas.getContainer()).remove('highlight');
+  }
+};
+
+ShowProcessInstance.prototype.setColor = function(element, stroke, fill) {
+  var businessObject = element.businessObject;
+
+  businessObject.di.set('stroke', stroke);
+  businessObject.di.set('fill', fill);
+  
+  var gfx = this._elementRegistry.getGraphics(element);
+  
+  this._graphicsFactory.update('connection', element, gfx);
+};
+
+ShowProcessInstance.$inject = [
+  'eventBus',
+  'canvas',
+  'processInstanceSettings',
+  'processInstances',
+  'graphicsFactory',
+  'elementRegistry'
+];
+
+module.exports = ShowProcessInstance;
+},{"../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/clear":203,"min-dom/lib/domify":205,"min-dom/lib/event":206,"min-dom/lib/query":207}],44:[function(require,module,exports){
+module.exports = require('./ShowProcessInstance');
+},{"./ShowProcessInstance":43}],45:[function(require,module,exports){
 'use strict';
 
 var elementHelper = require('../../util/ElementHelper'),
     getBusinessObject = elementHelper.getBusinessObject,
     is = elementHelper.is,
-    isParent = elementHelper.isParent,
+    isAncestor = elementHelper.isAncestor,
     isTypedEvent = elementHelper.isTypedEvent;
 
 var events = require('../../util/EventHelper'),
@@ -1552,7 +2478,8 @@ function SimulationState(
   elementRegistry,
   log,
   elementNotifications,
-  canvas
+  canvas,
+  processInstances
 ) {
   var self = this;
 
@@ -1561,12 +2488,14 @@ function SimulationState(
   this._log = log;
   this._elementNotifications = elementNotifications;
   this._canvas = canvas;
+  this._processInstances = processInstances;
 
   eventBus.on(CONSUME_TOKEN_EVENT, VERY_LOW_PRIORITY, function() {
-    self.isDeadlock();
+    // self.isDeadlock();
   });
 }
 
+// TODO: refactor
 SimulationState.prototype.isDeadlock = function() {
   var self = this;
 
@@ -1644,7 +2573,14 @@ SimulationState.prototype.isDeadlock = function() {
   }
 };
 
-SimulationState.prototype.isFinished = function(element, parent) {
+/**
+ * Check if process instance finished.
+ * Element is necessary to display element notification if finished.
+ */
+SimulationState.prototype.isFinished = function(element, processInstanceId) {
+  var processInstance = this._processInstances.getProcessInstance(processInstanceId);
+      parent = processInstance.parent;
+
   var hasTokens = false;
 
   if (!parent) {
@@ -1652,7 +2588,10 @@ SimulationState.prototype.isFinished = function(element, parent) {
   }
   
   parent.children.forEach(function(element) {
-    if (element.tokenCount) {
+    if (element.tokenCount &&
+        element.tokenCount[processInstanceId] &&
+        element.tokenCount[processInstanceId].length
+    ) {
       hasTokens = true;
     }
   });
@@ -1660,16 +2599,17 @@ SimulationState.prototype.isFinished = function(element, parent) {
   var hasAnimations = false;
   
   this._animation.animations.forEach(function(animation) {
-    if (isParent(animation.element, parent)) {
+    if (isAncestor(animation.element, parent) &&
+        animation.processInstanceId === processInstanceId) {
       hasAnimations = true;
     }
   });
 
   if (!hasTokens && !hasAnimations) {
     if (is(parent, 'bpmn:SubProcess')) {
-      this._log.log('Subprocess finished', 'info', 'fa-check-circle');
+      this._log.log('Subprocess ' + processInstanceId + ' finished', 'info', 'fa-check-circle');
     } else {
-      this._log.log('Process finished', 'success', 'fa-check-circle');
+      this._log.log('Process ' + processInstanceId + ' finished', 'success', 'fa-check-circle');
       
       this._elementNotifications.addElementNotification(element, {
         type: 'success',
@@ -1688,13 +2628,14 @@ SimulationState.$inject = [
   'elementRegistry',
   'log',
   'elementNotifications',
-  'canvas'
+  'canvas',
+  'processInstances'
 ];
 
 module.exports = SimulationState;
-},{"../../util/ElementHelper":50,"../../util/EventHelper":51}],33:[function(require,module,exports){
+},{"../../util/ElementHelper":63,"../../util/EventHelper":64}],46:[function(require,module,exports){
 module.exports = require('./SimulationState');
-},{"./SimulationState":32}],34:[function(require,module,exports){
+},{"./SimulationState":45}],47:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify'),
@@ -1768,35 +2709,37 @@ ToggleMode.prototype.toggleMode = function() {
 ToggleMode.$inject = [ 'eventBus', 'canvas', 'selection', 'contextPad' ];
 
 module.exports = ToggleMode;
-},{"../../../util/EventHelper":51,"min-dom/lib/classes":187,"min-dom/lib/domify":188,"min-dom/lib/event":189,"min-dom/lib/query":190}],35:[function(require,module,exports){
+},{"../../../util/EventHelper":64,"min-dom/lib/classes":202,"min-dom/lib/domify":205,"min-dom/lib/event":206,"min-dom/lib/query":207}],48:[function(require,module,exports){
 module.exports = require('./ToggleMode.js');
-},{"./ToggleMode.js":34}],36:[function(require,module,exports){
+},{"./ToggleMode.js":47}],49:[function(require,module,exports){
 'use strict';
 
 var domify = require('min-dom/lib/domify');
 
 var elementHelper = require('../../util/ElementHelper'),
     is = elementHelper.is,
-    isParent = elementHelper.isParent;
+    isAncestor = elementHelper.isAncestor;
 
 var events = require('../../util/EventHelper'),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
     GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
     CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
     RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
-    TERMINATE_EVENT = events.TERMINATE_EVENT;
+    TERMINATE_EVENT = events.TERMINATE_EVENT,
+    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT;
 
 var OFFSET_BOTTOM = 10,
     OFFSET_LEFT = -15;
 
 var LOW_PRIORITY = 500;
 
-function TokenCount(eventBus, overlays, elementRegistry, canvas) {
+function TokenCount(eventBus, overlays, elementRegistry, canvas, processInstances) {
   var self = this;
 
   this._overlays = overlays;
   this._elementRegistry = elementRegistry;
   this._canvas = canvas;
+  this._processInstances = processInstances;
 
   this.overlayIds = {};
 
@@ -1813,47 +2756,73 @@ function TokenCount(eventBus, overlays, elementRegistry, canvas) {
   });
 
   eventBus.on(TERMINATE_EVENT, function(context) {
-    var element = context.element;
+    var element = context.element,
+        parent = element.parent;
 
-    self.removeTokenCounts(element);
+    self.removeTokenCounts(parent);
   });
 
   eventBus.on([ GENERATE_TOKEN_EVENT, CONSUME_TOKEN_EVENT ], LOW_PRIORITY, function(context) {
-    var element = context.element;
+    var element = context.element,
+        parent = element.parent;
 
-    self.removeTokenCounts(element);
-    self.addTokenCounts(element);
+    self.removeTokenCounts(parent);
+    self.addTokenCounts(parent);
+  });
+
+  eventBus.on(PROCESS_INSTANCE_SHOWN_EVENT, function(context) {
+    var processInstanceId = context.processInstanceId;
+
+    var processInstance = processInstances.getProcessInstance(processInstanceId),
+        parent = processInstance.parent;
+
+    self.removeTokenCounts(parent);
+    self.addTokenCounts(parent);
   });
 }
 
-TokenCount.prototype.addTokenCounts = function(element) {
+TokenCount.prototype.addTokenCounts = function(parent) {
   var self = this;
-  
-  var parent = element && element.parent;
 
   if (!parent) {
     parent = this._canvas.getRootElement();
   }
 
+  var shownProcessInstance = parent.shownProcessInstance;
+
+  // choose default
+  if (!shownProcessInstance) {
+    var processInstancesWithParent = this._processInstances.getProcessInstances(parent);
+
+    // no instance
+    if (!processInstancesWithParent.length) {
+      return;
+    }
+
+    shownProcessInstance = processInstancesWithParent[0].processInstanceId;
+  }
+
   this._elementRegistry.forEach(function(element) {
-    if (isParent(parent, element)) {
-      self.addTokenCount(element);
+    if (isAncestor(parent, element)) {
+      self.addTokenCount(element, shownProcessInstance);
     }
   });
 };
 
-TokenCount.prototype.addTokenCount = function(element) {
-  if (!element.tokenCount) {
+TokenCount.prototype.addTokenCount = function(element, shownProcessInstance) {
+  var tokenCount = element.tokenCount && element.tokenCount[shownProcessInstance];
+
+  if (!tokenCount) {
     return;
   }
 
-  var tokenCount = this.createTokenCount(element);
+  var html = this.createTokenCount(tokenCount);
 
   var position = { bottom: OFFSET_BOTTOM, left: OFFSET_LEFT };
   
   var overlayId = this._overlays.add(element, 'token-count', {
     position: position,
-    html: tokenCount,
+    html: html,
     show: {
       minZoom: 0.5
     }
@@ -1862,21 +2831,19 @@ TokenCount.prototype.addTokenCount = function(element) {
   this.overlayIds[element.id] = overlayId;
 };
 
-TokenCount.prototype.createTokenCount = function(element) {
-  return domify('<div class="token-count waiting">' + element.tokenCount + '</div>');
+TokenCount.prototype.createTokenCount = function(tokenCount) {
+  return domify('<div class="token-count waiting">' + tokenCount + '</div>');
 };
 
-TokenCount.prototype.removeTokenCounts = function(element) {
+TokenCount.prototype.removeTokenCounts = function(parent) {
   var self = this;
-  
-  var parent = element && element.parent;
 
   if (!parent) {
     parent = this._canvas.getRootElement();
   }
 
   this._elementRegistry.forEach(function(element) {
-    if (isParent(parent, element)) {
+    if (isAncestor(parent, element)) {
       self.removeTokenCount(element);
     }
   });
@@ -1894,12 +2861,12 @@ TokenCount.prototype.removeTokenCount = function(element) {
   delete this.overlayIds[element.id];
 };
 
-TokenCount.$inject = [ 'eventBus', 'overlays', 'elementRegistry', 'canvas' ];
+TokenCount.$inject = [ 'eventBus', 'overlays', 'elementRegistry', 'canvas', 'processInstances' ];
 
 module.exports = TokenCount;
-},{"../../util/ElementHelper":50,"../../util/EventHelper":51,"min-dom/lib/domify":188}],37:[function(require,module,exports){
+},{"../../util/ElementHelper":63,"../../util/EventHelper":64,"min-dom/lib/domify":205}],50:[function(require,module,exports){
 module.exports = require('./TokenCount');
-},{"./TokenCount":36}],38:[function(require,module,exports){
+},{"./TokenCount":49}],51:[function(require,module,exports){
 'use strict';
 
 var EndEventHandler = require('./handler/EndEventHandler'),
@@ -1935,6 +2902,8 @@ function TokenSimulationBehavior(eventBus, animation, injector) {
     'bpmn:BusinessRuleTask',
     'bpmn:Task',
     'bpmn:ManualTask',
+    'bpmn:ScriptTask',
+    'bpmn:ServiceTask',
     'bpmn:UserTask'
   ], TaskHandler);
 
@@ -1946,7 +2915,7 @@ function TokenSimulationBehavior(eventBus, animation, injector) {
       throw new Error('no handler for type ' + element.type);
     }
 
-    self.handlers[element.type].generate(element);
+    self.handlers[element.type].generate(context);
   });
 
   // call handler on consume token
@@ -1957,7 +2926,7 @@ function TokenSimulationBehavior(eventBus, animation, injector) {
       throw new Error('no handler for type ' + element.type);
     }
 
-    self.handlers[element.type].consume(element);
+    self.handlers[element.type].consume(context);
   });
 }
 
@@ -1978,94 +2947,129 @@ TokenSimulationBehavior.prototype.registerHandler = function(types, handlerCls) 
 TokenSimulationBehavior.$inject = [ 'eventBus', 'animation', 'injector' ];
 
 module.exports = TokenSimulationBehavior;
-},{"../../util/EventHelper":51,"./handler/EndEventHandler":39,"./handler/EventBasedGatewayHandler":40,"./handler/ExclusiveGatewayHandler":41,"./handler/IntermediateCatchEventHandler":42,"./handler/IntermediateThrowEventHandler":43,"./handler/ParallelGatewayHandler":44,"./handler/StartEventHandler":45,"./handler/SubProcessHandler":46,"./handler/TaskHandler":47}],39:[function(require,module,exports){
+},{"../../util/EventHelper":64,"./handler/EndEventHandler":52,"./handler/EventBasedGatewayHandler":53,"./handler/ExclusiveGatewayHandler":54,"./handler/IntermediateCatchEventHandler":55,"./handler/IntermediateThrowEventHandler":56,"./handler/ParallelGatewayHandler":57,"./handler/StartEventHandler":58,"./handler/SubProcessHandler":59,"./handler/TaskHandler":60}],52:[function(require,module,exports){
 'use strict';
 
 var elementHelper = require('../../../util/ElementHelper'),
     getBusinessObject = elementHelper.getBusinessObject,
     is = elementHelper.is,
-    isParent = elementHelper.isParent,
+    isAncestor = elementHelper.isAncestor,
+    getDescendants = elementHelper.getDescendants,
     isTypedEvent = elementHelper.isTypedEvent;
 
 var events = require('../../../util/EventHelper'),
     CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
     GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
-    TERMINATE_EVENT = events.TERMINATE_EVENT;
+    TERMINATE_EVENT = events.TERMINATE_EVENT,
+    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;
 
-function EndEventHandler(animation, eventBus, log, simulationState, elementRegistry) {
+function EndEventHandler(animation, eventBus, log, simulationState, elementRegistry, processInstances) {
   this._animation = animation;
   this._eventBus = eventBus;
   this._log = log;
   this._simulationState = simulationState;
   this._elementRegistry = elementRegistry;
+  this._processInstances = processInstances;
 };
 
-EndEventHandler.prototype.consume = function(element) {
+EndEventHandler.prototype.consume = function(context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
   var isTerminate = isTypedEvent(getBusinessObject(element), 'bpmn:TerminateEventDefinition'),
       isSubProcessChild = is(element.parent, 'bpmn:SubProcess');
 
   if (isTerminate) {
-    this._eventBus.fire(TERMINATE_EVENT, {
-      element: element
-    });
+    this._eventBus.fire(TERMINATE_EVENT, context);
 
     this._elementRegistry.forEach(function(e) {
-      if (isParent(element.parent, e) && e.tokenCount !== undefined) {
-        delete e.tokenCount;
+      if (isAncestor(element.parent, e) && 
+          e.tokenCount &&
+          e.tokenCount[processInstanceId]) {
+        delete e.tokenCount[processInstanceId];
       }
     });
+
+    // finish but do NOT remove
+    this._processInstances.finish(processInstanceId);
   }
 
-  var isFinished = this._simulationState.isFinished(element, element.parent);
+  var parent = element.parent;
+
+  var isFinished = this._simulationState.isFinished(element, processInstanceId);
+
+  if (isFinished) {
+
+    // finish but do NOT remove
+    this._processInstances.finish(processInstanceId);
+  }
 
   if ((isFinished || isTerminate) && isSubProcessChild) {
+    var processInstance = this._processInstances.getProcessInstance(processInstanceId);
+
+    // generate token on parent
     this._eventBus.fire(GENERATE_TOKEN_EVENT, {
-      element: element
+      element: element.parent,
+      processInstanceId: processInstance.parentProcessInstanceId
     });
   }
-};
 
-EndEventHandler.prototype.generate = function(element) {
-  var self = this;
-  
-  if (!is(element.parent, 'bpmn:SubProcess')) {
-    return;
-  }
-
-  var outgoingSequenceFlows = element.parent.outgoing.filter(function(outgoing) {
-    return is(outgoing, 'bpmn:SequenceFlow');
-  });
-  
-  outgoingSequenceFlows.forEach(function(connection) {
-    self._animation.createAnimation(connection, function() {
-      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
-        element: connection.target
-      });
-    });
+  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {
+    elements: getDescendants(this._elementRegistry.getAll(), element.parent)
   });
 };
 
-EndEventHandler.$inject = [ 'animation', 'eventBus', 'log', 'simulationState', 'elementRegistry' ];
+/**
+ * End event never generates.
+ */
+EndEventHandler.prototype.generate = function(context) {};
+
+EndEventHandler.$inject = [ 'animation', 'eventBus', 'log', 'simulationState', 'elementRegistry', 'processInstances' ];
 
 module.exports = EndEventHandler;
-},{"../../../util/ElementHelper":50,"../../../util/EventHelper":51}],40:[function(require,module,exports){
+},{"../../../util/ElementHelper":63,"../../../util/EventHelper":64}],53:[function(require,module,exports){
 'use strict';
+
+var is = require('../../../util/ElementHelper').is;
 
 var events = require('../../../util/EventHelper'),
     CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
-    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;
 
 function ExclusiveGatewayHandler(eventBus, animation) {
   this._eventBus = eventBus;
   this._animation = animation;
 };
 
-ExclusiveGatewayHandler.prototype.consume = function(element) {
+ExclusiveGatewayHandler.prototype.consume = function(context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+  
   if (!element.tokenCount) {
-    element.tokenCount = 0;
+    element.tokenCount = {};
   }
 
-  element.tokenCount++;
+  if (!element.tokenCount[processInstanceId]) {
+    element.tokenCount[processInstanceId] = 0;
+  }
+
+  element.tokenCount[processInstanceId]++;
+
+  var outgoing = element.outgoing,
+      events = [];
+
+  outgoing.forEach(function(outgoing) {
+    var target = outgoing.target;
+
+    if (is(target, 'bpmn:IntermediateCatchEvent')) {
+      events.push(target);
+    }
+  });
+
+  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {
+    elements: events
+  });
 };
 
 ExclusiveGatewayHandler.prototype.generate = function() {};
@@ -2073,7 +3077,7 @@ ExclusiveGatewayHandler.prototype.generate = function() {};
 ExclusiveGatewayHandler.$inject = [ 'eventBus', 'animation' ];
 
 module.exports = ExclusiveGatewayHandler;
-},{"../../../util/EventHelper":51}],41:[function(require,module,exports){
+},{"../../../util/ElementHelper":63,"../../../util/EventHelper":64}],54:[function(require,module,exports){
 'use strict';
 
 var events = require('../../../util/EventHelper'),
@@ -2086,17 +3090,20 @@ function ExclusiveGatewayHandler(eventBus, animation, elementRegistry) {
   this._elementRegistry = elementRegistry;
 };
 
-ExclusiveGatewayHandler.prototype.consume = function(element) {
+ExclusiveGatewayHandler.prototype.consume = function(context) {
+  var element = context.element;
+
   if (!element.sequenceFlow) {
     throw new Error('no sequence flow configured for element ' + element.id);
   }
 
-  this._eventBus.fire(GENERATE_TOKEN_EVENT, {
-    element: element
-  });
+  this._eventBus.fire(GENERATE_TOKEN_EVENT, context);
 };
 
-ExclusiveGatewayHandler.prototype.generate = function(element) {
+ExclusiveGatewayHandler.prototype.generate = function(context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
   if (!element.sequenceFlow) {
     throw new Error('no sequence flow configured for element ' + element.id);
   }
@@ -2107,9 +3114,10 @@ ExclusiveGatewayHandler.prototype.generate = function(element) {
   // therefore element.sequenceFlow can't be used
   var sequenceFlow = this._elementRegistry.get(element.sequenceFlow.id);
 
-  this._animation.createAnimation(sequenceFlow, function() {
+  this._animation.createAnimation(sequenceFlow, processInstanceId, function() {
     self._eventBus.fire(CONSUME_TOKEN_EVENT, {
-      element: sequenceFlow.target
+      element: sequenceFlow.target,
+      processInstanceId: processInstanceId
     });
   });
 };
@@ -2117,48 +3125,79 @@ ExclusiveGatewayHandler.prototype.generate = function(element) {
 ExclusiveGatewayHandler.$inject = [ 'eventBus', 'animation', 'elementRegistry' ];
 
 module.exports = ExclusiveGatewayHandler;
-},{"../../../util/EventHelper":51}],42:[function(require,module,exports){
+},{"../../../util/EventHelper":64}],55:[function(require,module,exports){
 'use strict';
 
-var is = require('../../../util/ElementHelper').is;
+var elementHelper = require('../../../util/ElementHelper'),
+    is = elementHelper.is,
+    getDescendants = elementHelper.getDescendants;
 
 var events = require('../../../util/EventHelper'),
     CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
-    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT,
+    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;
 
-function IntermediateCatchEventHandler(animation, eventBus) {
+function IntermediateCatchEventHandler(animation, eventBus, elementRegistry) {
   this._animation = animation;
   this._eventBus = eventBus;
+  this._elementRegistry = elementRegistry;
 };
 
-IntermediateCatchEventHandler.prototype.consume = function(element) {
+IntermediateCatchEventHandler.prototype.consume = function(context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
   if (!element.tokenCount) {
-    element.tokenCount = 0;
+    element.tokenCount = {};
   }
 
-  element.tokenCount++;
+  if (!element.tokenCount[processInstanceId]) {
+    element.tokenCount[processInstanceId] = 0;
+  }
+
+  element.tokenCount[processInstanceId]++;
+
+  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {
+    element: element
+  });
 };
 
-IntermediateCatchEventHandler.prototype.generate = function(element) {
+IntermediateCatchEventHandler.prototype.generate = function(context) {
   var self = this;
+
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
 
   var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
     return is(outgoing, 'bpmn:SequenceFlow');
   });
   
   outgoingSequenceFlows.forEach(function(connection) {
-    self._animation.createAnimation(connection, function() {
+    self._animation.createAnimation(connection, processInstanceId, function() {
       self._eventBus.fire(CONSUME_TOKEN_EVENT, {
-        element: connection.target
+        element: connection.target,
+        processInstanceId: processInstanceId
       });
     });
   });
+
+  var parent = element.parent;
+
+  var events = this._elementRegistry.filter(function(element) {
+    return is(element, 'bpmn:IntermediateCatchEvent') &&
+           element.parent === parent;
+  });
+
+  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {
+    elements: events
+  });
 };
 
-IntermediateCatchEventHandler.$inject = [ 'animation', 'eventBus' ];
+IntermediateCatchEventHandler.$inject = [ 'animation', 'eventBus', 'elementRegistry' ];
 
 module.exports = IntermediateCatchEventHandler;
-},{"../../../util/ElementHelper":50,"../../../util/EventHelper":51}],43:[function(require,module,exports){
+},{"../../../util/ElementHelper":63,"../../../util/EventHelper":64}],56:[function(require,module,exports){
 'use strict';
 
 var is = require('../../../util/ElementHelper').is;
@@ -2197,7 +3236,7 @@ IntermediateThrowEventHandler.prototype.generate = function(element) {
 IntermediateThrowEventHandler.$inject = [ 'animation', 'eventBus' ];
 
 module.exports = IntermediateThrowEventHandler;
-},{"../../../util/ElementHelper":50,"../../../util/EventHelper":51}],44:[function(require,module,exports){
+},{"../../../util/ElementHelper":63,"../../../util/EventHelper":64}],57:[function(require,module,exports){
 'use strict';
 
 var is = require('../../../util/ElementHelper').is;
@@ -2211,35 +3250,44 @@ function ParallelGatewayHandler(animation, eventBus) {
   this._eventBus = eventBus;
 };
 
-ParallelGatewayHandler.prototype.consume = function(element) {
+ParallelGatewayHandler.prototype.consume = function(context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
   if (!element.tokenCount) {
-    element.tokenCount = 0;
+    element.tokenCount = {};
   }
 
-  element.tokenCount++;
+  if (!element.tokenCount[processInstanceId]) {
+    element.tokenCount[processInstanceId] = 0;
+  }
+
+  element.tokenCount[processInstanceId]++;
   
   var incoming = element.incoming;
   
-  if (incoming.length === element.tokenCount) {
-    this._eventBus.fire(GENERATE_TOKEN_EVENT, {
-      element: element
-    });
+  if (incoming.length === element.tokenCount[processInstanceId]) {
+    this._eventBus.fire(GENERATE_TOKEN_EVENT, context);
     
-    element.tokenCount = 0;
+    element.tokenCount[processInstanceId] = 0;
   }
 };
 
-ParallelGatewayHandler.prototype.generate = function(element) {
+ParallelGatewayHandler.prototype.generate = function(context) {
   var self = this;
+
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
   
   var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
     return is(outgoing, 'bpmn:SequenceFlow');
   });
   
-  outgoingSequenceFlows.forEach(function(connection) {
-    self._animation.createAnimation(connection, function() {
+  outgoingSequenceFlows.forEach(function(outgoing) {
+    self._animation.createAnimation(outgoing, processInstanceId, function() {
       self._eventBus.fire(CONSUME_TOKEN_EVENT, {
-        element: connection.target
+        element: outgoing.target,
+        processInstanceId: processInstanceId
       });
     });
   });
@@ -2248,48 +3296,85 @@ ParallelGatewayHandler.prototype.generate = function(element) {
 ParallelGatewayHandler.$inject = [ 'animation', 'eventBus' ];
 
 module.exports = ParallelGatewayHandler;
-},{"../../../util/ElementHelper":50,"../../../util/EventHelper":51}],45:[function(require,module,exports){
-'use strict';
-
-var is = require('../../../util/ElementHelper').is;
-
-var events = require('../../../util/EventHelper'),
-    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT;
-
-function StartEventHandler(animation, eventBus) {
-  this._animation = animation;
-  this._eventBus = eventBus;
-};
-
-StartEventHandler.prototype.consume = function(element) {};
-
-StartEventHandler.prototype.generate = function(element) {
-  var self = this;
-
-  var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
-    return is(outgoing, 'bpmn:SequenceFlow');
-  });
-  
-  outgoingSequenceFlows.forEach(function(connection) {
-    self._animation.createAnimation(connection, function() {
-      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
-        element: connection.target
-      });
-    });
-  });
-};
-
-StartEventHandler.$inject = [ 'animation', 'eventBus' ];
-
-module.exports = StartEventHandler;
-},{"../../../util/ElementHelper":50,"../../../util/EventHelper":51}],46:[function(require,module,exports){
+},{"../../../util/ElementHelper":63,"../../../util/EventHelper":64}],58:[function(require,module,exports){
 'use strict';
 
 var is = require('../../../util/ElementHelper').is;
 
 var events = require('../../../util/EventHelper'),
     CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
-    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;
+
+function StartEventHandler(animation, eventBus, elementRegistry, processInstances) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+  this._elementRegistry = elementRegistry;
+  this._processInstances = processInstances;
+};
+
+/**
+ * Start event has no incoming sequence flows.
+ * Therefore it can never consume.
+ */
+StartEventHandler.prototype.consume = function() {};
+
+/**
+ * Generate tokens for start event that was either
+ * invoked by user or a parent process.
+ * 
+ * @param {Object} context - The context.
+ * @param {Object} context.element - The element.
+ * @param {string} [context.parentProcessInstanceId] - Optional ID of parent process when invoked by parent process.
+ *
+ */
+StartEventHandler.prototype.generate = function(context) {
+  var self = this;
+
+  var element = context.element,
+      parentProcessInstanceId = context.parentProcessInstanceId;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  // create new process instance
+  var parent = element.parent,
+      processInstanceId = this._processInstances.create(parent, parentProcessInstanceId);
+  
+  outgoingSequenceFlows.forEach(function(connection) {
+    self._animation.createAnimation(connection, processInstanceId, function() {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: connection.target,
+        processInstanceId: processInstanceId
+      });
+    });
+  });
+
+  if (is(element.parent, 'bpmn:SubProcess')) {
+    return;
+  }
+
+  var startEvents = this._elementRegistry.filter(function(element) {
+    return is(element, 'bpmn:StartEvent');
+  });
+
+  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {
+    elements: startEvents
+  });
+};
+
+StartEventHandler.$inject = [ 'animation', 'eventBus', 'elementRegistry', 'processInstances' ];
+
+module.exports = StartEventHandler;
+},{"../../../util/ElementHelper":63,"../../../util/EventHelper":64}],59:[function(require,module,exports){
+'use strict';
+
+var is = require('../../../util/ElementHelper').is;
+
+var events = require('../../../util/EventHelper'),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT;
 
 function SubProcessHandler(animation, eventBus, log) {
   this._animation = animation;
@@ -2297,7 +3382,10 @@ function SubProcessHandler(animation, eventBus, log) {
   this._log = log;
 };
 
-SubProcessHandler.prototype.consume = function(element) {
+SubProcessHandler.prototype.consume = function(context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
   var startEvent = element.children.filter(function(child) {
     return is(child, 'bpmn:StartEvent');
   })[0];
@@ -2306,39 +3394,50 @@ SubProcessHandler.prototype.consume = function(element) {
     this._log.log('Skipping Subprocess', 'info', 'fa-angle-double-right');
 
     // skip subprocess
-    this._eventBus.fire(GENERATE_TOKEN_EVENT, {
-      element: element
-    });
+    this._eventBus.fire(GENERATE_TOKEN_EVENT, context);
   } else {
     this._log.log('Starting Subprocess', 'info', 'fa-sign-in');
     
-    // start subprocess
+    // start subprocess with process instance ID as parent process instance ID
     this._eventBus.fire(GENERATE_TOKEN_EVENT, {
-      element: startEvent
+      element: startEvent,
+      parentProcessInstanceId: processInstanceId
     });
   }
+
+  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {
+    element: element
+  });
 };
 
-SubProcessHandler.prototype.generate = function(element) {
+SubProcessHandler.prototype.generate = function(context) {
   var self = this;
+
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
   
   var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
     return is(outgoing, 'bpmn:SequenceFlow');
   });
   
-  outgoingSequenceFlows.forEach(function(connection) {
-    self._animation.createAnimation(connection, function() {
+  outgoingSequenceFlows.forEach(function(outgoing) {
+    self._animation.createAnimation(outgoing, processInstanceId, function() {
       self._eventBus.fire(CONSUME_TOKEN_EVENT, {
-        element: connection.target
+        element: outgoing.target,
+        processInstanceId: processInstanceId
       });
     });
+  });
+
+  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {
+    element: element
   });
 };
 
 SubProcessHandler.$inject = [ 'animation', 'eventBus', 'log' ];
 
 module.exports = SubProcessHandler;
-},{"../../../util/ElementHelper":50,"../../../util/EventHelper":51}],47:[function(require,module,exports){
+},{"../../../util/ElementHelper":63,"../../../util/EventHelper":64}],60:[function(require,module,exports){
 'use strict';
 
 var is = require('../../../util/ElementHelper').is;
@@ -2352,23 +3451,27 @@ function TaskHandler(animation, eventBus) {
   this._eventBus = eventBus;
 };
 
-TaskHandler.prototype.consume = function(element) {
-  this._eventBus.fire(GENERATE_TOKEN_EVENT, {
-    element: element
-  });
+TaskHandler.prototype.consume = function(context) {
+
+  // fire to generate token on self
+  this._eventBus.fire(GENERATE_TOKEN_EVENT, context);
 };
 
-TaskHandler.prototype.generate = function(element) {
+TaskHandler.prototype.generate = function(context) {
   var self = this;
+
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
 
   var outgoingSequenceFlows = element.outgoing.filter(function(outgoing) {
     return is(outgoing, 'bpmn:SequenceFlow');
   });
   
-  outgoingSequenceFlows.forEach(function(connection) {
-    self._animation.createAnimation(connection, function() {
+  outgoingSequenceFlows.forEach(function(outgoing) {
+    self._animation.createAnimation(outgoing, processInstanceId, function() {
       self._eventBus.fire(CONSUME_TOKEN_EVENT, {
-        element: connection.target
+        element: outgoing.target,
+        processInstanceId: processInstanceId
       });
     });
   });
@@ -2377,9 +3480,9 @@ TaskHandler.prototype.generate = function(element) {
 TaskHandler.$inject = [ 'animation', 'eventBus' ];
 
 module.exports = TaskHandler;
-},{"../../../util/ElementHelper":50,"../../../util/EventHelper":51}],48:[function(require,module,exports){
+},{"../../../util/ElementHelper":63,"../../../util/EventHelper":64}],61:[function(require,module,exports){
 module.exports = require('./TokenSimulationBehavior');
-},{"./TokenSimulationBehavior":38}],49:[function(require,module,exports){
+},{"./TokenSimulationBehavior":51}],62:[function(require,module,exports){
 module.exports = {
   __init__: [
     'animation',
@@ -2392,7 +3495,13 @@ module.exports = {
     'log',
     'notifications',
     'pauseSimulation',
+    'preserveElementColors',
+    'processInstanceIds',
+    'processInstanceSettings',
+    'processInstances',
     'resetSimulation',
+    'setAnimationSpeed',
+    'showProcessInstance',
     'simulationState',
     'toggleMode',
     'tokenCount',
@@ -2406,11 +3515,17 @@ module.exports = {
   'elementNotifications': [ 'type', require('./features/element-notifications') ],
   'elementSupport': [ 'type', require('./features/element-support') ],
   'exclusiveGatewaySettings': [ 'type', require('./features/exclusive-gateway-settings') ],
-  'keyboardBindings': [ 'type', require('./features/keyboard-bindings') ],
+  'keyboardBindings': [ 'type', require('./features/keyboard-bindings/modeler') ],
   'log': [ 'type', require('./features/log') ],
   'notifications': [ 'type', require('./features/notifications') ],
   'pauseSimulation': [ 'type', require('./features/pause-simulation') ],
+  'preserveElementColors': [ 'type', require('./features/preserve-element-colors') ],
+  'processInstanceIds': [ 'type', require('./features/process-instance-ids') ],
+  'processInstanceSettings': [ 'type', require('./features/process-instance-settings') ],
+  'processInstances': [ 'type', require('./features/process-instances') ],
   'resetSimulation': [ 'type', require('./features/reset-simulation') ],
+  'setAnimationSpeed': [ 'type', require('./features/set-animation-speed') ],
+  'showProcessInstance': [ 'type', require('./features/show-process-instance') ],
   'simulationState': [ 'type', require('./features/simulation-state') ],
   'toggleMode': [ 'type', require('./features/toggle-mode/modeler') ],
   'tokenCount': [ 'type', require('./features/token-count') ],
@@ -2418,7 +3533,7 @@ module.exports = {
   'tokenSimulationEditorActions': [ 'type', require('./features/editor-actions') ],
   'tokenSimulationPalette': [ 'type', require('./features/palette') ]
 };
-},{"./animation/Animation":4,"./features/context-pads":9,"./features/disable-modeling":11,"./features/editor-actions":13,"./features/element-notifications":15,"./features/element-support":17,"./features/exclusive-gateway-settings":19,"./features/keyboard-bindings":21,"./features/log":23,"./features/notifications":25,"./features/palette":27,"./features/pause-simulation":29,"./features/reset-simulation":31,"./features/simulation-state":33,"./features/toggle-mode/modeler":35,"./features/token-count":37,"./features/token-simulation-behavior":48}],50:[function(require,module,exports){
+},{"./animation/Animation":4,"./features/context-pads":10,"./features/disable-modeling":12,"./features/editor-actions":14,"./features/element-notifications":16,"./features/element-support":18,"./features/exclusive-gateway-settings":20,"./features/keyboard-bindings/modeler":22,"./features/log":24,"./features/notifications":26,"./features/palette":28,"./features/pause-simulation":30,"./features/preserve-element-colors":32,"./features/process-instance-ids":34,"./features/process-instance-settings":36,"./features/process-instances":38,"./features/reset-simulation":40,"./features/set-animation-speed":42,"./features/show-process-instance":44,"./features/simulation-state":46,"./features/toggle-mode/modeler":48,"./features/token-count":50,"./features/token-simulation-behavior":61}],63:[function(require,module,exports){
 'use strict';
 
 var every = require('lodash/every'),
@@ -2464,11 +3579,11 @@ module.exports.getBusinessObject = function(element) {
   return (element && element.businessObject) || element;
 };
 
-module.exports.isParent = function(parent, child) {
-  var childParent = child.parent;
+function isAncestor(ancestor, descendant) {
+  var childParent = descendant.parent;
 
   while (childParent) {
-    if (childParent === parent) {
+    if (childParent === ancestor) {
       return true;
     }
 
@@ -2476,6 +3591,14 @@ module.exports.isParent = function(parent, child) {
   }
 
   return false;
+}
+
+module.exports.isAncestor = isAncestor;
+
+module.exports.getDescendants = function(elements, ancestor) {
+  return elements.filter(function(element) {
+    return isAncestor(ancestor, element);
+  });
 };
 
 module.exports.supportedElements = [
@@ -2492,14 +3615,16 @@ module.exports.supportedElements = [
   'bpmn:ManualTask',
   'bpmn:ParallelGateway',
   'bpmn:Process',
+  'bpmn:ScriptTask',
   'bpmn:SequenceFlow',
+  'bpmn:ServiceTask',
   'bpmn:StartEvent',
   'bpmn:SubProcess',
   'bpmn:Task',
   'bpmn:TextAnnotation',
   'bpmn:UserTask'
 ];
-},{"lodash/every":165,"lodash/some":183}],51:[function(require,module,exports){
+},{"lodash/every":180,"lodash/some":198}],64:[function(require,module,exports){
 var prefix = 'tokenSimulation';
 
 module.exports = {
@@ -2509,9 +3634,16 @@ module.exports = {
   PLAY_SIMULATION_EVENT: prefix + '.playSimulation',
   PAUSE_SIMULATION_EVENT: prefix + '.pauseSimulation',
   RESET_SIMULATION_EVENT: prefix + '.resetSimulation',
-  TERMINATE_EVENT: prefix + '.terminateEvent'
+  TERMINATE_EVENT: prefix + '.terminateEvent',
+  UPDATE_ELEMENTS_EVENT: prefix + '.updateElements',
+  UPDATE_ELEMENT_EVENT: prefix + '.updateElement',
+  PROCESS_INSTANCE_CREATED_EVENT: prefix + '.processInstanceCreated',
+  PROCESS_INSTANCE_FINISHED_EVENT: prefix + '.processInstanceFinished',
+  PROCESS_INSTANCE_SHOWN_EVENT: prefix + '.processInstanceShown',
+  PROCESS_INSTANCE_HIDDEN_EVENT: prefix + '.processInstanceHidden',
+  ANIMATION_CREATED_EVENT: prefix + '.animationCreated'
 };
-},{}],52:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 module.exports.getMid = function(element) {
   var bbox = element.bbox();
 
@@ -2524,7 +3656,7 @@ module.exports.getMid = function(element) {
 module.exports.distance = function(a, b) {
   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 }
-},{}],53:[function(require,module,exports){
+},{}],66:[function(require,module,exports){
 /**
  * Validate and register a client plugin.
  *
@@ -2567,7 +3699,7 @@ function registerBpmnJSPlugin(plugin) {
 
 module.exports.registerBpmnJSPlugin = registerBpmnJSPlugin;
 
-},{}],54:[function(require,module,exports){
+},{}],67:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2760,7 +3892,28 @@ ClassList.prototype.contains = function(name){
     : !! ~index(this.array(), name);
 };
 
-},{"component-indexof":56,"indexof":56}],55:[function(require,module,exports){
+},{"component-indexof":70,"indexof":70}],68:[function(require,module,exports){
+var matches = require('matches-selector')
+
+module.exports = function (element, selector, checkYoSelf, root) {
+  element = checkYoSelf ? {parentNode: element} : element
+
+  root = root || document
+
+  // Make sure `element !== document` and `element != null`
+  // otherwise we get an illegal invocation
+  while ((element = element.parentNode) && element !== document) {
+    if (matches(element, selector))
+      return element
+    // After `matches` on the edge case that
+    // the selector matches the root
+    // (when the root is not the document)
+    if (element === root)
+      return
+  }
+}
+
+},{"matches-selector":71}],69:[function(require,module,exports){
 var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
     unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
     prefix = bind !== 'addEventListener' ? 'on' : '';
@@ -2796,7 +3949,7 @@ exports.unbind = function(el, type, fn, capture){
   el[unbind](prefix + type, fn, capture || false);
   return fn;
 };
-},{}],56:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 module.exports = function(arr, obj){
   if (arr.indexOf) return arr.indexOf(obj);
   for (var i = 0; i < arr.length; ++i) {
@@ -2804,7 +3957,59 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],57:[function(require,module,exports){
+},{}],71:[function(require,module,exports){
+/**
+ * Module dependencies.
+ */
+
+try {
+  var query = require('query');
+} catch (err) {
+  var query = require('component-query');
+}
+
+/**
+ * Element prototype.
+ */
+
+var proto = Element.prototype;
+
+/**
+ * Vendor function.
+ */
+
+var vendor = proto.matches
+  || proto.webkitMatchesSelector
+  || proto.mozMatchesSelector
+  || proto.msMatchesSelector
+  || proto.oMatchesSelector;
+
+/**
+ * Expose `match()`.
+ */
+
+module.exports = match;
+
+/**
+ * Match `el` to `selector`.
+ *
+ * @param {Element} el
+ * @param {String} selector
+ * @return {Boolean}
+ * @api public
+ */
+
+function match(el, selector) {
+  if (!el || el.nodeType !== 1) return false;
+  if (vendor) return vendor.call(el, selector);
+  var nodes = query.all(selector, el.parentNode);
+  for (var i = 0; i < nodes.length; ++i) {
+    if (nodes[i] == el) return true;
+  }
+  return false;
+}
+
+},{"component-query":72,"query":72}],72:[function(require,module,exports){
 function one(selector, el) {
   return el.querySelector(selector);
 }
@@ -2827,7 +4032,7 @@ exports.engine = function(obj){
   return exports;
 };
 
-},{}],58:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 
 /**
  * Expose `parse`.
@@ -2941,7 +4146,7 @@ function parse(html, doc) {
   return fragment;
 }
 
-},{}],59:[function(require,module,exports){
+},{}],74:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -2950,7 +4155,7 @@ var DataView = getNative(root, 'DataView');
 
 module.exports = DataView;
 
-},{"./_getNative":116,"./_root":152}],60:[function(require,module,exports){
+},{"./_getNative":131,"./_root":167}],75:[function(require,module,exports){
 var hashClear = require('./_hashClear'),
     hashDelete = require('./_hashDelete'),
     hashGet = require('./_hashGet'),
@@ -2984,7 +4189,7 @@ Hash.prototype.set = hashSet;
 
 module.exports = Hash;
 
-},{"./_hashClear":122,"./_hashDelete":123,"./_hashGet":124,"./_hashHas":125,"./_hashSet":126}],61:[function(require,module,exports){
+},{"./_hashClear":137,"./_hashDelete":138,"./_hashGet":139,"./_hashHas":140,"./_hashSet":141}],76:[function(require,module,exports){
 var listCacheClear = require('./_listCacheClear'),
     listCacheDelete = require('./_listCacheDelete'),
     listCacheGet = require('./_listCacheGet'),
@@ -3018,7 +4223,7 @@ ListCache.prototype.set = listCacheSet;
 
 module.exports = ListCache;
 
-},{"./_listCacheClear":134,"./_listCacheDelete":135,"./_listCacheGet":136,"./_listCacheHas":137,"./_listCacheSet":138}],62:[function(require,module,exports){
+},{"./_listCacheClear":149,"./_listCacheDelete":150,"./_listCacheGet":151,"./_listCacheHas":152,"./_listCacheSet":153}],77:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -3027,7 +4232,7 @@ var Map = getNative(root, 'Map');
 
 module.exports = Map;
 
-},{"./_getNative":116,"./_root":152}],63:[function(require,module,exports){
+},{"./_getNative":131,"./_root":167}],78:[function(require,module,exports){
 var mapCacheClear = require('./_mapCacheClear'),
     mapCacheDelete = require('./_mapCacheDelete'),
     mapCacheGet = require('./_mapCacheGet'),
@@ -3061,7 +4266,7 @@ MapCache.prototype.set = mapCacheSet;
 
 module.exports = MapCache;
 
-},{"./_mapCacheClear":139,"./_mapCacheDelete":140,"./_mapCacheGet":141,"./_mapCacheHas":142,"./_mapCacheSet":143}],64:[function(require,module,exports){
+},{"./_mapCacheClear":154,"./_mapCacheDelete":155,"./_mapCacheGet":156,"./_mapCacheHas":157,"./_mapCacheSet":158}],79:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -3070,7 +4275,7 @@ var Promise = getNative(root, 'Promise');
 
 module.exports = Promise;
 
-},{"./_getNative":116,"./_root":152}],65:[function(require,module,exports){
+},{"./_getNative":131,"./_root":167}],80:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -3079,7 +4284,7 @@ var Set = getNative(root, 'Set');
 
 module.exports = Set;
 
-},{"./_getNative":116,"./_root":152}],66:[function(require,module,exports){
+},{"./_getNative":131,"./_root":167}],81:[function(require,module,exports){
 var MapCache = require('./_MapCache'),
     setCacheAdd = require('./_setCacheAdd'),
     setCacheHas = require('./_setCacheHas');
@@ -3108,7 +4313,7 @@ SetCache.prototype.has = setCacheHas;
 
 module.exports = SetCache;
 
-},{"./_MapCache":63,"./_setCacheAdd":153,"./_setCacheHas":154}],67:[function(require,module,exports){
+},{"./_MapCache":78,"./_setCacheAdd":168,"./_setCacheHas":169}],82:[function(require,module,exports){
 var ListCache = require('./_ListCache'),
     stackClear = require('./_stackClear'),
     stackDelete = require('./_stackDelete'),
@@ -3137,7 +4342,7 @@ Stack.prototype.set = stackSet;
 
 module.exports = Stack;
 
-},{"./_ListCache":61,"./_stackClear":156,"./_stackDelete":157,"./_stackGet":158,"./_stackHas":159,"./_stackSet":160}],68:[function(require,module,exports){
+},{"./_ListCache":76,"./_stackClear":171,"./_stackDelete":172,"./_stackGet":173,"./_stackHas":174,"./_stackSet":175}],83:[function(require,module,exports){
 var root = require('./_root');
 
 /** Built-in value references. */
@@ -3145,7 +4350,7 @@ var Symbol = root.Symbol;
 
 module.exports = Symbol;
 
-},{"./_root":152}],69:[function(require,module,exports){
+},{"./_root":167}],84:[function(require,module,exports){
 var root = require('./_root');
 
 /** Built-in value references. */
@@ -3153,7 +4358,7 @@ var Uint8Array = root.Uint8Array;
 
 module.exports = Uint8Array;
 
-},{"./_root":152}],70:[function(require,module,exports){
+},{"./_root":167}],85:[function(require,module,exports){
 var getNative = require('./_getNative'),
     root = require('./_root');
 
@@ -3162,7 +4367,7 @@ var WeakMap = getNative(root, 'WeakMap');
 
 module.exports = WeakMap;
 
-},{"./_getNative":116,"./_root":152}],71:[function(require,module,exports){
+},{"./_getNative":131,"./_root":167}],86:[function(require,module,exports){
 /**
  * A specialized version of `_.forEach` for arrays without support for
  * iteratee shorthands.
@@ -3186,7 +4391,7 @@ function arrayEach(array, iteratee) {
 
 module.exports = arrayEach;
 
-},{}],72:[function(require,module,exports){
+},{}],87:[function(require,module,exports){
 /**
  * A specialized version of `_.every` for arrays without support for
  * iteratee shorthands.
@@ -3211,7 +4416,7 @@ function arrayEvery(array, predicate) {
 
 module.exports = arrayEvery;
 
-},{}],73:[function(require,module,exports){
+},{}],88:[function(require,module,exports){
 /**
  * A specialized version of `_.filter` for arrays without support for
  * iteratee shorthands.
@@ -3238,7 +4443,7 @@ function arrayFilter(array, predicate) {
 
 module.exports = arrayFilter;
 
-},{}],74:[function(require,module,exports){
+},{}],89:[function(require,module,exports){
 var baseTimes = require('./_baseTimes'),
     isArguments = require('./isArguments'),
     isArray = require('./isArray'),
@@ -3289,7 +4494,7 @@ function arrayLikeKeys(value, inherited) {
 
 module.exports = arrayLikeKeys;
 
-},{"./_baseTimes":100,"./_isIndex":127,"./isArguments":170,"./isArray":171,"./isBuffer":173,"./isTypedArray":179}],75:[function(require,module,exports){
+},{"./_baseTimes":115,"./_isIndex":142,"./isArguments":185,"./isArray":186,"./isBuffer":188,"./isTypedArray":194}],90:[function(require,module,exports){
 /**
  * A specialized version of `_.map` for arrays without support for iteratee
  * shorthands.
@@ -3312,7 +4517,7 @@ function arrayMap(array, iteratee) {
 
 module.exports = arrayMap;
 
-},{}],76:[function(require,module,exports){
+},{}],91:[function(require,module,exports){
 /**
  * Appends the elements of `values` to `array`.
  *
@@ -3334,7 +4539,7 @@ function arrayPush(array, values) {
 
 module.exports = arrayPush;
 
-},{}],77:[function(require,module,exports){
+},{}],92:[function(require,module,exports){
 /**
  * A specialized version of `_.some` for arrays without support for iteratee
  * shorthands.
@@ -3359,7 +4564,7 @@ function arraySome(array, predicate) {
 
 module.exports = arraySome;
 
-},{}],78:[function(require,module,exports){
+},{}],93:[function(require,module,exports){
 var eq = require('./eq');
 
 /**
@@ -3382,7 +4587,7 @@ function assocIndexOf(array, key) {
 
 module.exports = assocIndexOf;
 
-},{"./eq":164}],79:[function(require,module,exports){
+},{"./eq":179}],94:[function(require,module,exports){
 var baseForOwn = require('./_baseForOwn'),
     createBaseEach = require('./_createBaseEach');
 
@@ -3398,7 +4603,7 @@ var baseEach = createBaseEach(baseForOwn);
 
 module.exports = baseEach;
 
-},{"./_baseForOwn":82,"./_createBaseEach":107}],80:[function(require,module,exports){
+},{"./_baseForOwn":97,"./_createBaseEach":122}],95:[function(require,module,exports){
 var baseEach = require('./_baseEach');
 
 /**
@@ -3421,7 +4626,7 @@ function baseEvery(collection, predicate) {
 
 module.exports = baseEvery;
 
-},{"./_baseEach":79}],81:[function(require,module,exports){
+},{"./_baseEach":94}],96:[function(require,module,exports){
 var createBaseFor = require('./_createBaseFor');
 
 /**
@@ -3439,7 +4644,7 @@ var baseFor = createBaseFor();
 
 module.exports = baseFor;
 
-},{"./_createBaseFor":108}],82:[function(require,module,exports){
+},{"./_createBaseFor":123}],97:[function(require,module,exports){
 var baseFor = require('./_baseFor'),
     keys = require('./keys');
 
@@ -3457,7 +4662,7 @@ function baseForOwn(object, iteratee) {
 
 module.exports = baseForOwn;
 
-},{"./_baseFor":81,"./keys":180}],83:[function(require,module,exports){
+},{"./_baseFor":96,"./keys":195}],98:[function(require,module,exports){
 var castPath = require('./_castPath'),
     toKey = require('./_toKey');
 
@@ -3483,7 +4688,7 @@ function baseGet(object, path) {
 
 module.exports = baseGet;
 
-},{"./_castPath":105,"./_toKey":162}],84:[function(require,module,exports){
+},{"./_castPath":120,"./_toKey":177}],99:[function(require,module,exports){
 var arrayPush = require('./_arrayPush'),
     isArray = require('./isArray');
 
@@ -3505,7 +4710,7 @@ function baseGetAllKeys(object, keysFunc, symbolsFunc) {
 
 module.exports = baseGetAllKeys;
 
-},{"./_arrayPush":76,"./isArray":171}],85:[function(require,module,exports){
+},{"./_arrayPush":91,"./isArray":186}],100:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     getRawTag = require('./_getRawTag'),
     objectToString = require('./_objectToString');
@@ -3535,7 +4740,7 @@ function baseGetTag(value) {
 
 module.exports = baseGetTag;
 
-},{"./_Symbol":68,"./_getRawTag":117,"./_objectToString":150}],86:[function(require,module,exports){
+},{"./_Symbol":83,"./_getRawTag":132,"./_objectToString":165}],101:[function(require,module,exports){
 /**
  * The base implementation of `_.hasIn` without support for deep paths.
  *
@@ -3550,7 +4755,7 @@ function baseHasIn(object, key) {
 
 module.exports = baseHasIn;
 
-},{}],87:[function(require,module,exports){
+},{}],102:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isObjectLike = require('./isObjectLike');
 
@@ -3570,7 +4775,7 @@ function baseIsArguments(value) {
 
 module.exports = baseIsArguments;
 
-},{"./_baseGetTag":85,"./isObjectLike":177}],88:[function(require,module,exports){
+},{"./_baseGetTag":100,"./isObjectLike":192}],103:[function(require,module,exports){
 var baseIsEqualDeep = require('./_baseIsEqualDeep'),
     isObjectLike = require('./isObjectLike');
 
@@ -3600,7 +4805,7 @@ function baseIsEqual(value, other, bitmask, customizer, stack) {
 
 module.exports = baseIsEqual;
 
-},{"./_baseIsEqualDeep":89,"./isObjectLike":177}],89:[function(require,module,exports){
+},{"./_baseIsEqualDeep":104,"./isObjectLike":192}],104:[function(require,module,exports){
 var Stack = require('./_Stack'),
     equalArrays = require('./_equalArrays'),
     equalByTag = require('./_equalByTag'),
@@ -3685,7 +4890,7 @@ function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
 
 module.exports = baseIsEqualDeep;
 
-},{"./_Stack":67,"./_equalArrays":109,"./_equalByTag":110,"./_equalObjects":111,"./_getTag":119,"./isArray":171,"./isBuffer":173,"./isTypedArray":179}],90:[function(require,module,exports){
+},{"./_Stack":82,"./_equalArrays":124,"./_equalByTag":125,"./_equalObjects":126,"./_getTag":134,"./isArray":186,"./isBuffer":188,"./isTypedArray":194}],105:[function(require,module,exports){
 var Stack = require('./_Stack'),
     baseIsEqual = require('./_baseIsEqual');
 
@@ -3749,7 +4954,7 @@ function baseIsMatch(object, source, matchData, customizer) {
 
 module.exports = baseIsMatch;
 
-},{"./_Stack":67,"./_baseIsEqual":88}],91:[function(require,module,exports){
+},{"./_Stack":82,"./_baseIsEqual":103}],106:[function(require,module,exports){
 var isFunction = require('./isFunction'),
     isMasked = require('./_isMasked'),
     isObject = require('./isObject'),
@@ -3798,7 +5003,7 @@ function baseIsNative(value) {
 
 module.exports = baseIsNative;
 
-},{"./_isMasked":131,"./_toSource":163,"./isFunction":174,"./isObject":176}],92:[function(require,module,exports){
+},{"./_isMasked":146,"./_toSource":178,"./isFunction":189,"./isObject":191}],107:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isLength = require('./isLength'),
     isObjectLike = require('./isObjectLike');
@@ -3860,7 +5065,7 @@ function baseIsTypedArray(value) {
 
 module.exports = baseIsTypedArray;
 
-},{"./_baseGetTag":85,"./isLength":175,"./isObjectLike":177}],93:[function(require,module,exports){
+},{"./_baseGetTag":100,"./isLength":190,"./isObjectLike":192}],108:[function(require,module,exports){
 var baseMatches = require('./_baseMatches'),
     baseMatchesProperty = require('./_baseMatchesProperty'),
     identity = require('./identity'),
@@ -3893,7 +5098,7 @@ function baseIteratee(value) {
 
 module.exports = baseIteratee;
 
-},{"./_baseMatches":95,"./_baseMatchesProperty":96,"./identity":169,"./isArray":171,"./property":182}],94:[function(require,module,exports){
+},{"./_baseMatches":110,"./_baseMatchesProperty":111,"./identity":184,"./isArray":186,"./property":197}],109:[function(require,module,exports){
 var isPrototype = require('./_isPrototype'),
     nativeKeys = require('./_nativeKeys');
 
@@ -3925,7 +5130,7 @@ function baseKeys(object) {
 
 module.exports = baseKeys;
 
-},{"./_isPrototype":132,"./_nativeKeys":148}],95:[function(require,module,exports){
+},{"./_isPrototype":147,"./_nativeKeys":163}],110:[function(require,module,exports){
 var baseIsMatch = require('./_baseIsMatch'),
     getMatchData = require('./_getMatchData'),
     matchesStrictComparable = require('./_matchesStrictComparable');
@@ -3949,7 +5154,7 @@ function baseMatches(source) {
 
 module.exports = baseMatches;
 
-},{"./_baseIsMatch":90,"./_getMatchData":115,"./_matchesStrictComparable":145}],96:[function(require,module,exports){
+},{"./_baseIsMatch":105,"./_getMatchData":130,"./_matchesStrictComparable":160}],111:[function(require,module,exports){
 var baseIsEqual = require('./_baseIsEqual'),
     get = require('./get'),
     hasIn = require('./hasIn'),
@@ -3984,7 +5189,7 @@ function baseMatchesProperty(path, srcValue) {
 
 module.exports = baseMatchesProperty;
 
-},{"./_baseIsEqual":88,"./_isKey":129,"./_isStrictComparable":133,"./_matchesStrictComparable":145,"./_toKey":162,"./get":167,"./hasIn":168}],97:[function(require,module,exports){
+},{"./_baseIsEqual":103,"./_isKey":144,"./_isStrictComparable":148,"./_matchesStrictComparable":160,"./_toKey":177,"./get":182,"./hasIn":183}],112:[function(require,module,exports){
 /**
  * The base implementation of `_.property` without support for deep paths.
  *
@@ -4000,7 +5205,7 @@ function baseProperty(key) {
 
 module.exports = baseProperty;
 
-},{}],98:[function(require,module,exports){
+},{}],113:[function(require,module,exports){
 var baseGet = require('./_baseGet');
 
 /**
@@ -4018,7 +5223,7 @@ function basePropertyDeep(path) {
 
 module.exports = basePropertyDeep;
 
-},{"./_baseGet":83}],99:[function(require,module,exports){
+},{"./_baseGet":98}],114:[function(require,module,exports){
 var baseEach = require('./_baseEach');
 
 /**
@@ -4042,7 +5247,7 @@ function baseSome(collection, predicate) {
 
 module.exports = baseSome;
 
-},{"./_baseEach":79}],100:[function(require,module,exports){
+},{"./_baseEach":94}],115:[function(require,module,exports){
 /**
  * The base implementation of `_.times` without support for iteratee shorthands
  * or max array length checks.
@@ -4064,7 +5269,7 @@ function baseTimes(n, iteratee) {
 
 module.exports = baseTimes;
 
-},{}],101:[function(require,module,exports){
+},{}],116:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     arrayMap = require('./_arrayMap'),
     isArray = require('./isArray'),
@@ -4103,7 +5308,7 @@ function baseToString(value) {
 
 module.exports = baseToString;
 
-},{"./_Symbol":68,"./_arrayMap":75,"./isArray":171,"./isSymbol":178}],102:[function(require,module,exports){
+},{"./_Symbol":83,"./_arrayMap":90,"./isArray":186,"./isSymbol":193}],117:[function(require,module,exports){
 /**
  * The base implementation of `_.unary` without support for storing metadata.
  *
@@ -4119,7 +5324,7 @@ function baseUnary(func) {
 
 module.exports = baseUnary;
 
-},{}],103:[function(require,module,exports){
+},{}],118:[function(require,module,exports){
 /**
  * Checks if a `cache` value for `key` exists.
  *
@@ -4134,7 +5339,7 @@ function cacheHas(cache, key) {
 
 module.exports = cacheHas;
 
-},{}],104:[function(require,module,exports){
+},{}],119:[function(require,module,exports){
 var identity = require('./identity');
 
 /**
@@ -4150,7 +5355,7 @@ function castFunction(value) {
 
 module.exports = castFunction;
 
-},{"./identity":169}],105:[function(require,module,exports){
+},{"./identity":184}],120:[function(require,module,exports){
 var isArray = require('./isArray'),
     isKey = require('./_isKey'),
     stringToPath = require('./_stringToPath'),
@@ -4173,7 +5378,7 @@ function castPath(value, object) {
 
 module.exports = castPath;
 
-},{"./_isKey":129,"./_stringToPath":161,"./isArray":171,"./toString":186}],106:[function(require,module,exports){
+},{"./_isKey":144,"./_stringToPath":176,"./isArray":186,"./toString":201}],121:[function(require,module,exports){
 var root = require('./_root');
 
 /** Used to detect overreaching core-js shims. */
@@ -4181,7 +5386,7 @@ var coreJsData = root['__core-js_shared__'];
 
 module.exports = coreJsData;
 
-},{"./_root":152}],107:[function(require,module,exports){
+},{"./_root":167}],122:[function(require,module,exports){
 var isArrayLike = require('./isArrayLike');
 
 /**
@@ -4215,7 +5420,7 @@ function createBaseEach(eachFunc, fromRight) {
 
 module.exports = createBaseEach;
 
-},{"./isArrayLike":172}],108:[function(require,module,exports){
+},{"./isArrayLike":187}],123:[function(require,module,exports){
 /**
  * Creates a base function for methods like `_.forIn` and `_.forOwn`.
  *
@@ -4242,7 +5447,7 @@ function createBaseFor(fromRight) {
 
 module.exports = createBaseFor;
 
-},{}],109:[function(require,module,exports){
+},{}],124:[function(require,module,exports){
 var SetCache = require('./_SetCache'),
     arraySome = require('./_arraySome'),
     cacheHas = require('./_cacheHas');
@@ -4327,7 +5532,7 @@ function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
 
 module.exports = equalArrays;
 
-},{"./_SetCache":66,"./_arraySome":77,"./_cacheHas":103}],110:[function(require,module,exports){
+},{"./_SetCache":81,"./_arraySome":92,"./_cacheHas":118}],125:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     Uint8Array = require('./_Uint8Array'),
     eq = require('./eq'),
@@ -4441,7 +5646,7 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
 
 module.exports = equalByTag;
 
-},{"./_Symbol":68,"./_Uint8Array":69,"./_equalArrays":109,"./_mapToArray":144,"./_setToArray":155,"./eq":164}],111:[function(require,module,exports){
+},{"./_Symbol":83,"./_Uint8Array":84,"./_equalArrays":124,"./_mapToArray":159,"./_setToArray":170,"./eq":179}],126:[function(require,module,exports){
 var getAllKeys = require('./_getAllKeys');
 
 /** Used to compose bitmasks for value comparisons. */
@@ -4532,7 +5737,7 @@ function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
 
 module.exports = equalObjects;
 
-},{"./_getAllKeys":113}],112:[function(require,module,exports){
+},{"./_getAllKeys":128}],127:[function(require,module,exports){
 (function (global){
 /** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
@@ -4540,7 +5745,7 @@ var freeGlobal = typeof global == 'object' && global && global.Object === Object
 module.exports = freeGlobal;
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],113:[function(require,module,exports){
+},{}],128:[function(require,module,exports){
 var baseGetAllKeys = require('./_baseGetAllKeys'),
     getSymbols = require('./_getSymbols'),
     keys = require('./keys');
@@ -4558,7 +5763,7 @@ function getAllKeys(object) {
 
 module.exports = getAllKeys;
 
-},{"./_baseGetAllKeys":84,"./_getSymbols":118,"./keys":180}],114:[function(require,module,exports){
+},{"./_baseGetAllKeys":99,"./_getSymbols":133,"./keys":195}],129:[function(require,module,exports){
 var isKeyable = require('./_isKeyable');
 
 /**
@@ -4578,7 +5783,7 @@ function getMapData(map, key) {
 
 module.exports = getMapData;
 
-},{"./_isKeyable":130}],115:[function(require,module,exports){
+},{"./_isKeyable":145}],130:[function(require,module,exports){
 var isStrictComparable = require('./_isStrictComparable'),
     keys = require('./keys');
 
@@ -4604,7 +5809,7 @@ function getMatchData(object) {
 
 module.exports = getMatchData;
 
-},{"./_isStrictComparable":133,"./keys":180}],116:[function(require,module,exports){
+},{"./_isStrictComparable":148,"./keys":195}],131:[function(require,module,exports){
 var baseIsNative = require('./_baseIsNative'),
     getValue = require('./_getValue');
 
@@ -4623,7 +5828,7 @@ function getNative(object, key) {
 
 module.exports = getNative;
 
-},{"./_baseIsNative":91,"./_getValue":120}],117:[function(require,module,exports){
+},{"./_baseIsNative":106,"./_getValue":135}],132:[function(require,module,exports){
 var Symbol = require('./_Symbol');
 
 /** Used for built-in method references. */
@@ -4671,7 +5876,7 @@ function getRawTag(value) {
 
 module.exports = getRawTag;
 
-},{"./_Symbol":68}],118:[function(require,module,exports){
+},{"./_Symbol":83}],133:[function(require,module,exports){
 var arrayFilter = require('./_arrayFilter'),
     stubArray = require('./stubArray');
 
@@ -4703,7 +5908,7 @@ var getSymbols = !nativeGetSymbols ? stubArray : function(object) {
 
 module.exports = getSymbols;
 
-},{"./_arrayFilter":73,"./stubArray":184}],119:[function(require,module,exports){
+},{"./_arrayFilter":88,"./stubArray":199}],134:[function(require,module,exports){
 var DataView = require('./_DataView'),
     Map = require('./_Map'),
     Promise = require('./_Promise'),
@@ -4763,7 +5968,7 @@ if ((DataView && getTag(new DataView(new ArrayBuffer(1))) != dataViewTag) ||
 
 module.exports = getTag;
 
-},{"./_DataView":59,"./_Map":62,"./_Promise":64,"./_Set":65,"./_WeakMap":70,"./_baseGetTag":85,"./_toSource":163}],120:[function(require,module,exports){
+},{"./_DataView":74,"./_Map":77,"./_Promise":79,"./_Set":80,"./_WeakMap":85,"./_baseGetTag":100,"./_toSource":178}],135:[function(require,module,exports){
 /**
  * Gets the value at `key` of `object`.
  *
@@ -4778,7 +5983,7 @@ function getValue(object, key) {
 
 module.exports = getValue;
 
-},{}],121:[function(require,module,exports){
+},{}],136:[function(require,module,exports){
 var castPath = require('./_castPath'),
     isArguments = require('./isArguments'),
     isArray = require('./isArray'),
@@ -4819,7 +6024,7 @@ function hasPath(object, path, hasFunc) {
 
 module.exports = hasPath;
 
-},{"./_castPath":105,"./_isIndex":127,"./_toKey":162,"./isArguments":170,"./isArray":171,"./isLength":175}],122:[function(require,module,exports){
+},{"./_castPath":120,"./_isIndex":142,"./_toKey":177,"./isArguments":185,"./isArray":186,"./isLength":190}],137:[function(require,module,exports){
 var nativeCreate = require('./_nativeCreate');
 
 /**
@@ -4836,7 +6041,7 @@ function hashClear() {
 
 module.exports = hashClear;
 
-},{"./_nativeCreate":147}],123:[function(require,module,exports){
+},{"./_nativeCreate":162}],138:[function(require,module,exports){
 /**
  * Removes `key` and its value from the hash.
  *
@@ -4855,7 +6060,7 @@ function hashDelete(key) {
 
 module.exports = hashDelete;
 
-},{}],124:[function(require,module,exports){
+},{}],139:[function(require,module,exports){
 var nativeCreate = require('./_nativeCreate');
 
 /** Used to stand-in for `undefined` hash values. */
@@ -4887,7 +6092,7 @@ function hashGet(key) {
 
 module.exports = hashGet;
 
-},{"./_nativeCreate":147}],125:[function(require,module,exports){
+},{"./_nativeCreate":162}],140:[function(require,module,exports){
 var nativeCreate = require('./_nativeCreate');
 
 /** Used for built-in method references. */
@@ -4912,7 +6117,7 @@ function hashHas(key) {
 
 module.exports = hashHas;
 
-},{"./_nativeCreate":147}],126:[function(require,module,exports){
+},{"./_nativeCreate":162}],141:[function(require,module,exports){
 var nativeCreate = require('./_nativeCreate');
 
 /** Used to stand-in for `undefined` hash values. */
@@ -4937,7 +6142,7 @@ function hashSet(key, value) {
 
 module.exports = hashSet;
 
-},{"./_nativeCreate":147}],127:[function(require,module,exports){
+},{"./_nativeCreate":162}],142:[function(require,module,exports){
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER = 9007199254740991;
 
@@ -4961,7 +6166,7 @@ function isIndex(value, length) {
 
 module.exports = isIndex;
 
-},{}],128:[function(require,module,exports){
+},{}],143:[function(require,module,exports){
 var eq = require('./eq'),
     isArrayLike = require('./isArrayLike'),
     isIndex = require('./_isIndex'),
@@ -4993,7 +6198,7 @@ function isIterateeCall(value, index, object) {
 
 module.exports = isIterateeCall;
 
-},{"./_isIndex":127,"./eq":164,"./isArrayLike":172,"./isObject":176}],129:[function(require,module,exports){
+},{"./_isIndex":142,"./eq":179,"./isArrayLike":187,"./isObject":191}],144:[function(require,module,exports){
 var isArray = require('./isArray'),
     isSymbol = require('./isSymbol');
 
@@ -5024,7 +6229,7 @@ function isKey(value, object) {
 
 module.exports = isKey;
 
-},{"./isArray":171,"./isSymbol":178}],130:[function(require,module,exports){
+},{"./isArray":186,"./isSymbol":193}],145:[function(require,module,exports){
 /**
  * Checks if `value` is suitable for use as unique object key.
  *
@@ -5041,7 +6246,7 @@ function isKeyable(value) {
 
 module.exports = isKeyable;
 
-},{}],131:[function(require,module,exports){
+},{}],146:[function(require,module,exports){
 var coreJsData = require('./_coreJsData');
 
 /** Used to detect methods masquerading as native. */
@@ -5063,7 +6268,7 @@ function isMasked(func) {
 
 module.exports = isMasked;
 
-},{"./_coreJsData":106}],132:[function(require,module,exports){
+},{"./_coreJsData":121}],147:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -5083,7 +6288,7 @@ function isPrototype(value) {
 
 module.exports = isPrototype;
 
-},{}],133:[function(require,module,exports){
+},{}],148:[function(require,module,exports){
 var isObject = require('./isObject');
 
 /**
@@ -5100,7 +6305,7 @@ function isStrictComparable(value) {
 
 module.exports = isStrictComparable;
 
-},{"./isObject":176}],134:[function(require,module,exports){
+},{"./isObject":191}],149:[function(require,module,exports){
 /**
  * Removes all key-value entries from the list cache.
  *
@@ -5115,7 +6320,7 @@ function listCacheClear() {
 
 module.exports = listCacheClear;
 
-},{}],135:[function(require,module,exports){
+},{}],150:[function(require,module,exports){
 var assocIndexOf = require('./_assocIndexOf');
 
 /** Used for built-in method references. */
@@ -5152,7 +6357,7 @@ function listCacheDelete(key) {
 
 module.exports = listCacheDelete;
 
-},{"./_assocIndexOf":78}],136:[function(require,module,exports){
+},{"./_assocIndexOf":93}],151:[function(require,module,exports){
 var assocIndexOf = require('./_assocIndexOf');
 
 /**
@@ -5173,7 +6378,7 @@ function listCacheGet(key) {
 
 module.exports = listCacheGet;
 
-},{"./_assocIndexOf":78}],137:[function(require,module,exports){
+},{"./_assocIndexOf":93}],152:[function(require,module,exports){
 var assocIndexOf = require('./_assocIndexOf');
 
 /**
@@ -5191,7 +6396,7 @@ function listCacheHas(key) {
 
 module.exports = listCacheHas;
 
-},{"./_assocIndexOf":78}],138:[function(require,module,exports){
+},{"./_assocIndexOf":93}],153:[function(require,module,exports){
 var assocIndexOf = require('./_assocIndexOf');
 
 /**
@@ -5219,7 +6424,7 @@ function listCacheSet(key, value) {
 
 module.exports = listCacheSet;
 
-},{"./_assocIndexOf":78}],139:[function(require,module,exports){
+},{"./_assocIndexOf":93}],154:[function(require,module,exports){
 var Hash = require('./_Hash'),
     ListCache = require('./_ListCache'),
     Map = require('./_Map');
@@ -5242,7 +6447,7 @@ function mapCacheClear() {
 
 module.exports = mapCacheClear;
 
-},{"./_Hash":60,"./_ListCache":61,"./_Map":62}],140:[function(require,module,exports){
+},{"./_Hash":75,"./_ListCache":76,"./_Map":77}],155:[function(require,module,exports){
 var getMapData = require('./_getMapData');
 
 /**
@@ -5262,7 +6467,7 @@ function mapCacheDelete(key) {
 
 module.exports = mapCacheDelete;
 
-},{"./_getMapData":114}],141:[function(require,module,exports){
+},{"./_getMapData":129}],156:[function(require,module,exports){
 var getMapData = require('./_getMapData');
 
 /**
@@ -5280,7 +6485,7 @@ function mapCacheGet(key) {
 
 module.exports = mapCacheGet;
 
-},{"./_getMapData":114}],142:[function(require,module,exports){
+},{"./_getMapData":129}],157:[function(require,module,exports){
 var getMapData = require('./_getMapData');
 
 /**
@@ -5298,7 +6503,7 @@ function mapCacheHas(key) {
 
 module.exports = mapCacheHas;
 
-},{"./_getMapData":114}],143:[function(require,module,exports){
+},{"./_getMapData":129}],158:[function(require,module,exports){
 var getMapData = require('./_getMapData');
 
 /**
@@ -5322,7 +6527,7 @@ function mapCacheSet(key, value) {
 
 module.exports = mapCacheSet;
 
-},{"./_getMapData":114}],144:[function(require,module,exports){
+},{"./_getMapData":129}],159:[function(require,module,exports){
 /**
  * Converts `map` to its key-value pairs.
  *
@@ -5342,7 +6547,7 @@ function mapToArray(map) {
 
 module.exports = mapToArray;
 
-},{}],145:[function(require,module,exports){
+},{}],160:[function(require,module,exports){
 /**
  * A specialized version of `matchesProperty` for source values suitable
  * for strict equality comparisons, i.e. `===`.
@@ -5364,7 +6569,7 @@ function matchesStrictComparable(key, srcValue) {
 
 module.exports = matchesStrictComparable;
 
-},{}],146:[function(require,module,exports){
+},{}],161:[function(require,module,exports){
 var memoize = require('./memoize');
 
 /** Used as the maximum memoize cache size. */
@@ -5392,7 +6597,7 @@ function memoizeCapped(func) {
 
 module.exports = memoizeCapped;
 
-},{"./memoize":181}],147:[function(require,module,exports){
+},{"./memoize":196}],162:[function(require,module,exports){
 var getNative = require('./_getNative');
 
 /* Built-in method references that are verified to be native. */
@@ -5400,7 +6605,7 @@ var nativeCreate = getNative(Object, 'create');
 
 module.exports = nativeCreate;
 
-},{"./_getNative":116}],148:[function(require,module,exports){
+},{"./_getNative":131}],163:[function(require,module,exports){
 var overArg = require('./_overArg');
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
@@ -5408,7 +6613,7 @@ var nativeKeys = overArg(Object.keys, Object);
 
 module.exports = nativeKeys;
 
-},{"./_overArg":151}],149:[function(require,module,exports){
+},{"./_overArg":166}],164:[function(require,module,exports){
 var freeGlobal = require('./_freeGlobal');
 
 /** Detect free variable `exports`. */
@@ -5432,7 +6637,7 @@ var nodeUtil = (function() {
 
 module.exports = nodeUtil;
 
-},{"./_freeGlobal":112}],150:[function(require,module,exports){
+},{"./_freeGlobal":127}],165:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -5456,7 +6661,7 @@ function objectToString(value) {
 
 module.exports = objectToString;
 
-},{}],151:[function(require,module,exports){
+},{}],166:[function(require,module,exports){
 /**
  * Creates a unary function that invokes `func` with its argument transformed.
  *
@@ -5473,7 +6678,7 @@ function overArg(func, transform) {
 
 module.exports = overArg;
 
-},{}],152:[function(require,module,exports){
+},{}],167:[function(require,module,exports){
 var freeGlobal = require('./_freeGlobal');
 
 /** Detect free variable `self`. */
@@ -5484,7 +6689,7 @@ var root = freeGlobal || freeSelf || Function('return this')();
 
 module.exports = root;
 
-},{"./_freeGlobal":112}],153:[function(require,module,exports){
+},{"./_freeGlobal":127}],168:[function(require,module,exports){
 /** Used to stand-in for `undefined` hash values. */
 var HASH_UNDEFINED = '__lodash_hash_undefined__';
 
@@ -5505,7 +6710,7 @@ function setCacheAdd(value) {
 
 module.exports = setCacheAdd;
 
-},{}],154:[function(require,module,exports){
+},{}],169:[function(require,module,exports){
 /**
  * Checks if `value` is in the array cache.
  *
@@ -5521,7 +6726,7 @@ function setCacheHas(value) {
 
 module.exports = setCacheHas;
 
-},{}],155:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 /**
  * Converts `set` to an array of its values.
  *
@@ -5541,7 +6746,7 @@ function setToArray(set) {
 
 module.exports = setToArray;
 
-},{}],156:[function(require,module,exports){
+},{}],171:[function(require,module,exports){
 var ListCache = require('./_ListCache');
 
 /**
@@ -5558,7 +6763,7 @@ function stackClear() {
 
 module.exports = stackClear;
 
-},{"./_ListCache":61}],157:[function(require,module,exports){
+},{"./_ListCache":76}],172:[function(require,module,exports){
 /**
  * Removes `key` and its value from the stack.
  *
@@ -5578,7 +6783,7 @@ function stackDelete(key) {
 
 module.exports = stackDelete;
 
-},{}],158:[function(require,module,exports){
+},{}],173:[function(require,module,exports){
 /**
  * Gets the stack value for `key`.
  *
@@ -5594,7 +6799,7 @@ function stackGet(key) {
 
 module.exports = stackGet;
 
-},{}],159:[function(require,module,exports){
+},{}],174:[function(require,module,exports){
 /**
  * Checks if a stack value for `key` exists.
  *
@@ -5610,7 +6815,7 @@ function stackHas(key) {
 
 module.exports = stackHas;
 
-},{}],160:[function(require,module,exports){
+},{}],175:[function(require,module,exports){
 var ListCache = require('./_ListCache'),
     Map = require('./_Map'),
     MapCache = require('./_MapCache');
@@ -5646,7 +6851,7 @@ function stackSet(key, value) {
 
 module.exports = stackSet;
 
-},{"./_ListCache":61,"./_Map":62,"./_MapCache":63}],161:[function(require,module,exports){
+},{"./_ListCache":76,"./_Map":77,"./_MapCache":78}],176:[function(require,module,exports){
 var memoizeCapped = require('./_memoizeCapped');
 
 /** Used to match property names within property paths. */
@@ -5676,7 +6881,7 @@ var stringToPath = memoizeCapped(function(string) {
 
 module.exports = stringToPath;
 
-},{"./_memoizeCapped":146}],162:[function(require,module,exports){
+},{"./_memoizeCapped":161}],177:[function(require,module,exports){
 var isSymbol = require('./isSymbol');
 
 /** Used as references for various `Number` constants. */
@@ -5699,7 +6904,7 @@ function toKey(value) {
 
 module.exports = toKey;
 
-},{"./isSymbol":178}],163:[function(require,module,exports){
+},{"./isSymbol":193}],178:[function(require,module,exports){
 /** Used for built-in method references. */
 var funcProto = Function.prototype;
 
@@ -5727,7 +6932,7 @@ function toSource(func) {
 
 module.exports = toSource;
 
-},{}],164:[function(require,module,exports){
+},{}],179:[function(require,module,exports){
 /**
  * Performs a
  * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
@@ -5766,7 +6971,7 @@ function eq(value, other) {
 
 module.exports = eq;
 
-},{}],165:[function(require,module,exports){
+},{}],180:[function(require,module,exports){
 var arrayEvery = require('./_arrayEvery'),
     baseEvery = require('./_baseEvery'),
     baseIteratee = require('./_baseIteratee'),
@@ -5824,7 +7029,7 @@ function every(collection, predicate, guard) {
 
 module.exports = every;
 
-},{"./_arrayEvery":72,"./_baseEvery":80,"./_baseIteratee":93,"./_isIterateeCall":128,"./isArray":171}],166:[function(require,module,exports){
+},{"./_arrayEvery":87,"./_baseEvery":95,"./_baseIteratee":108,"./_isIterateeCall":143,"./isArray":186}],181:[function(require,module,exports){
 var arrayEach = require('./_arrayEach'),
     baseEach = require('./_baseEach'),
     castFunction = require('./_castFunction'),
@@ -5867,7 +7072,7 @@ function forEach(collection, iteratee) {
 
 module.exports = forEach;
 
-},{"./_arrayEach":71,"./_baseEach":79,"./_castFunction":104,"./isArray":171}],167:[function(require,module,exports){
+},{"./_arrayEach":86,"./_baseEach":94,"./_castFunction":119,"./isArray":186}],182:[function(require,module,exports){
 var baseGet = require('./_baseGet');
 
 /**
@@ -5902,7 +7107,7 @@ function get(object, path, defaultValue) {
 
 module.exports = get;
 
-},{"./_baseGet":83}],168:[function(require,module,exports){
+},{"./_baseGet":98}],183:[function(require,module,exports){
 var baseHasIn = require('./_baseHasIn'),
     hasPath = require('./_hasPath');
 
@@ -5938,7 +7143,7 @@ function hasIn(object, path) {
 
 module.exports = hasIn;
 
-},{"./_baseHasIn":86,"./_hasPath":121}],169:[function(require,module,exports){
+},{"./_baseHasIn":101,"./_hasPath":136}],184:[function(require,module,exports){
 /**
  * This method returns the first argument it receives.
  *
@@ -5961,7 +7166,7 @@ function identity(value) {
 
 module.exports = identity;
 
-},{}],170:[function(require,module,exports){
+},{}],185:[function(require,module,exports){
 var baseIsArguments = require('./_baseIsArguments'),
     isObjectLike = require('./isObjectLike');
 
@@ -5999,7 +7204,7 @@ var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsAr
 
 module.exports = isArguments;
 
-},{"./_baseIsArguments":87,"./isObjectLike":177}],171:[function(require,module,exports){
+},{"./_baseIsArguments":102,"./isObjectLike":192}],186:[function(require,module,exports){
 /**
  * Checks if `value` is classified as an `Array` object.
  *
@@ -6027,7 +7232,7 @@ var isArray = Array.isArray;
 
 module.exports = isArray;
 
-},{}],172:[function(require,module,exports){
+},{}],187:[function(require,module,exports){
 var isFunction = require('./isFunction'),
     isLength = require('./isLength');
 
@@ -6062,7 +7267,7 @@ function isArrayLike(value) {
 
 module.exports = isArrayLike;
 
-},{"./isFunction":174,"./isLength":175}],173:[function(require,module,exports){
+},{"./isFunction":189,"./isLength":190}],188:[function(require,module,exports){
 var root = require('./_root'),
     stubFalse = require('./stubFalse');
 
@@ -6102,7 +7307,7 @@ var isBuffer = nativeIsBuffer || stubFalse;
 
 module.exports = isBuffer;
 
-},{"./_root":152,"./stubFalse":185}],174:[function(require,module,exports){
+},{"./_root":167,"./stubFalse":200}],189:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isObject = require('./isObject');
 
@@ -6141,7 +7346,7 @@ function isFunction(value) {
 
 module.exports = isFunction;
 
-},{"./_baseGetTag":85,"./isObject":176}],175:[function(require,module,exports){
+},{"./_baseGetTag":100,"./isObject":191}],190:[function(require,module,exports){
 /** Used as references for various `Number` constants. */
 var MAX_SAFE_INTEGER = 9007199254740991;
 
@@ -6178,7 +7383,7 @@ function isLength(value) {
 
 module.exports = isLength;
 
-},{}],176:[function(require,module,exports){
+},{}],191:[function(require,module,exports){
 /**
  * Checks if `value` is the
  * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
@@ -6211,7 +7416,7 @@ function isObject(value) {
 
 module.exports = isObject;
 
-},{}],177:[function(require,module,exports){
+},{}],192:[function(require,module,exports){
 /**
  * Checks if `value` is object-like. A value is object-like if it's not `null`
  * and has a `typeof` result of "object".
@@ -6242,7 +7447,7 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],178:[function(require,module,exports){
+},{}],193:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     isObjectLike = require('./isObjectLike');
 
@@ -6273,7 +7478,7 @@ function isSymbol(value) {
 
 module.exports = isSymbol;
 
-},{"./_baseGetTag":85,"./isObjectLike":177}],179:[function(require,module,exports){
+},{"./_baseGetTag":100,"./isObjectLike":192}],194:[function(require,module,exports){
 var baseIsTypedArray = require('./_baseIsTypedArray'),
     baseUnary = require('./_baseUnary'),
     nodeUtil = require('./_nodeUtil');
@@ -6302,7 +7507,7 @@ var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedA
 
 module.exports = isTypedArray;
 
-},{"./_baseIsTypedArray":92,"./_baseUnary":102,"./_nodeUtil":149}],180:[function(require,module,exports){
+},{"./_baseIsTypedArray":107,"./_baseUnary":117,"./_nodeUtil":164}],195:[function(require,module,exports){
 var arrayLikeKeys = require('./_arrayLikeKeys'),
     baseKeys = require('./_baseKeys'),
     isArrayLike = require('./isArrayLike');
@@ -6341,7 +7546,7 @@ function keys(object) {
 
 module.exports = keys;
 
-},{"./_arrayLikeKeys":74,"./_baseKeys":94,"./isArrayLike":172}],181:[function(require,module,exports){
+},{"./_arrayLikeKeys":89,"./_baseKeys":109,"./isArrayLike":187}],196:[function(require,module,exports){
 var MapCache = require('./_MapCache');
 
 /** Error message constants. */
@@ -6416,7 +7621,7 @@ memoize.Cache = MapCache;
 
 module.exports = memoize;
 
-},{"./_MapCache":63}],182:[function(require,module,exports){
+},{"./_MapCache":78}],197:[function(require,module,exports){
 var baseProperty = require('./_baseProperty'),
     basePropertyDeep = require('./_basePropertyDeep'),
     isKey = require('./_isKey'),
@@ -6450,7 +7655,7 @@ function property(path) {
 
 module.exports = property;
 
-},{"./_baseProperty":97,"./_basePropertyDeep":98,"./_isKey":129,"./_toKey":162}],183:[function(require,module,exports){
+},{"./_baseProperty":112,"./_basePropertyDeep":113,"./_isKey":144,"./_toKey":177}],198:[function(require,module,exports){
 var arraySome = require('./_arraySome'),
     baseIteratee = require('./_baseIteratee'),
     baseSome = require('./_baseSome'),
@@ -6503,7 +7708,7 @@ function some(collection, predicate, guard) {
 
 module.exports = some;
 
-},{"./_arraySome":77,"./_baseIteratee":93,"./_baseSome":99,"./_isIterateeCall":128,"./isArray":171}],184:[function(require,module,exports){
+},{"./_arraySome":92,"./_baseIteratee":108,"./_baseSome":114,"./_isIterateeCall":143,"./isArray":186}],199:[function(require,module,exports){
 /**
  * This method returns a new empty array.
  *
@@ -6528,7 +7733,7 @@ function stubArray() {
 
 module.exports = stubArray;
 
-},{}],185:[function(require,module,exports){
+},{}],200:[function(require,module,exports){
 /**
  * This method returns `false`.
  *
@@ -6548,7 +7753,7 @@ function stubFalse() {
 
 module.exports = stubFalse;
 
-},{}],186:[function(require,module,exports){
+},{}],201:[function(require,module,exports){
 var baseToString = require('./_baseToString');
 
 /**
@@ -6578,15 +7783,29 @@ function toString(value) {
 
 module.exports = toString;
 
-},{"./_baseToString":101}],187:[function(require,module,exports){
+},{"./_baseToString":116}],202:[function(require,module,exports){
 module.exports = require('component-classes');
-},{"component-classes":54}],188:[function(require,module,exports){
+},{"component-classes":67}],203:[function(require,module,exports){
+module.exports = function(el) {
+
+  var c;
+
+  while (el.childNodes.length) {
+    c = el.childNodes[0];
+    el.removeChild(c);
+  }
+
+  return el;
+};
+},{}],204:[function(require,module,exports){
+module.exports = require('component-closest');
+},{"component-closest":68}],205:[function(require,module,exports){
 module.exports = require('domify');
-},{"domify":58}],189:[function(require,module,exports){
+},{"domify":73}],206:[function(require,module,exports){
 module.exports = require('component-event');
-},{"component-event":55}],190:[function(require,module,exports){
+},{"component-event":69}],207:[function(require,module,exports){
 module.exports = require('component-query');
-},{"component-query":57}],191:[function(require,module,exports){
+},{"component-query":72}],208:[function(require,module,exports){
 /*!
 * svg.js - A lightweight library for manipulating and animating SVG.
 * @version 2.6.3

@@ -28,7 +28,7 @@
     "watchify": "^3.9.0"
   },
   "dependencies": {
-    "bpmn-js-token-simulation": "^0.5.0",
+    "bpmn-js-token-simulation": "^0.6.0",
     "min-dom": "^0.2.0"
   }
 }
