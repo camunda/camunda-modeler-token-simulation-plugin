@@ -7,7 +7,7 @@ module.exports = function(electronApp, menuState) {
     enabled: function() {
 
       // only enabled for BPMN diagrams
-      return menuState.bpmn;
+      return menuState.bpmn && menuState.inactiveInput;
     },
     action: function() {
 
