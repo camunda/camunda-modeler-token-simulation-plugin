@@ -1,6 +1,6 @@
 {
   "name": "bpmn-js-token-simulation-plugin",
-  "version": "0.1.0",
+  "version": "0.7.0",
   "description": "Token Simulation for bpmn-js",
   "main": "index.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "watchify": "^3.9.0"
   },
   "dependencies": {
-    "bpmn-js-token-simulation": "^0.6.0",
+    "bpmn-js-token-simulation": "^0.7.0",
     "min-dom": "^0.2.0"
   }
 }
