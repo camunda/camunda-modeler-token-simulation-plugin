@@ -4,8 +4,8 @@
   "description": "Token Simulation for bpmn-js",
   "main": "index.js",
   "scripts": {
-    "build": "browserify client/client.js > client/client-bundle.js",
-    "auto-build": "watchify client/client.js -o client/client-bundle.js"
+    "bundle": "webpack",
+    "bundle:watch": "webpack -w"
   },
   "repository": {
     "type": "git",
@@ -23,9 +23,12 @@
   },
   "homepage": "https://github.com/camunda/camunda-modeler-plugins#readme",
   "devDependencies": {
-    "browserify": "^14.1.0",
-    "camunda-modeler-plugin-helpers": "^1.7.0",
-    "watchify": "^3.9.0"
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "camunda-modeler-plugin-helpers": "^2.1.0",
+    "webpack": "^4.26.1",
+    "webpack-cli": "^3.1.2"
   },
   "dependencies": {
     "bpmn-js-token-simulation": "^0.7.0",
