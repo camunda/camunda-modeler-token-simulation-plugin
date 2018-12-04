@@ -7,18 +7,18 @@
 
 ![Screencast](docs/screencast.gif)
 
-### How to use
+## How to use
 
 1. Download and copy this repository into the `plugins` directory of the Camunda Modeler
 2. Start the Camunda Modeler
 3. Simulate tokens in a regular BPMN tab
 
 
-### Compatibility Notice
+## Compatibility Notice
 
 This plug-in is compatible with Camunda Modeler `v2.2+`.
 
 
-### Licence
+## Licence
 
 MIT
