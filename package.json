@@ -1,15 +1,16 @@
 {
   "name": "bpmn-js-token-simulation-plugin",
   "version": "0.7.0",
-  "description": "Token Simulation for bpmn-js",
+  "description": "bpmn-js Token Simulation plug-in for the Camunda Modeler",
   "main": "index.js",
   "scripts": {
     "bundle": "webpack",
-    "bundle:watch": "webpack -w"
+    "bundle:watch": "webpack -w",
+    "prepublishOnly": "npm run bundle"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/camunda/camunda-modeler-plugins.git"
+    "url": "https://github.com/bpmn-io/bpmn-js-token-simulation-plugin"
   },
   "keywords": [
     "camunda",
@@ -18,20 +19,16 @@
   ],
   "author": "Philipp Fromme",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/camunda/camunda-modeler-plugins/issues"
-  },
-  "homepage": "https://github.com/camunda/camunda-modeler-plugins#readme",
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
     "babel-preset-env": "^1.7.0",
-    "camunda-modeler-plugin-helpers": "^2.1.0",
     "webpack": "^4.26.1",
     "webpack-cli": "^3.1.2"
   },
   "dependencies": {
     "bpmn-js-token-simulation": "^0.8.0",
+    "camunda-modeler-plugin-helpers": "^2.1.0",
     "min-dom": "^3.1.1"
   }
 }
