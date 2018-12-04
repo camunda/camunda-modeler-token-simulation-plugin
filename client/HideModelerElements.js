@@ -1,7 +1,7 @@
 'use strict';
 
-var domClasses = require('min-dom/lib/classes'),
-    domQuery = require('min-dom/lib/query');
+var domClasses = require('min-dom').classes,
+    domQuery = require('min-dom').query;
 
 var TOGGLE_MODE_EVENT = require('bpmn-js-token-simulation/lib/util/EventHelper').TOGGLE_MODE_EVENT;
 
