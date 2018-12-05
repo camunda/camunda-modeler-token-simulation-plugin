@@ -5,7 +5,7 @@
 
 [bpmn-js-token-simulation](https://github.com/bpmn-io/bpmn-js-token-simulation) as a plugin for the [Camunda Modeler](https://camunda.org/bpmn/tool/).
 
-![Screencast](docs/screencast.gif)
+![Screenshot](docs/screenshot.png)
 
 ## How to use
 
