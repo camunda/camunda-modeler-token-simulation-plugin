@@ -94,7 +94,43 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domClasses = __webpack_require__(/*! min-dom */ \"./node_modules/min-dom/dist/index.esm.js\").classes,\n    domQuery = __webpack_require__(/*! min-dom */ \"./node_modules/min-dom/dist/index.esm.js\").query;\n\nvar TOGGLE_MODE_EVENT = __webpack_require__(/*! bpmn-js-token-simulation/lib/util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\").TOGGLE_MODE_EVENT;\n\nfunction HideModelerElements(eventBus) {\n  var css = '.properties.hidden { display: none; } .tabs .tab.hidden { display: none; }',\n      head = document.head,\n      style = document.createElement('style');\n\n  style.type = 'text/css';\n\n  style.appendChild(document.createTextNode(css));\n\n  head.appendChild(style);\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    var propertiesPanel = domQuery('.properties');\n    var xmlTab = domQuery('.tabs a.tab:not(.active)');\n\n    if (simulationModeActive) {\n      domClasses(propertiesPanel).add('hidden');\n      domClasses(xmlTab).add('hidden');\n    } else {\n      domClasses(propertiesPanel).remove('hidden');\n      domClasses(xmlTab).remove('hidden');\n    }\n  });\n}\n\nHideModelerElements.$inject = ['eventBus'];\n\nmodule.exports = HideModelerElements;\n\n//# sourceURL=webpack:///./client/HideModelerElements.js?");
+
+
+var domClasses = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").classes,
+    domQuery = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").query;
+
+var TOGGLE_MODE_EVENT = __webpack_require__(/*! bpmn-js-token-simulation/lib/util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js").TOGGLE_MODE_EVENT;
+
+function HideModelerElements(eventBus) {
+  var css = '.properties.hidden { display: none; } .tabs .tab.hidden { display: none; }',
+      head = document.head,
+      style = document.createElement('style');
+
+  style.type = 'text/css';
+
+  style.appendChild(document.createTextNode(css));
+
+  head.appendChild(style);
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    var propertiesPanel = domQuery('.properties');
+    var xmlTab = domQuery('.tabs a.tab:not(.active)');
+
+    if (simulationModeActive) {
+      domClasses(propertiesPanel).add('hidden');
+      domClasses(xmlTab).add('hidden');
+    } else {
+      domClasses(propertiesPanel).remove('hidden');
+      domClasses(xmlTab).remove('hidden');
+    }
+  });
+}
+
+HideModelerElements.$inject = ['eventBus'];
+
+module.exports = HideModelerElements;
 
 /***/ }),
 
@@ -105,7 +141,15 @@ eval("\n\nvar domClasses = __webpack_require__(/*! min-dom */ \"./node_modules/m
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("var registerBpmnJSPlugin = __webpack_require__(/*! camunda-modeler-plugin-helpers */ \"./node_modules/camunda-modeler-plugin-helpers/index.js\").registerBpmnJSPlugin;\n\nvar tokenSimulation = __webpack_require__(/*! bpmn-js-token-simulation */ \"./node_modules/bpmn-js-token-simulation/index.js\"),\n    HideModelerElements = __webpack_require__(/*! ./HideModelerElements */ \"./client/HideModelerElements.js\");\n\ntokenSimulation.__init__.push('hideModelerElements');\ntokenSimulation.hideModelerElements = ['type', HideModelerElements];\n\nregisterBpmnJSPlugin(tokenSimulation);\n\n//# sourceURL=webpack:///./client/client.js?");
+var registerBpmnJSPlugin = __webpack_require__(/*! camunda-modeler-plugin-helpers */ "./node_modules/camunda-modeler-plugin-helpers/index.js").registerBpmnJSPlugin;
+
+var tokenSimulation = __webpack_require__(/*! bpmn-js-token-simulation */ "./node_modules/bpmn-js-token-simulation/index.js"),
+    HideModelerElements = __webpack_require__(/*! ./HideModelerElements */ "./client/HideModelerElements.js");
+
+tokenSimulation.__init__.push('hideModelerElements');
+tokenSimulation.hideModelerElements = ['type', HideModelerElements];
+
+registerBpmnJSPlugin(tokenSimulation);
 
 /***/ }),
 
@@ -116,7 +160,7 @@ eval("var registerBpmnJSPlugin = __webpack_require__(/*! camunda-modeler-plugin-
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./lib/modeler */ \"./node_modules/bpmn-js-token-simulation/lib/modeler.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/index.js?");
+module.exports = __webpack_require__(/*! ./lib/modeler */ "./node_modules/bpmn-js-token-simulation/lib/modeler.js");
 
 /***/ }),
 
@@ -128,7 +172,257 @@ eval("module.exports = __webpack_require__(/*! ./lib/modeler */ \"./node_modules
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar SVG = __webpack_require__(/*! svg.js */ \"./node_modules/svg.js/dist/svg.js\");\n\nvar domQuery = __webpack_require__(/*! min-dom/lib/query */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js\");\n\nvar events = __webpack_require__(/*! ../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,\n    PLAY_SIMULATION_EVENT = events.PLAY_SIMULATION_EVENT,\n    PAUSE_SIMULATION_EVENT = events.PAUSE_SIMULATION_EVENT,\n    TERMINATE_EVENT = events.TERMINATE_EVENT,\n    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT,\n    ANIMATION_CREATED_EVENT = events.ANIMATION_CREATED_EVENT;\n\nvar isAncestor = __webpack_require__(/*! ../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").isAncestor;\n\nvar geometryUtil = __webpack_require__(/*! ../util/GeometryUtil */ \"./node_modules/bpmn-js-token-simulation/lib/util/GeometryUtil.js\"),\n    distance = geometryUtil.distance;\n\nfunction isFirstSegment(index) {\n  return index === 1;\n}\n\nfunction isSingleSegment(waypoints) {\n  return waypoints.length == 2;\n}\n\nvar DELAY = 0;\n\nvar EASE_LINEAR = '-',\n    EASE_IN = '<',\n    EASE_IN_OUT = '<>';\n\nvar TOKEN_SIZE = 20;\n\nfunction Animation(canvas, eventBus) {\n  var self = window.animation = this;\n\n  this._eventBus = eventBus;\n  this.animations = [];\n  this.hiddenAnimations = [];\n\n  this.animationSpeed = 1;\n\n  eventBus.on('import.done', function () {\n    var draw = SVG(canvas._svg);\n\n    var viewport = domQuery('.viewport', canvas._svg);\n\n    var groupParent = SVG.adopt(viewport);\n\n    self.group = draw.group().attr('id', 'token-simulation');\n\n    groupParent.put(self.group);\n  });\n\n  eventBus.on(TERMINATE_EVENT, function (context) {\n    var element = context.element,\n        parent = element.parent;\n\n    self.animations.forEach(function (animation) {\n      if (isAncestor(parent, animation.element)) {\n\n        // remove token\n        animation.animation.stop();\n\n        self.animations = self.animations.filter(function (a) {\n          return a !== animation;\n        });\n      }\n    });\n  });\n\n  eventBus.on(PROCESS_INSTANCE_FINISHED_EVENT, function (context) {\n    var parent = context.parent;\n\n    self.animations.forEach(function (animation) {\n      if (context.processInstanceId === animation.processInstanceId || isAncestor(parent, animation.element)) {\n\n        // remove token\n        animation.animation.stop();\n\n        self.animations = self.animations.filter(function (a) {\n          return a !== animation;\n        });\n      }\n    });\n  });\n\n  eventBus.on(RESET_SIMULATION_EVENT, function () {\n    self.animations.forEach(function (animation) {\n      animation.animation.stop();\n    });\n\n    self.animations = [];\n    self.hiddenAnimations = [];\n  });\n\n  eventBus.on(PAUSE_SIMULATION_EVENT, function () {\n    self.animations.forEach(function (animation) {\n      animation.animation.pause();\n    });\n  });\n\n  eventBus.on(PLAY_SIMULATION_EVENT, function () {\n    self.animations.forEach(function (animation) {\n      animation.animation.play();\n    });\n  });\n}\n\nAnimation.prototype.createAnimation = function (connection, processInstanceId, done) {\n  var self = this;\n\n  if (!this.group) {\n    return;\n  }\n\n  var tokenGfx = this._createTokenGfx(processInstanceId);\n\n  var animation;\n\n  animation = new _Animation(tokenGfx, connection.waypoints, function () {\n    self.animations = self.animations.filter(function (a) {\n      return a.animation !== animation;\n    });\n\n    if (done) {\n      done();\n    }\n  });\n\n  if (this.hiddenAnimations.includes(processInstanceId)) {\n    tokenGfx.hide();\n  }\n\n  tokenGfx.fx._speed = this.animationSpeed;\n\n  this.animations.push({\n    tokenGfx: tokenGfx,\n    animation: animation,\n    element: connection,\n    processInstanceId: processInstanceId\n  });\n\n  this._eventBus.fire(ANIMATION_CREATED_EVENT, {\n    tokenGfx: tokenGfx,\n    animation: animation,\n    element: connection,\n    processInstanceId: processInstanceId\n  });\n\n  return animation;\n};\n\nAnimation.prototype.setAnimationSpeed = function (speed) {\n  this.animations.forEach(function (animation) {\n    animation.tokenGfx.fx._speed = speed;\n  });\n\n  this.animationSpeed = speed;\n};\n\nAnimation.prototype._createTokenGfx = function (processInstanceId) {\n  var parent = this.group.group().attr('class', 'token').hide();\n\n  parent.circle(TOKEN_SIZE, TOKEN_SIZE).attr('fill', '#52b415').attr('class', 'circle');\n\n  parent.text(processInstanceId.toString()).attr('transform', 'translate(10, -7)').attr('text-anchor', 'middle').attr('class', 'text');\n\n  return parent;\n};\n\nAnimation.prototype.showProcessInstanceAnimations = function (processInstanceId) {\n  this.animations.forEach(function (animation) {\n    if (animation.processInstanceId === processInstanceId) {\n      animation.tokenGfx.show();\n    }\n  });\n\n  this.hiddenAnimations = this.hiddenAnimations.filter(function (id) {\n    return id !== processInstanceId;\n  });\n};\n\nAnimation.prototype.hideProcessInstanceAnimations = function (processInstanceId) {\n  this.animations.forEach(function (animation) {\n    if (animation.processInstanceId === processInstanceId) {\n      animation.tokenGfx.hide();\n    }\n  });\n\n  this.hiddenAnimations.push(processInstanceId);\n};\n\nAnimation.$inject = ['canvas', 'eventBus'];\n\nmodule.exports = Animation;\n\nfunction _Animation(gfx, waypoints, done) {\n  this.gfx = this.fx = gfx;\n  this.waypoints = waypoints;\n  this.done = done;\n\n  this.create();\n}\n\n_Animation.prototype.create = function () {\n  var gfx = this.gfx,\n      waypoints = this.waypoints,\n      done = this.done,\n      fx = this.fx;\n\n  gfx.show().move(waypoints[0].x - TOKEN_SIZE / 2, waypoints[0].y - TOKEN_SIZE / 2);\n\n  waypoints.forEach(function (waypoint, index) {\n    if (index > 0) {\n      var x = waypoint.x - TOKEN_SIZE / 2,\n          y = waypoint.y - TOKEN_SIZE / 2;\n\n      var ease = isFirstSegment(index) ? EASE_IN : EASE_LINEAR;\n\n      if (isSingleSegment(waypoints)) {\n        ease = EASE_IN_OUT;\n      }\n\n      var duration = distance(waypoints[index - 1], waypoint) * 20;\n\n      fx = fx.animate(duration, ease, DELAY).move(x, y);\n    }\n  });\n\n  fx.after(function () {\n    gfx.remove();\n\n    done();\n  });\n};\n\n_Animation.prototype.play = function () {\n  this.gfx.play();\n};\n\n_Animation.prototype.pause = function () {\n  this.gfx.pause();\n};\n\n_Animation.prototype.stop = function () {\n  this.fx.stop();\n  this.gfx.remove();\n};\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/animation/Animation.js?");
+
+
+var SVG = __webpack_require__(/*! svg.js */ "./node_modules/svg.js/dist/svg.js");
+
+var domQuery = __webpack_require__(/*! min-dom/lib/query */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js");
+
+var events = __webpack_require__(/*! ../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
+    PLAY_SIMULATION_EVENT = events.PLAY_SIMULATION_EVENT,
+    PAUSE_SIMULATION_EVENT = events.PAUSE_SIMULATION_EVENT,
+    TERMINATE_EVENT = events.TERMINATE_EVENT,
+    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT,
+    ANIMATION_CREATED_EVENT = events.ANIMATION_CREATED_EVENT;
+
+var isAncestor = __webpack_require__(/*! ../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").isAncestor;
+
+var geometryUtil = __webpack_require__(/*! ../util/GeometryUtil */ "./node_modules/bpmn-js-token-simulation/lib/util/GeometryUtil.js"),
+    distance = geometryUtil.distance;
+
+function isFirstSegment(index) {
+  return index === 1;
+}
+
+function isSingleSegment(waypoints) {
+  return waypoints.length == 2;
+}
+
+var DELAY = 0;
+
+var EASE_LINEAR = '-',
+    EASE_IN = '<',
+    EASE_IN_OUT = '<>';
+
+var TOKEN_SIZE = 20;
+
+function Animation(canvas, eventBus) {
+  var self = window.animation = this;
+
+  this._eventBus = eventBus;
+  this.animations = [];
+  this.hiddenAnimations = [];
+
+  this.animationSpeed = 1;
+
+  eventBus.on('import.done', function () {
+    var draw = SVG(canvas._svg);
+
+    var viewport = domQuery('.viewport', canvas._svg);
+
+    var groupParent = SVG.adopt(viewport);
+
+    self.group = draw.group().attr('id', 'token-simulation');
+
+    groupParent.put(self.group);
+  });
+
+  eventBus.on(TERMINATE_EVENT, function (context) {
+    var element = context.element,
+        parent = element.parent;
+
+    self.animations.forEach(function (animation) {
+      if (isAncestor(parent, animation.element)) {
+
+        // remove token
+        animation.animation.stop();
+
+        self.animations = self.animations.filter(function (a) {
+          return a !== animation;
+        });
+      }
+    });
+  });
+
+  eventBus.on(PROCESS_INSTANCE_FINISHED_EVENT, function (context) {
+    var parent = context.parent;
+
+    self.animations.forEach(function (animation) {
+      if (context.processInstanceId === animation.processInstanceId || isAncestor(parent, animation.element)) {
+
+        // remove token
+        animation.animation.stop();
+
+        self.animations = self.animations.filter(function (a) {
+          return a !== animation;
+        });
+      }
+    });
+  });
+
+  eventBus.on(RESET_SIMULATION_EVENT, function () {
+    self.animations.forEach(function (animation) {
+      animation.animation.stop();
+    });
+
+    self.animations = [];
+    self.hiddenAnimations = [];
+  });
+
+  eventBus.on(PAUSE_SIMULATION_EVENT, function () {
+    self.animations.forEach(function (animation) {
+      animation.animation.pause();
+    });
+  });
+
+  eventBus.on(PLAY_SIMULATION_EVENT, function () {
+    self.animations.forEach(function (animation) {
+      animation.animation.play();
+    });
+  });
+}
+
+Animation.prototype.createAnimation = function (connection, processInstanceId, done) {
+  var self = this;
+
+  if (!this.group) {
+    return;
+  }
+
+  var tokenGfx = this._createTokenGfx(processInstanceId);
+
+  var animation;
+
+  animation = new _Animation(tokenGfx, connection.waypoints, function () {
+    self.animations = self.animations.filter(function (a) {
+      return a.animation !== animation;
+    });
+
+    if (done) {
+      done();
+    }
+  });
+
+  if (this.hiddenAnimations.includes(processInstanceId)) {
+    tokenGfx.hide();
+  }
+
+  tokenGfx.fx._speed = this.animationSpeed;
+
+  this.animations.push({
+    tokenGfx: tokenGfx,
+    animation: animation,
+    element: connection,
+    processInstanceId: processInstanceId
+  });
+
+  this._eventBus.fire(ANIMATION_CREATED_EVENT, {
+    tokenGfx: tokenGfx,
+    animation: animation,
+    element: connection,
+    processInstanceId: processInstanceId
+  });
+
+  return animation;
+};
+
+Animation.prototype.setAnimationSpeed = function (speed) {
+  this.animations.forEach(function (animation) {
+    animation.tokenGfx.fx._speed = speed;
+  });
+
+  this.animationSpeed = speed;
+};
+
+Animation.prototype._createTokenGfx = function (processInstanceId) {
+  var parent = this.group.group().attr('class', 'token').hide();
+
+  parent.circle(TOKEN_SIZE, TOKEN_SIZE).attr('fill', '#52b415').attr('class', 'circle');
+
+  parent.text(processInstanceId.toString()).attr('transform', 'translate(10, -7)').attr('text-anchor', 'middle').attr('class', 'text');
+
+  return parent;
+};
+
+Animation.prototype.showProcessInstanceAnimations = function (processInstanceId) {
+  this.animations.forEach(function (animation) {
+    if (animation.processInstanceId === processInstanceId) {
+      animation.tokenGfx.show();
+    }
+  });
+
+  this.hiddenAnimations = this.hiddenAnimations.filter(function (id) {
+    return id !== processInstanceId;
+  });
+};
+
+Animation.prototype.hideProcessInstanceAnimations = function (processInstanceId) {
+  this.animations.forEach(function (animation) {
+    if (animation.processInstanceId === processInstanceId) {
+      animation.tokenGfx.hide();
+    }
+  });
+
+  this.hiddenAnimations.push(processInstanceId);
+};
+
+Animation.$inject = ['canvas', 'eventBus'];
+
+module.exports = Animation;
+
+function _Animation(gfx, waypoints, done) {
+  this.gfx = this.fx = gfx;
+  this.waypoints = waypoints;
+  this.done = done;
+
+  this.create();
+}
+
+_Animation.prototype.create = function () {
+  var gfx = this.gfx,
+      waypoints = this.waypoints,
+      done = this.done,
+      fx = this.fx;
+
+  gfx.show().move(waypoints[0].x - TOKEN_SIZE / 2, waypoints[0].y - TOKEN_SIZE / 2);
+
+  waypoints.forEach(function (waypoint, index) {
+    if (index > 0) {
+      var x = waypoint.x - TOKEN_SIZE / 2,
+          y = waypoint.y - TOKEN_SIZE / 2;
+
+      var ease = isFirstSegment(index) ? EASE_IN : EASE_LINEAR;
+
+      if (isSingleSegment(waypoints)) {
+        ease = EASE_IN_OUT;
+      }
+
+      var duration = distance(waypoints[index - 1], waypoint) * 20;
+
+      fx = fx.animate(duration, ease, DELAY).move(x, y);
+    }
+  });
+
+  fx.after(function () {
+    gfx.remove();
+
+    done();
+  });
+};
+
+_Animation.prototype.play = function () {
+  this.gfx.play();
+};
+
+_Animation.prototype.pause = function () {
+  this.gfx.pause();
+};
+
+_Animation.prototype.stop = function () {
+  this.fx.stop();
+  this.gfx.remove();
+};
 
 /***/ }),
 
@@ -140,7 +434,207 @@ eval("\n\nvar SVG = __webpack_require__(/*! svg.js */ \"./node_modules/svg.js/di
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\"),\n    isAncestor = elementHelper.isAncestor;\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,\n    TERMINATE_EVENT = events.TERMINATE_EVENT,\n    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT,\n    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT,\n    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT;\n\nvar BoundaryEventHandler = __webpack_require__(/*! ./handler/BoundaryEventHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/BoundaryEventHandler.js\"),\n    ExclusiveGatewayHandler = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js\"),\n    IntermediateCatchEventHandler = __webpack_require__(/*! ./handler/IntermediateCatchEventHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/IntermediateCatchEventHandler.js\"),\n    ProcessHandler = __webpack_require__(/*! ./handler/ProcessHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ProcessHandler.js\"),\n    StartEventHandler = __webpack_require__(/*! ./handler/StartEventHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/StartEventHandler.js\");\n\nvar LOW_PRIORITY = 500;\n\nvar OFFSET_TOP = -15,\n    OFFSET_LEFT = -15;\n\nfunction ContextPads(eventBus, elementRegistry, overlays, injector, canvas, processInstances) {\n  var self = this;\n\n  this._elementRegistry = elementRegistry;\n  this._overlays = overlays;\n  this._injector = injector;\n  this._canvas = canvas;\n  this._processInstances = processInstances;\n\n  this.overlayIds = {};\n\n  this.handlers = {};\n\n  this.registerHandler('bpmn:ExclusiveGateway', ExclusiveGatewayHandler);\n  this.registerHandler('bpmn:IntermediateCatchEvent', IntermediateCatchEventHandler);\n  this.registerHandler('bpmn:SubProcess', ProcessHandler);\n  this.registerHandler('bpmn:SubProcess', BoundaryEventHandler);\n  this.registerHandler('bpmn:StartEvent', StartEventHandler);\n\n  eventBus.on(TOGGLE_MODE_EVENT, LOW_PRIORITY, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (simulationModeActive) {\n      self.openContextPads();\n    } else {\n      self.closeContextPads();\n    }\n  });\n\n  eventBus.on(RESET_SIMULATION_EVENT, LOW_PRIORITY, function () {\n    self.closeContextPads();\n    self.openContextPads();\n  });\n\n  eventBus.on(TERMINATE_EVENT, LOW_PRIORITY, function (context) {\n    var element = context.element,\n        parent = element.parent;\n\n    self.closeContextPads(parent);\n  });\n\n  eventBus.on(UPDATE_ELEMENTS_EVENT, LOW_PRIORITY, function (context) {\n    var elements = context.elements;\n\n    elements.forEach(function (element) {\n      self.closeElementContextPads(element);\n      self.openElementContextPads(element);\n    });\n  });\n\n  eventBus.on(UPDATE_ELEMENT_EVENT, LOW_PRIORITY, function (context) {\n    var element = context.element;\n\n    self.closeElementContextPads(element);\n    self.openElementContextPads(element);\n  });\n\n  eventBus.on(PROCESS_INSTANCE_SHOWN_EVENT, function (context) {\n    var processInstanceId = context.processInstanceId;\n\n    var processInstance = processInstances.getProcessInstance(processInstanceId),\n        parent = processInstance.parent;\n\n    self.closeContextPads(parent);\n    self.openContextPads(parent);\n  });\n}\n\n/**\r\n * Register a handler for an element type.\r\n * An element type can have multiple handlers.\r\n *\r\n * @param {String} type\r\n * @param {Object} handlerCls\r\n */\nContextPads.prototype.registerHandler = function (type, handlerCls) {\n  var handler = this._injector.instantiate(handlerCls);\n\n  if (!this.handlers[type]) {\n    this.handlers[type] = [];\n  }\n\n  this.handlers[type].push(handler);\n};\n\nContextPads.prototype.openContextPads = function (parent) {\n  var self = this;\n\n  if (!parent) {\n    parent = this._canvas.getRootElement();\n  }\n\n  this._elementRegistry.forEach(function (element) {\n    if (self.handlers[element.type] && isAncestor(parent, element)) {\n      self.openElementContextPads(element);\n    }\n  });\n};\n\nContextPads.prototype.openElementContextPads = function (element) {\n  if (!this.handlers[element.type]) {\n    return;\n  }\n\n  var elementContextPads = [];\n\n  this.handlers[element.type].forEach(function (handler) {\n    var contextPads = handler.createContextPads(element);\n\n    if (contextPads) {\n      contextPads.forEach(function (contextPad) {\n        if (contextPad) {\n          elementContextPads.push(contextPad);\n        }\n      });\n    }\n  });\n\n  var self = this;\n\n  elementContextPads.forEach(function (contextPad) {\n    var position = { top: OFFSET_TOP, left: OFFSET_LEFT };\n\n    var overlayId = self._overlays.add(contextPad.element, 'context-menu', {\n      position: position,\n      html: contextPad.html,\n      show: {\n        minZoom: 0.5\n      }\n    });\n\n    self.overlayIds[contextPad.element.id] = overlayId;\n  });\n};\n\nContextPads.prototype.closeContextPads = function (parent) {\n  var self = this;\n\n  if (!parent) {\n    parent = this._canvas.getRootElement();\n  }\n\n  this._elementRegistry.forEach(function (element) {\n    if (isAncestor(parent, element)) {\n      self.closeElementContextPads(element);\n    }\n  });\n};\n\nContextPads.prototype.closeElementContextPads = function (element) {\n  var self = this;\n\n  if (element.attachers && element.attachers.length > 0) {\n    element.attachers.forEach(function (attachedElement) {\n      self.closeElementContextPads(attachedElement);\n    });\n  }\n  if (element.children && element.children.length > 0) {\n    element.children.forEach(function (child) {\n      self.closeElementContextPads(child);\n    });\n  }\n\n  var overlayId = this.overlayIds[element.id];\n\n  if (!overlayId) {\n    return;\n  }\n\n  this._overlays.remove(overlayId);\n\n  delete this.overlayIds[element.id];\n};\n\nContextPads.$inject = ['eventBus', 'elementRegistry', 'overlays', 'injector', 'canvas', 'processInstances'];\n\nmodule.exports = ContextPads;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/context-pads/ContextPads.js?");
+
+
+var elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
+    isAncestor = elementHelper.isAncestor;
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
+    TERMINATE_EVENT = events.TERMINATE_EVENT,
+    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT,
+    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT,
+    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT;
+
+var BoundaryEventHandler = __webpack_require__(/*! ./handler/BoundaryEventHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/BoundaryEventHandler.js"),
+    ExclusiveGatewayHandler = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js"),
+    IntermediateCatchEventHandler = __webpack_require__(/*! ./handler/IntermediateCatchEventHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/IntermediateCatchEventHandler.js"),
+    ProcessHandler = __webpack_require__(/*! ./handler/ProcessHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ProcessHandler.js"),
+    StartEventHandler = __webpack_require__(/*! ./handler/StartEventHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/StartEventHandler.js");
+
+var LOW_PRIORITY = 500;
+
+var OFFSET_TOP = -15,
+    OFFSET_LEFT = -15;
+
+function ContextPads(eventBus, elementRegistry, overlays, injector, canvas, processInstances) {
+  var self = this;
+
+  this._elementRegistry = elementRegistry;
+  this._overlays = overlays;
+  this._injector = injector;
+  this._canvas = canvas;
+  this._processInstances = processInstances;
+
+  this.overlayIds = {};
+
+  this.handlers = {};
+
+  this.registerHandler('bpmn:ExclusiveGateway', ExclusiveGatewayHandler);
+  this.registerHandler('bpmn:IntermediateCatchEvent', IntermediateCatchEventHandler);
+  this.registerHandler('bpmn:SubProcess', ProcessHandler);
+  this.registerHandler('bpmn:SubProcess', BoundaryEventHandler);
+  this.registerHandler('bpmn:StartEvent', StartEventHandler);
+
+  eventBus.on(TOGGLE_MODE_EVENT, LOW_PRIORITY, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (simulationModeActive) {
+      self.openContextPads();
+    } else {
+      self.closeContextPads();
+    }
+  });
+
+  eventBus.on(RESET_SIMULATION_EVENT, LOW_PRIORITY, function () {
+    self.closeContextPads();
+    self.openContextPads();
+  });
+
+  eventBus.on(TERMINATE_EVENT, LOW_PRIORITY, function (context) {
+    var element = context.element,
+        parent = element.parent;
+
+    self.closeContextPads(parent);
+  });
+
+  eventBus.on(UPDATE_ELEMENTS_EVENT, LOW_PRIORITY, function (context) {
+    var elements = context.elements;
+
+    elements.forEach(function (element) {
+      self.closeElementContextPads(element);
+      self.openElementContextPads(element);
+    });
+  });
+
+  eventBus.on(UPDATE_ELEMENT_EVENT, LOW_PRIORITY, function (context) {
+    var element = context.element;
+
+    self.closeElementContextPads(element);
+    self.openElementContextPads(element);
+  });
+
+  eventBus.on(PROCESS_INSTANCE_SHOWN_EVENT, function (context) {
+    var processInstanceId = context.processInstanceId;
+
+    var processInstance = processInstances.getProcessInstance(processInstanceId),
+        parent = processInstance.parent;
+
+    self.closeContextPads(parent);
+    self.openContextPads(parent);
+  });
+}
+
+/**
+ * Register a handler for an element type.
+ * An element type can have multiple handlers.
+ *
+ * @param {String} type
+ * @param {Object} handlerCls
+ */
+ContextPads.prototype.registerHandler = function (type, handlerCls) {
+  var handler = this._injector.instantiate(handlerCls);
+
+  if (!this.handlers[type]) {
+    this.handlers[type] = [];
+  }
+
+  this.handlers[type].push(handler);
+};
+
+ContextPads.prototype.openContextPads = function (parent) {
+  var self = this;
+
+  if (!parent) {
+    parent = this._canvas.getRootElement();
+  }
+
+  this._elementRegistry.forEach(function (element) {
+    if (self.handlers[element.type] && isAncestor(parent, element)) {
+      self.openElementContextPads(element);
+    }
+  });
+};
+
+ContextPads.prototype.openElementContextPads = function (element) {
+  if (!this.handlers[element.type]) {
+    return;
+  }
+
+  var elementContextPads = [];
+
+  this.handlers[element.type].forEach(function (handler) {
+    var contextPads = handler.createContextPads(element);
+
+    if (contextPads) {
+      contextPads.forEach(function (contextPad) {
+        if (contextPad) {
+          elementContextPads.push(contextPad);
+        }
+      });
+    }
+  });
+
+  var self = this;
+
+  elementContextPads.forEach(function (contextPad) {
+    var position = { top: OFFSET_TOP, left: OFFSET_LEFT };
+
+    var overlayId = self._overlays.add(contextPad.element, 'context-menu', {
+      position: position,
+      html: contextPad.html,
+      show: {
+        minZoom: 0.5
+      }
+    });
+
+    self.overlayIds[contextPad.element.id] = overlayId;
+  });
+};
+
+ContextPads.prototype.closeContextPads = function (parent) {
+  var self = this;
+
+  if (!parent) {
+    parent = this._canvas.getRootElement();
+  }
+
+  this._elementRegistry.forEach(function (element) {
+    if (isAncestor(parent, element)) {
+      self.closeElementContextPads(element);
+    }
+  });
+};
+
+ContextPads.prototype.closeElementContextPads = function (element) {
+  var self = this;
+
+  if (element.attachers && element.attachers.length > 0) {
+    element.attachers.forEach(function (attachedElement) {
+      self.closeElementContextPads(attachedElement);
+    });
+  }
+  if (element.children && element.children.length > 0) {
+    element.children.forEach(function (child) {
+      self.closeElementContextPads(child);
+    });
+  }
+
+  var overlayId = this.overlayIds[element.id];
+
+  if (!overlayId) {
+    return;
+  }
+
+  this._overlays.remove(overlayId);
+
+  delete this.overlayIds[element.id];
+};
+
+ContextPads.$inject = ['eventBus', 'elementRegistry', 'overlays', 'injector', 'canvas', 'processInstances'];
+
+module.exports = ContextPads;
 
 /***/ }),
 
@@ -152,7 +646,91 @@ eval("\n\nvar elementHelper = __webpack_require__(/*! ../../util/ElementHelper *
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\");\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,\n    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT;\n\nfunction BoundaryEventHandler(eventBus, processInstances, processInstanceSettings) {\n  this._eventBus = eventBus;\n  this._processInstances = processInstances;\n  this._processInstanceSettings = processInstanceSettings;\n}\n\nBoundaryEventHandler.prototype.createContextPads = function (element) {\n  if (!element.attachers.length) {\n    return;\n  }\n\n  if (!this._processInstances.getProcessInstances(element).length) {\n    return;\n  }\n\n  var incomingSequenceFlows = element.incoming.filter(function (incoming) {\n    return is(incoming, 'bpmn:SequenceFlow');\n  });\n\n  var self = this;\n\n  var contextPads = [];\n\n  element.attachers.forEach(function (attachedElement) {\n    var outgoingSequenceFlows = attachedElement.outgoing.filter(function (outgoing) {\n      return is(outgoing, 'bpmn:SequenceFlow');\n    });\n\n    if (!incomingSequenceFlows.length || !outgoingSequenceFlows.length) {\n      return;\n    }\n\n    var contextPad = domify('<div class=\"context-pad\" title=\"Trigger Event\"><i class=\"fa fa-play\"></i></div>');\n\n    contextPads.push({\n      element: attachedElement,\n      html: contextPad\n    });\n\n    domEvent.bind(contextPad, 'click', function () {\n\n      self._processInstances.getProcessInstances(element).forEach(function (processInstance) {\n        var parentProcessInstanceId = processInstance.parentProcessInstanceId;\n\n        // interrupting\n        if (attachedElement.businessObject.cancelActivity) {\n          element.children.forEach(function (child) {\n            if (child.tokenCount && child.tokenCount[processInstance.processInstanceId]) {\n              child.tokenCount[processInstance.processInstanceId]--;\n            }\n          });\n\n          // finish but do NOT remove\n          self._processInstances.finish(processInstance.processInstanceId);\n\n          self._eventBus.fire(UPDATE_ELEMENT_EVENT, {\n            element: element\n          });\n        }\n\n        self._eventBus.fire(GENERATE_TOKEN_EVENT, {\n          element: attachedElement,\n          processInstanceId: parentProcessInstanceId\n        });\n      });\n    });\n  });\n\n  return contextPads;\n};\n\nBoundaryEventHandler.$inject = ['eventBus', 'processInstances', 'processInstanceSettings'];\n\nmodule.exports = BoundaryEventHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/BoundaryEventHandler.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+
+var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT;
+
+function BoundaryEventHandler(eventBus, processInstances, processInstanceSettings) {
+  this._eventBus = eventBus;
+  this._processInstances = processInstances;
+  this._processInstanceSettings = processInstanceSettings;
+}
+
+BoundaryEventHandler.prototype.createContextPads = function (element) {
+  if (!element.attachers.length) {
+    return;
+  }
+
+  if (!this._processInstances.getProcessInstances(element).length) {
+    return;
+  }
+
+  var incomingSequenceFlows = element.incoming.filter(function (incoming) {
+    return is(incoming, 'bpmn:SequenceFlow');
+  });
+
+  var self = this;
+
+  var contextPads = [];
+
+  element.attachers.forEach(function (attachedElement) {
+    var outgoingSequenceFlows = attachedElement.outgoing.filter(function (outgoing) {
+      return is(outgoing, 'bpmn:SequenceFlow');
+    });
+
+    if (!incomingSequenceFlows.length || !outgoingSequenceFlows.length) {
+      return;
+    }
+
+    var contextPad = domify('<div class="context-pad" title="Trigger Event"><i class="fa fa-play"></i></div>');
+
+    contextPads.push({
+      element: attachedElement,
+      html: contextPad
+    });
+
+    domEvent.bind(contextPad, 'click', function () {
+
+      self._processInstances.getProcessInstances(element).forEach(function (processInstance) {
+        var parentProcessInstanceId = processInstance.parentProcessInstanceId;
+
+        // interrupting
+        if (attachedElement.businessObject.cancelActivity) {
+          element.children.forEach(function (child) {
+            if (child.tokenCount && child.tokenCount[processInstance.processInstanceId]) {
+              child.tokenCount[processInstance.processInstanceId]--;
+            }
+          });
+
+          // finish but do NOT remove
+          self._processInstances.finish(processInstance.processInstanceId);
+
+          self._eventBus.fire(UPDATE_ELEMENT_EVENT, {
+            element: element
+          });
+        }
+
+        self._eventBus.fire(GENERATE_TOKEN_EVENT, {
+          element: attachedElement,
+          processInstanceId: parentProcessInstanceId
+        });
+      });
+    });
+  });
+
+  return contextPads;
+};
+
+BoundaryEventHandler.$inject = ['eventBus', 'processInstances', 'processInstanceSettings'];
+
+module.exports = BoundaryEventHandler;
 
 /***/ }),
 
@@ -164,7 +742,43 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\");\n\nfunction ExclusiveGatewayHandler(exluciveGatewaySettings) {\n  this._exclusiveGatewaySettings = exluciveGatewaySettings;\n}\n\nExclusiveGatewayHandler.prototype.createContextPads = function (element) {\n  var self = this;\n\n  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {\n    return is(outgoing, 'bpmn:SequenceFlow');\n  });\n\n  if (outgoingSequenceFlows.length < 2) {\n    return;\n  }\n\n  var contextPad = domify('<div class=\"context-pad\" title=\"Set Sequence Flow\"><i class=\"fa fa-code-fork\"></i></div>');\n\n  domEvent.bind(contextPad, 'click', function () {\n    self._exclusiveGatewaySettings.setSequenceFlow(element);\n  });\n\n  return [{\n    element: element,\n    html: contextPad\n  }];\n};\n\nExclusiveGatewayHandler.$inject = ['exclusiveGatewaySettings'];\n\nmodule.exports = ExclusiveGatewayHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js?");
+
+
+var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+
+function ExclusiveGatewayHandler(exluciveGatewaySettings) {
+  this._exclusiveGatewaySettings = exluciveGatewaySettings;
+}
+
+ExclusiveGatewayHandler.prototype.createContextPads = function (element) {
+  var self = this;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  if (outgoingSequenceFlows.length < 2) {
+    return;
+  }
+
+  var contextPad = domify('<div class="context-pad" title="Set Sequence Flow"><i class="fa fa-code-fork"></i></div>');
+
+  domEvent.bind(contextPad, 'click', function () {
+    self._exclusiveGatewaySettings.setSequenceFlow(element);
+  });
+
+  return [{
+    element: element,
+    html: contextPad
+  }];
+};
+
+ExclusiveGatewayHandler.$inject = ['exclusiveGatewaySettings'];
+
+module.exports = ExclusiveGatewayHandler;
 
 /***/ }),
 
@@ -176,7 +790,86 @@ eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./no
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\");\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;\n\nfunction IntermeditateCatchEventHandler(eventBus) {\n  this._eventBus = eventBus;\n}\n\nIntermeditateCatchEventHandler.prototype.createContextPads = function (element) {\n  var processInstanceId = element.parent.shownProcessInstance;\n\n  var incomingSequenceFlows = element.incoming.filter(function (incoming) {\n    return is(incoming, 'bpmn:SequenceFlow');\n  });\n\n  var eventBasedGatewaysHaveTokens = [];\n\n  incomingSequenceFlows.forEach(function (incoming) {\n    var source = incoming.source;\n\n    if (is(source, 'bpmn:EventBasedGateway') && source.tokenCount && source.tokenCount[processInstanceId]) {\n      eventBasedGatewaysHaveTokens.push(source);\n    }\n  });\n\n  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {\n    return is(outgoing, 'bpmn:SequenceFlow');\n  });\n\n  if (!incomingSequenceFlows.length || !outgoingSequenceFlows.length) {\n    return;\n  }\n\n  var self = this;\n\n  var contextPad;\n\n  if (element.tokenCount && element.tokenCount[processInstanceId]) {\n    contextPad = domify('<div class=\"context-pad\" title=\"Trigger Event\"><i class=\"fa fa-play\"></i></div>');\n\n    domEvent.bind(contextPad, 'click', function () {\n      element.tokenCount[processInstanceId]--;\n\n      self._eventBus.fire(GENERATE_TOKEN_EVENT, {\n        element: element,\n        processInstanceId: processInstanceId\n      });\n    });\n  } else if (eventBasedGatewaysHaveTokens.length) {\n    contextPad = domify('<div class=\"context-pad\" title=\"Trigger Event\"><i class=\"fa fa-play\"></i></div>');\n\n    domEvent.bind(contextPad, 'click', function () {\n      eventBasedGatewaysHaveTokens.forEach(function (eventBasedGateway) {\n        eventBasedGateway.tokenCount[processInstanceId]--;\n      });\n\n      self._eventBus.fire(GENERATE_TOKEN_EVENT, {\n        element: element,\n        processInstanceId: processInstanceId\n      });\n    });\n  } else {\n    return;\n  }\n\n  return [{\n    element: element,\n    html: contextPad\n  }];\n};\n\nIntermeditateCatchEventHandler.$inject = ['eventBus'];\n\nmodule.exports = IntermeditateCatchEventHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/IntermediateCatchEventHandler.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+
+var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function IntermeditateCatchEventHandler(eventBus) {
+  this._eventBus = eventBus;
+}
+
+IntermeditateCatchEventHandler.prototype.createContextPads = function (element) {
+  var processInstanceId = element.parent.shownProcessInstance;
+
+  var incomingSequenceFlows = element.incoming.filter(function (incoming) {
+    return is(incoming, 'bpmn:SequenceFlow');
+  });
+
+  var eventBasedGatewaysHaveTokens = [];
+
+  incomingSequenceFlows.forEach(function (incoming) {
+    var source = incoming.source;
+
+    if (is(source, 'bpmn:EventBasedGateway') && source.tokenCount && source.tokenCount[processInstanceId]) {
+      eventBasedGatewaysHaveTokens.push(source);
+    }
+  });
+
+  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  if (!incomingSequenceFlows.length || !outgoingSequenceFlows.length) {
+    return;
+  }
+
+  var self = this;
+
+  var contextPad;
+
+  if (element.tokenCount && element.tokenCount[processInstanceId]) {
+    contextPad = domify('<div class="context-pad" title="Trigger Event"><i class="fa fa-play"></i></div>');
+
+    domEvent.bind(contextPad, 'click', function () {
+      element.tokenCount[processInstanceId]--;
+
+      self._eventBus.fire(GENERATE_TOKEN_EVENT, {
+        element: element,
+        processInstanceId: processInstanceId
+      });
+    });
+  } else if (eventBasedGatewaysHaveTokens.length) {
+    contextPad = domify('<div class="context-pad" title="Trigger Event"><i class="fa fa-play"></i></div>');
+
+    domEvent.bind(contextPad, 'click', function () {
+      eventBasedGatewaysHaveTokens.forEach(function (eventBasedGateway) {
+        eventBasedGateway.tokenCount[processInstanceId]--;
+      });
+
+      self._eventBus.fire(GENERATE_TOKEN_EVENT, {
+        element: element,
+        processInstanceId: processInstanceId
+      });
+    });
+  } else {
+    return;
+  }
+
+  return [{
+    element: element,
+    html: contextPad
+  }];
+};
+
+IntermeditateCatchEventHandler.$inject = ['eventBus'];
+
+module.exports = IntermeditateCatchEventHandler;
 
 /***/ }),
 
@@ -188,7 +881,45 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\");\n\n/**\n * Is used for subprocesses and participants.\n */\nfunction ProcessHandler(processInstances, processInstanceSettings) {\n  this._processInstances = processInstances;\n  this._processInstanceSettings = processInstanceSettings;\n}\n\nProcessHandler.prototype.createContextPads = function (element) {\n  var self = this;\n\n  var processInstances = this._processInstances.getProcessInstances(element).filter(function (processInstance) {\n    return !processInstance.isFinished;\n  });\n\n  if (processInstances.length < 2) {\n    return;\n  }\n\n  var contextPad = domify('<div class=\"context-pad\" title=\"View Process Instances\"><i class=\"fa fa-list-ol\"></i></div>');\n\n  domEvent.bind(contextPad, 'click', function () {\n    self._processInstanceSettings.showNext(element);\n  });\n\n  return [{\n    element: element,\n    html: contextPad\n  }];\n};\n\nProcessHandler.$inject = ['processInstances', 'processInstanceSettings'];\n\nmodule.exports = ProcessHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ProcessHandler.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+
+/**
+ * Is used for subprocesses and participants.
+ */
+function ProcessHandler(processInstances, processInstanceSettings) {
+  this._processInstances = processInstances;
+  this._processInstanceSettings = processInstanceSettings;
+}
+
+ProcessHandler.prototype.createContextPads = function (element) {
+  var self = this;
+
+  var processInstances = this._processInstances.getProcessInstances(element).filter(function (processInstance) {
+    return !processInstance.isFinished;
+  });
+
+  if (processInstances.length < 2) {
+    return;
+  }
+
+  var contextPad = domify('<div class="context-pad" title="View Process Instances"><i class="fa fa-list-ol"></i></div>');
+
+  domEvent.bind(contextPad, 'click', function () {
+    self._processInstanceSettings.showNext(element);
+  });
+
+  return [{
+    element: element,
+    html: contextPad
+  }];
+};
+
+ProcessHandler.$inject = ['processInstances', 'processInstanceSettings'];
+
+module.exports = ProcessHandler;
 
 /***/ }),
 
@@ -200,7 +931,58 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\");\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;\n\nfunction StartEventHandler(eventBus, elementRegistry, animation) {\n  this._eventBus = eventBus;\n  this._elementRegistry = elementRegistry;\n  this._animation = animation;\n}\n\nStartEventHandler.prototype.createContextPads = function (element) {\n  var tokens = false;\n\n  this._elementRegistry.forEach(function (element) {\n    if (element.tokenCount) {\n      Object.values(element.tokenCount).forEach(function (tokenCount) {\n        if (tokenCount) {\n          tokens = true;\n        }\n      });\n    }\n  });\n\n  if (is(element.parent, 'bpmn:SubProcess') || tokens || this._animation.animations.length) {\n    return;\n  }\n\n  var self = this;\n\n  var contextPad = domify('<div class=\"context-pad\"><i class=\"fa fa-play\"></i></div>');\n\n  domEvent.bind(contextPad, 'click', function () {\n    self._eventBus.fire(GENERATE_TOKEN_EVENT, {\n      element: element\n    });\n  });\n\n  return [{\n    element: element,\n    html: contextPad\n  }];\n};\n\nStartEventHandler.$inject = ['eventBus', 'elementRegistry', 'animation'];\n\nmodule.exports = StartEventHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/StartEventHandler.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+
+var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function StartEventHandler(eventBus, elementRegistry, animation) {
+  this._eventBus = eventBus;
+  this._elementRegistry = elementRegistry;
+  this._animation = animation;
+}
+
+StartEventHandler.prototype.createContextPads = function (element) {
+  var tokens = false;
+
+  this._elementRegistry.forEach(function (element) {
+    if (element.tokenCount) {
+      Object.values(element.tokenCount).forEach(function (tokenCount) {
+        if (tokenCount) {
+          tokens = true;
+        }
+      });
+    }
+  });
+
+  if (is(element.parent, 'bpmn:SubProcess') || tokens || this._animation.animations.length) {
+    return;
+  }
+
+  var self = this;
+
+  var contextPad = domify('<div class="context-pad"><i class="fa fa-play"></i></div>');
+
+  domEvent.bind(contextPad, 'click', function () {
+    self._eventBus.fire(GENERATE_TOKEN_EVENT, {
+      element: element
+    });
+  });
+
+  return [{
+    element: element,
+    html: contextPad
+  }];
+};
+
+StartEventHandler.$inject = ['eventBus', 'elementRegistry', 'animation'];
+
+module.exports = StartEventHandler;
 
 /***/ }),
 
@@ -211,7 +993,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./ContextPads */ \"./node_modules/bpmn-js-token-simulation/lib/features/context-pads/ContextPads.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/context-pads/index.js?");
+module.exports = __webpack_require__(/*! ./ContextPads */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/ContextPads.js");
 
 /***/ }),
 
@@ -223,7 +1005,113 @@ eval("module.exports = __webpack_require__(/*! ./ContextPads */ \"./node_modules
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;\n\nvar HIGH_PRIORITY = 10001;\n\nfunction DisableModeling(eventBus, contextPad, dragging, directEditing, editorActions, modeling, palette, paletteProvider) {\n  var self = this;\n\n  this._eventBus = eventBus;\n\n  this.modelingDisabled = false;\n\n  eventBus.on(TOGGLE_MODE_EVENT, HIGH_PRIORITY, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    self.modelingDisabled = simulationModeActive;\n\n    if (self.modelingDisabled) {\n      directEditing.cancel();\n      contextPad.close();\n      dragging.cancel();\n    }\n\n    palette._update();\n  });\n\n  function intercept(obj, fnName, cb) {\n    var fn = obj[fnName];\n    obj[fnName] = function () {\n      return cb.call(this, fn, arguments);\n    };\n  }\n\n  function ignoreIfModelingDisabled(obj, fnName) {\n    intercept(obj, fnName, function (fn, args) {\n      if (self.modelingDisabled) {\n        return;\n      }\n\n      return fn.apply(this, args);\n    });\n  }\n\n  function throwIfModelingDisabled(obj, fnName) {\n    intercept(obj, fnName, function (fn, args) {\n      if (self.modelingDisabled) {\n        throw new Error('model is read-only');\n      }\n\n      return fn.apply(this, args);\n    });\n  }\n\n  ignoreIfModelingDisabled(contextPad, 'open');\n\n  ignoreIfModelingDisabled(dragging, 'init');\n\n  ignoreIfModelingDisabled(directEditing, 'activate');\n\n  ignoreIfModelingDisabled(dragging, 'init');\n\n  ignoreIfModelingDisabled(directEditing, 'activate');\n\n  throwIfModelingDisabled(modeling, 'moveShape');\n  throwIfModelingDisabled(modeling, 'updateAttachment');\n  throwIfModelingDisabled(modeling, 'moveElements');\n  throwIfModelingDisabled(modeling, 'moveConnection');\n  throwIfModelingDisabled(modeling, 'layoutConnection');\n  throwIfModelingDisabled(modeling, 'createConnection');\n  throwIfModelingDisabled(modeling, 'createShape');\n  throwIfModelingDisabled(modeling, 'createLabel');\n  throwIfModelingDisabled(modeling, 'appendShape');\n  throwIfModelingDisabled(modeling, 'removeElements');\n  throwIfModelingDisabled(modeling, 'distributeElements');\n  throwIfModelingDisabled(modeling, 'removeShape');\n  throwIfModelingDisabled(modeling, 'removeConnection');\n  throwIfModelingDisabled(modeling, 'replaceShape');\n  throwIfModelingDisabled(modeling, 'pasteElements');\n  throwIfModelingDisabled(modeling, 'alignElements');\n  throwIfModelingDisabled(modeling, 'resizeShape');\n  throwIfModelingDisabled(modeling, 'createSpace');\n  throwIfModelingDisabled(modeling, 'updateWaypoints');\n  throwIfModelingDisabled(modeling, 'reconnectStart');\n  throwIfModelingDisabled(modeling, 'reconnectEnd');\n\n  intercept(editorActions, 'trigger', function (fn, args) {\n    var action = args[0];\n\n    if (self.modelingDisabled && isAnyAction(['undo', 'redo', 'copy', 'paste', 'removeSelection', 'spaceTool', 'lassoTool', 'globalConnectTool', 'distributeElements', 'alignElements', 'directEditing'], action)) {\n      return;\n    }\n\n    return fn.apply(this, args);\n  });\n}\n\nDisableModeling.$inject = ['eventBus', 'contextPad', 'dragging', 'directEditing', 'editorActions', 'modeling', 'palette', 'paletteProvider'];\n\nmodule.exports = DisableModeling;\n\n// helpers //////////\n\nfunction isAnyAction(actions, action) {\n  return actions.indexOf(action) > -1;\n}\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/DisableModeling.js?");
+
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+var HIGH_PRIORITY = 10001;
+
+function DisableModeling(eventBus, contextPad, dragging, directEditing, editorActions, modeling, palette, paletteProvider) {
+  var self = this;
+
+  this._eventBus = eventBus;
+
+  this.modelingDisabled = false;
+
+  eventBus.on(TOGGLE_MODE_EVENT, HIGH_PRIORITY, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    self.modelingDisabled = simulationModeActive;
+
+    if (self.modelingDisabled) {
+      directEditing.cancel();
+      contextPad.close();
+      dragging.cancel();
+    }
+
+    palette._update();
+  });
+
+  function intercept(obj, fnName, cb) {
+    var fn = obj[fnName];
+    obj[fnName] = function () {
+      return cb.call(this, fn, arguments);
+    };
+  }
+
+  function ignoreIfModelingDisabled(obj, fnName) {
+    intercept(obj, fnName, function (fn, args) {
+      if (self.modelingDisabled) {
+        return;
+      }
+
+      return fn.apply(this, args);
+    });
+  }
+
+  function throwIfModelingDisabled(obj, fnName) {
+    intercept(obj, fnName, function (fn, args) {
+      if (self.modelingDisabled) {
+        throw new Error('model is read-only');
+      }
+
+      return fn.apply(this, args);
+    });
+  }
+
+  ignoreIfModelingDisabled(contextPad, 'open');
+
+  ignoreIfModelingDisabled(dragging, 'init');
+
+  ignoreIfModelingDisabled(directEditing, 'activate');
+
+  ignoreIfModelingDisabled(dragging, 'init');
+
+  ignoreIfModelingDisabled(directEditing, 'activate');
+
+  throwIfModelingDisabled(modeling, 'moveShape');
+  throwIfModelingDisabled(modeling, 'updateAttachment');
+  throwIfModelingDisabled(modeling, 'moveElements');
+  throwIfModelingDisabled(modeling, 'moveConnection');
+  throwIfModelingDisabled(modeling, 'layoutConnection');
+  throwIfModelingDisabled(modeling, 'createConnection');
+  throwIfModelingDisabled(modeling, 'createShape');
+  throwIfModelingDisabled(modeling, 'createLabel');
+  throwIfModelingDisabled(modeling, 'appendShape');
+  throwIfModelingDisabled(modeling, 'removeElements');
+  throwIfModelingDisabled(modeling, 'distributeElements');
+  throwIfModelingDisabled(modeling, 'removeShape');
+  throwIfModelingDisabled(modeling, 'removeConnection');
+  throwIfModelingDisabled(modeling, 'replaceShape');
+  throwIfModelingDisabled(modeling, 'pasteElements');
+  throwIfModelingDisabled(modeling, 'alignElements');
+  throwIfModelingDisabled(modeling, 'resizeShape');
+  throwIfModelingDisabled(modeling, 'createSpace');
+  throwIfModelingDisabled(modeling, 'updateWaypoints');
+  throwIfModelingDisabled(modeling, 'reconnectStart');
+  throwIfModelingDisabled(modeling, 'reconnectEnd');
+
+  intercept(editorActions, 'trigger', function (fn, args) {
+    var action = args[0];
+
+    if (self.modelingDisabled && isAnyAction(['undo', 'redo', 'copy', 'paste', 'removeSelection', 'spaceTool', 'lassoTool', 'globalConnectTool', 'distributeElements', 'alignElements', 'directEditing'], action)) {
+      return;
+    }
+
+    return fn.apply(this, args);
+  });
+}
+
+DisableModeling.$inject = ['eventBus', 'contextPad', 'dragging', 'directEditing', 'editorActions', 'modeling', 'palette', 'paletteProvider'];
+
+module.exports = DisableModeling;
+
+// helpers //////////
+
+function isAnyAction(actions, action) {
+  return actions.indexOf(action) > -1;
+}
 
 /***/ }),
 
@@ -234,7 +1122,7 @@ eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./nod
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./DisableModeling */ \"./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/DisableModeling.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/index.js?");
+module.exports = __webpack_require__(/*! ./DisableModeling */ "./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/DisableModeling.js");
 
 /***/ }),
 
@@ -246,7 +1134,37 @@ eval("module.exports = __webpack_require__(/*! ./DisableModeling */ \"./node_mod
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nfunction EditorActions(eventBus, toggleMode, pauseSimulation, log, resetSimulation, editorActions) {\n  editorActions.register({\n    toggleTokenSimulation: function () {\n      toggleMode.toggleMode();\n    }\n  });\n\n  editorActions.register({\n    togglePauseTokenSimulation: function () {\n      pauseSimulation.toggle();\n    }\n  });\n\n  editorActions.register({\n    resetTokenSimulation: function () {\n      resetSimulation.resetSimulation();\n    }\n  });\n\n  editorActions.register({\n    toggleTokenSimulationLog: function () {\n      log.toggle();\n    }\n  });\n}\n\nEditorActions.$inject = ['eventBus', 'toggleMode', 'pauseSimulation', 'log', 'resetSimulation', 'editorActions'];\n\nmodule.exports = EditorActions;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/EditorActions.js?");
+
+
+function EditorActions(eventBus, toggleMode, pauseSimulation, log, resetSimulation, editorActions) {
+  editorActions.register({
+    toggleTokenSimulation: function () {
+      toggleMode.toggleMode();
+    }
+  });
+
+  editorActions.register({
+    togglePauseTokenSimulation: function () {
+      pauseSimulation.toggle();
+    }
+  });
+
+  editorActions.register({
+    resetTokenSimulation: function () {
+      resetSimulation.resetSimulation();
+    }
+  });
+
+  editorActions.register({
+    toggleTokenSimulationLog: function () {
+      log.toggle();
+    }
+  });
+}
+
+EditorActions.$inject = ['eventBus', 'toggleMode', 'pauseSimulation', 'log', 'resetSimulation', 'editorActions'];
+
+module.exports = EditorActions;
 
 /***/ }),
 
@@ -257,7 +1175,7 @@ eval("\n\nfunction EditorActions(eventBus, toggleMode, pauseSimulation, log, res
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./EditorActions */ \"./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/EditorActions.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/index.js?");
+module.exports = __webpack_require__(/*! ./EditorActions */ "./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/EditorActions.js");
 
 /***/ }),
 
@@ -269,7 +1187,82 @@ eval("module.exports = __webpack_require__(/*! ./EditorActions */ \"./node_modul
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\");\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;\n\nvar OFFSET_TOP = -15,\n    OFFSET_RIGHT = 15;\n\nfunction ElementNotifications(overlays, eventBus) {\n  var self = this;\n\n  this._overlays = overlays;\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (!simulationModeActive) {\n      self.removeElementNotifications();\n    }\n  });\n\n  eventBus.on([RESET_SIMULATION_EVENT, GENERATE_TOKEN_EVENT], function () {\n    self.removeElementNotifications();\n  });\n}\n\nElementNotifications.prototype.addElementNotifications = function (elements, options) {\n  var self = this;\n\n  elements.forEach(function (element) {\n    self.addElementNotification(element, options);\n  });\n};\n\nElementNotifications.prototype.addElementNotification = function (element, options) {\n  var position = {\n    top: OFFSET_TOP,\n    right: OFFSET_RIGHT\n  };\n\n  var markup = '<div class=\"element-notification ' + (options.type || '') + '\">' + (options.icon ? '<i class=\"fa ' + options.icon + '\"></i>' : '') + ('<span class=\"text\">' + options.text + '</span>' || false) + '</div>';\n\n  var html = domify(markup);\n\n  this._overlays.add(element, 'element-notification', {\n    position: position,\n    html: html,\n    show: {\n      minZoom: 0.5\n    }\n  });\n};\n\nElementNotifications.prototype.removeElementNotifications = function (elements) {\n  var self = this;\n\n  if (!elements) {\n    this._overlays.remove({ type: 'element-notification' });\n  } else {\n    elements.forEach(function (element) {\n      self.removeElementNotification(element);\n    });\n  }\n};\n\nElementNotifications.prototype.removeElementNotification = function (element) {\n  this._overlays.remove({ element: element });\n};\n\nElementNotifications.$inject = ['overlays', 'eventBus'];\n\nmodule.exports = ElementNotifications;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/ElementNotifications.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js");
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+var OFFSET_TOP = -15,
+    OFFSET_RIGHT = 15;
+
+function ElementNotifications(overlays, eventBus) {
+  var self = this;
+
+  this._overlays = overlays;
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      self.removeElementNotifications();
+    }
+  });
+
+  eventBus.on([RESET_SIMULATION_EVENT, GENERATE_TOKEN_EVENT], function () {
+    self.removeElementNotifications();
+  });
+}
+
+ElementNotifications.prototype.addElementNotifications = function (elements, options) {
+  var self = this;
+
+  elements.forEach(function (element) {
+    self.addElementNotification(element, options);
+  });
+};
+
+ElementNotifications.prototype.addElementNotification = function (element, options) {
+  var position = {
+    top: OFFSET_TOP,
+    right: OFFSET_RIGHT
+  };
+
+  var markup = '<div class="element-notification ' + (options.type || '') + '">' + (options.icon ? '<i class="fa ' + options.icon + '"></i>' : '') + ('<span class="text">' + options.text + '</span>' || false) + '</div>';
+
+  var html = domify(markup);
+
+  this._overlays.add(element, 'element-notification', {
+    position: position,
+    html: html,
+    show: {
+      minZoom: 0.5
+    }
+  });
+};
+
+ElementNotifications.prototype.removeElementNotifications = function (elements) {
+  var self = this;
+
+  if (!elements) {
+    this._overlays.remove({ type: 'element-notification' });
+  } else {
+    elements.forEach(function (element) {
+      self.removeElementNotification(element);
+    });
+  }
+};
+
+ElementNotifications.prototype.removeElementNotification = function (element) {
+  this._overlays.remove({ element: element });
+};
+
+ElementNotifications.$inject = ['overlays', 'eventBus'];
+
+module.exports = ElementNotifications;
 
 /***/ }),
 
@@ -280,7 +1273,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./ElementNotifications */ \"./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/ElementNotifications.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js?");
+module.exports = __webpack_require__(/*! ./ElementNotifications */ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/ElementNotifications.js");
 
 /***/ }),
 
@@ -292,7 +1285,101 @@ eval("module.exports = __webpack_require__(/*! ./ElementNotifications */ \"./nod
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domClasses = __webpack_require__(/*! min-dom/lib/classes */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js\");\n\nvar elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\"),\n    is = elementHelper.is,\n    SUPPORTED_ELEMENTS = elementHelper.supportedElements;\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;\n\nvar IGNORED_ELEMENTS = ['bpmn:Process', 'bpmn:Collaboration', 'bpmn:Participant', 'bpmn:Lane', 'bpmn:TextAnnotation'];\n\nfunction isLabel(element) {\n  return element.labelTarget;\n}\n\nfunction ElementSupport(eventBus, elementRegistry, canvas, notifications, elementNotifications) {\n  var self = this;\n\n  this._eventBus = eventBus;\n  this._elementRegistry = elementRegistry;\n  this._elementNotifications = elementNotifications;\n  this._notifications = notifications;\n\n  this.canvasParent = canvas.getContainer().parentNode;\n\n  eventBus.on(GENERATE_TOKEN_EVENT, 20000, function (context) {\n    var element = context.element;\n\n    if (!is(element, 'bpmn:StartEvent')) {\n      return;\n    }\n\n    if (!self.allElementsSupported()) {\n      self.showWarnings();\n\n      domClasses(self.canvasParent).add('warning');\n\n      // cancel event\n      return true;\n    }\n  });\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (!simulationModeActive) {\n      domClasses(self.canvasParent).remove('warning');\n    }\n  });\n}\n\nElementSupport.prototype.allElementsSupported = function () {\n  var allElementsSupported = true;\n\n  this._elementRegistry.forEach(function (element) {\n    if (!is(element, IGNORED_ELEMENTS) && !is(element, SUPPORTED_ELEMENTS) && !isLabel(element)) {\n      allElementsSupported = false;\n    }\n  });\n\n  return allElementsSupported;\n};\n\nElementSupport.prototype.showWarnings = function (elements) {\n  var self = this;\n\n  var warnings = [];\n\n  this._elementRegistry.forEach(function (element) {\n    if (!is(element, IGNORED_ELEMENTS) && !is(element, SUPPORTED_ELEMENTS) && !isLabel(element)) {\n      self.showWarning(element);\n\n      if (warnings.indexOf(element.type)) {\n        self._notifications.showNotification(element.type + ' not supported', 'warning');\n\n        warnings.push(element.type);\n      }\n    }\n  });\n};\n\nElementSupport.prototype.showWarning = function (element) {\n  this._elementNotifications.addElementNotification(element, {\n    type: 'warning',\n    icon: 'fa-exclamation-triangle',\n    text: 'Not supported'\n  });\n};\n\nElementSupport.$inject = ['eventBus', 'elementRegistry', 'canvas', 'notifications', 'elementNotifications'];\n\nmodule.exports = ElementSupport;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/element-support/ElementSupport.js?");
+
+
+var domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js");
+
+var elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
+    is = elementHelper.is,
+    SUPPORTED_ELEMENTS = elementHelper.supportedElements;
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+var IGNORED_ELEMENTS = ['bpmn:Process', 'bpmn:Collaboration', 'bpmn:Participant', 'bpmn:Lane', 'bpmn:TextAnnotation'];
+
+function isLabel(element) {
+  return element.labelTarget;
+}
+
+function ElementSupport(eventBus, elementRegistry, canvas, notifications, elementNotifications) {
+  var self = this;
+
+  this._eventBus = eventBus;
+  this._elementRegistry = elementRegistry;
+  this._elementNotifications = elementNotifications;
+  this._notifications = notifications;
+
+  this.canvasParent = canvas.getContainer().parentNode;
+
+  eventBus.on(GENERATE_TOKEN_EVENT, 20000, function (context) {
+    var element = context.element;
+
+    if (!is(element, 'bpmn:StartEvent')) {
+      return;
+    }
+
+    if (!self.allElementsSupported()) {
+      self.showWarnings();
+
+      domClasses(self.canvasParent).add('warning');
+
+      // cancel event
+      return true;
+    }
+  });
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      domClasses(self.canvasParent).remove('warning');
+    }
+  });
+}
+
+ElementSupport.prototype.allElementsSupported = function () {
+  var allElementsSupported = true;
+
+  this._elementRegistry.forEach(function (element) {
+    if (!is(element, IGNORED_ELEMENTS) && !is(element, SUPPORTED_ELEMENTS) && !isLabel(element)) {
+      allElementsSupported = false;
+    }
+  });
+
+  return allElementsSupported;
+};
+
+ElementSupport.prototype.showWarnings = function (elements) {
+  var self = this;
+
+  var warnings = [];
+
+  this._elementRegistry.forEach(function (element) {
+    if (!is(element, IGNORED_ELEMENTS) && !is(element, SUPPORTED_ELEMENTS) && !isLabel(element)) {
+      self.showWarning(element);
+
+      if (warnings.indexOf(element.type)) {
+        self._notifications.showNotification(element.type + ' not supported', 'warning');
+
+        warnings.push(element.type);
+      }
+    }
+  });
+};
+
+ElementSupport.prototype.showWarning = function (element) {
+  this._elementNotifications.addElementNotification(element, {
+    type: 'warning',
+    icon: 'fa-exclamation-triangle',
+    text: 'Not supported'
+  });
+};
+
+ElementSupport.$inject = ['eventBus', 'elementRegistry', 'canvas', 'notifications', 'elementNotifications'];
+
+module.exports = ElementSupport;
 
 /***/ }),
 
@@ -303,7 +1390,7 @@ eval("\n\nvar domClasses = __webpack_require__(/*! min-dom/lib/classes */ \"./no
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./ElementSupport */ \"./node_modules/bpmn-js-token-simulation/lib/features/element-support/ElementSupport.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/element-support/index.js?");
+module.exports = __webpack_require__(/*! ./ElementSupport */ "./node_modules/bpmn-js-token-simulation/lib/features/element-support/ElementSupport.js");
 
 /***/ }),
 
@@ -315,7 +1402,126 @@ eval("module.exports = __webpack_require__(/*! ./ElementSupport */ \"./node_modu
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar is = __webpack_require__(/*! ../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;\n\nvar NO_CONFIGURATION_COLOR = '#999';\n\nfunction getNext(gateway) {\n  var outgoing = gateway.outgoing.filter(isSequenceFlow);\n\n  var index = outgoing.indexOf(gateway.sequenceFlow);\n\n  if (outgoing[index + 1]) {\n    return outgoing[index + 1];\n  } else {\n    return outgoing[0];\n  }\n}\n\nfunction isSequenceFlow(connection) {\n  return is(connection, 'bpmn:SequenceFlow');\n}\n\nfunction ExclusiveGatewaySettings(eventBus, elementRegistry, graphicsFactory) {\n  var self = this;\n\n  this._elementRegistry = elementRegistry;\n  this._graphicsFactory = graphicsFactory;\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (!simulationModeActive) {\n      self.resetSequenceFlows();\n    } else {\n      self.setSequenceFlowsDefault();\n    }\n  });\n}\n\nExclusiveGatewaySettings.prototype.setSequenceFlowsDefault = function () {\n  var self = this;\n\n  var exclusiveGateways = this._elementRegistry.filter(function (element) {\n    return is(element, 'bpmn:ExclusiveGateway');\n  });\n\n  exclusiveGateways.forEach(function (exclusiveGateway) {\n    if (exclusiveGateway.outgoing.filter(isSequenceFlow).length) {\n      self.setSequenceFlow(exclusiveGateway, exclusiveGateway.outgoing.filter(isSequenceFlow)[0]);\n    }\n  });\n};\n\nExclusiveGatewaySettings.prototype.resetSequenceFlows = function () {\n  var self = this;\n\n  var exclusiveGateways = this._elementRegistry.filter(function (element) {\n    return is(element, 'bpmn:ExclusiveGateway');\n  });\n\n  exclusiveGateways.forEach(function (exclusiveGateway) {\n    if (exclusiveGateway.outgoing.filter(isSequenceFlow).length) {\n      self.resetSequenceFlow(exclusiveGateway);\n    }\n  });\n};\n\nExclusiveGatewaySettings.prototype.resetSequenceFlow = function (gateway) {\n  if (gateway.sequenceFlow) {\n    delete gateway.sequenceFlow;\n  }\n};\n\nExclusiveGatewaySettings.prototype.setSequenceFlow = function (gateway) {\n  var self = this;\n\n  var outgoing = gateway.outgoing.filter(isSequenceFlow);\n\n  if (!outgoing.length) {\n    return;\n  }\n\n  var sequenceFlow = gateway.sequenceFlow;\n\n  if (sequenceFlow) {\n\n    // set next sequence flow\n    gateway.sequenceFlow = getNext(gateway);\n  } else {\n\n    // set first sequence flow\n    gateway.sequenceFlow = outgoing[0];\n  }\n\n  // set colors\n  gateway.outgoing.forEach(function (outgoing) {\n    if (outgoing === gateway.sequenceFlow) {\n      self.setColor(outgoing, '#000');\n    } else {\n      self.setColor(outgoing, NO_CONFIGURATION_COLOR);\n    }\n  });\n};\n\nExclusiveGatewaySettings.prototype.setColor = function (sequenceFlow, color) {\n  var businessObject = sequenceFlow.businessObject;\n\n  businessObject.di.set('stroke', color);\n\n  var gfx = this._elementRegistry.getGraphics(sequenceFlow);\n\n  this._graphicsFactory.update('connection', sequenceFlow, gfx);\n};\n\nExclusiveGatewaySettings.$inject = ['eventBus', 'elementRegistry', 'graphicsFactory'];\n\nmodule.exports = ExclusiveGatewaySettings;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/ExclusiveGatewaySettings.js?");
+
+
+var is = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+var NO_CONFIGURATION_COLOR = '#999';
+
+function getNext(gateway) {
+  var outgoing = gateway.outgoing.filter(isSequenceFlow);
+
+  var index = outgoing.indexOf(gateway.sequenceFlow);
+
+  if (outgoing[index + 1]) {
+    return outgoing[index + 1];
+  } else {
+    return outgoing[0];
+  }
+}
+
+function isSequenceFlow(connection) {
+  return is(connection, 'bpmn:SequenceFlow');
+}
+
+function ExclusiveGatewaySettings(eventBus, elementRegistry, graphicsFactory) {
+  var self = this;
+
+  this._elementRegistry = elementRegistry;
+  this._graphicsFactory = graphicsFactory;
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      self.resetSequenceFlows();
+    } else {
+      self.setSequenceFlowsDefault();
+    }
+  });
+}
+
+ExclusiveGatewaySettings.prototype.setSequenceFlowsDefault = function () {
+  var self = this;
+
+  var exclusiveGateways = this._elementRegistry.filter(function (element) {
+    return is(element, 'bpmn:ExclusiveGateway');
+  });
+
+  exclusiveGateways.forEach(function (exclusiveGateway) {
+    if (exclusiveGateway.outgoing.filter(isSequenceFlow).length) {
+      self.setSequenceFlow(exclusiveGateway, exclusiveGateway.outgoing.filter(isSequenceFlow)[0]);
+    }
+  });
+};
+
+ExclusiveGatewaySettings.prototype.resetSequenceFlows = function () {
+  var self = this;
+
+  var exclusiveGateways = this._elementRegistry.filter(function (element) {
+    return is(element, 'bpmn:ExclusiveGateway');
+  });
+
+  exclusiveGateways.forEach(function (exclusiveGateway) {
+    if (exclusiveGateway.outgoing.filter(isSequenceFlow).length) {
+      self.resetSequenceFlow(exclusiveGateway);
+    }
+  });
+};
+
+ExclusiveGatewaySettings.prototype.resetSequenceFlow = function (gateway) {
+  if (gateway.sequenceFlow) {
+    delete gateway.sequenceFlow;
+  }
+};
+
+ExclusiveGatewaySettings.prototype.setSequenceFlow = function (gateway) {
+  var self = this;
+
+  var outgoing = gateway.outgoing.filter(isSequenceFlow);
+
+  if (!outgoing.length) {
+    return;
+  }
+
+  var sequenceFlow = gateway.sequenceFlow;
+
+  if (sequenceFlow) {
+
+    // set next sequence flow
+    gateway.sequenceFlow = getNext(gateway);
+  } else {
+
+    // set first sequence flow
+    gateway.sequenceFlow = outgoing[0];
+  }
+
+  // set colors
+  gateway.outgoing.forEach(function (outgoing) {
+    if (outgoing === gateway.sequenceFlow) {
+      self.setColor(outgoing, '#000');
+    } else {
+      self.setColor(outgoing, NO_CONFIGURATION_COLOR);
+    }
+  });
+};
+
+ExclusiveGatewaySettings.prototype.setColor = function (sequenceFlow, color) {
+  var businessObject = sequenceFlow.businessObject;
+
+  businessObject.di.set('stroke', color);
+
+  var gfx = this._elementRegistry.getGraphics(sequenceFlow);
+
+  this._graphicsFactory.update('connection', sequenceFlow, gfx);
+};
+
+ExclusiveGatewaySettings.$inject = ['eventBus', 'elementRegistry', 'graphicsFactory'];
+
+module.exports = ExclusiveGatewaySettings;
 
 /***/ }),
 
@@ -326,7 +1532,7 @@ eval("\n\nvar is = __webpack_require__(/*! ../../util/ElementHelper */ \"./node_
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./ExclusiveGatewaySettings */ \"./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/ExclusiveGatewaySettings.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/index.js?");
+module.exports = __webpack_require__(/*! ./ExclusiveGatewaySettings */ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/ExclusiveGatewaySettings.js");
 
 /***/ }),
 
@@ -338,7 +1544,85 @@ eval("module.exports = __webpack_require__(/*! ./ExclusiveGatewaySettings */ \".
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    VERY_HIGH_PRIORITY = 10000;\n\nfunction KeyboardBindings(eventBus, injector) {\n\n  var isActive = false;\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (simulationModeActive) {\n      isActive = true;\n    } else {\n      isActive = false;\n    }\n  });\n\n  eventBus.on('import.done', function () {\n\n    function handleKeyEvent(keyEvent) {\n      if (isKey(['t', 'T'], keyEvent)) {\n        editorActions.trigger('toggleTokenSimulation');\n\n        return true;\n      }\n\n      if (!isActive) {\n        return;\n      }\n\n      if (isKey(['l', 'L'], keyEvent)) {\n        editorActions.trigger('toggleTokenSimulationLog');\n\n        return true;\n      }\n\n      // see https://developer.mozilla.org/de/docs/Web/API/KeyboardEvent/key/Key_Values#Whitespace_keys\n      if (isKey([' ', 'Spacebar'], keyEvent)) {\n        editorActions.trigger('togglePauseTokenSimulation');\n\n        return true;\n      }\n\n      if (isKey(['r', 'R'], keyEvent)) {\n        editorActions.trigger('resetTokenSimulation');\n\n        return true;\n      }\n    }\n\n    var editorActions = injector.get('editorActions', false),\n        keyboard = injector.get('keyboard', false);\n\n    if (editorActions && keyboard && isKeyboardBound(keyboard)) {\n      keyboard.addListener(VERY_HIGH_PRIORITY, function (event) {\n        var keyEvent = event.keyEvent;\n\n        handleKeyEvent(keyEvent);\n      });\n    }\n  });\n}\n\nKeyboardBindings.$inject = ['eventBus', 'injector'];\n\nmodule.exports = KeyboardBindings;\n\n// helpers //////////\n\nfunction isKey(keys, event) {\n  return keys.indexOf(event.key) > -1;\n}\n\nfunction isKeyboardBound(keyboard) {\n  return keyboard._config && keyboard._config.bindTo;\n}\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/KeyboardBindings.js?");
+
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    VERY_HIGH_PRIORITY = 10000;
+
+function KeyboardBindings(eventBus, injector) {
+
+  var isActive = false;
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (simulationModeActive) {
+      isActive = true;
+    } else {
+      isActive = false;
+    }
+  });
+
+  eventBus.on('import.done', function () {
+
+    function handleKeyEvent(keyEvent) {
+      if (isKey(['t', 'T'], keyEvent)) {
+        editorActions.trigger('toggleTokenSimulation');
+
+        return true;
+      }
+
+      if (!isActive) {
+        return;
+      }
+
+      if (isKey(['l', 'L'], keyEvent)) {
+        editorActions.trigger('toggleTokenSimulationLog');
+
+        return true;
+      }
+
+      // see https://developer.mozilla.org/de/docs/Web/API/KeyboardEvent/key/Key_Values#Whitespace_keys
+      if (isKey([' ', 'Spacebar'], keyEvent)) {
+        editorActions.trigger('togglePauseTokenSimulation');
+
+        return true;
+      }
+
+      if (isKey(['r', 'R'], keyEvent)) {
+        editorActions.trigger('resetTokenSimulation');
+
+        return true;
+      }
+    }
+
+    var editorActions = injector.get('editorActions', false),
+        keyboard = injector.get('keyboard', false);
+
+    if (editorActions && keyboard && isKeyboardBound(keyboard)) {
+      keyboard.addListener(VERY_HIGH_PRIORITY, function (event) {
+        var keyEvent = event.keyEvent;
+
+        handleKeyEvent(keyEvent);
+      });
+    }
+  });
+}
+
+KeyboardBindings.$inject = ['eventBus', 'injector'];
+
+module.exports = KeyboardBindings;
+
+// helpers //////////
+
+function isKey(keys, event) {
+  return keys.indexOf(event.key) > -1;
+}
+
+function isKeyboardBound(keyboard) {
+  return keyboard._config && keyboard._config.bindTo;
+}
 
 /***/ }),
 
@@ -349,7 +1633,7 @@ eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./nod
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./KeyboardBindings */ \"./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/KeyboardBindings.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/index.js?");
+module.exports = __webpack_require__(/*! ./KeyboardBindings */ "./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/KeyboardBindings.js");
 
 /***/ }),
 
@@ -361,7 +1645,208 @@ eval("module.exports = __webpack_require__(/*! ./KeyboardBindings */ \"./node_mo
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domClasses = __webpack_require__(/*! min-dom/lib/classes */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\"),\n    domQuery = __webpack_require__(/*! min-dom/lib/query */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js\");\n\nvar elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\"),\n    getBusinessObject = elementHelper.getBusinessObject,\n    is = elementHelper.is,\n    isTypedEvent = elementHelper.isTypedEvent;\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,\n    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT;\n\nfunction getElementName(element) {\n  return element && element.businessObject.name;\n}\n\nfunction Log(eventBus, notifications, tokenSimulationPalette, canvas) {\n  var self = this;\n\n  this._notifications = notifications;\n  this._tokenSimulationPalette = tokenSimulationPalette;\n  this._canvas = canvas;\n\n  this._init();\n\n  eventBus.on(GENERATE_TOKEN_EVENT, function (context) {\n    var element = context.element,\n        elementName = getElementName(element);\n\n    if (is(element, 'bpmn:StartEvent')) {\n      self.log(elementName || 'Start Event', 'info', 'bpmn-icon-start-event-none');\n    } else if (is(element, 'bpmn:Task')) {\n      self.log(elementName || 'Task', 'info', 'bpmn-icon-task');\n    } else if (is(element, 'bpmn:BusinessRuleTask')) {\n      self.log(elementName || 'Business Rule Task', 'info', 'bpmn-icon-business-rule');\n    } else if (is(element, 'bpmn:ManualTask')) {\n      self.log(elementName || 'Manual Task', 'info', 'bpmn-icon-manual');\n    } else if (is(element, 'bpmn:ScriptTask')) {\n      self.log(elementName || 'Script Task', 'info', 'bpmn-icon-script');\n    } else if (is(element, 'bpmn:ServiceTask')) {\n      self.log(elementName || 'Service Task', 'info', 'bpmn-icon-service');\n    } else if (is(element, 'bpmn:UserTask')) {\n      self.log(elementName || 'User Task', 'info', 'bpmn-icon-user');\n    } else if (is(element, 'bpmn:ExclusiveGateway')) {\n      if (element.outgoing.length < 2) {\n        return;\n      }\n\n      var sequenceFlowName = getElementName(element.sequenceFlow);\n\n      var text = elementName || 'Gateway';\n\n      if (sequenceFlowName) {\n        text = text.concat(' <i class=\"fa fa-angle-right\" aria-hidden=\"true\"></i> ' + sequenceFlowName);\n      }\n\n      self.log(text, 'info', 'bpmn-icon-gateway-xor');\n    } else if (is(element, ['bpmn:IntermediateCatchEvent', 'bpmn:IntermediateThrowEvent'])) {\n      self.log(elementName || 'Intermediate Event', 'info', 'bpmn-icon-intermediate-event-none');\n    }\n  });\n\n  eventBus.on(CONSUME_TOKEN_EVENT, function (context) {\n    var element = context.element,\n        elementName = getElementName(element);\n\n    if (is(element, 'bpmn:EndEvent')) {\n\n      if (isTypedEvent(getBusinessObject(element), 'bpmn:TerminateEventDefinition')) {\n        self.log(elementName || 'Terminate End Event', 'info', 'bpmn-icon-end-event-terminate');\n      } else {\n        self.log(elementName || 'End Event', 'info', 'bpmn-icon-end-event-none');\n      }\n    }\n  });\n\n  eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, function (context) {\n    var processInstanceId = context.processInstanceId,\n        parent = context.parent;\n\n    if (is(parent, 'bpmn:Process')) {\n      self.log('Process ' + processInstanceId + ' started', 'success', 'fa-check');\n    } else {\n      self.log('Subprocess ' + processInstanceId + ' started', 'info', 'fa-check');\n    }\n  });\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (!simulationModeActive) {\n      self.emptyLog();\n\n      domClasses(self.container).add('hidden');\n    }\n  });\n\n  eventBus.on(RESET_SIMULATION_EVENT, function (context) {\n    self.emptyLog();\n\n    domClasses(self.container).add('hidden');\n  });\n}\n\nLog.prototype._init = function () {\n  var self = this;\n\n  this.container = domify('<div class=\"token-simulation-log hidden\">' + '<div class=\"header\">' + '<i class=\"fa fa-align-left\"></i>' + '<button class=\"close\">' + '<i class=\"fa fa-times\" aria-hidden=\"true\"></i>' + '</button>' + '</div>' + '<div class=\"content\">' + '<p class=\"entry placeholder\">No Entries</p>' + '</div>' + '</div>');\n\n  this.placeholder = domQuery('.placeholder', this.container);\n\n  this.content = domQuery('.content', this.container);\n\n  domEvent.bind(this.content, 'wheel', function (e) {\n    e.stopPropagation();\n  });\n\n  domEvent.bind(this.content, 'mousedown', function (e) {\n    e.stopPropagation();\n  });\n\n  this.close = domQuery('.close', this.container);\n\n  domEvent.bind(this.close, 'click', function () {\n    domClasses(self.container).add('hidden');\n  });\n\n  this.icon = domQuery('.fa-align-left', this.container);\n\n  domEvent.bind(this.icon, 'click', function () {\n    domClasses(self.container).add('hidden');\n  });\n\n  this._canvas.getContainer().appendChild(this.container);\n\n  this.paletteEntry = domify('<div class=\"entry\" title=\"Show Simulation Log\"><i class=\"fa fa-align-left\"></i></div>');\n\n  domEvent.bind(this.paletteEntry, 'click', function () {\n    domClasses(self.container).remove('hidden');\n  });\n\n  this._tokenSimulationPalette.addEntry(this.paletteEntry, 3);\n};\n\nLog.prototype.toggle = function () {\n  var container = this.container;\n\n  if (domClasses(container).has('hidden')) {\n    domClasses(container).remove('hidden');\n  } else {\n    domClasses(container).add('hidden');\n  }\n};\n\nLog.prototype.log = function (text, type, icon) {\n  domClasses(this.placeholder).add('hidden');\n\n  var date = new Date();\n\n  var dateString = date.toLocaleTimeString() + ':' + date.getUTCMilliseconds();\n\n  this._notifications.showNotification(text, type, icon);\n\n  var iconMarkup;\n\n  if (!icon) {\n    icon = 'fa-info';\n  }\n\n  if (icon.includes('bpmn')) {\n    iconMarkup = '<span class=\"icon ' + icon + '\">';\n  } else {\n    iconMarkup = '<i class=\"icon fa ' + icon + '\"></i>';\n  }\n\n  var logEntry = domify('<p class=\"entry ' + type + '\"><span class=\"date\">' + dateString + '</span>' + iconMarkup + '</span>' + text + '</p>');\n\n  this.content.appendChild(logEntry);\n\n  this.content.scrollTop = this.content.scrollHeight;\n};\n\nLog.prototype.emptyLog = function () {\n  while (this.content.firstChild) {\n    this.content.removeChild(this.content.firstChild);\n  }\n\n  this.placeholder = domify('<p class=\"entry placeholder\">No Entries</p>');\n\n  this.content.appendChild(this.placeholder);\n};\n\nLog.$inject = ['eventBus', 'notifications', 'tokenSimulationPalette', 'canvas'];\n\nmodule.exports = Log;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/log/Log.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js"),
+    domQuery = __webpack_require__(/*! min-dom/lib/query */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js");
+
+var elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
+    getBusinessObject = elementHelper.getBusinessObject,
+    is = elementHelper.is,
+    isTypedEvent = elementHelper.isTypedEvent;
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
+    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT;
+
+function getElementName(element) {
+  return element && element.businessObject.name;
+}
+
+function Log(eventBus, notifications, tokenSimulationPalette, canvas) {
+  var self = this;
+
+  this._notifications = notifications;
+  this._tokenSimulationPalette = tokenSimulationPalette;
+  this._canvas = canvas;
+
+  this._init();
+
+  eventBus.on(GENERATE_TOKEN_EVENT, function (context) {
+    var element = context.element,
+        elementName = getElementName(element);
+
+    if (is(element, 'bpmn:StartEvent')) {
+      self.log(elementName || 'Start Event', 'info', 'bpmn-icon-start-event-none');
+    } else if (is(element, 'bpmn:Task')) {
+      self.log(elementName || 'Task', 'info', 'bpmn-icon-task');
+    } else if (is(element, 'bpmn:BusinessRuleTask')) {
+      self.log(elementName || 'Business Rule Task', 'info', 'bpmn-icon-business-rule');
+    } else if (is(element, 'bpmn:ManualTask')) {
+      self.log(elementName || 'Manual Task', 'info', 'bpmn-icon-manual');
+    } else if (is(element, 'bpmn:ScriptTask')) {
+      self.log(elementName || 'Script Task', 'info', 'bpmn-icon-script');
+    } else if (is(element, 'bpmn:ServiceTask')) {
+      self.log(elementName || 'Service Task', 'info', 'bpmn-icon-service');
+    } else if (is(element, 'bpmn:UserTask')) {
+      self.log(elementName || 'User Task', 'info', 'bpmn-icon-user');
+    } else if (is(element, 'bpmn:ExclusiveGateway')) {
+      if (element.outgoing.length < 2) {
+        return;
+      }
+
+      var sequenceFlowName = getElementName(element.sequenceFlow);
+
+      var text = elementName || 'Gateway';
+
+      if (sequenceFlowName) {
+        text = text.concat(' <i class="fa fa-angle-right" aria-hidden="true"></i> ' + sequenceFlowName);
+      }
+
+      self.log(text, 'info', 'bpmn-icon-gateway-xor');
+    } else if (is(element, ['bpmn:IntermediateCatchEvent', 'bpmn:IntermediateThrowEvent'])) {
+      self.log(elementName || 'Intermediate Event', 'info', 'bpmn-icon-intermediate-event-none');
+    }
+  });
+
+  eventBus.on(CONSUME_TOKEN_EVENT, function (context) {
+    var element = context.element,
+        elementName = getElementName(element);
+
+    if (is(element, 'bpmn:EndEvent')) {
+
+      if (isTypedEvent(getBusinessObject(element), 'bpmn:TerminateEventDefinition')) {
+        self.log(elementName || 'Terminate End Event', 'info', 'bpmn-icon-end-event-terminate');
+      } else {
+        self.log(elementName || 'End Event', 'info', 'bpmn-icon-end-event-none');
+      }
+    }
+  });
+
+  eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, function (context) {
+    var processInstanceId = context.processInstanceId,
+        parent = context.parent;
+
+    if (is(parent, 'bpmn:Process')) {
+      self.log('Process ' + processInstanceId + ' started', 'success', 'fa-check');
+    } else {
+      self.log('Subprocess ' + processInstanceId + ' started', 'info', 'fa-check');
+    }
+  });
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      self.emptyLog();
+
+      domClasses(self.container).add('hidden');
+    }
+  });
+
+  eventBus.on(RESET_SIMULATION_EVENT, function (context) {
+    self.emptyLog();
+
+    domClasses(self.container).add('hidden');
+  });
+}
+
+Log.prototype._init = function () {
+  var self = this;
+
+  this.container = domify('<div class="token-simulation-log hidden">' + '<div class="header">' + '<i class="fa fa-align-left"></i>' + '<button class="close">' + '<i class="fa fa-times" aria-hidden="true"></i>' + '</button>' + '</div>' + '<div class="content">' + '<p class="entry placeholder">No Entries</p>' + '</div>' + '</div>');
+
+  this.placeholder = domQuery('.placeholder', this.container);
+
+  this.content = domQuery('.content', this.container);
+
+  domEvent.bind(this.content, 'wheel', function (e) {
+    e.stopPropagation();
+  });
+
+  domEvent.bind(this.content, 'mousedown', function (e) {
+    e.stopPropagation();
+  });
+
+  this.close = domQuery('.close', this.container);
+
+  domEvent.bind(this.close, 'click', function () {
+    domClasses(self.container).add('hidden');
+  });
+
+  this.icon = domQuery('.fa-align-left', this.container);
+
+  domEvent.bind(this.icon, 'click', function () {
+    domClasses(self.container).add('hidden');
+  });
+
+  this._canvas.getContainer().appendChild(this.container);
+
+  this.paletteEntry = domify('<div class="entry" title="Show Simulation Log"><i class="fa fa-align-left"></i></div>');
+
+  domEvent.bind(this.paletteEntry, 'click', function () {
+    domClasses(self.container).remove('hidden');
+  });
+
+  this._tokenSimulationPalette.addEntry(this.paletteEntry, 3);
+};
+
+Log.prototype.toggle = function () {
+  var container = this.container;
+
+  if (domClasses(container).has('hidden')) {
+    domClasses(container).remove('hidden');
+  } else {
+    domClasses(container).add('hidden');
+  }
+};
+
+Log.prototype.log = function (text, type, icon) {
+  domClasses(this.placeholder).add('hidden');
+
+  var date = new Date();
+
+  var dateString = date.toLocaleTimeString() + ':' + date.getUTCMilliseconds();
+
+  this._notifications.showNotification(text, type, icon);
+
+  var iconMarkup;
+
+  if (!icon) {
+    icon = 'fa-info';
+  }
+
+  if (icon.includes('bpmn')) {
+    iconMarkup = '<span class="icon ' + icon + '">';
+  } else {
+    iconMarkup = '<i class="icon fa ' + icon + '"></i>';
+  }
+
+  var logEntry = domify('<p class="entry ' + type + '"><span class="date">' + dateString + '</span>' + iconMarkup + '</span>' + text + '</p>');
+
+  this.content.appendChild(logEntry);
+
+  this.content.scrollTop = this.content.scrollHeight;
+};
+
+Log.prototype.emptyLog = function () {
+  while (this.content.firstChild) {
+    this.content.removeChild(this.content.firstChild);
+  }
+
+  this.placeholder = domify('<p class="entry placeholder">No Entries</p>');
+
+  this.content.appendChild(this.placeholder);
+};
+
+Log.$inject = ['eventBus', 'notifications', 'tokenSimulationPalette', 'canvas'];
+
+module.exports = Log;
 
 /***/ }),
 
@@ -372,7 +1857,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./Log */ \"./node_modules/bpmn-js-token-simulation/lib/features/log/Log.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/log/index.js?");
+module.exports = __webpack_require__(/*! ./Log */ "./node_modules/bpmn-js-token-simulation/lib/features/log/Log.js");
 
 /***/ }),
 
@@ -384,7 +1869,74 @@ eval("module.exports = __webpack_require__(/*! ./Log */ \"./node_modules/bpmn-js
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\");\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;\n\nvar NOTIFICATION_TIME_TO_LIVE = 2000; // ms\n\nfunction Notifications(eventBus, canvas) {\n  var self = this;\n\n  this._eventBus = eventBus;\n  this._canvas = canvas;\n\n  this._init();\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (!simulationModeActive) {\n      self.removeAll();\n    }\n  });\n}\n\nNotifications.prototype._init = function () {\n  this.container = domify('<div class=\"notifications\"></div>');\n\n  this._canvas.getContainer().appendChild(this.container);\n};\n\nNotifications.prototype.showNotification = function (text, type, icon) {\n  var iconMarkup;\n\n  if (!icon) {\n    icon = 'fa-info';\n  }\n\n  if (icon.includes('bpmn')) {\n    iconMarkup = '<i class=\"' + icon + '\"></i>';\n  } else {\n    iconMarkup = '<i class=\"fa ' + icon + '\"></i>';\n  }\n\n  var notification = domify('<div class=\"notification ' + type + '\">' + '<span class=\"icon\">' + iconMarkup + '</span>' + text + '</div>');\n\n  this.container.appendChild(notification);\n\n  // prevent more than 5 notifications at once\n  while (this.container.children.length > 5) {\n    this.container.children[0].remove();\n  }\n\n  setTimeout(function () {\n    notification.remove();\n  }, NOTIFICATION_TIME_TO_LIVE);\n};\n\nNotifications.prototype.removeAll = function () {\n  while (this.container.children.length) {\n    this.container.children[0].remove();\n  }\n};\n\nNotifications.$inject = ['eventBus', 'canvas'];\n\nmodule.exports = Notifications;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/notifications/Notifications.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js");
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+var NOTIFICATION_TIME_TO_LIVE = 2000; // ms
+
+function Notifications(eventBus, canvas) {
+  var self = this;
+
+  this._eventBus = eventBus;
+  this._canvas = canvas;
+
+  this._init();
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      self.removeAll();
+    }
+  });
+}
+
+Notifications.prototype._init = function () {
+  this.container = domify('<div class="notifications"></div>');
+
+  this._canvas.getContainer().appendChild(this.container);
+};
+
+Notifications.prototype.showNotification = function (text, type, icon) {
+  var iconMarkup;
+
+  if (!icon) {
+    icon = 'fa-info';
+  }
+
+  if (icon.includes('bpmn')) {
+    iconMarkup = '<i class="' + icon + '"></i>';
+  } else {
+    iconMarkup = '<i class="fa ' + icon + '"></i>';
+  }
+
+  var notification = domify('<div class="notification ' + type + '">' + '<span class="icon">' + iconMarkup + '</span>' + text + '</div>');
+
+  this.container.appendChild(notification);
+
+  // prevent more than 5 notifications at once
+  while (this.container.children.length > 5) {
+    this.container.children[0].remove();
+  }
+
+  setTimeout(function () {
+    notification.remove();
+  }, NOTIFICATION_TIME_TO_LIVE);
+};
+
+Notifications.prototype.removeAll = function () {
+  while (this.container.children.length) {
+    this.container.children[0].remove();
+  }
+};
+
+Notifications.$inject = ['eventBus', 'canvas'];
+
+module.exports = Notifications;
 
 /***/ }),
 
@@ -395,7 +1947,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./Notifications */ \"./node_modules/bpmn-js-token-simulation/lib/features/notifications/Notifications.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js?");
+module.exports = __webpack_require__(/*! ./Notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/Notifications.js");
 
 /***/ }),
 
@@ -407,7 +1959,60 @@ eval("module.exports = __webpack_require__(/*! ./Notifications */ \"./node_modul
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domClasses = __webpack_require__(/*! min-dom/lib/classes */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js\");\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;\n\nfunction Palette(eventBus, canvas) {\n  var self = this;\n\n  this._canvas = canvas;\n\n  this.entries = [];\n\n  this._init();\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (simulationModeActive) {\n      domClasses(self.container).remove('hidden');\n    } else {\n      domClasses(self.container).add('hidden');\n    }\n  });\n}\n\nPalette.prototype._init = function () {\n  this.container = domify('<div class=\"token-simulation-palette hidden\"></div>');\n\n  this._canvas.getContainer().appendChild(this.container);\n};\n\nPalette.prototype.addEntry = function (entry, index) {\n  var childIndex = 0;\n\n  this.entries.forEach(function (entry) {\n    if (index >= entry.index) {\n      childIndex++;\n    }\n  });\n\n  this.container.insertBefore(entry, this.container.childNodes[childIndex]);\n\n  this.entries.push({\n    entry: entry,\n    index: index\n  });\n};\n\nPalette.$inject = ['eventBus', 'canvas'];\n\nmodule.exports = Palette;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/palette/Palette.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js");
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+function Palette(eventBus, canvas) {
+  var self = this;
+
+  this._canvas = canvas;
+
+  this.entries = [];
+
+  this._init();
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (simulationModeActive) {
+      domClasses(self.container).remove('hidden');
+    } else {
+      domClasses(self.container).add('hidden');
+    }
+  });
+}
+
+Palette.prototype._init = function () {
+  this.container = domify('<div class="token-simulation-palette hidden"></div>');
+
+  this._canvas.getContainer().appendChild(this.container);
+};
+
+Palette.prototype.addEntry = function (entry, index) {
+  var childIndex = 0;
+
+  this.entries.forEach(function (entry) {
+    if (index >= entry.index) {
+      childIndex++;
+    }
+  });
+
+  this.container.insertBefore(entry, this.container.childNodes[childIndex]);
+
+  this.entries.push({
+    entry: entry,
+    index: index
+  });
+};
+
+Palette.$inject = ['eventBus', 'canvas'];
+
+module.exports = Palette;
 
 /***/ }),
 
@@ -418,7 +2023,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./Palette */ \"./node_modules/bpmn-js-token-simulation/lib/features/palette/Palette.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/palette/index.js?");
+module.exports = __webpack_require__(/*! ./Palette */ "./node_modules/bpmn-js-token-simulation/lib/features/palette/Palette.js");
 
 /***/ }),
 
@@ -430,7 +2035,133 @@ eval("module.exports = __webpack_require__(/*! ./Palette */ \"./node_modules/bpm
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domClasses = __webpack_require__(/*! min-dom/lib/classes */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\");\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    PLAY_SIMULATION_EVENT = events.PLAY_SIMULATION_EVENT,\n    PAUSE_SIMULATION_EVENT = events.PAUSE_SIMULATION_EVENT,\n    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,\n    ANIMATION_CREATED_EVENT = events.ANIMATION_CREATED_EVENT,\n    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT;\n\nvar PLAY_MARKUP = '<i class=\"fa fa-play\"></i>',\n    PAUSE_MARKUP = '<i class=\"fa fa-pause\"></i>';\n\nfunction PauseSimulation(eventBus, tokenSimulationPalette, notifications, canvas) {\n  var self = this;\n\n  this._eventBus = eventBus;\n  this._tokenSimulationPalette = tokenSimulationPalette;\n  this._notifications = notifications;\n\n  this.canvasParent = canvas.getContainer().parentNode;\n\n  this.isActive = false;\n  this.isPaused = false;\n\n  this._init();\n\n  // unpause on simulation start\n  eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, function (context) {\n    var parent = context.parent;\n\n    if (!parent.parent) {\n      self.activate();\n      self.unpause();\n\n      notifications.showNotification('Start Simulation', 'info');\n    }\n  });\n\n  eventBus.on([RESET_SIMULATION_EVENT, TOGGLE_MODE_EVENT], function () {\n    self.deactivate();\n    self.unpause();\n  });\n\n  eventBus.on(ANIMATION_CREATED_EVENT, function (context) {\n    var animation = context.animation;\n\n    if (self.isPaused) {\n      animation.pause();\n    }\n  });\n}\n\nPauseSimulation.prototype._init = function () {\n  this.paletteEntry = domify('<div class=\"entry disabled\" title=\"Play/Pause Simulation\">' + PLAY_MARKUP + '</div>');\n\n  domEvent.bind(this.paletteEntry, 'click', this.toggle.bind(this));\n\n  this._tokenSimulationPalette.addEntry(this.paletteEntry, 1);\n};\n\nPauseSimulation.prototype.toggle = function () {\n  if (!this.isActive) {\n    return;\n  }\n\n  if (this.isPaused) {\n    this.unpause();\n  } else {\n    this.pause();\n  }\n};\n\nPauseSimulation.prototype.pause = function () {\n  if (!this.isActive) {\n    return;\n  }\n\n  domClasses(this.paletteEntry).remove('active');\n  domClasses(this.canvasParent).add('paused');\n\n  this.paletteEntry.innerHTML = PLAY_MARKUP;\n\n  this._eventBus.fire(PAUSE_SIMULATION_EVENT);\n\n  this._notifications.showNotification('Pause Simulation', 'info');\n\n  this.isPaused = true;\n};\n\nPauseSimulation.prototype.unpause = function () {\n  if (!this.isActive) {\n    return;\n  }\n\n  domClasses(this.paletteEntry).add('active');\n  domClasses(this.canvasParent).remove('paused');\n\n  this.paletteEntry.innerHTML = PAUSE_MARKUP;\n\n  this._eventBus.fire(PLAY_SIMULATION_EVENT);\n\n  this._notifications.showNotification('Play Simulation', 'info');\n\n  this.isPaused = false;\n};\n\nPauseSimulation.prototype.activate = function () {\n  this.isActive = true;\n\n  domClasses(this.paletteEntry).remove('disabled');\n};\n\nPauseSimulation.prototype.deactivate = function () {\n  this.isActive = false;\n\n  domClasses(this.paletteEntry).remove('active');\n  domClasses(this.paletteEntry).add('disabled');\n};\n\nPauseSimulation.$inject = ['eventBus', 'tokenSimulationPalette', 'notifications', 'canvas'];\n\nmodule.exports = PauseSimulation;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/PauseSimulation.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    PLAY_SIMULATION_EVENT = events.PLAY_SIMULATION_EVENT,
+    PAUSE_SIMULATION_EVENT = events.PAUSE_SIMULATION_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
+    ANIMATION_CREATED_EVENT = events.ANIMATION_CREATED_EVENT,
+    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT;
+
+var PLAY_MARKUP = '<i class="fa fa-play"></i>',
+    PAUSE_MARKUP = '<i class="fa fa-pause"></i>';
+
+function PauseSimulation(eventBus, tokenSimulationPalette, notifications, canvas) {
+  var self = this;
+
+  this._eventBus = eventBus;
+  this._tokenSimulationPalette = tokenSimulationPalette;
+  this._notifications = notifications;
+
+  this.canvasParent = canvas.getContainer().parentNode;
+
+  this.isActive = false;
+  this.isPaused = false;
+
+  this._init();
+
+  // unpause on simulation start
+  eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, function (context) {
+    var parent = context.parent;
+
+    if (!parent.parent) {
+      self.activate();
+      self.unpause();
+
+      notifications.showNotification('Start Simulation', 'info');
+    }
+  });
+
+  eventBus.on([RESET_SIMULATION_EVENT, TOGGLE_MODE_EVENT], function () {
+    self.deactivate();
+    self.unpause();
+  });
+
+  eventBus.on(ANIMATION_CREATED_EVENT, function (context) {
+    var animation = context.animation;
+
+    if (self.isPaused) {
+      animation.pause();
+    }
+  });
+}
+
+PauseSimulation.prototype._init = function () {
+  this.paletteEntry = domify('<div class="entry disabled" title="Play/Pause Simulation">' + PLAY_MARKUP + '</div>');
+
+  domEvent.bind(this.paletteEntry, 'click', this.toggle.bind(this));
+
+  this._tokenSimulationPalette.addEntry(this.paletteEntry, 1);
+};
+
+PauseSimulation.prototype.toggle = function () {
+  if (!this.isActive) {
+    return;
+  }
+
+  if (this.isPaused) {
+    this.unpause();
+  } else {
+    this.pause();
+  }
+};
+
+PauseSimulation.prototype.pause = function () {
+  if (!this.isActive) {
+    return;
+  }
+
+  domClasses(this.paletteEntry).remove('active');
+  domClasses(this.canvasParent).add('paused');
+
+  this.paletteEntry.innerHTML = PLAY_MARKUP;
+
+  this._eventBus.fire(PAUSE_SIMULATION_EVENT);
+
+  this._notifications.showNotification('Pause Simulation', 'info');
+
+  this.isPaused = true;
+};
+
+PauseSimulation.prototype.unpause = function () {
+  if (!this.isActive) {
+    return;
+  }
+
+  domClasses(this.paletteEntry).add('active');
+  domClasses(this.canvasParent).remove('paused');
+
+  this.paletteEntry.innerHTML = PAUSE_MARKUP;
+
+  this._eventBus.fire(PLAY_SIMULATION_EVENT);
+
+  this._notifications.showNotification('Play Simulation', 'info');
+
+  this.isPaused = false;
+};
+
+PauseSimulation.prototype.activate = function () {
+  this.isActive = true;
+
+  domClasses(this.paletteEntry).remove('disabled');
+};
+
+PauseSimulation.prototype.deactivate = function () {
+  this.isActive = false;
+
+  domClasses(this.paletteEntry).remove('active');
+  domClasses(this.paletteEntry).add('disabled');
+};
+
+PauseSimulation.$inject = ['eventBus', 'tokenSimulationPalette', 'notifications', 'canvas'];
+
+module.exports = PauseSimulation;
 
 /***/ }),
 
@@ -441,7 +2172,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./PauseSimulation */ \"./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/PauseSimulation.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/index.js?");
+module.exports = __webpack_require__(/*! ./PauseSimulation */ "./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/PauseSimulation.js");
 
 /***/ }),
 
@@ -453,7 +2184,73 @@ eval("module.exports = __webpack_require__(/*! ./PauseSimulation */ \"./node_mod
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;\n\nvar VERY_HIGH_PRIORITY = 50000;\n\nfunction PreserveElementColors(eventBus, elementRegistry, graphicsFactory) {\n  var self = this;\n\n  this._elementRegistry = elementRegistry;\n  this._graphicsFactory = graphicsFactory;\n\n  this.elementColors = {};\n\n  eventBus.on(TOGGLE_MODE_EVENT, VERY_HIGH_PRIORITY, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (!simulationModeActive) {\n      self.resetColors();\n    } else {\n      self.preserveColors();\n    }\n  });\n}\n\nPreserveElementColors.prototype.preserveColors = function () {\n  var self = this;\n\n  this._elementRegistry.forEach(function (element) {\n    self.elementColors[element.id] = {\n      stroke: element.businessObject.di.get('stroke'),\n      fill: element.businessObject.di.get('fill')\n    };\n\n    self.setColor(element, '#000', '#fff');\n  });\n};\n\nPreserveElementColors.prototype.resetColors = function () {\n  var self = this;\n\n  this._elementRegistry.forEach(function (element) {\n    if (self.elementColors[element.id]) {\n      self.setColor(element, self.elementColors[element.id].stroke, self.elementColors[element.id].fill);\n    }\n  });\n\n  this.elementColors = {};\n};\n\nPreserveElementColors.prototype.setColor = function (element, stroke, fill) {\n  var businessObject = element.businessObject;\n\n  businessObject.di.set('stroke', stroke);\n  businessObject.di.set('fill', fill);\n\n  var gfx = this._elementRegistry.getGraphics(element);\n\n  var type = element.waypoints ? 'connection' : 'shape';\n\n  this._graphicsFactory.update(type, element, gfx);\n};\n\nPreserveElementColors.$inject = ['eventBus', 'elementRegistry', 'graphicsFactory'];\n\nmodule.exports = PreserveElementColors;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/PreserveElementColors.js?");
+
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+var VERY_HIGH_PRIORITY = 50000;
+
+function PreserveElementColors(eventBus, elementRegistry, graphicsFactory) {
+  var self = this;
+
+  this._elementRegistry = elementRegistry;
+  this._graphicsFactory = graphicsFactory;
+
+  this.elementColors = {};
+
+  eventBus.on(TOGGLE_MODE_EVENT, VERY_HIGH_PRIORITY, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      self.resetColors();
+    } else {
+      self.preserveColors();
+    }
+  });
+}
+
+PreserveElementColors.prototype.preserveColors = function () {
+  var self = this;
+
+  this._elementRegistry.forEach(function (element) {
+    self.elementColors[element.id] = {
+      stroke: element.businessObject.di.get('stroke'),
+      fill: element.businessObject.di.get('fill')
+    };
+
+    self.setColor(element, '#000', '#fff');
+  });
+};
+
+PreserveElementColors.prototype.resetColors = function () {
+  var self = this;
+
+  this._elementRegistry.forEach(function (element) {
+    if (self.elementColors[element.id]) {
+      self.setColor(element, self.elementColors[element.id].stroke, self.elementColors[element.id].fill);
+    }
+  });
+
+  this.elementColors = {};
+};
+
+PreserveElementColors.prototype.setColor = function (element, stroke, fill) {
+  var businessObject = element.businessObject;
+
+  businessObject.di.set('stroke', stroke);
+  businessObject.di.set('fill', fill);
+
+  var gfx = this._elementRegistry.getGraphics(element);
+
+  var type = element.waypoints ? 'connection' : 'shape';
+
+  this._graphicsFactory.update(type, element, gfx);
+};
+
+PreserveElementColors.$inject = ['eventBus', 'elementRegistry', 'graphicsFactory'];
+
+module.exports = PreserveElementColors;
 
 /***/ }),
 
@@ -464,7 +2261,7 @@ eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./nod
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./PreserveElementColors */ \"./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/PreserveElementColors.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/index.js?");
+module.exports = __webpack_require__(/*! ./PreserveElementColors */ "./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/PreserveElementColors.js");
 
 /***/ }),
 
@@ -476,7 +2273,35 @@ eval("module.exports = __webpack_require__(/*! ./PreserveElementColors */ \"./no
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;\n\nfunction ProcessInstanceIds(eventBus) {\n  this.nextProcessInstanceId = 1;\n\n  eventBus.on(TOGGLE_MODE_EVENT, this.reset.bind(this));\n\n  eventBus.on(RESET_SIMULATION_EVENT, this.reset.bind(this));\n}\n\nProcessInstanceIds.prototype.getNext = function () {\n  var processInstanceId = this.nextProcessInstanceId;\n\n  this.nextProcessInstanceId++;\n\n  return processInstanceId;\n};\n\nProcessInstanceIds.prototype.reset = function () {\n  this.nextProcessInstanceId = 1;\n};\n\nProcessInstanceIds.$inject = ['eventBus'];\n\nmodule.exports = ProcessInstanceIds;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/process-instance-ids/ProcessInstanceIds.js?");
+
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
+
+function ProcessInstanceIds(eventBus) {
+  this.nextProcessInstanceId = 1;
+
+  eventBus.on(TOGGLE_MODE_EVENT, this.reset.bind(this));
+
+  eventBus.on(RESET_SIMULATION_EVENT, this.reset.bind(this));
+}
+
+ProcessInstanceIds.prototype.getNext = function () {
+  var processInstanceId = this.nextProcessInstanceId;
+
+  this.nextProcessInstanceId++;
+
+  return processInstanceId;
+};
+
+ProcessInstanceIds.prototype.reset = function () {
+  this.nextProcessInstanceId = 1;
+};
+
+ProcessInstanceIds.$inject = ['eventBus'];
+
+module.exports = ProcessInstanceIds;
 
 /***/ }),
 
@@ -487,7 +2312,7 @@ eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./nod
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./ProcessInstanceIds */ \"./node_modules/bpmn-js-token-simulation/lib/features/process-instance-ids/ProcessInstanceIds.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/process-instance-ids/index.js?");
+module.exports = __webpack_require__(/*! ./ProcessInstanceIds */ "./node_modules/bpmn-js-token-simulation/lib/features/process-instance-ids/ProcessInstanceIds.js");
 
 /***/ }),
 
@@ -499,7 +2324,124 @@ eval("module.exports = __webpack_require__(/*! ./ProcessInstanceIds */ \"./node_
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT,\n    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT,\n    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT,\n    PROCESS_INSTANCE_HIDDEN_EVENT = events.PROCESS_INSTANCE_HIDDEN_EVENT;\n\nvar LOW_PRIORITY = 500;\n\nfunction ProcessInstanceSettings(animation, eventBus, processInstances, elementRegistry) {\n  var self = this;\n\n  this._animation = animation;\n  this._eventBus = eventBus;\n  this._processInstances = processInstances;\n  this._elementRegistry = elementRegistry;\n\n  this._eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, LOW_PRIORITY, function (context) {\n    var parent = context.parent,\n        processInstanceId = context.processInstanceId;\n\n    var processInstancesWithParent = processInstances.getProcessInstances(parent).filter(function (processInstance) {\n      return !processInstance.isFinished;\n    });\n\n    if (processInstancesWithParent.length === 1) {\n      self.showProcessInstance(processInstanceId, parent);\n    } else if (processInstancesWithParent.length > 1) {\n      self.hideProcessInstance(processInstanceId);\n    }\n  });\n\n  this._eventBus.on(PROCESS_INSTANCE_FINISHED_EVENT, LOW_PRIORITY, function (context) {\n    var parent = context.parent,\n        processInstanceId = context.processInstanceId;\n\n    var processInstancesWithParent = processInstances.getProcessInstances(parent).filter(function (processInstance) {\n      return processInstanceId !== processInstance.processInstanceId && !processInstance.isFinished;\n    });\n\n    // show remaining process instance\n    if (processInstancesWithParent.length && processInstanceId === parent.shownProcessInstance) {\n\n      self.showProcessInstance(processInstancesWithParent[0].processInstanceId, parent);\n    } else {\n      delete parent.shownProcessInstance;\n    }\n\n    // outer process is finished\n    if (!parent.parent) {\n      elementRegistry.forEach(function (element) {\n        delete element.shownProcessInstance;\n      });\n    }\n  });\n\n  eventBus.on(TOGGLE_MODE_EVENT, function () {\n    elementRegistry.forEach(function (element) {\n      delete element.shownProcessInstance;\n    });\n  });\n}\n\nProcessInstanceSettings.prototype.showProcessInstance = function (processInstanceId, parent) {\n  this._animation.showProcessInstanceAnimations(processInstanceId);\n\n  parent.shownProcessInstance = processInstanceId;\n\n  this._eventBus.fire(PROCESS_INSTANCE_SHOWN_EVENT, {\n    processInstanceId: processInstanceId\n  });\n};\n\nProcessInstanceSettings.prototype.hideProcessInstance = function (processInstanceId) {\n  this._animation.hideProcessInstanceAnimations(processInstanceId);\n\n  this._eventBus.fire(PROCESS_INSTANCE_HIDDEN_EVENT, {\n    processInstanceId: processInstanceId\n  });\n};\n\nProcessInstanceSettings.prototype.showNext = function (parent) {\n  var self = this;\n\n  var processInstancesWithParent = this._processInstances.getProcessInstances(parent);\n\n  var shownProcessInstance = parent.shownProcessInstance;\n\n  var indexOfShownProcessInstance = 0;\n\n  for (let i = 0; i < processInstancesWithParent.length; i++) {\n    if (processInstancesWithParent[i].processInstanceId === shownProcessInstance) {\n      break;\n    } else {\n      indexOfShownProcessInstance++;\n    }\n  }\n\n  processInstancesWithParent.forEach(function (processInstance) {\n    self.hideProcessInstance(processInstance.processInstanceId);\n  });\n\n  if (indexOfShownProcessInstance === processInstancesWithParent.length - 1) {\n\n    // last index\n    this.showProcessInstance(processInstancesWithParent[0].processInstanceId, parent);\n  } else {\n\n    // not last index\n    this.showProcessInstance(processInstancesWithParent[indexOfShownProcessInstance + 1].processInstanceId, parent);\n  }\n};\n\nProcessInstanceSettings.$inject = ['animation', 'eventBus', 'processInstances', 'elementRegistry'];\n\nmodule.exports = ProcessInstanceSettings;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/process-instance-settings/ProcessInstanceSettings.js?");
+
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT,
+    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT,
+    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT,
+    PROCESS_INSTANCE_HIDDEN_EVENT = events.PROCESS_INSTANCE_HIDDEN_EVENT;
+
+var LOW_PRIORITY = 500;
+
+function ProcessInstanceSettings(animation, eventBus, processInstances, elementRegistry) {
+  var self = this;
+
+  this._animation = animation;
+  this._eventBus = eventBus;
+  this._processInstances = processInstances;
+  this._elementRegistry = elementRegistry;
+
+  this._eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, LOW_PRIORITY, function (context) {
+    var parent = context.parent,
+        processInstanceId = context.processInstanceId;
+
+    var processInstancesWithParent = processInstances.getProcessInstances(parent).filter(function (processInstance) {
+      return !processInstance.isFinished;
+    });
+
+    if (processInstancesWithParent.length === 1) {
+      self.showProcessInstance(processInstanceId, parent);
+    } else if (processInstancesWithParent.length > 1) {
+      self.hideProcessInstance(processInstanceId);
+    }
+  });
+
+  this._eventBus.on(PROCESS_INSTANCE_FINISHED_EVENT, LOW_PRIORITY, function (context) {
+    var parent = context.parent,
+        processInstanceId = context.processInstanceId;
+
+    var processInstancesWithParent = processInstances.getProcessInstances(parent).filter(function (processInstance) {
+      return processInstanceId !== processInstance.processInstanceId && !processInstance.isFinished;
+    });
+
+    // show remaining process instance
+    if (processInstancesWithParent.length && processInstanceId === parent.shownProcessInstance) {
+
+      self.showProcessInstance(processInstancesWithParent[0].processInstanceId, parent);
+    } else {
+      delete parent.shownProcessInstance;
+    }
+
+    // outer process is finished
+    if (!parent.parent) {
+      elementRegistry.forEach(function (element) {
+        delete element.shownProcessInstance;
+      });
+    }
+  });
+
+  eventBus.on(TOGGLE_MODE_EVENT, function () {
+    elementRegistry.forEach(function (element) {
+      delete element.shownProcessInstance;
+    });
+  });
+}
+
+ProcessInstanceSettings.prototype.showProcessInstance = function (processInstanceId, parent) {
+  this._animation.showProcessInstanceAnimations(processInstanceId);
+
+  parent.shownProcessInstance = processInstanceId;
+
+  this._eventBus.fire(PROCESS_INSTANCE_SHOWN_EVENT, {
+    processInstanceId: processInstanceId
+  });
+};
+
+ProcessInstanceSettings.prototype.hideProcessInstance = function (processInstanceId) {
+  this._animation.hideProcessInstanceAnimations(processInstanceId);
+
+  this._eventBus.fire(PROCESS_INSTANCE_HIDDEN_EVENT, {
+    processInstanceId: processInstanceId
+  });
+};
+
+ProcessInstanceSettings.prototype.showNext = function (parent) {
+  var self = this;
+
+  var processInstancesWithParent = this._processInstances.getProcessInstances(parent);
+
+  var shownProcessInstance = parent.shownProcessInstance;
+
+  var indexOfShownProcessInstance = 0;
+
+  for (let i = 0; i < processInstancesWithParent.length; i++) {
+    if (processInstancesWithParent[i].processInstanceId === shownProcessInstance) {
+      break;
+    } else {
+      indexOfShownProcessInstance++;
+    }
+  }
+
+  processInstancesWithParent.forEach(function (processInstance) {
+    self.hideProcessInstance(processInstance.processInstanceId);
+  });
+
+  if (indexOfShownProcessInstance === processInstancesWithParent.length - 1) {
+
+    // last index
+    this.showProcessInstance(processInstancesWithParent[0].processInstanceId, parent);
+  } else {
+
+    // not last index
+    this.showProcessInstance(processInstancesWithParent[indexOfShownProcessInstance + 1].processInstanceId, parent);
+  }
+};
+
+ProcessInstanceSettings.$inject = ['animation', 'eventBus', 'processInstances', 'elementRegistry'];
+
+module.exports = ProcessInstanceSettings;
 
 /***/ }),
 
@@ -510,7 +2452,7 @@ eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./nod
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./ProcessInstanceSettings */ \"./node_modules/bpmn-js-token-simulation/lib/features/process-instance-settings/ProcessInstanceSettings.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/process-instance-settings/index.js?");
+module.exports = __webpack_require__(/*! ./ProcessInstanceSettings */ "./node_modules/bpmn-js-token-simulation/lib/features/process-instance-settings/ProcessInstanceSettings.js");
 
 /***/ }),
 
@@ -522,7 +2464,103 @@ eval("module.exports = __webpack_require__(/*! ./ProcessInstanceSettings */ \"./
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,\n    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT,\n    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT;\n\nfunction ProcessInstances(eventBus, processInstanceIds) {\n  var self = this;\n\n  this._eventBus = eventBus;\n  this._processInstanceIds = processInstanceIds;\n\n  this.processInstances = [];\n\n  // clear instances\n  eventBus.on([TOGGLE_MODE_EVENT, RESET_SIMULATION_EVENT], function () {\n    self.processInstances = [];\n  });\n}\n\n/**\r\n * Create a new process instance.\r\n *\r\n * @param {Object} parent - Parent element which contains all child elements of process definition.\r\n * @param {string} [parentProcessInstanceId] - Optional ID of parent process instance.\r\n */\nProcessInstances.prototype.create = function (parent, parentProcessInstanceId) {\n  var processInstanceId = this._processInstanceIds.getNext();\n\n  var processInstance = {\n    parent: parent,\n    processInstanceId: processInstanceId,\n    parentProcessInstanceId: parentProcessInstanceId\n  };\n\n  this.processInstances.push(processInstance);\n\n  this._eventBus.fire(PROCESS_INSTANCE_CREATED_EVENT, processInstance);\n\n  return processInstanceId;\n};\n\nProcessInstances.prototype.remove = function (processInstanceId) {\n  this.processInstances = this.processInstances.filter(function (processInstance) {\n    return processInstance.processInstanceId !== processInstanceId;\n  });\n};\n\n/**\r\n * Finish a process instance.\r\n *\r\n * @param {string} processInstanceId - ID of process instance.\r\n */\nProcessInstances.prototype.finish = function (processInstanceId) {\n  var processInstance = this.processInstances.find(function (processInstance) {\n    return processInstance.processInstanceId === processInstanceId;\n  });\n\n  this._eventBus.fire(PROCESS_INSTANCE_FINISHED_EVENT, processInstance);\n\n  processInstance.isFinished = true;\n};\n\n/**\r\n * @param {Object} [parent] - Optional parent.\r\n * @param {Object} [options] - Optional options.\r\n * @param {boolean} [options.includeFinished] - Wether to include finished process instance.\r\n */\nProcessInstances.prototype.getProcessInstances = function (parent, options) {\n  if (!parent) {\n    return this.processInstances;\n  }\n\n  var processInstances = this.processInstances.filter(function (processInstance) {\n    return processInstance.parent === parent;\n  });\n\n  if (options && options.includeFinished !== true) {\n    processInstances = processInstances.filter(function (processInstance) {\n      return !processInstance.isFinished;\n    });\n  }\n\n  return processInstances;\n};\n\nProcessInstances.prototype.getProcessInstance = function (processInstanceId) {\n  return this.processInstances.find(function (processInstance) {\n    return processInstance.processInstanceId === processInstanceId;\n  });\n};\n\nProcessInstances.$inject = ['eventBus', 'processInstanceIds'];\n\nmodule.exports = ProcessInstances;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/process-instances/ProcessInstances.js?");
+
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
+    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT,
+    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT;
+
+function ProcessInstances(eventBus, processInstanceIds) {
+  var self = this;
+
+  this._eventBus = eventBus;
+  this._processInstanceIds = processInstanceIds;
+
+  this.processInstances = [];
+
+  // clear instances
+  eventBus.on([TOGGLE_MODE_EVENT, RESET_SIMULATION_EVENT], function () {
+    self.processInstances = [];
+  });
+}
+
+/**
+ * Create a new process instance.
+ *
+ * @param {Object} parent - Parent element which contains all child elements of process definition.
+ * @param {string} [parentProcessInstanceId] - Optional ID of parent process instance.
+ */
+ProcessInstances.prototype.create = function (parent, parentProcessInstanceId) {
+  var processInstanceId = this._processInstanceIds.getNext();
+
+  var processInstance = {
+    parent: parent,
+    processInstanceId: processInstanceId,
+    parentProcessInstanceId: parentProcessInstanceId
+  };
+
+  this.processInstances.push(processInstance);
+
+  this._eventBus.fire(PROCESS_INSTANCE_CREATED_EVENT, processInstance);
+
+  return processInstanceId;
+};
+
+ProcessInstances.prototype.remove = function (processInstanceId) {
+  this.processInstances = this.processInstances.filter(function (processInstance) {
+    return processInstance.processInstanceId !== processInstanceId;
+  });
+};
+
+/**
+ * Finish a process instance.
+ *
+ * @param {string} processInstanceId - ID of process instance.
+ */
+ProcessInstances.prototype.finish = function (processInstanceId) {
+  var processInstance = this.processInstances.find(function (processInstance) {
+    return processInstance.processInstanceId === processInstanceId;
+  });
+
+  this._eventBus.fire(PROCESS_INSTANCE_FINISHED_EVENT, processInstance);
+
+  processInstance.isFinished = true;
+};
+
+/**
+ * @param {Object} [parent] - Optional parent.
+ * @param {Object} [options] - Optional options.
+ * @param {boolean} [options.includeFinished] - Wether to include finished process instance.
+ */
+ProcessInstances.prototype.getProcessInstances = function (parent, options) {
+  if (!parent) {
+    return this.processInstances;
+  }
+
+  var processInstances = this.processInstances.filter(function (processInstance) {
+    return processInstance.parent === parent;
+  });
+
+  if (options && options.includeFinished !== true) {
+    processInstances = processInstances.filter(function (processInstance) {
+      return !processInstance.isFinished;
+    });
+  }
+
+  return processInstances;
+};
+
+ProcessInstances.prototype.getProcessInstance = function (processInstanceId) {
+  return this.processInstances.find(function (processInstance) {
+    return processInstance.processInstanceId === processInstanceId;
+  });
+};
+
+ProcessInstances.$inject = ['eventBus', 'processInstanceIds'];
+
+module.exports = ProcessInstances;
 
 /***/ }),
 
@@ -533,7 +2571,7 @@ eval("\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./nod
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./ProcessInstances */ \"./node_modules/bpmn-js-token-simulation/lib/features/process-instances/ProcessInstances.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/process-instances/index.js?");
+module.exports = __webpack_require__(/*! ./ProcessInstances */ "./node_modules/bpmn-js-token-simulation/lib/features/process-instances/ProcessInstances.js");
 
 /***/ }),
 
@@ -545,7 +2583,75 @@ eval("module.exports = __webpack_require__(/*! ./ProcessInstances */ \"./node_mo
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domClasses = __webpack_require__(/*! min-dom/lib/classes */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\");\n\nvar is = __webpack_require__(/*! ../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,\n    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;\n\nfunction ResetSimulation(eventBus, tokenSimulationPalette, notifications, elementRegistry) {\n  var self = this;\n\n  this._eventBus = eventBus;\n  this._tokenSimulationPalette = tokenSimulationPalette;\n  this._notifications = notifications;\n  this._elementRegistry = elementRegistry;\n\n  this._init();\n\n  eventBus.on(GENERATE_TOKEN_EVENT, function (context) {\n    if (!is(context.element, 'bpmn:StartEvent')) {\n      return;\n    }\n\n    domClasses(self.paletteEntry).remove('disabled');\n  });\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (!simulationModeActive) {\n      self.resetSimulation();\n    }\n  });\n}\n\nResetSimulation.prototype._init = function () {\n  var self = this;\n\n  this.paletteEntry = domify('<div class=\"entry disabled\" title=\"Reset Simulation\"><i class=\"fa fa-refresh\"></i></div>');\n\n  domEvent.bind(this.paletteEntry, 'click', function () {\n    self.resetSimulation();\n\n    self._notifications.showNotification('Reset Simulation', 'info');\n  });\n\n  this._tokenSimulationPalette.addEntry(this.paletteEntry, 2);\n};\n\nResetSimulation.prototype.resetSimulation = function () {\n  domClasses(this.paletteEntry).add('disabled');\n\n  this._elementRegistry.forEach(function (element) {\n    if (element.tokenCount !== undefined) {\n      delete element.tokenCount;\n    }\n  });\n\n  this._eventBus.fire(RESET_SIMULATION_EVENT);\n};\n\nResetSimulation.$inject = ['eventBus', 'tokenSimulationPalette', 'notifications', 'elementRegistry'];\n\nmodule.exports = ResetSimulation;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/ResetSimulation.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+
+var is = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
+
+function ResetSimulation(eventBus, tokenSimulationPalette, notifications, elementRegistry) {
+  var self = this;
+
+  this._eventBus = eventBus;
+  this._tokenSimulationPalette = tokenSimulationPalette;
+  this._notifications = notifications;
+  this._elementRegistry = elementRegistry;
+
+  this._init();
+
+  eventBus.on(GENERATE_TOKEN_EVENT, function (context) {
+    if (!is(context.element, 'bpmn:StartEvent')) {
+      return;
+    }
+
+    domClasses(self.paletteEntry).remove('disabled');
+  });
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      self.resetSimulation();
+    }
+  });
+}
+
+ResetSimulation.prototype._init = function () {
+  var self = this;
+
+  this.paletteEntry = domify('<div class="entry disabled" title="Reset Simulation"><i class="fa fa-refresh"></i></div>');
+
+  domEvent.bind(this.paletteEntry, 'click', function () {
+    self.resetSimulation();
+
+    self._notifications.showNotification('Reset Simulation', 'info');
+  });
+
+  this._tokenSimulationPalette.addEntry(this.paletteEntry, 2);
+};
+
+ResetSimulation.prototype.resetSimulation = function () {
+  domClasses(this.paletteEntry).add('disabled');
+
+  this._elementRegistry.forEach(function (element) {
+    if (element.tokenCount !== undefined) {
+      delete element.tokenCount;
+    }
+  });
+
+  this._eventBus.fire(RESET_SIMULATION_EVENT);
+};
+
+ResetSimulation.$inject = ['eventBus', 'tokenSimulationPalette', 'notifications', 'elementRegistry'];
+
+module.exports = ResetSimulation;
 
 /***/ }),
 
@@ -556,7 +2662,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./ResetSimulation */ \"./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/ResetSimulation.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/index.js?");
+module.exports = __webpack_require__(/*! ./ResetSimulation */ "./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/ResetSimulation.js");
 
 /***/ }),
 
@@ -568,7 +2674,77 @@ eval("module.exports = __webpack_require__(/*! ./ResetSimulation */ \"./node_mod
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domClasses = __webpack_require__(/*! min-dom/lib/classes */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\"),\n    domQuery = __webpack_require__(/*! min-dom/lib/query */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js\");\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;\n\nfunction SetAnimationSpeed(canvas, animation, eventBus) {\n  var self = this;\n\n  this._canvas = canvas;\n  this._animation = animation;\n  this._eventBus = eventBus;\n\n  this._init();\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (!simulationModeActive) {\n      domClasses(self.container).add('hidden');\n    } else {\n      domClasses(self.container).remove('hidden');\n    }\n  });\n}\n\nSetAnimationSpeed.prototype._init = function () {\n  var self = this;\n\n  this.container = domify('<div class=\"set-animation-speed hidden\">' + '<i title=\"Set Animation Speed\" class=\"fa fa-tachometer\" aria-hidden=\"true\"></i>' + '<div class=\"animation-speed-buttons\">' + '<div title=\"Slow\" id=\"animation-speed-1\" class=\"animation-speed-button\"><i class=\"fa fa-angle-right\" aria-hidden=\"true\"></i></div>' + '<div title=\"Normal\" id=\"animation-speed-2\" class=\"animation-speed-button active\"><i class=\"fa fa-angle-right\" aria-hidden=\"true\"></i><i class=\"fa fa-angle-right\" aria-hidden=\"true\"></i></div>' + '<div title=\"Fast\" id=\"animation-speed-3\" class=\"animation-speed-button\"><i class=\"fa fa-angle-right\" aria-hidden=\"true\"></i><i class=\"fa fa-angle-right\" aria-hidden=\"true\"></i><i class=\"fa fa-angle-right\" aria-hidden=\"true\"></i></div>' + '</div>' + '</div>');\n\n  var speed1 = domQuery('#animation-speed-1', this.container),\n      speed2 = domQuery('#animation-speed-2', this.container),\n      speed3 = domQuery('#animation-speed-3', this.container);\n\n  domEvent.bind(speed1, 'click', function () {\n    self.setActive(speed1);\n\n    self._animation.setAnimationSpeed(0.5);\n  });\n\n  domEvent.bind(speed2, 'click', function () {\n    self.setActive(speed2);\n\n    self._animation.setAnimationSpeed(1);\n  });\n\n  domEvent.bind(speed3, 'click', function () {\n    self.setActive(speed3);\n\n    self._animation.setAnimationSpeed(1.5);\n  });\n\n  this._canvas.getContainer().appendChild(this.container);\n};\n\nSetAnimationSpeed.prototype.setActive = function (element) {\n  domQuery.all('.animation-speed-button', this.container).forEach(function (button) {\n    domClasses(button).remove('active');\n  });\n\n  domClasses(element).add('active');\n};\n\nSetAnimationSpeed.$inject = ['canvas', 'animation', 'eventBus'];\n\nmodule.exports = SetAnimationSpeed;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/SetAnimationSpeed.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js"),
+    domQuery = __webpack_require__(/*! min-dom/lib/query */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js");
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+function SetAnimationSpeed(canvas, animation, eventBus) {
+  var self = this;
+
+  this._canvas = canvas;
+  this._animation = animation;
+  this._eventBus = eventBus;
+
+  this._init();
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      domClasses(self.container).add('hidden');
+    } else {
+      domClasses(self.container).remove('hidden');
+    }
+  });
+}
+
+SetAnimationSpeed.prototype._init = function () {
+  var self = this;
+
+  this.container = domify('<div class="set-animation-speed hidden">' + '<i title="Set Animation Speed" class="fa fa-tachometer" aria-hidden="true"></i>' + '<div class="animation-speed-buttons">' + '<div title="Slow" id="animation-speed-1" class="animation-speed-button"><i class="fa fa-angle-right" aria-hidden="true"></i></div>' + '<div title="Normal" id="animation-speed-2" class="animation-speed-button active"><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-angle-right" aria-hidden="true"></i></div>' + '<div title="Fast" id="animation-speed-3" class="animation-speed-button"><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-angle-right" aria-hidden="true"></i><i class="fa fa-angle-right" aria-hidden="true"></i></div>' + '</div>' + '</div>');
+
+  var speed1 = domQuery('#animation-speed-1', this.container),
+      speed2 = domQuery('#animation-speed-2', this.container),
+      speed3 = domQuery('#animation-speed-3', this.container);
+
+  domEvent.bind(speed1, 'click', function () {
+    self.setActive(speed1);
+
+    self._animation.setAnimationSpeed(0.5);
+  });
+
+  domEvent.bind(speed2, 'click', function () {
+    self.setActive(speed2);
+
+    self._animation.setAnimationSpeed(1);
+  });
+
+  domEvent.bind(speed3, 'click', function () {
+    self.setActive(speed3);
+
+    self._animation.setAnimationSpeed(1.5);
+  });
+
+  this._canvas.getContainer().appendChild(this.container);
+};
+
+SetAnimationSpeed.prototype.setActive = function (element) {
+  domQuery.all('.animation-speed-button', this.container).forEach(function (button) {
+    domClasses(button).remove('active');
+  });
+
+  domClasses(element).add('active');
+};
+
+SetAnimationSpeed.$inject = ['canvas', 'animation', 'eventBus'];
+
+module.exports = SetAnimationSpeed;
 
 /***/ }),
 
@@ -579,7 +2755,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./SetAnimationSpeed */ \"./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/SetAnimationSpeed.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/index.js?");
+module.exports = __webpack_require__(/*! ./SetAnimationSpeed */ "./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/SetAnimationSpeed.js");
 
 /***/ }),
 
@@ -591,7 +2767,185 @@ eval("module.exports = __webpack_require__(/*! ./SetAnimationSpeed */ \"./node_m
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domClasses = __webpack_require__(/*! min-dom/lib/classes */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\"),\n    domQuery = __webpack_require__(/*! min-dom/lib/query */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js\"),\n    domClear = __webpack_require__(/*! min-dom/lib/clear */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/clear.js\");\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT,\n    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT,\n    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT,\n    PROCESS_INSTANCE_HIDDEN_EVENT = events.PROCESS_INSTANCE_HIDDEN_EVENT,\n    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;\n\nfunction isNull(value) {\n  return value === null;\n}\n\nfunction ShowProcessInstance(eventBus, canvas, processInstanceSettings, processInstances, graphicsFactory, elementRegistry) {\n  var self = this;\n\n  this._eventBus = eventBus;\n  this._canvas = canvas;\n  this._processInstanceSettings = processInstanceSettings;\n  this._processInstances = processInstances;\n  this._graphicsFactory = graphicsFactory;\n  this._elementRegistry = elementRegistry;\n\n  this.highlightedElement = null;\n\n  this._init();\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (!simulationModeActive) {\n      domClasses(self.container).add('hidden');\n      domClear(self.container);\n\n      if (!isNull(self.highlightedElement)) {\n        self.removeHighlightFromProcess(self.highlightedElement.element);\n\n        self.highlightedElement = null;\n      }\n    } else {\n      domClasses(self.container).remove('hidden');\n    }\n  });\n\n  eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, function (context) {\n    self.addInstance(context);\n  });\n\n  eventBus.on(PROCESS_INSTANCE_FINISHED_EVENT, function (context) {\n    self.removeInstance(context);\n  });\n\n  eventBus.on(PROCESS_INSTANCE_SHOWN_EVENT, function (context) {\n    self.setInstanceShown(context.processInstanceId);\n  });\n\n  eventBus.on(PROCESS_INSTANCE_HIDDEN_EVENT, function (context) {\n    self.setInstanceHidden(context.processInstanceId);\n  });\n\n  eventBus.on(RESET_SIMULATION_EVENT, function () {\n    self.removeAllInstances();\n  });\n}\n\nShowProcessInstance.prototype._init = function () {\n  this.container = domify('<div class=\"process-instances hidden\"></div>');\n\n  this._canvas.getContainer().appendChild(this.container);\n};\n\nShowProcessInstance.prototype.addInstance = function (context) {\n  var self = this;\n\n  var processInstanceId = context.processInstanceId,\n      parent = context.parent;\n\n  var element = domify('<div id=\"instance-' + processInstanceId + '\" class=\"process-instance\" title=\"View Process Instance ' + processInstanceId + '\">' + processInstanceId + '</div>');\n\n  domEvent.bind(element, 'click', function () {\n    var processInstancesWithParent = self._processInstances.getProcessInstances(parent);\n\n    processInstancesWithParent.forEach(function (processInstance) {\n      self._processInstanceSettings.hideProcessInstance(processInstance.processInstanceId);\n    });\n\n    self._processInstanceSettings.showProcessInstance(processInstanceId, parent);\n  });\n\n  domEvent.bind(element, 'mouseenter', function () {\n    self.highlightedElement = {\n      element: parent,\n      stroke: parent.businessObject.di.get('stroke'),\n      fill: parent.businessObject.di.get('fill')\n    };\n\n    self.addHighlightToProcess(parent);\n  });\n\n  domEvent.bind(element, 'mouseleave', function () {\n    self.removeHighlightFromProcess(parent);\n\n    self.highlightedElement = null;\n  });\n\n  this.container.appendChild(element);\n};\n\nShowProcessInstance.prototype.removeInstance = function (context) {\n  var processInstanceId = context.processInstanceId;\n\n  var element = domQuery('#instance-' + processInstanceId, this.container);\n\n  if (element) {\n    element.remove();\n  }\n};\n\nShowProcessInstance.prototype.removeAllInstances = function () {\n  this.container.innerHTML = '';\n};\n\nShowProcessInstance.prototype.setInstanceShown = function (processInstanceId) {\n  var element = domQuery('#instance-' + processInstanceId, this.container);\n\n  if (element) {\n    domClasses(element).add('active');\n  }\n};\n\nShowProcessInstance.prototype.setInstanceHidden = function (processInstanceId) {\n  var element = domQuery('#instance-' + processInstanceId, this.container);\n\n  if (element) {\n    domClasses(element).remove('active');\n  }\n};\n\nShowProcessInstance.prototype.addHighlightToProcess = function (element) {\n  this.setColor(element, '#52b415', '#ecfbe3');\n\n  if (!element.parent) {\n    domClasses(this._canvas.getContainer()).add('highlight');\n  }\n};\n\nShowProcessInstance.prototype.removeHighlightFromProcess = function (element) {\n  if (isNull(this.highlightedElement)) {\n    return;\n  }\n\n  this.setColor(element, this.highlightedElement.stroke, this.highlightedElement.fill);\n\n  if (!element.parent) {\n    domClasses(this._canvas.getContainer()).remove('highlight');\n  }\n};\n\nShowProcessInstance.prototype.setColor = function (element, stroke, fill) {\n  var businessObject = element.businessObject;\n\n  businessObject.di.set('stroke', stroke);\n  businessObject.di.set('fill', fill);\n\n  var gfx = this._elementRegistry.getGraphics(element);\n\n  this._graphicsFactory.update('connection', element, gfx);\n};\n\nShowProcessInstance.$inject = ['eventBus', 'canvas', 'processInstanceSettings', 'processInstances', 'graphicsFactory', 'elementRegistry'];\n\nmodule.exports = ShowProcessInstance;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/show-process-instance/ShowProcessInstance.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js"),
+    domQuery = __webpack_require__(/*! min-dom/lib/query */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js"),
+    domClear = __webpack_require__(/*! min-dom/lib/clear */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/clear.js");
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    PROCESS_INSTANCE_CREATED_EVENT = events.PROCESS_INSTANCE_CREATED_EVENT,
+    PROCESS_INSTANCE_FINISHED_EVENT = events.PROCESS_INSTANCE_FINISHED_EVENT,
+    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT,
+    PROCESS_INSTANCE_HIDDEN_EVENT = events.PROCESS_INSTANCE_HIDDEN_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
+
+function isNull(value) {
+  return value === null;
+}
+
+function ShowProcessInstance(eventBus, canvas, processInstanceSettings, processInstances, graphicsFactory, elementRegistry) {
+  var self = this;
+
+  this._eventBus = eventBus;
+  this._canvas = canvas;
+  this._processInstanceSettings = processInstanceSettings;
+  this._processInstances = processInstances;
+  this._graphicsFactory = graphicsFactory;
+  this._elementRegistry = elementRegistry;
+
+  this.highlightedElement = null;
+
+  this._init();
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      domClasses(self.container).add('hidden');
+      domClear(self.container);
+
+      if (!isNull(self.highlightedElement)) {
+        self.removeHighlightFromProcess(self.highlightedElement.element);
+
+        self.highlightedElement = null;
+      }
+    } else {
+      domClasses(self.container).remove('hidden');
+    }
+  });
+
+  eventBus.on(PROCESS_INSTANCE_CREATED_EVENT, function (context) {
+    self.addInstance(context);
+  });
+
+  eventBus.on(PROCESS_INSTANCE_FINISHED_EVENT, function (context) {
+    self.removeInstance(context);
+  });
+
+  eventBus.on(PROCESS_INSTANCE_SHOWN_EVENT, function (context) {
+    self.setInstanceShown(context.processInstanceId);
+  });
+
+  eventBus.on(PROCESS_INSTANCE_HIDDEN_EVENT, function (context) {
+    self.setInstanceHidden(context.processInstanceId);
+  });
+
+  eventBus.on(RESET_SIMULATION_EVENT, function () {
+    self.removeAllInstances();
+  });
+}
+
+ShowProcessInstance.prototype._init = function () {
+  this.container = domify('<div class="process-instances hidden"></div>');
+
+  this._canvas.getContainer().appendChild(this.container);
+};
+
+ShowProcessInstance.prototype.addInstance = function (context) {
+  var self = this;
+
+  var processInstanceId = context.processInstanceId,
+      parent = context.parent;
+
+  var element = domify('<div id="instance-' + processInstanceId + '" class="process-instance" title="View Process Instance ' + processInstanceId + '">' + processInstanceId + '</div>');
+
+  domEvent.bind(element, 'click', function () {
+    var processInstancesWithParent = self._processInstances.getProcessInstances(parent);
+
+    processInstancesWithParent.forEach(function (processInstance) {
+      self._processInstanceSettings.hideProcessInstance(processInstance.processInstanceId);
+    });
+
+    self._processInstanceSettings.showProcessInstance(processInstanceId, parent);
+  });
+
+  domEvent.bind(element, 'mouseenter', function () {
+    self.highlightedElement = {
+      element: parent,
+      stroke: parent.businessObject.di.get('stroke'),
+      fill: parent.businessObject.di.get('fill')
+    };
+
+    self.addHighlightToProcess(parent);
+  });
+
+  domEvent.bind(element, 'mouseleave', function () {
+    self.removeHighlightFromProcess(parent);
+
+    self.highlightedElement = null;
+  });
+
+  this.container.appendChild(element);
+};
+
+ShowProcessInstance.prototype.removeInstance = function (context) {
+  var processInstanceId = context.processInstanceId;
+
+  var element = domQuery('#instance-' + processInstanceId, this.container);
+
+  if (element) {
+    element.remove();
+  }
+};
+
+ShowProcessInstance.prototype.removeAllInstances = function () {
+  this.container.innerHTML = '';
+};
+
+ShowProcessInstance.prototype.setInstanceShown = function (processInstanceId) {
+  var element = domQuery('#instance-' + processInstanceId, this.container);
+
+  if (element) {
+    domClasses(element).add('active');
+  }
+};
+
+ShowProcessInstance.prototype.setInstanceHidden = function (processInstanceId) {
+  var element = domQuery('#instance-' + processInstanceId, this.container);
+
+  if (element) {
+    domClasses(element).remove('active');
+  }
+};
+
+ShowProcessInstance.prototype.addHighlightToProcess = function (element) {
+  this.setColor(element, '#52b415', '#ecfbe3');
+
+  if (!element.parent) {
+    domClasses(this._canvas.getContainer()).add('highlight');
+  }
+};
+
+ShowProcessInstance.prototype.removeHighlightFromProcess = function (element) {
+  if (isNull(this.highlightedElement)) {
+    return;
+  }
+
+  this.setColor(element, this.highlightedElement.stroke, this.highlightedElement.fill);
+
+  if (!element.parent) {
+    domClasses(this._canvas.getContainer()).remove('highlight');
+  }
+};
+
+ShowProcessInstance.prototype.setColor = function (element, stroke, fill) {
+  var businessObject = element.businessObject;
+
+  businessObject.di.set('stroke', stroke);
+  businessObject.di.set('fill', fill);
+
+  var gfx = this._elementRegistry.getGraphics(element);
+
+  this._graphicsFactory.update('connection', element, gfx);
+};
+
+ShowProcessInstance.$inject = ['eventBus', 'canvas', 'processInstanceSettings', 'processInstances', 'graphicsFactory', 'elementRegistry'];
+
+module.exports = ShowProcessInstance;
 
 /***/ }),
 
@@ -602,7 +2956,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./ShowProcessInstance */ \"./node_modules/bpmn-js-token-simulation/lib/features/show-process-instance/ShowProcessInstance.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/show-process-instance/index.js?");
+module.exports = __webpack_require__(/*! ./ShowProcessInstance */ "./node_modules/bpmn-js-token-simulation/lib/features/show-process-instance/ShowProcessInstance.js");
 
 /***/ }),
 
@@ -614,7 +2968,155 @@ eval("module.exports = __webpack_require__(/*! ./ShowProcessInstance */ \"./node
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\"),\n    getBusinessObject = elementHelper.getBusinessObject,\n    is = elementHelper.is,\n    isAncestor = elementHelper.isAncestor,\n    isTypedEvent = elementHelper.isTypedEvent;\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT;\n\nvar VERY_LOW_PRIORITY = 250;\n\nfunction SimulationState(eventBus, animation, elementRegistry, log, elementNotifications, canvas, processInstances) {\n  // var self = this;\n\n  this._animation = animation;\n  this._elementRegistry = elementRegistry;\n  this._log = log;\n  this._elementNotifications = elementNotifications;\n  this._canvas = canvas;\n  this._processInstances = processInstances;\n\n  eventBus.on(CONSUME_TOKEN_EVENT, VERY_LOW_PRIORITY, function () {\n    // self.isDeadlock();\n  });\n}\n\n// TODO: refactor\nSimulationState.prototype.isDeadlock = function () {\n  var self = this;\n\n  var hasTokens = [];\n\n  this._elementRegistry.forEach(function (element) {\n    if (element.tokenCount) {\n      hasTokens.push(element);\n    }\n  });\n\n  var cannotContinue = [];\n  var hasTerminate = [];\n\n  hasTokens.forEach(function (element) {\n    var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {\n      return is(outgoing, 'bpmn:SequenceFlow');\n    });\n\n    // has tokens but no outgoing sequence flows\n    if (!outgoingSequenceFlows.length) {\n      cannotContinue.push(element);\n    }\n\n    // parallel gateway after exclusive gateway\n    if (is(element, 'bpmn:ParallelGateway')) {\n      var incomingSequenceFlows = element.incoming.filter(function (incoming) {\n        return is(incoming, 'bpmn:SequenceFlow');\n      });\n\n      if (incomingSequenceFlows.length > element.tokenCount) {\n        cannotContinue.push(element);\n      }\n    }\n\n    var visited = [];\n\n    // has terminate event\n    function checkIfHasTerminate(element) {\n      element.outgoing.forEach(function (outgoing) {\n        if (visited.indexOf(outgoing.target) !== -1) {\n          return;\n        }\n\n        visited.push(outgoing.target);\n\n        var isTerminate = isTypedEvent(getBusinessObject(outgoing.target), 'bpmn:TerminateEventDefinition');\n\n        if (isTerminate) {\n          hasTerminate.push(element);\n        }\n\n        checkIfHasTerminate(outgoing.target);\n      });\n    }\n\n    checkIfHasTerminate(element);\n  });\n\n  if (hasTokens.length && !hasTerminate.length && cannotContinue.length && !this._animation.animations.length) {\n    self._log.log('Deadlock', 'warning', 'fa-exclamation-triangle');\n\n    cannotContinue.forEach(function (element) {\n      self._elementNotifications.addElementNotification(element, {\n        type: 'warning',\n        icon: 'fa-exclamation-triangle',\n        text: 'Deadlock'\n      });\n    });\n  }\n};\n\n/**\r\n * Check if process instance finished.\r\n * Element is necessary to display element notification if finished.\r\n */\nSimulationState.prototype.isFinished = function (element, processInstanceId) {\n  var processInstance = this._processInstances.getProcessInstance(processInstanceId);\n  var parent = processInstance.parent;\n\n  var hasTokens = false;\n\n  if (!parent) {\n    parent = this._canvas.getRootElement();\n  }\n\n  parent.children.forEach(function (element) {\n    if (element.tokenCount && element.tokenCount[processInstanceId] && element.tokenCount[processInstanceId].length) {\n      hasTokens = true;\n    }\n  });\n\n  var hasAnimations = false;\n\n  this._animation.animations.forEach(function (animation) {\n    if (isAncestor(animation.element, parent) && animation.processInstanceId === processInstanceId) {\n      hasAnimations = true;\n    }\n  });\n\n  if (!hasTokens && !hasAnimations) {\n    if (is(parent, 'bpmn:SubProcess')) {\n      this._log.log('Subprocess ' + processInstanceId + ' finished', 'info', 'fa-check-circle');\n    } else {\n      this._log.log('Process ' + processInstanceId + ' finished', 'success', 'fa-check-circle');\n\n      this._elementNotifications.addElementNotification(element, {\n        type: 'success',\n        icon: 'fa-check-circle',\n        text: 'Finished'\n      });\n    }\n\n    return true;\n  }\n};\n\nSimulationState.$inject = ['eventBus', 'animation', 'elementRegistry', 'log', 'elementNotifications', 'canvas', 'processInstances'];\n\nmodule.exports = SimulationState;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/SimulationState.js?");
+
+
+var elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
+    getBusinessObject = elementHelper.getBusinessObject,
+    is = elementHelper.is,
+    isAncestor = elementHelper.isAncestor,
+    isTypedEvent = elementHelper.isTypedEvent;
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT;
+
+var VERY_LOW_PRIORITY = 250;
+
+function SimulationState(eventBus, animation, elementRegistry, log, elementNotifications, canvas, processInstances) {
+  // var self = this;
+
+  this._animation = animation;
+  this._elementRegistry = elementRegistry;
+  this._log = log;
+  this._elementNotifications = elementNotifications;
+  this._canvas = canvas;
+  this._processInstances = processInstances;
+
+  eventBus.on(CONSUME_TOKEN_EVENT, VERY_LOW_PRIORITY, function () {
+    // self.isDeadlock();
+  });
+}
+
+// TODO: refactor
+SimulationState.prototype.isDeadlock = function () {
+  var self = this;
+
+  var hasTokens = [];
+
+  this._elementRegistry.forEach(function (element) {
+    if (element.tokenCount) {
+      hasTokens.push(element);
+    }
+  });
+
+  var cannotContinue = [];
+  var hasTerminate = [];
+
+  hasTokens.forEach(function (element) {
+    var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
+      return is(outgoing, 'bpmn:SequenceFlow');
+    });
+
+    // has tokens but no outgoing sequence flows
+    if (!outgoingSequenceFlows.length) {
+      cannotContinue.push(element);
+    }
+
+    // parallel gateway after exclusive gateway
+    if (is(element, 'bpmn:ParallelGateway')) {
+      var incomingSequenceFlows = element.incoming.filter(function (incoming) {
+        return is(incoming, 'bpmn:SequenceFlow');
+      });
+
+      if (incomingSequenceFlows.length > element.tokenCount) {
+        cannotContinue.push(element);
+      }
+    }
+
+    var visited = [];
+
+    // has terminate event
+    function checkIfHasTerminate(element) {
+      element.outgoing.forEach(function (outgoing) {
+        if (visited.indexOf(outgoing.target) !== -1) {
+          return;
+        }
+
+        visited.push(outgoing.target);
+
+        var isTerminate = isTypedEvent(getBusinessObject(outgoing.target), 'bpmn:TerminateEventDefinition');
+
+        if (isTerminate) {
+          hasTerminate.push(element);
+        }
+
+        checkIfHasTerminate(outgoing.target);
+      });
+    }
+
+    checkIfHasTerminate(element);
+  });
+
+  if (hasTokens.length && !hasTerminate.length && cannotContinue.length && !this._animation.animations.length) {
+    self._log.log('Deadlock', 'warning', 'fa-exclamation-triangle');
+
+    cannotContinue.forEach(function (element) {
+      self._elementNotifications.addElementNotification(element, {
+        type: 'warning',
+        icon: 'fa-exclamation-triangle',
+        text: 'Deadlock'
+      });
+    });
+  }
+};
+
+/**
+ * Check if process instance finished.
+ * Element is necessary to display element notification if finished.
+ */
+SimulationState.prototype.isFinished = function (element, processInstanceId) {
+  var processInstance = this._processInstances.getProcessInstance(processInstanceId);
+  var parent = processInstance.parent;
+
+  var hasTokens = false;
+
+  if (!parent) {
+    parent = this._canvas.getRootElement();
+  }
+
+  parent.children.forEach(function (element) {
+    if (element.tokenCount && element.tokenCount[processInstanceId] && element.tokenCount[processInstanceId].length) {
+      hasTokens = true;
+    }
+  });
+
+  var hasAnimations = false;
+
+  this._animation.animations.forEach(function (animation) {
+    if (isAncestor(animation.element, parent) && animation.processInstanceId === processInstanceId) {
+      hasAnimations = true;
+    }
+  });
+
+  if (!hasTokens && !hasAnimations) {
+    if (is(parent, 'bpmn:SubProcess')) {
+      this._log.log('Subprocess ' + processInstanceId + ' finished', 'info', 'fa-check-circle');
+    } else {
+      this._log.log('Process ' + processInstanceId + ' finished', 'success', 'fa-check-circle');
+
+      this._elementNotifications.addElementNotification(element, {
+        type: 'success',
+        icon: 'fa-check-circle',
+        text: 'Finished'
+      });
+    }
+
+    return true;
+  }
+};
+
+SimulationState.$inject = ['eventBus', 'animation', 'elementRegistry', 'log', 'elementNotifications', 'canvas', 'processInstances'];
+
+module.exports = SimulationState;
 
 /***/ }),
 
@@ -625,7 +3127,7 @@ eval("\n\nvar elementHelper = __webpack_require__(/*! ../../util/ElementHelper *
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./SimulationState */ \"./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/SimulationState.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/index.js?");
+module.exports = __webpack_require__(/*! ./SimulationState */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/SimulationState.js");
 
 /***/ }),
 
@@ -637,7 +3139,79 @@ eval("module.exports = __webpack_require__(/*! ./SimulationState */ \"./node_mod
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\"),\n    domClasses = __webpack_require__(/*! min-dom/lib/classes */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js\"),\n    domEvent = __webpack_require__(/*! min-dom/lib/event */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js\"),\n    domQuery = __webpack_require__(/*! min-dom/lib/query */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js\");\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;\n\nfunction ToggleMode(eventBus, canvas, selection, contextPad) {\n  var self = this;\n\n  this._eventBus = eventBus;\n  this._canvas = canvas;\n  this._selection = selection;\n  this._contextPad = contextPad;\n\n  this.simulationModeActive = false;\n\n  eventBus.on('import.done', function () {\n    self.canvasParent = self._canvas.getContainer().parentNode;\n    self.palette = domQuery('.djs-palette', self._canvas.getContainer());\n\n    self._init();\n  });\n}\n\nToggleMode.prototype._init = function () {\n  this.container = domify(`\n    <div class=\"toggle-mode\">\n      Token Simulation <span class=\"toggle\"><i class=\"fa fa-toggle-off\"></i></span>\n    </div>\n  `);\n\n  domEvent.bind(this.container, 'click', this.toggleMode.bind(this));\n\n  this._canvas.getContainer().appendChild(this.container);\n};\n\nToggleMode.prototype.toggleMode = function () {\n  if (this.simulationModeActive) {\n    this.container.innerHTML = 'Token Simulation <span class=\"toggle\"><i class=\"fa fa-toggle-off\"></i></span>';\n\n    domClasses(this.canvasParent).remove('simulation');\n    domClasses(this.palette).remove('hidden');\n\n    this._eventBus.fire(TOGGLE_MODE_EVENT, {\n      simulationModeActive: false\n    });\n\n    var elements = this._selection.get();\n\n    if (elements.length === 1) {\n      this._contextPad.open(elements[0]);\n    }\n  } else {\n    this.container.innerHTML = 'Token Simulation <span class=\"toggle\"><i class=\"fa fa-toggle-on\"></i></span>';\n\n    domClasses(this.canvasParent).add('simulation');\n    domClasses(this.palette).add('hidden');\n\n    this._eventBus.fire(TOGGLE_MODE_EVENT, {\n      simulationModeActive: true\n    });\n  }\n\n  this.simulationModeActive = !this.simulationModeActive;\n};\n\nToggleMode.$inject = ['eventBus', 'canvas', 'selection', 'contextPad'];\n\nmodule.exports = ToggleMode;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/ToggleMode.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
+    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
+    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js"),
+    domQuery = __webpack_require__(/*! min-dom/lib/query */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js");
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
+
+function ToggleMode(eventBus, canvas, selection, contextPad) {
+  var self = this;
+
+  this._eventBus = eventBus;
+  this._canvas = canvas;
+  this._selection = selection;
+  this._contextPad = contextPad;
+
+  this.simulationModeActive = false;
+
+  eventBus.on('import.done', function () {
+    self.canvasParent = self._canvas.getContainer().parentNode;
+    self.palette = domQuery('.djs-palette', self._canvas.getContainer());
+
+    self._init();
+  });
+}
+
+ToggleMode.prototype._init = function () {
+  this.container = domify(`
+    <div class="toggle-mode">
+      Token Simulation <span class="toggle"><i class="fa fa-toggle-off"></i></span>
+    </div>
+  `);
+
+  domEvent.bind(this.container, 'click', this.toggleMode.bind(this));
+
+  this._canvas.getContainer().appendChild(this.container);
+};
+
+ToggleMode.prototype.toggleMode = function () {
+  if (this.simulationModeActive) {
+    this.container.innerHTML = 'Token Simulation <span class="toggle"><i class="fa fa-toggle-off"></i></span>';
+
+    domClasses(this.canvasParent).remove('simulation');
+    domClasses(this.palette).remove('hidden');
+
+    this._eventBus.fire(TOGGLE_MODE_EVENT, {
+      simulationModeActive: false
+    });
+
+    var elements = this._selection.get();
+
+    if (elements.length === 1) {
+      this._contextPad.open(elements[0]);
+    }
+  } else {
+    this.container.innerHTML = 'Token Simulation <span class="toggle"><i class="fa fa-toggle-on"></i></span>';
+
+    domClasses(this.canvasParent).add('simulation');
+    domClasses(this.palette).add('hidden');
+
+    this._eventBus.fire(TOGGLE_MODE_EVENT, {
+      simulationModeActive: true
+    });
+  }
+
+  this.simulationModeActive = !this.simulationModeActive;
+};
+
+ToggleMode.$inject = ['eventBus', 'canvas', 'selection', 'contextPad'];
+
+module.exports = ToggleMode;
 
 /***/ }),
 
@@ -648,7 +3222,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./ToggleMode.js */ \"./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/ToggleMode.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/index.js?");
+module.exports = __webpack_require__(/*! ./ToggleMode.js */ "./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/ToggleMode.js");
 
 /***/ }),
 
@@ -660,7 +3234,157 @@ eval("module.exports = __webpack_require__(/*! ./ToggleMode.js */ \"./node_modul
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js\");\n\nvar elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\"),\n    isAncestor = elementHelper.isAncestor;\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,\n    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,\n    TERMINATE_EVENT = events.TERMINATE_EVENT,\n    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT;\n\nvar OFFSET_BOTTOM = 10,\n    OFFSET_LEFT = -15;\n\nvar LOW_PRIORITY = 500;\n\nfunction TokenCount(eventBus, overlays, elementRegistry, canvas, processInstances) {\n  var self = this;\n\n  this._overlays = overlays;\n  this._elementRegistry = elementRegistry;\n  this._canvas = canvas;\n  this._processInstances = processInstances;\n\n  this.overlayIds = {};\n\n  eventBus.on(TOGGLE_MODE_EVENT, function (context) {\n    var simulationModeActive = context.simulationModeActive;\n\n    if (!simulationModeActive) {\n      self.removeTokenCounts();\n    }\n  });\n\n  eventBus.on(RESET_SIMULATION_EVENT, function () {\n    self.removeTokenCounts();\n  });\n\n  eventBus.on(TERMINATE_EVENT, function (context) {\n    var element = context.element,\n        parent = element.parent;\n\n    self.removeTokenCounts(parent);\n  });\n\n  eventBus.on([GENERATE_TOKEN_EVENT, CONSUME_TOKEN_EVENT], LOW_PRIORITY, function (context) {\n    var element = context.element,\n        parent = element.parent;\n\n    self.removeTokenCounts(parent);\n    self.addTokenCounts(parent);\n  });\n\n  eventBus.on(PROCESS_INSTANCE_SHOWN_EVENT, function (context) {\n    var processInstanceId = context.processInstanceId;\n\n    var processInstance = processInstances.getProcessInstance(processInstanceId),\n        parent = processInstance.parent;\n\n    self.removeTokenCounts(parent);\n    self.addTokenCounts(parent);\n  });\n}\n\nTokenCount.prototype.addTokenCounts = function (parent) {\n  var self = this;\n\n  if (!parent) {\n    parent = this._canvas.getRootElement();\n  }\n\n  var shownProcessInstance = parent.shownProcessInstance;\n\n  // choose default\n  if (!shownProcessInstance) {\n    var processInstancesWithParent = this._processInstances.getProcessInstances(parent);\n\n    // no instance\n    if (!processInstancesWithParent.length) {\n      return;\n    }\n\n    shownProcessInstance = processInstancesWithParent[0].processInstanceId;\n  }\n\n  this._elementRegistry.forEach(function (element) {\n    if (isAncestor(parent, element)) {\n      self.addTokenCount(element, shownProcessInstance);\n    }\n  });\n};\n\nTokenCount.prototype.addTokenCount = function (element, shownProcessInstance) {\n  var tokenCount = element.tokenCount && element.tokenCount[shownProcessInstance];\n\n  if (!tokenCount) {\n    return;\n  }\n\n  var html = this.createTokenCount(tokenCount);\n\n  var position = { bottom: OFFSET_BOTTOM, left: OFFSET_LEFT };\n\n  var overlayId = this._overlays.add(element, 'token-count', {\n    position: position,\n    html: html,\n    show: {\n      minZoom: 0.5\n    }\n  });\n\n  this.overlayIds[element.id] = overlayId;\n};\n\nTokenCount.prototype.createTokenCount = function (tokenCount) {\n  return domify('<div class=\"token-count waiting\">' + tokenCount + '</div>');\n};\n\nTokenCount.prototype.removeTokenCounts = function (parent) {\n  var self = this;\n\n  if (!parent) {\n    parent = this._canvas.getRootElement();\n  }\n\n  this._elementRegistry.forEach(function (element) {\n    if (isAncestor(parent, element)) {\n      self.removeTokenCount(element);\n    }\n  });\n};\n\nTokenCount.prototype.removeTokenCount = function (element) {\n  var overlayId = this.overlayIds[element.id];\n\n  if (!overlayId) {\n    return;\n  }\n\n  this._overlays.remove(overlayId);\n\n  delete this.overlayIds[element.id];\n};\n\nTokenCount.$inject = ['eventBus', 'overlays', 'elementRegistry', 'canvas', 'processInstances'];\n\nmodule.exports = TokenCount;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-count/TokenCount.js?");
+
+
+var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js");
+
+var elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
+    isAncestor = elementHelper.isAncestor;
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
+    TERMINATE_EVENT = events.TERMINATE_EVENT,
+    PROCESS_INSTANCE_SHOWN_EVENT = events.PROCESS_INSTANCE_SHOWN_EVENT;
+
+var OFFSET_BOTTOM = 10,
+    OFFSET_LEFT = -15;
+
+var LOW_PRIORITY = 500;
+
+function TokenCount(eventBus, overlays, elementRegistry, canvas, processInstances) {
+  var self = this;
+
+  this._overlays = overlays;
+  this._elementRegistry = elementRegistry;
+  this._canvas = canvas;
+  this._processInstances = processInstances;
+
+  this.overlayIds = {};
+
+  eventBus.on(TOGGLE_MODE_EVENT, function (context) {
+    var simulationModeActive = context.simulationModeActive;
+
+    if (!simulationModeActive) {
+      self.removeTokenCounts();
+    }
+  });
+
+  eventBus.on(RESET_SIMULATION_EVENT, function () {
+    self.removeTokenCounts();
+  });
+
+  eventBus.on(TERMINATE_EVENT, function (context) {
+    var element = context.element,
+        parent = element.parent;
+
+    self.removeTokenCounts(parent);
+  });
+
+  eventBus.on([GENERATE_TOKEN_EVENT, CONSUME_TOKEN_EVENT], LOW_PRIORITY, function (context) {
+    var element = context.element,
+        parent = element.parent;
+
+    self.removeTokenCounts(parent);
+    self.addTokenCounts(parent);
+  });
+
+  eventBus.on(PROCESS_INSTANCE_SHOWN_EVENT, function (context) {
+    var processInstanceId = context.processInstanceId;
+
+    var processInstance = processInstances.getProcessInstance(processInstanceId),
+        parent = processInstance.parent;
+
+    self.removeTokenCounts(parent);
+    self.addTokenCounts(parent);
+  });
+}
+
+TokenCount.prototype.addTokenCounts = function (parent) {
+  var self = this;
+
+  if (!parent) {
+    parent = this._canvas.getRootElement();
+  }
+
+  var shownProcessInstance = parent.shownProcessInstance;
+
+  // choose default
+  if (!shownProcessInstance) {
+    var processInstancesWithParent = this._processInstances.getProcessInstances(parent);
+
+    // no instance
+    if (!processInstancesWithParent.length) {
+      return;
+    }
+
+    shownProcessInstance = processInstancesWithParent[0].processInstanceId;
+  }
+
+  this._elementRegistry.forEach(function (element) {
+    if (isAncestor(parent, element)) {
+      self.addTokenCount(element, shownProcessInstance);
+    }
+  });
+};
+
+TokenCount.prototype.addTokenCount = function (element, shownProcessInstance) {
+  var tokenCount = element.tokenCount && element.tokenCount[shownProcessInstance];
+
+  if (!tokenCount) {
+    return;
+  }
+
+  var html = this.createTokenCount(tokenCount);
+
+  var position = { bottom: OFFSET_BOTTOM, left: OFFSET_LEFT };
+
+  var overlayId = this._overlays.add(element, 'token-count', {
+    position: position,
+    html: html,
+    show: {
+      minZoom: 0.5
+    }
+  });
+
+  this.overlayIds[element.id] = overlayId;
+};
+
+TokenCount.prototype.createTokenCount = function (tokenCount) {
+  return domify('<div class="token-count waiting">' + tokenCount + '</div>');
+};
+
+TokenCount.prototype.removeTokenCounts = function (parent) {
+  var self = this;
+
+  if (!parent) {
+    parent = this._canvas.getRootElement();
+  }
+
+  this._elementRegistry.forEach(function (element) {
+    if (isAncestor(parent, element)) {
+      self.removeTokenCount(element);
+    }
+  });
+};
+
+TokenCount.prototype.removeTokenCount = function (element) {
+  var overlayId = this.overlayIds[element.id];
+
+  if (!overlayId) {
+    return;
+  }
+
+  this._overlays.remove(overlayId);
+
+  delete this.overlayIds[element.id];
+};
+
+TokenCount.$inject = ['eventBus', 'overlays', 'elementRegistry', 'canvas', 'processInstances'];
+
+module.exports = TokenCount;
 
 /***/ }),
 
@@ -671,7 +3395,7 @@ eval("\n\nvar domify = __webpack_require__(/*! min-dom/lib/domify */ \"./node_mo
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./TokenCount */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-count/TokenCount.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-count/index.js?");
+module.exports = __webpack_require__(/*! ./TokenCount */ "./node_modules/bpmn-js-token-simulation/lib/features/token-count/TokenCount.js");
 
 /***/ }),
 
@@ -683,7 +3407,81 @@ eval("module.exports = __webpack_require__(/*! ./TokenCount */ \"./node_modules/
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar EndEventHandler = __webpack_require__(/*! ./handler/EndEventHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/EndEventHandler.js\"),\n    EventBasedGatewayHandler = __webpack_require__(/*! ./handler/EventBasedGatewayHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/EventBasedGatewayHandler.js\"),\n    ExclusiveGatewayHandler = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/ExclusiveGatewayHandler.js\"),\n    IntermediateCatchEventHandler = __webpack_require__(/*! ./handler/IntermediateCatchEventHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/IntermediateCatchEventHandler.js\"),\n    IntermediateThrowEventHandler = __webpack_require__(/*! ./handler/IntermediateThrowEventHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/IntermediateThrowEventHandler.js\"),\n    ParallelGatewayHandler = __webpack_require__(/*! ./handler/ParallelGatewayHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/ParallelGatewayHandler.js\"),\n    StartEventHandler = __webpack_require__(/*! ./handler/StartEventHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/StartEventHandler.js\"),\n    SubProcessHandler = __webpack_require__(/*! ./handler/SubProcessHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/SubProcessHandler.js\"),\n    BoundaryEventHandler = __webpack_require__(/*! ./handler/BoundaryEventHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/BoundaryEventHandler.js\"),\n    TaskHandler = __webpack_require__(/*! ./handler/TaskHandler */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/TaskHandler.js\");\n\nvar events = __webpack_require__(/*! ../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT;\n\nfunction TokenSimulationBehavior(eventBus, animation, injector) {\n  var self = this;\n\n  this._injector = injector;\n\n  this.handlers = {};\n\n  this.registerHandler('bpmn:EndEvent', EndEventHandler);\n  this.registerHandler('bpmn:EventBasedGateway', EventBasedGatewayHandler);\n  this.registerHandler('bpmn:ExclusiveGateway', ExclusiveGatewayHandler);\n  this.registerHandler('bpmn:IntermediateCatchEvent', IntermediateCatchEventHandler);\n  this.registerHandler('bpmn:IntermediateThrowEvent', IntermediateThrowEventHandler);\n  this.registerHandler('bpmn:ParallelGateway', ParallelGatewayHandler);\n  this.registerHandler('bpmn:StartEvent', StartEventHandler);\n  this.registerHandler('bpmn:SubProcess', SubProcessHandler);\n  this.registerHandler('bpmn:BoundaryEvent', BoundaryEventHandler);\n  this.registerHandler(['bpmn:BusinessRuleTask', 'bpmn:Task', 'bpmn:ManualTask', 'bpmn:ScriptTask', 'bpmn:ServiceTask', 'bpmn:UserTask'], TaskHandler);\n\n  // create animations on generate token\n  eventBus.on(GENERATE_TOKEN_EVENT, function (context) {\n    var element = context.element;\n\n    if (!self.handlers[element.type]) {\n      throw new Error('no handler for type ' + element.type);\n    }\n\n    self.handlers[element.type].generate(context);\n  });\n\n  // call handler on consume token\n  eventBus.on(CONSUME_TOKEN_EVENT, function (context) {\n    var element = context.element;\n\n    if (!self.handlers[element.type]) {\n      throw new Error('no handler for type ' + element.type);\n    }\n\n    self.handlers[element.type].consume(context);\n  });\n}\n\nTokenSimulationBehavior.prototype.registerHandler = function (types, handlerCls) {\n  var self = this;\n\n  var handler = this._injector.instantiate(handlerCls);\n\n  if (!Array.isArray(types)) {\n    types = [types];\n  }\n\n  types.forEach(function (type) {\n    self.handlers[type] = handler;\n  });\n};\n\nTokenSimulationBehavior.$inject = ['eventBus', 'animation', 'injector'];\n\nmodule.exports = TokenSimulationBehavior;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/TokenSimulationBehavior.js?");
+
+
+var EndEventHandler = __webpack_require__(/*! ./handler/EndEventHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/EndEventHandler.js"),
+    EventBasedGatewayHandler = __webpack_require__(/*! ./handler/EventBasedGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/EventBasedGatewayHandler.js"),
+    ExclusiveGatewayHandler = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/ExclusiveGatewayHandler.js"),
+    IntermediateCatchEventHandler = __webpack_require__(/*! ./handler/IntermediateCatchEventHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/IntermediateCatchEventHandler.js"),
+    IntermediateThrowEventHandler = __webpack_require__(/*! ./handler/IntermediateThrowEventHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/IntermediateThrowEventHandler.js"),
+    ParallelGatewayHandler = __webpack_require__(/*! ./handler/ParallelGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/ParallelGatewayHandler.js"),
+    StartEventHandler = __webpack_require__(/*! ./handler/StartEventHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/StartEventHandler.js"),
+    SubProcessHandler = __webpack_require__(/*! ./handler/SubProcessHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/SubProcessHandler.js"),
+    BoundaryEventHandler = __webpack_require__(/*! ./handler/BoundaryEventHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/BoundaryEventHandler.js"),
+    TaskHandler = __webpack_require__(/*! ./handler/TaskHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/TaskHandler.js");
+
+var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT;
+
+function TokenSimulationBehavior(eventBus, animation, injector) {
+  var self = this;
+
+  this._injector = injector;
+
+  this.handlers = {};
+
+  this.registerHandler('bpmn:EndEvent', EndEventHandler);
+  this.registerHandler('bpmn:EventBasedGateway', EventBasedGatewayHandler);
+  this.registerHandler('bpmn:ExclusiveGateway', ExclusiveGatewayHandler);
+  this.registerHandler('bpmn:IntermediateCatchEvent', IntermediateCatchEventHandler);
+  this.registerHandler('bpmn:IntermediateThrowEvent', IntermediateThrowEventHandler);
+  this.registerHandler('bpmn:ParallelGateway', ParallelGatewayHandler);
+  this.registerHandler('bpmn:StartEvent', StartEventHandler);
+  this.registerHandler('bpmn:SubProcess', SubProcessHandler);
+  this.registerHandler('bpmn:BoundaryEvent', BoundaryEventHandler);
+  this.registerHandler(['bpmn:BusinessRuleTask', 'bpmn:Task', 'bpmn:ManualTask', 'bpmn:ScriptTask', 'bpmn:ServiceTask', 'bpmn:UserTask'], TaskHandler);
+
+  // create animations on generate token
+  eventBus.on(GENERATE_TOKEN_EVENT, function (context) {
+    var element = context.element;
+
+    if (!self.handlers[element.type]) {
+      throw new Error('no handler for type ' + element.type);
+    }
+
+    self.handlers[element.type].generate(context);
+  });
+
+  // call handler on consume token
+  eventBus.on(CONSUME_TOKEN_EVENT, function (context) {
+    var element = context.element;
+
+    if (!self.handlers[element.type]) {
+      throw new Error('no handler for type ' + element.type);
+    }
+
+    self.handlers[element.type].consume(context);
+  });
+}
+
+TokenSimulationBehavior.prototype.registerHandler = function (types, handlerCls) {
+  var self = this;
+
+  var handler = this._injector.instantiate(handlerCls);
+
+  if (!Array.isArray(types)) {
+    types = [types];
+  }
+
+  types.forEach(function (type) {
+    self.handlers[type] = handler;
+  });
+};
+
+TokenSimulationBehavior.$inject = ['eventBus', 'animation', 'injector'];
+
+module.exports = TokenSimulationBehavior;
 
 /***/ }),
 
@@ -695,7 +3493,63 @@ eval("\n\nvar EndEventHandler = __webpack_require__(/*! ./handler/EndEventHandle
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar elementHelper = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\"),\n    is = elementHelper.is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,\n    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT;\n\nfunction BoundaryEventHandler(animation, eventBus, elementRegistry) {\n  this._animation = animation;\n  this._eventBus = eventBus;\n  this._elementRegistry = elementRegistry;\n}\n\nBoundaryEventHandler.prototype.consume = function (context) {\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  if (!element.tokenCount) {\n    element.tokenCount = {};\n  }\n\n  if (!element.tokenCount[processInstanceId]) {\n    element.tokenCount[processInstanceId] = 0;\n  }\n\n  element.tokenCount[processInstanceId]++;\n\n  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {\n    element: element\n  });\n};\n\nBoundaryEventHandler.prototype.generate = function (context) {\n  var self = this;\n\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {\n    return is(outgoing, 'bpmn:SequenceFlow');\n  });\n\n  outgoingSequenceFlows.forEach(function (connection) {\n    self._animation.createAnimation(connection, processInstanceId, function () {\n      self._eventBus.fire(CONSUME_TOKEN_EVENT, {\n        element: connection.target,\n        processInstanceId: processInstanceId\n      });\n    });\n  });\n};\n\nBoundaryEventHandler.$inject = ['animation', 'eventBus', 'elementRegistry'];\n\nmodule.exports = BoundaryEventHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/BoundaryEventHandler.js?");
+
+
+var elementHelper = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
+    is = elementHelper.is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT;
+
+function BoundaryEventHandler(animation, eventBus, elementRegistry) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+  this._elementRegistry = elementRegistry;
+}
+
+BoundaryEventHandler.prototype.consume = function (context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  if (!element.tokenCount) {
+    element.tokenCount = {};
+  }
+
+  if (!element.tokenCount[processInstanceId]) {
+    element.tokenCount[processInstanceId] = 0;
+  }
+
+  element.tokenCount[processInstanceId]++;
+
+  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {
+    element: element
+  });
+};
+
+BoundaryEventHandler.prototype.generate = function (context) {
+  var self = this;
+
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  outgoingSequenceFlows.forEach(function (connection) {
+    self._animation.createAnimation(connection, processInstanceId, function () {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: connection.target,
+        processInstanceId: processInstanceId
+      });
+    });
+  });
+};
+
+BoundaryEventHandler.$inject = ['animation', 'eventBus', 'elementRegistry'];
+
+module.exports = BoundaryEventHandler;
 
 /***/ }),
 
@@ -707,7 +3561,80 @@ eval("\n\nvar elementHelper = __webpack_require__(/*! ../../../util/ElementHelpe
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar elementHelper = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\"),\n    getBusinessObject = elementHelper.getBusinessObject,\n    is = elementHelper.is,\n    isAncestor = elementHelper.isAncestor,\n    getDescendants = elementHelper.getDescendants,\n    isTypedEvent = elementHelper.isTypedEvent;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,\n    TERMINATE_EVENT = events.TERMINATE_EVENT,\n    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;\n\nfunction EndEventHandler(animation, eventBus, log, simulationState, elementRegistry, processInstances) {\n  this._animation = animation;\n  this._eventBus = eventBus;\n  this._log = log;\n  this._simulationState = simulationState;\n  this._elementRegistry = elementRegistry;\n  this._processInstances = processInstances;\n}\n\nEndEventHandler.prototype.consume = function (context) {\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  var isTerminate = isTypedEvent(getBusinessObject(element), 'bpmn:TerminateEventDefinition'),\n      isSubProcessChild = is(element.parent, 'bpmn:SubProcess');\n\n  if (isTerminate) {\n    this._eventBus.fire(TERMINATE_EVENT, context);\n\n    this._elementRegistry.forEach(function (e) {\n      if (isAncestor(element.parent, e) && e.tokenCount && e.tokenCount[processInstanceId]) {\n        delete e.tokenCount[processInstanceId];\n      }\n    });\n\n    // finish but do NOT remove\n    this._processInstances.finish(processInstanceId);\n  }\n\n  var isFinished = this._simulationState.isFinished(element, processInstanceId);\n\n  if (isFinished) {\n\n    // finish but do NOT remove\n    this._processInstances.finish(processInstanceId);\n  }\n\n  if ((isFinished || isTerminate) && isSubProcessChild) {\n    var processInstance = this._processInstances.getProcessInstance(processInstanceId);\n\n    // generate token on parent\n    this._eventBus.fire(GENERATE_TOKEN_EVENT, {\n      element: element.parent,\n      processInstanceId: processInstance.parentProcessInstanceId\n    });\n  }\n\n  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {\n    elements: getDescendants(this._elementRegistry.getAll(), element.parent)\n  });\n};\n\n/**\r\n * End event never generates.\r\n */\nEndEventHandler.prototype.generate = function (context) {};\n\nEndEventHandler.$inject = ['animation', 'eventBus', 'log', 'simulationState', 'elementRegistry', 'processInstances'];\n\nmodule.exports = EndEventHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/EndEventHandler.js?");
+
+
+var elementHelper = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
+    getBusinessObject = elementHelper.getBusinessObject,
+    is = elementHelper.is,
+    isAncestor = elementHelper.isAncestor,
+    getDescendants = elementHelper.getDescendants,
+    isTypedEvent = elementHelper.isTypedEvent;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    TERMINATE_EVENT = events.TERMINATE_EVENT,
+    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;
+
+function EndEventHandler(animation, eventBus, log, simulationState, elementRegistry, processInstances) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+  this._log = log;
+  this._simulationState = simulationState;
+  this._elementRegistry = elementRegistry;
+  this._processInstances = processInstances;
+}
+
+EndEventHandler.prototype.consume = function (context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  var isTerminate = isTypedEvent(getBusinessObject(element), 'bpmn:TerminateEventDefinition'),
+      isSubProcessChild = is(element.parent, 'bpmn:SubProcess');
+
+  if (isTerminate) {
+    this._eventBus.fire(TERMINATE_EVENT, context);
+
+    this._elementRegistry.forEach(function (e) {
+      if (isAncestor(element.parent, e) && e.tokenCount && e.tokenCount[processInstanceId]) {
+        delete e.tokenCount[processInstanceId];
+      }
+    });
+
+    // finish but do NOT remove
+    this._processInstances.finish(processInstanceId);
+  }
+
+  var isFinished = this._simulationState.isFinished(element, processInstanceId);
+
+  if (isFinished) {
+
+    // finish but do NOT remove
+    this._processInstances.finish(processInstanceId);
+  }
+
+  if ((isFinished || isTerminate) && isSubProcessChild) {
+    var processInstance = this._processInstances.getProcessInstance(processInstanceId);
+
+    // generate token on parent
+    this._eventBus.fire(GENERATE_TOKEN_EVENT, {
+      element: element.parent,
+      processInstanceId: processInstance.parentProcessInstanceId
+    });
+  }
+
+  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {
+    elements: getDescendants(this._elementRegistry.getAll(), element.parent)
+  });
+};
+
+/**
+ * End event never generates.
+ */
+EndEventHandler.prototype.generate = function (context) {};
+
+EndEventHandler.$inject = ['animation', 'eventBus', 'log', 'simulationState', 'elementRegistry', 'processInstances'];
+
+module.exports = EndEventHandler;
 
 /***/ }),
 
@@ -719,7 +3646,53 @@ eval("\n\nvar elementHelper = __webpack_require__(/*! ../../../util/ElementHelpe
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;\n\nfunction ExclusiveGatewayHandler(eventBus, animation) {\n  this._eventBus = eventBus;\n  this._animation = animation;\n}\n\nExclusiveGatewayHandler.prototype.consume = function (context) {\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  if (!element.tokenCount) {\n    element.tokenCount = {};\n  }\n\n  if (!element.tokenCount[processInstanceId]) {\n    element.tokenCount[processInstanceId] = 0;\n  }\n\n  element.tokenCount[processInstanceId]++;\n\n  var outgoing = element.outgoing,\n      events = [];\n\n  outgoing.forEach(function (outgoing) {\n    var target = outgoing.target;\n\n    if (is(target, 'bpmn:IntermediateCatchEvent')) {\n      events.push(target);\n    }\n  });\n\n  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {\n    elements: events\n  });\n};\n\nExclusiveGatewayHandler.prototype.generate = function () {};\n\nExclusiveGatewayHandler.$inject = ['eventBus', 'animation'];\n\nmodule.exports = ExclusiveGatewayHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/EventBasedGatewayHandler.js?");
+
+
+var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;
+
+function ExclusiveGatewayHandler(eventBus, animation) {
+  this._eventBus = eventBus;
+  this._animation = animation;
+}
+
+ExclusiveGatewayHandler.prototype.consume = function (context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  if (!element.tokenCount) {
+    element.tokenCount = {};
+  }
+
+  if (!element.tokenCount[processInstanceId]) {
+    element.tokenCount[processInstanceId] = 0;
+  }
+
+  element.tokenCount[processInstanceId]++;
+
+  var outgoing = element.outgoing,
+      events = [];
+
+  outgoing.forEach(function (outgoing) {
+    var target = outgoing.target;
+
+    if (is(target, 'bpmn:IntermediateCatchEvent')) {
+      events.push(target);
+    }
+  });
+
+  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {
+    elements: events
+  });
+};
+
+ExclusiveGatewayHandler.prototype.generate = function () {};
+
+ExclusiveGatewayHandler.$inject = ['eventBus', 'animation'];
+
+module.exports = ExclusiveGatewayHandler;
 
 /***/ }),
 
@@ -731,7 +3704,53 @@ eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./no
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;\n\nfunction ExclusiveGatewayHandler(eventBus, animation, elementRegistry) {\n  this._eventBus = eventBus;\n  this._animation = animation;\n  this._elementRegistry = elementRegistry;\n}\n\nExclusiveGatewayHandler.prototype.consume = function (context) {\n  var element = context.element;\n\n  if (!element.sequenceFlow) {\n    throw new Error('no sequence flow configured for element ' + element.id);\n  }\n\n  this._eventBus.fire(GENERATE_TOKEN_EVENT, context);\n};\n\nExclusiveGatewayHandler.prototype.generate = function (context) {\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  if (!element.sequenceFlow) {\n    throw new Error('no sequence flow configured for element ' + element.id);\n  }\n\n  var self = this;\n\n  // property could be changed during animation\n  // therefore element.sequenceFlow can't be used\n  var sequenceFlow = this._elementRegistry.get(element.sequenceFlow.id);\n\n  this._animation.createAnimation(sequenceFlow, processInstanceId, function () {\n    self._eventBus.fire(CONSUME_TOKEN_EVENT, {\n      element: sequenceFlow.target,\n      processInstanceId: processInstanceId\n    });\n  });\n};\n\nExclusiveGatewayHandler.$inject = ['eventBus', 'animation', 'elementRegistry'];\n\nmodule.exports = ExclusiveGatewayHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/ExclusiveGatewayHandler.js?");
+
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function ExclusiveGatewayHandler(eventBus, animation, elementRegistry) {
+  this._eventBus = eventBus;
+  this._animation = animation;
+  this._elementRegistry = elementRegistry;
+}
+
+ExclusiveGatewayHandler.prototype.consume = function (context) {
+  var element = context.element;
+
+  if (!element.sequenceFlow) {
+    throw new Error('no sequence flow configured for element ' + element.id);
+  }
+
+  this._eventBus.fire(GENERATE_TOKEN_EVENT, context);
+};
+
+ExclusiveGatewayHandler.prototype.generate = function (context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  if (!element.sequenceFlow) {
+    throw new Error('no sequence flow configured for element ' + element.id);
+  }
+
+  var self = this;
+
+  // property could be changed during animation
+  // therefore element.sequenceFlow can't be used
+  var sequenceFlow = this._elementRegistry.get(element.sequenceFlow.id);
+
+  this._animation.createAnimation(sequenceFlow, processInstanceId, function () {
+    self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+      element: sequenceFlow.target,
+      processInstanceId: processInstanceId
+    });
+  });
+};
+
+ExclusiveGatewayHandler.$inject = ['eventBus', 'animation', 'elementRegistry'];
+
+module.exports = ExclusiveGatewayHandler;
 
 /***/ }),
 
@@ -743,7 +3762,74 @@ eval("\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar elementHelper = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\"),\n    is = elementHelper.is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,\n    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT,\n    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;\n\nfunction IntermediateCatchEventHandler(animation, eventBus, elementRegistry) {\n  this._animation = animation;\n  this._eventBus = eventBus;\n  this._elementRegistry = elementRegistry;\n}\n\nIntermediateCatchEventHandler.prototype.consume = function (context) {\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  if (!element.tokenCount) {\n    element.tokenCount = {};\n  }\n\n  if (!element.tokenCount[processInstanceId]) {\n    element.tokenCount[processInstanceId] = 0;\n  }\n\n  element.tokenCount[processInstanceId]++;\n\n  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {\n    element: element\n  });\n};\n\nIntermediateCatchEventHandler.prototype.generate = function (context) {\n  var self = this;\n\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {\n    return is(outgoing, 'bpmn:SequenceFlow');\n  });\n\n  outgoingSequenceFlows.forEach(function (connection) {\n    self._animation.createAnimation(connection, processInstanceId, function () {\n      self._eventBus.fire(CONSUME_TOKEN_EVENT, {\n        element: connection.target,\n        processInstanceId: processInstanceId\n      });\n    });\n  });\n\n  var parent = element.parent;\n\n  var events = this._elementRegistry.filter(function (element) {\n    return is(element, 'bpmn:IntermediateCatchEvent') && element.parent === parent;\n  });\n\n  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {\n    elements: events\n  });\n};\n\nIntermediateCatchEventHandler.$inject = ['animation', 'eventBus', 'elementRegistry'];\n\nmodule.exports = IntermediateCatchEventHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/IntermediateCatchEventHandler.js?");
+
+
+var elementHelper = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
+    is = elementHelper.is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT,
+    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;
+
+function IntermediateCatchEventHandler(animation, eventBus, elementRegistry) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+  this._elementRegistry = elementRegistry;
+}
+
+IntermediateCatchEventHandler.prototype.consume = function (context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  if (!element.tokenCount) {
+    element.tokenCount = {};
+  }
+
+  if (!element.tokenCount[processInstanceId]) {
+    element.tokenCount[processInstanceId] = 0;
+  }
+
+  element.tokenCount[processInstanceId]++;
+
+  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {
+    element: element
+  });
+};
+
+IntermediateCatchEventHandler.prototype.generate = function (context) {
+  var self = this;
+
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  outgoingSequenceFlows.forEach(function (connection) {
+    self._animation.createAnimation(connection, processInstanceId, function () {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: connection.target,
+        processInstanceId: processInstanceId
+      });
+    });
+  });
+
+  var parent = element.parent;
+
+  var events = this._elementRegistry.filter(function (element) {
+    return is(element, 'bpmn:IntermediateCatchEvent') && element.parent === parent;
+  });
+
+  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {
+    elements: events
+  });
+};
+
+IntermediateCatchEventHandler.$inject = ['animation', 'eventBus', 'elementRegistry'];
+
+module.exports = IntermediateCatchEventHandler;
 
 /***/ }),
 
@@ -755,7 +3841,44 @@ eval("\n\nvar elementHelper = __webpack_require__(/*! ../../../util/ElementHelpe
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;\n\nfunction IntermediateThrowEventHandler(animation, eventBus) {\n  this._animation = animation;\n  this._eventBus = eventBus;\n}\n\nIntermediateThrowEventHandler.prototype.consume = function (element) {\n  this._eventBus.fire(GENERATE_TOKEN_EVENT, {\n    element: element\n  });\n};\n\nIntermediateThrowEventHandler.prototype.generate = function (element) {\n  var self = this;\n\n  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {\n    return is(outgoing, 'bpmn:SequenceFlow');\n  });\n\n  outgoingSequenceFlows.forEach(function (connection) {\n    self._animation.createAnimation(connection, function () {\n      self._eventBus.fire(CONSUME_TOKEN_EVENT, {\n        element: connection.target\n      });\n    });\n  });\n};\n\nIntermediateThrowEventHandler.$inject = ['animation', 'eventBus'];\n\nmodule.exports = IntermediateThrowEventHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/IntermediateThrowEventHandler.js?");
+
+
+var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function IntermediateThrowEventHandler(animation, eventBus) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+}
+
+IntermediateThrowEventHandler.prototype.consume = function (element) {
+  this._eventBus.fire(GENERATE_TOKEN_EVENT, {
+    element: element
+  });
+};
+
+IntermediateThrowEventHandler.prototype.generate = function (element) {
+  var self = this;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  outgoingSequenceFlows.forEach(function (connection) {
+    self._animation.createAnimation(connection, function () {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: connection.target
+      });
+    });
+  });
+};
+
+IntermediateThrowEventHandler.$inject = ['animation', 'eventBus'];
+
+module.exports = IntermediateThrowEventHandler;
 
 /***/ }),
 
@@ -767,7 +3890,65 @@ eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./no
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;\n\nfunction ParallelGatewayHandler(animation, eventBus) {\n  this._animation = animation;\n  this._eventBus = eventBus;\n}\n\nParallelGatewayHandler.prototype.consume = function (context) {\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  if (!element.tokenCount) {\n    element.tokenCount = {};\n  }\n\n  if (!element.tokenCount[processInstanceId]) {\n    element.tokenCount[processInstanceId] = 0;\n  }\n\n  element.tokenCount[processInstanceId]++;\n\n  var incoming = element.incoming;\n\n  if (incoming.length === element.tokenCount[processInstanceId]) {\n    this._eventBus.fire(GENERATE_TOKEN_EVENT, context);\n\n    element.tokenCount[processInstanceId] = 0;\n  }\n};\n\nParallelGatewayHandler.prototype.generate = function (context) {\n  var self = this;\n\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {\n    return is(outgoing, 'bpmn:SequenceFlow');\n  });\n\n  outgoingSequenceFlows.forEach(function (outgoing) {\n    self._animation.createAnimation(outgoing, processInstanceId, function () {\n      self._eventBus.fire(CONSUME_TOKEN_EVENT, {\n        element: outgoing.target,\n        processInstanceId: processInstanceId\n      });\n    });\n  });\n};\n\nParallelGatewayHandler.$inject = ['animation', 'eventBus'];\n\nmodule.exports = ParallelGatewayHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/ParallelGatewayHandler.js?");
+
+
+var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function ParallelGatewayHandler(animation, eventBus) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+}
+
+ParallelGatewayHandler.prototype.consume = function (context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  if (!element.tokenCount) {
+    element.tokenCount = {};
+  }
+
+  if (!element.tokenCount[processInstanceId]) {
+    element.tokenCount[processInstanceId] = 0;
+  }
+
+  element.tokenCount[processInstanceId]++;
+
+  var incoming = element.incoming;
+
+  if (incoming.length === element.tokenCount[processInstanceId]) {
+    this._eventBus.fire(GENERATE_TOKEN_EVENT, context);
+
+    element.tokenCount[processInstanceId] = 0;
+  }
+};
+
+ParallelGatewayHandler.prototype.generate = function (context) {
+  var self = this;
+
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  outgoingSequenceFlows.forEach(function (outgoing) {
+    self._animation.createAnimation(outgoing, processInstanceId, function () {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: outgoing.target,
+        processInstanceId: processInstanceId
+      });
+    });
+  });
+};
+
+ParallelGatewayHandler.$inject = ['animation', 'eventBus'];
+
+module.exports = ParallelGatewayHandler;
 
 /***/ }),
 
@@ -779,7 +3960,75 @@ eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./no
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,\n    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;\n\nfunction StartEventHandler(animation, eventBus, elementRegistry, processInstances) {\n  this._animation = animation;\n  this._eventBus = eventBus;\n  this._elementRegistry = elementRegistry;\n  this._processInstances = processInstances;\n}\n\n/**\r\n * Start event has no incoming sequence flows.\r\n * Therefore it can never consume.\r\n */\nStartEventHandler.prototype.consume = function () {};\n\n/**\r\n * Generate tokens for start event that was either\r\n * invoked by user or a parent process.\r\n *\r\n * @param {Object} context - The context.\r\n * @param {Object} context.element - The element.\r\n * @param {string} [context.parentProcessInstanceId] - Optional ID of parent process when invoked by parent process.\r\n *\r\n */\nStartEventHandler.prototype.generate = function (context) {\n  var self = this;\n\n  var element = context.element,\n      parentProcessInstanceId = context.parentProcessInstanceId;\n\n  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {\n    return is(outgoing, 'bpmn:SequenceFlow');\n  });\n\n  // create new process instance\n  var parent = element.parent,\n      processInstanceId = this._processInstances.create(parent, parentProcessInstanceId);\n\n  outgoingSequenceFlows.forEach(function (connection) {\n    self._animation.createAnimation(connection, processInstanceId, function () {\n      self._eventBus.fire(CONSUME_TOKEN_EVENT, {\n        element: connection.target,\n        processInstanceId: processInstanceId\n      });\n    });\n  });\n\n  if (is(element.parent, 'bpmn:SubProcess')) {\n    return;\n  }\n\n  var startEvents = this._elementRegistry.filter(function (element) {\n    return is(element, 'bpmn:StartEvent');\n  });\n\n  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {\n    elements: startEvents\n  });\n};\n\nStartEventHandler.$inject = ['animation', 'eventBus', 'elementRegistry', 'processInstances'];\n\nmodule.exports = StartEventHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/StartEventHandler.js?");
+
+
+var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    UPDATE_ELEMENTS_EVENT = events.UPDATE_ELEMENTS_EVENT;
+
+function StartEventHandler(animation, eventBus, elementRegistry, processInstances) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+  this._elementRegistry = elementRegistry;
+  this._processInstances = processInstances;
+}
+
+/**
+ * Start event has no incoming sequence flows.
+ * Therefore it can never consume.
+ */
+StartEventHandler.prototype.consume = function () {};
+
+/**
+ * Generate tokens for start event that was either
+ * invoked by user or a parent process.
+ *
+ * @param {Object} context - The context.
+ * @param {Object} context.element - The element.
+ * @param {string} [context.parentProcessInstanceId] - Optional ID of parent process when invoked by parent process.
+ *
+ */
+StartEventHandler.prototype.generate = function (context) {
+  var self = this;
+
+  var element = context.element,
+      parentProcessInstanceId = context.parentProcessInstanceId;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  // create new process instance
+  var parent = element.parent,
+      processInstanceId = this._processInstances.create(parent, parentProcessInstanceId);
+
+  outgoingSequenceFlows.forEach(function (connection) {
+    self._animation.createAnimation(connection, processInstanceId, function () {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: connection.target,
+        processInstanceId: processInstanceId
+      });
+    });
+  });
+
+  if (is(element.parent, 'bpmn:SubProcess')) {
+    return;
+  }
+
+  var startEvents = this._elementRegistry.filter(function (element) {
+    return is(element, 'bpmn:StartEvent');
+  });
+
+  this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {
+    elements: startEvents
+  });
+};
+
+StartEventHandler.$inject = ['animation', 'eventBus', 'elementRegistry', 'processInstances'];
+
+module.exports = StartEventHandler;
 
 /***/ }),
 
@@ -791,7 +4040,76 @@ eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./no
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,\n    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT;\n\nfunction SubProcessHandler(animation, eventBus, log) {\n  this._animation = animation;\n  this._eventBus = eventBus;\n  this._log = log;\n}\n\nSubProcessHandler.prototype.consume = function (context) {\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  var startEvent = element.children.filter(function (child) {\n    return is(child, 'bpmn:StartEvent');\n  })[0];\n\n  if (!startEvent) {\n    this._log.log('Skipping Subprocess', 'info', 'fa-angle-double-right');\n\n    // skip subprocess\n    this._eventBus.fire(GENERATE_TOKEN_EVENT, context);\n  } else {\n    this._log.log('Starting Subprocess', 'info', 'fa-sign-in');\n\n    // start subprocess with process instance ID as parent process instance ID\n    this._eventBus.fire(GENERATE_TOKEN_EVENT, {\n      element: startEvent,\n      parentProcessInstanceId: processInstanceId\n    });\n  }\n\n  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {\n    element: element\n  });\n};\n\nSubProcessHandler.prototype.generate = function (context) {\n  var self = this;\n\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {\n    return is(outgoing, 'bpmn:SequenceFlow');\n  });\n\n  outgoingSequenceFlows.forEach(function (outgoing) {\n    self._animation.createAnimation(outgoing, processInstanceId, function () {\n      self._eventBus.fire(CONSUME_TOKEN_EVENT, {\n        element: outgoing.target,\n        processInstanceId: processInstanceId\n      });\n    });\n  });\n\n  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {\n    element: element\n  });\n};\n\nSubProcessHandler.$inject = ['animation', 'eventBus', 'log'];\n\nmodule.exports = SubProcessHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/SubProcessHandler.js?");
+
+
+var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT,
+    UPDATE_ELEMENT_EVENT = events.UPDATE_ELEMENT_EVENT;
+
+function SubProcessHandler(animation, eventBus, log) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+  this._log = log;
+}
+
+SubProcessHandler.prototype.consume = function (context) {
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  var startEvent = element.children.filter(function (child) {
+    return is(child, 'bpmn:StartEvent');
+  })[0];
+
+  if (!startEvent) {
+    this._log.log('Skipping Subprocess', 'info', 'fa-angle-double-right');
+
+    // skip subprocess
+    this._eventBus.fire(GENERATE_TOKEN_EVENT, context);
+  } else {
+    this._log.log('Starting Subprocess', 'info', 'fa-sign-in');
+
+    // start subprocess with process instance ID as parent process instance ID
+    this._eventBus.fire(GENERATE_TOKEN_EVENT, {
+      element: startEvent,
+      parentProcessInstanceId: processInstanceId
+    });
+  }
+
+  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {
+    element: element
+  });
+};
+
+SubProcessHandler.prototype.generate = function (context) {
+  var self = this;
+
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  outgoingSequenceFlows.forEach(function (outgoing) {
+    self._animation.createAnimation(outgoing, processInstanceId, function () {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: outgoing.target,
+        processInstanceId: processInstanceId
+      });
+    });
+  });
+
+  this._eventBus.fire(UPDATE_ELEMENT_EVENT, {
+    element: element
+  });
+};
+
+SubProcessHandler.$inject = ['animation', 'eventBus', 'log'];
+
+module.exports = SubProcessHandler;
 
 /***/ }),
 
@@ -803,7 +4121,48 @@ eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./no
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js\").is;\n\nvar events = __webpack_require__(/*! ../../../util/EventHelper */ \"./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js\"),\n    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,\n    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;\n\nfunction TaskHandler(animation, eventBus) {\n  this._animation = animation;\n  this._eventBus = eventBus;\n}\n\nTaskHandler.prototype.consume = function (context) {\n\n  // fire to generate token on self\n  this._eventBus.fire(GENERATE_TOKEN_EVENT, context);\n};\n\nTaskHandler.prototype.generate = function (context) {\n  var self = this;\n\n  var element = context.element,\n      processInstanceId = context.processInstanceId;\n\n  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {\n    return is(outgoing, 'bpmn:SequenceFlow');\n  });\n\n  outgoingSequenceFlows.forEach(function (outgoing) {\n    self._animation.createAnimation(outgoing, processInstanceId, function () {\n      self._eventBus.fire(CONSUME_TOKEN_EVENT, {\n        element: outgoing.target,\n        processInstanceId: processInstanceId\n      });\n    });\n  });\n};\n\nTaskHandler.$inject = ['animation', 'eventBus'];\n\nmodule.exports = TaskHandler;\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/handler/TaskHandler.js?");
+
+
+var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
+
+var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
+    CONSUME_TOKEN_EVENT = events.CONSUME_TOKEN_EVENT,
+    GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
+
+function TaskHandler(animation, eventBus) {
+  this._animation = animation;
+  this._eventBus = eventBus;
+}
+
+TaskHandler.prototype.consume = function (context) {
+
+  // fire to generate token on self
+  this._eventBus.fire(GENERATE_TOKEN_EVENT, context);
+};
+
+TaskHandler.prototype.generate = function (context) {
+  var self = this;
+
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
+
+  var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
+    return is(outgoing, 'bpmn:SequenceFlow');
+  });
+
+  outgoingSequenceFlows.forEach(function (outgoing) {
+    self._animation.createAnimation(outgoing, processInstanceId, function () {
+      self._eventBus.fire(CONSUME_TOKEN_EVENT, {
+        element: outgoing.target,
+        processInstanceId: processInstanceId
+      });
+    });
+  });
+};
+
+TaskHandler.$inject = ['animation', 'eventBus'];
+
+module.exports = TaskHandler;
 
 /***/ }),
 
@@ -814,7 +4173,7 @@ eval("\n\nvar is = __webpack_require__(/*! ../../../util/ElementHelper */ \"./no
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! ./TokenSimulationBehavior */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/TokenSimulationBehavior.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/index.js?");
+module.exports = __webpack_require__(/*! ./TokenSimulationBehavior */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/TokenSimulationBehavior.js");
 
 /***/ }),
 
@@ -825,7 +4184,32 @@ eval("module.exports = __webpack_require__(/*! ./TokenSimulationBehavior */ \"./
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = {\n  __init__: ['animation', 'contextPads', 'disableModeling', 'elementNotifications', 'elementSupport', 'exclusiveGatewaySettings', 'keyboardBindings', 'log', 'notifications', 'pauseSimulation', 'preserveElementColors', 'processInstanceIds', 'processInstanceSettings', 'processInstances', 'resetSimulation', 'setAnimationSpeed', 'showProcessInstance', 'simulationState', 'toggleMode', 'tokenCount', 'tokenSimulationBehavior', 'tokenSimulationEditorActions', 'tokenSimulationPalette'],\n  'animation': ['type', __webpack_require__(/*! ./animation/Animation */ \"./node_modules/bpmn-js-token-simulation/lib/animation/Animation.js\")],\n  'contextPads': ['type', __webpack_require__(/*! ./features/context-pads */ \"./node_modules/bpmn-js-token-simulation/lib/features/context-pads/index.js\")],\n  'disableModeling': ['type', __webpack_require__(/*! ./features/disable-modeling */ \"./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/index.js\")],\n  'elementNotifications': ['type', __webpack_require__(/*! ./features/element-notifications */ \"./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js\")],\n  'elementSupport': ['type', __webpack_require__(/*! ./features/element-support */ \"./node_modules/bpmn-js-token-simulation/lib/features/element-support/index.js\")],\n  'exclusiveGatewaySettings': ['type', __webpack_require__(/*! ./features/exclusive-gateway-settings */ \"./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/index.js\")],\n  'keyboardBindings': ['type', __webpack_require__(/*! ./features/keyboard-bindings */ \"./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/index.js\")],\n  'log': ['type', __webpack_require__(/*! ./features/log */ \"./node_modules/bpmn-js-token-simulation/lib/features/log/index.js\")],\n  'notifications': ['type', __webpack_require__(/*! ./features/notifications */ \"./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js\")],\n  'pauseSimulation': ['type', __webpack_require__(/*! ./features/pause-simulation */ \"./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/index.js\")],\n  'preserveElementColors': ['type', __webpack_require__(/*! ./features/preserve-element-colors */ \"./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/index.js\")],\n  'processInstanceIds': ['type', __webpack_require__(/*! ./features/process-instance-ids */ \"./node_modules/bpmn-js-token-simulation/lib/features/process-instance-ids/index.js\")],\n  'processInstanceSettings': ['type', __webpack_require__(/*! ./features/process-instance-settings */ \"./node_modules/bpmn-js-token-simulation/lib/features/process-instance-settings/index.js\")],\n  'processInstances': ['type', __webpack_require__(/*! ./features/process-instances */ \"./node_modules/bpmn-js-token-simulation/lib/features/process-instances/index.js\")],\n  'resetSimulation': ['type', __webpack_require__(/*! ./features/reset-simulation */ \"./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/index.js\")],\n  'setAnimationSpeed': ['type', __webpack_require__(/*! ./features/set-animation-speed */ \"./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/index.js\")],\n  'showProcessInstance': ['type', __webpack_require__(/*! ./features/show-process-instance */ \"./node_modules/bpmn-js-token-simulation/lib/features/show-process-instance/index.js\")],\n  'simulationState': ['type', __webpack_require__(/*! ./features/simulation-state */ \"./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/index.js\")],\n  'toggleMode': ['type', __webpack_require__(/*! ./features/toggle-mode/modeler */ \"./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/index.js\")],\n  'tokenCount': ['type', __webpack_require__(/*! ./features/token-count */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-count/index.js\")],\n  'tokenSimulationBehavior': ['type', __webpack_require__(/*! ./features/token-simulation-behavior */ \"./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/index.js\")],\n  'tokenSimulationEditorActions': ['type', __webpack_require__(/*! ./features/editor-actions */ \"./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/index.js\")],\n  'tokenSimulationPalette': ['type', __webpack_require__(/*! ./features/palette */ \"./node_modules/bpmn-js-token-simulation/lib/features/palette/index.js\")]\n};\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/modeler.js?");
+module.exports = {
+  __init__: ['animation', 'contextPads', 'disableModeling', 'elementNotifications', 'elementSupport', 'exclusiveGatewaySettings', 'keyboardBindings', 'log', 'notifications', 'pauseSimulation', 'preserveElementColors', 'processInstanceIds', 'processInstanceSettings', 'processInstances', 'resetSimulation', 'setAnimationSpeed', 'showProcessInstance', 'simulationState', 'toggleMode', 'tokenCount', 'tokenSimulationBehavior', 'tokenSimulationEditorActions', 'tokenSimulationPalette'],
+  'animation': ['type', __webpack_require__(/*! ./animation/Animation */ "./node_modules/bpmn-js-token-simulation/lib/animation/Animation.js")],
+  'contextPads': ['type', __webpack_require__(/*! ./features/context-pads */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/index.js")],
+  'disableModeling': ['type', __webpack_require__(/*! ./features/disable-modeling */ "./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/index.js")],
+  'elementNotifications': ['type', __webpack_require__(/*! ./features/element-notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js")],
+  'elementSupport': ['type', __webpack_require__(/*! ./features/element-support */ "./node_modules/bpmn-js-token-simulation/lib/features/element-support/index.js")],
+  'exclusiveGatewaySettings': ['type', __webpack_require__(/*! ./features/exclusive-gateway-settings */ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/index.js")],
+  'keyboardBindings': ['type', __webpack_require__(/*! ./features/keyboard-bindings */ "./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/index.js")],
+  'log': ['type', __webpack_require__(/*! ./features/log */ "./node_modules/bpmn-js-token-simulation/lib/features/log/index.js")],
+  'notifications': ['type', __webpack_require__(/*! ./features/notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js")],
+  'pauseSimulation': ['type', __webpack_require__(/*! ./features/pause-simulation */ "./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/index.js")],
+  'preserveElementColors': ['type', __webpack_require__(/*! ./features/preserve-element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/index.js")],
+  'processInstanceIds': ['type', __webpack_require__(/*! ./features/process-instance-ids */ "./node_modules/bpmn-js-token-simulation/lib/features/process-instance-ids/index.js")],
+  'processInstanceSettings': ['type', __webpack_require__(/*! ./features/process-instance-settings */ "./node_modules/bpmn-js-token-simulation/lib/features/process-instance-settings/index.js")],
+  'processInstances': ['type', __webpack_require__(/*! ./features/process-instances */ "./node_modules/bpmn-js-token-simulation/lib/features/process-instances/index.js")],
+  'resetSimulation': ['type', __webpack_require__(/*! ./features/reset-simulation */ "./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/index.js")],
+  'setAnimationSpeed': ['type', __webpack_require__(/*! ./features/set-animation-speed */ "./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/index.js")],
+  'showProcessInstance': ['type', __webpack_require__(/*! ./features/show-process-instance */ "./node_modules/bpmn-js-token-simulation/lib/features/show-process-instance/index.js")],
+  'simulationState': ['type', __webpack_require__(/*! ./features/simulation-state */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/index.js")],
+  'toggleMode': ['type', __webpack_require__(/*! ./features/toggle-mode/modeler */ "./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/index.js")],
+  'tokenCount': ['type', __webpack_require__(/*! ./features/token-count */ "./node_modules/bpmn-js-token-simulation/lib/features/token-count/index.js")],
+  'tokenSimulationBehavior': ['type', __webpack_require__(/*! ./features/token-simulation-behavior */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/index.js")],
+  'tokenSimulationEditorActions': ['type', __webpack_require__(/*! ./features/editor-actions */ "./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/index.js")],
+  'tokenSimulationPalette': ['type', __webpack_require__(/*! ./features/palette */ "./node_modules/bpmn-js-token-simulation/lib/features/palette/index.js")]
+};
 
 /***/ }),
 
@@ -837,7 +4221,74 @@ eval("module.exports = {\n  __init__: ['animation', 'contextPads', 'disableModel
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-eval("\n\nvar every = __webpack_require__(/*! min-dash */ \"./node_modules/min-dash/dist/index.esm.js\").every,\n    some = __webpack_require__(/*! min-dash */ \"./node_modules/min-dash/dist/index.esm.js\").some;\n\nmodule.exports.is = function (element, types) {\n  if (element.type === 'label') {\n    return;\n  }\n\n  if (!Array.isArray(types)) {\n    types = [types];\n  }\n\n  var isType = false;\n\n  types.forEach(function (type) {\n    if (type === element.type) {\n      isType = true;\n    }\n  });\n\n  return isType;\n};\n\nmodule.exports.isTypedEvent = function (event, eventDefinitionType, filter) {\n\n  function matches(definition, filter) {\n    return every(filter, function (val, key) {\n\n      // we want a == conversion here, to be able to catch\n      // undefined == false and friends\n      return definition[key] == val;\n    });\n  }\n\n  return some(event.eventDefinitions, function (definition) {\n    return definition.$type === eventDefinitionType && matches(event, filter);\n  });\n};\n\nmodule.exports.getBusinessObject = function (element) {\n  return element && element.businessObject || element;\n};\n\nfunction isAncestor(ancestor, descendant) {\n  var childParent = descendant.parent;\n\n  while (childParent) {\n    if (childParent === ancestor) {\n      return true;\n    }\n\n    childParent = childParent.parent;\n  }\n\n  return false;\n}\n\nmodule.exports.isAncestor = isAncestor;\n\nmodule.exports.getDescendants = function (elements, ancestor) {\n  return elements.filter(function (element) {\n    return isAncestor(ancestor, element);\n  });\n};\n\nmodule.exports.supportedElements = ['bpmn:Association', 'bpmn:BusinessRuleTask', 'bpmn:DataInputAssociation', 'bpmn:DataOutputAssociation', 'bpmn:DataObjectReference', 'bpmn:DataStoreReference', 'bpmn:EndEvent', 'bpmn:EventBasedGateway', 'bpmn:ExclusiveGateway', 'bpmn:IntermediateCatchEvent', 'bpmn:ManualTask', 'bpmn:ParallelGateway', 'bpmn:Process', 'bpmn:ScriptTask', 'bpmn:SequenceFlow', 'bpmn:ServiceTask', 'bpmn:StartEvent', 'bpmn:SubProcess', 'bpmn:Task', 'bpmn:TextAnnotation', 'bpmn:UserTask', 'bpmn:BoundaryEvent'];\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js?");
+
+
+var every = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js").every,
+    some = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js").some;
+
+module.exports.is = function (element, types) {
+  if (element.type === 'label') {
+    return;
+  }
+
+  if (!Array.isArray(types)) {
+    types = [types];
+  }
+
+  var isType = false;
+
+  types.forEach(function (type) {
+    if (type === element.type) {
+      isType = true;
+    }
+  });
+
+  return isType;
+};
+
+module.exports.isTypedEvent = function (event, eventDefinitionType, filter) {
+
+  function matches(definition, filter) {
+    return every(filter, function (val, key) {
+
+      // we want a == conversion here, to be able to catch
+      // undefined == false and friends
+      return definition[key] == val;
+    });
+  }
+
+  return some(event.eventDefinitions, function (definition) {
+    return definition.$type === eventDefinitionType && matches(event, filter);
+  });
+};
+
+module.exports.getBusinessObject = function (element) {
+  return element && element.businessObject || element;
+};
+
+function isAncestor(ancestor, descendant) {
+  var childParent = descendant.parent;
+
+  while (childParent) {
+    if (childParent === ancestor) {
+      return true;
+    }
+
+    childParent = childParent.parent;
+  }
+
+  return false;
+}
+
+module.exports.isAncestor = isAncestor;
+
+module.exports.getDescendants = function (elements, ancestor) {
+  return elements.filter(function (element) {
+    return isAncestor(ancestor, element);
+  });
+};
+
+module.exports.supportedElements = ['bpmn:Association', 'bpmn:BusinessRuleTask', 'bpmn:DataInputAssociation', 'bpmn:DataOutputAssociation', 'bpmn:DataObjectReference', 'bpmn:DataStoreReference', 'bpmn:EndEvent', 'bpmn:EventBasedGateway', 'bpmn:ExclusiveGateway', 'bpmn:IntermediateCatchEvent', 'bpmn:ManualTask', 'bpmn:ParallelGateway', 'bpmn:Process', 'bpmn:ScriptTask', 'bpmn:SequenceFlow', 'bpmn:ServiceTask', 'bpmn:StartEvent', 'bpmn:SubProcess', 'bpmn:Task', 'bpmn:TextAnnotation', 'bpmn:UserTask', 'bpmn:BoundaryEvent'];
 
 /***/ }),
 
@@ -848,7 +4299,24 @@ eval("\n\nvar every = __webpack_require__(/*! min-dash */ \"./node_modules/min-d
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("var prefix = 'tokenSimulation';\n\nmodule.exports = {\n  TOGGLE_MODE_EVENT: prefix + '.toggleMode',\n  GENERATE_TOKEN_EVENT: prefix + '.generateToken',\n  CONSUME_TOKEN_EVENT: prefix + '.consumeToken',\n  PLAY_SIMULATION_EVENT: prefix + '.playSimulation',\n  PAUSE_SIMULATION_EVENT: prefix + '.pauseSimulation',\n  RESET_SIMULATION_EVENT: prefix + '.resetSimulation',\n  TERMINATE_EVENT: prefix + '.terminateEvent',\n  UPDATE_ELEMENTS_EVENT: prefix + '.updateElements',\n  UPDATE_ELEMENT_EVENT: prefix + '.updateElement',\n  PROCESS_INSTANCE_CREATED_EVENT: prefix + '.processInstanceCreated',\n  PROCESS_INSTANCE_FINISHED_EVENT: prefix + '.processInstanceFinished',\n  PROCESS_INSTANCE_SHOWN_EVENT: prefix + '.processInstanceShown',\n  PROCESS_INSTANCE_HIDDEN_EVENT: prefix + '.processInstanceHidden',\n  ANIMATION_CREATED_EVENT: prefix + '.animationCreated'\n};\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js?");
+var prefix = 'tokenSimulation';
+
+module.exports = {
+  TOGGLE_MODE_EVENT: prefix + '.toggleMode',
+  GENERATE_TOKEN_EVENT: prefix + '.generateToken',
+  CONSUME_TOKEN_EVENT: prefix + '.consumeToken',
+  PLAY_SIMULATION_EVENT: prefix + '.playSimulation',
+  PAUSE_SIMULATION_EVENT: prefix + '.pauseSimulation',
+  RESET_SIMULATION_EVENT: prefix + '.resetSimulation',
+  TERMINATE_EVENT: prefix + '.terminateEvent',
+  UPDATE_ELEMENTS_EVENT: prefix + '.updateElements',
+  UPDATE_ELEMENT_EVENT: prefix + '.updateElement',
+  PROCESS_INSTANCE_CREATED_EVENT: prefix + '.processInstanceCreated',
+  PROCESS_INSTANCE_FINISHED_EVENT: prefix + '.processInstanceFinished',
+  PROCESS_INSTANCE_SHOWN_EVENT: prefix + '.processInstanceShown',
+  PROCESS_INSTANCE_HIDDEN_EVENT: prefix + '.processInstanceHidden',
+  ANIMATION_CREATED_EVENT: prefix + '.animationCreated'
+};
 
 /***/ }),
 
@@ -859,7 +4327,18 @@ eval("var prefix = 'tokenSimulation';\n\nmodule.exports = {\n  TOGGLE_MODE_EVENT
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("module.exports.getMid = function (element) {\n  var bbox = element.bbox();\n\n  return {\n    x: bbox.x + bbox.width / 2,\n    y: bbox.y + bbox.height / 2\n  };\n};\n\nmodule.exports.distance = function (a, b) {\n  return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));\n};\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/lib/util/GeometryUtil.js?");
+module.exports.getMid = function (element) {
+  var bbox = element.bbox();
+
+  return {
+    x: bbox.x + bbox.width / 2,
+    y: bbox.y + bbox.height / 2
+  };
+};
+
+module.exports.distance = function (a, b) {
+  return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
+};
 
 /***/ }),
 
@@ -870,7 +4349,7 @@ eval("module.exports.getMid = function (element) {\n  var bbox = element.bbox();
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! component-classes */ \"./node_modules/component-classes/index.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js?");
+module.exports = __webpack_require__(/*! component-classes */ "./node_modules/component-classes/index.js");
 
 /***/ }),
 
@@ -881,7 +4360,17 @@ eval("module.exports = __webpack_require__(/*! component-classes */ \"./node_mod
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("module.exports = function (el) {\n\n  var c;\n\n  while (el.childNodes.length) {\n    c = el.childNodes[0];\n    el.removeChild(c);\n  }\n\n  return el;\n};\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/clear.js?");
+module.exports = function (el) {
+
+  var c;
+
+  while (el.childNodes.length) {
+    c = el.childNodes[0];
+    el.removeChild(c);
+  }
+
+  return el;
+};
 
 /***/ }),
 
@@ -892,7 +4381,7 @@ eval("module.exports = function (el) {\n\n  var c;\n\n  while (el.childNodes.len
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! domify */ \"./node_modules/domify/index.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js?");
+module.exports = __webpack_require__(/*! domify */ "./node_modules/domify/index.js");
 
 /***/ }),
 
@@ -903,7 +4392,7 @@ eval("module.exports = __webpack_require__(/*! domify */ \"./node_modules/domify
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! component-event */ \"./node_modules/component-event/index.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js?");
+module.exports = __webpack_require__(/*! component-event */ "./node_modules/component-event/index.js");
 
 /***/ }),
 
@@ -914,7 +4403,7 @@ eval("module.exports = __webpack_require__(/*! component-event */ \"./node_modul
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("module.exports = __webpack_require__(/*! component-query */ \"./node_modules/component-query/index.js\");\n\n//# sourceURL=webpack:///./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js?");
+module.exports = __webpack_require__(/*! component-query */ "./node_modules/component-query/index.js");
 
 /***/ }),
 
@@ -925,7 +4414,65 @@ eval("module.exports = __webpack_require__(/*! component-query */ \"./node_modul
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("/**\r\n * Validate and register a client plugin.\r\n *\r\n * @param {Object} plugin\r\n * @param {String} type\r\n */\nfunction registerClientPlugin(plugin, type) {\n  var plugins = window.plugins || [];\n  window.plugins = plugins;\n\n  if (!plugin) {\n    throw new Error('plugin not specified');\n  }\n\n  if (!type) {\n    throw new Error('type not specified');\n  }\n\n  plugins.push({\n    plugin: plugin,\n    type: type\n  });\n}\n\n/**\r\n * Validate and register a bpmn-js plugin.\r\n *\r\n * Example use:\r\n *\r\n *    var registerBpmnJSPlugin = require('./camundaModelerPluginHelpers').registerBpmnJSPlugin;\r\n *    var module = require('./index');\r\n *\r\n *    registerBpmnJSPlugin(module);\r\n *\r\n * @param {Object} plugin\r\n */\nfunction registerBpmnJSPlugin(plugin) {\n  registerClientPlugin(plugin, 'bpmn.modeler.additionalModules');\n}\n\nmodule.exports.registerBpmnJSPlugin = registerBpmnJSPlugin;\n\n/**\r\n * Validate and register a bpmn-moddle extension plugin.\r\n *\r\n * Example use:\r\n *\r\n *    var registerBpmnJSModdleExtension = require('./camundaModelerPluginHelpers').registerBpmnJSModdleExtension;\r\n *    var module = require('./index');\r\n *\r\n *    registerBpmnJSModdleExtension(module);\r\n *\r\n * @param {Object} plugin\r\n */\nfunction registerBpmnJSModdleExtension(plugin) {\n  registerClientPlugin(plugin, 'bpmn.modeler.moddleExtension');\n}\n\nmodule.exports.registerBpmnJSModdleExtension = registerBpmnJSModdleExtension;\n\n//# sourceURL=webpack:///./node_modules/camunda-modeler-plugin-helpers/index.js?");
+/**
+ * Validate and register a client plugin.
+ *
+ * @param {Object} plugin
+ * @param {String} type
+ */
+function registerClientPlugin(plugin, type) {
+  var plugins = window.plugins || [];
+  window.plugins = plugins;
+
+  if (!plugin) {
+    throw new Error('plugin not specified');
+  }
+
+  if (!type) {
+    throw new Error('type not specified');
+  }
+
+  plugins.push({
+    plugin: plugin,
+    type: type
+  });
+}
+
+/**
+ * Validate and register a bpmn-js plugin.
+ *
+ * Example use:
+ *
+ *    var registerBpmnJSPlugin = require('./camundaModelerPluginHelpers').registerBpmnJSPlugin;
+ *    var module = require('./index');
+ *
+ *    registerBpmnJSPlugin(module);
+ *
+ * @param {Object} plugin
+ */
+function registerBpmnJSPlugin(plugin) {
+  registerClientPlugin(plugin, 'bpmn.modeler.additionalModules');
+}
+
+module.exports.registerBpmnJSPlugin = registerBpmnJSPlugin;
+
+/**
+ * Validate and register a bpmn-moddle extension plugin.
+ *
+ * Example use:
+ *
+ *    var registerBpmnJSModdleExtension = require('./camundaModelerPluginHelpers').registerBpmnJSModdleExtension;
+ *    var module = require('./index');
+ *
+ *    registerBpmnJSModdleExtension(module);
+ *
+ * @param {Object} plugin
+ */
+function registerBpmnJSModdleExtension(plugin) {
+  registerClientPlugin(plugin, 'bpmn.modeler.moddleExtension');
+}
+
+module.exports.registerBpmnJSModdleExtension = registerBpmnJSModdleExtension;
 
 /***/ }),
 
@@ -936,7 +4483,194 @@ eval("/**\r\n * Validate and register a client plugin.\r\n *\r\n * @param {Objec
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("/**\n * Module dependencies.\n */\n\ntry {\n  var index = __webpack_require__(/*! indexof */ \"./node_modules/component-indexof/index.js\");\n} catch (err) {\n  var index = __webpack_require__(/*! component-indexof */ \"./node_modules/component-indexof/index.js\");\n}\n\n/**\n * Whitespace regexp.\n */\n\nvar re = /\\s+/;\n\n/**\n * toString reference.\n */\n\nvar toString = Object.prototype.toString;\n\n/**\n * Wrap `el` in a `ClassList`.\n *\n * @param {Element} el\n * @return {ClassList}\n * @api public\n */\n\nmodule.exports = function (el) {\n  return new ClassList(el);\n};\n\n/**\n * Initialize a new ClassList for `el`.\n *\n * @param {Element} el\n * @api private\n */\n\nfunction ClassList(el) {\n  if (!el || !el.nodeType) {\n    throw new Error('A DOM element reference is required');\n  }\n  this.el = el;\n  this.list = el.classList;\n}\n\n/**\n * Add class `name` if not already present.\n *\n * @param {String} name\n * @return {ClassList}\n * @api public\n */\n\nClassList.prototype.add = function (name) {\n  // classList\n  if (this.list) {\n    this.list.add(name);\n    return this;\n  }\n\n  // fallback\n  var arr = this.array();\n  var i = index(arr, name);\n  if (!~i) arr.push(name);\n  this.el.className = arr.join(' ');\n  return this;\n};\n\n/**\n * Remove class `name` when present, or\n * pass a regular expression to remove\n * any which match.\n *\n * @param {String|RegExp} name\n * @return {ClassList}\n * @api public\n */\n\nClassList.prototype.remove = function (name) {\n  if ('[object RegExp]' == toString.call(name)) {\n    return this.removeMatching(name);\n  }\n\n  // classList\n  if (this.list) {\n    this.list.remove(name);\n    return this;\n  }\n\n  // fallback\n  var arr = this.array();\n  var i = index(arr, name);\n  if (~i) arr.splice(i, 1);\n  this.el.className = arr.join(' ');\n  return this;\n};\n\n/**\n * Remove all classes matching `re`.\n *\n * @param {RegExp} re\n * @return {ClassList}\n * @api private\n */\n\nClassList.prototype.removeMatching = function (re) {\n  var arr = this.array();\n  for (var i = 0; i < arr.length; i++) {\n    if (re.test(arr[i])) {\n      this.remove(arr[i]);\n    }\n  }\n  return this;\n};\n\n/**\n * Toggle class `name`, can force state via `force`.\n *\n * For browsers that support classList, but do not support `force` yet,\n * the mistake will be detected and corrected.\n *\n * @param {String} name\n * @param {Boolean} force\n * @return {ClassList}\n * @api public\n */\n\nClassList.prototype.toggle = function (name, force) {\n  // classList\n  if (this.list) {\n    if (\"undefined\" !== typeof force) {\n      if (force !== this.list.toggle(name, force)) {\n        this.list.toggle(name); // toggle again to correct\n      }\n    } else {\n      this.list.toggle(name);\n    }\n    return this;\n  }\n\n  // fallback\n  if (\"undefined\" !== typeof force) {\n    if (!force) {\n      this.remove(name);\n    } else {\n      this.add(name);\n    }\n  } else {\n    if (this.has(name)) {\n      this.remove(name);\n    } else {\n      this.add(name);\n    }\n  }\n\n  return this;\n};\n\n/**\n * Return an array of classes.\n *\n * @return {Array}\n * @api public\n */\n\nClassList.prototype.array = function () {\n  var className = this.el.getAttribute('class') || '';\n  var str = className.replace(/^\\s+|\\s+$/g, '');\n  var arr = str.split(re);\n  if ('' === arr[0]) arr.shift();\n  return arr;\n};\n\n/**\n * Check if class `name` is present.\n *\n * @param {String} name\n * @return {ClassList}\n * @api public\n */\n\nClassList.prototype.has = ClassList.prototype.contains = function (name) {\n  return this.list ? this.list.contains(name) : !!~index(this.array(), name);\n};\n\n//# sourceURL=webpack:///./node_modules/component-classes/index.js?");
+/**
+ * Module dependencies.
+ */
+
+try {
+  var index = __webpack_require__(/*! indexof */ "./node_modules/component-indexof/index.js");
+} catch (err) {
+  var index = __webpack_require__(/*! component-indexof */ "./node_modules/component-indexof/index.js");
+}
+
+/**
+ * Whitespace regexp.
+ */
+
+var re = /\s+/;
+
+/**
+ * toString reference.
+ */
+
+var toString = Object.prototype.toString;
+
+/**
+ * Wrap `el` in a `ClassList`.
+ *
+ * @param {Element} el
+ * @return {ClassList}
+ * @api public
+ */
+
+module.exports = function (el) {
+  return new ClassList(el);
+};
+
+/**
+ * Initialize a new ClassList for `el`.
+ *
+ * @param {Element} el
+ * @api private
+ */
+
+function ClassList(el) {
+  if (!el || !el.nodeType) {
+    throw new Error('A DOM element reference is required');
+  }
+  this.el = el;
+  this.list = el.classList;
+}
+
+/**
+ * Add class `name` if not already present.
+ *
+ * @param {String} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.add = function (name) {
+  // classList
+  if (this.list) {
+    this.list.add(name);
+    return this;
+  }
+
+  // fallback
+  var arr = this.array();
+  var i = index(arr, name);
+  if (!~i) arr.push(name);
+  this.el.className = arr.join(' ');
+  return this;
+};
+
+/**
+ * Remove class `name` when present, or
+ * pass a regular expression to remove
+ * any which match.
+ *
+ * @param {String|RegExp} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.remove = function (name) {
+  if ('[object RegExp]' == toString.call(name)) {
+    return this.removeMatching(name);
+  }
+
+  // classList
+  if (this.list) {
+    this.list.remove(name);
+    return this;
+  }
+
+  // fallback
+  var arr = this.array();
+  var i = index(arr, name);
+  if (~i) arr.splice(i, 1);
+  this.el.className = arr.join(' ');
+  return this;
+};
+
+/**
+ * Remove all classes matching `re`.
+ *
+ * @param {RegExp} re
+ * @return {ClassList}
+ * @api private
+ */
+
+ClassList.prototype.removeMatching = function (re) {
+  var arr = this.array();
+  for (var i = 0; i < arr.length; i++) {
+    if (re.test(arr[i])) {
+      this.remove(arr[i]);
+    }
+  }
+  return this;
+};
+
+/**
+ * Toggle class `name`, can force state via `force`.
+ *
+ * For browsers that support classList, but do not support `force` yet,
+ * the mistake will be detected and corrected.
+ *
+ * @param {String} name
+ * @param {Boolean} force
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.toggle = function (name, force) {
+  // classList
+  if (this.list) {
+    if ("undefined" !== typeof force) {
+      if (force !== this.list.toggle(name, force)) {
+        this.list.toggle(name); // toggle again to correct
+      }
+    } else {
+      this.list.toggle(name);
+    }
+    return this;
+  }
+
+  // fallback
+  if ("undefined" !== typeof force) {
+    if (!force) {
+      this.remove(name);
+    } else {
+      this.add(name);
+    }
+  } else {
+    if (this.has(name)) {
+      this.remove(name);
+    } else {
+      this.add(name);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return an array of classes.
+ *
+ * @return {Array}
+ * @api public
+ */
+
+ClassList.prototype.array = function () {
+  var className = this.el.getAttribute('class') || '';
+  var str = className.replace(/^\s+|\s+$/g, '');
+  var arr = str.split(re);
+  if ('' === arr[0]) arr.shift();
+  return arr;
+};
+
+/**
+ * Check if class `name` is present.
+ *
+ * @param {String} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.has = ClassList.prototype.contains = function (name) {
+  return this.list ? this.list.contains(name) : !!~index(this.array(), name);
+};
 
 /***/ }),
 
@@ -947,7 +4681,41 @@ eval("/**\n * Module dependencies.\n */\n\ntry {\n  var index = __webpack_requir
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',\n    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',\n    prefix = bind !== 'addEventListener' ? 'on' : '';\n\n/**\n * Bind `el` event `type` to `fn`.\n *\n * @param {Element} el\n * @param {String} type\n * @param {Function} fn\n * @param {Boolean} capture\n * @return {Function}\n * @api public\n */\n\nexports.bind = function (el, type, fn, capture) {\n  el[bind](prefix + type, fn, capture || false);\n  return fn;\n};\n\n/**\n * Unbind `el` event `type`'s callback `fn`.\n *\n * @param {Element} el\n * @param {String} type\n * @param {Function} fn\n * @param {Boolean} capture\n * @return {Function}\n * @api public\n */\n\nexports.unbind = function (el, type, fn, capture) {\n  el[unbind](prefix + type, fn, capture || false);\n  return fn;\n};\n\n//# sourceURL=webpack:///./node_modules/component-event/index.js?");
+var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
+    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
+    prefix = bind !== 'addEventListener' ? 'on' : '';
+
+/**
+ * Bind `el` event `type` to `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+exports.bind = function (el, type, fn, capture) {
+  el[bind](prefix + type, fn, capture || false);
+  return fn;
+};
+
+/**
+ * Unbind `el` event `type`'s callback `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+exports.unbind = function (el, type, fn, capture) {
+  el[unbind](prefix + type, fn, capture || false);
+  return fn;
+};
 
 /***/ }),
 
@@ -958,7 +4726,13 @@ eval("var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',\n
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("module.exports = function (arr, obj) {\n  if (arr.indexOf) return arr.indexOf(obj);\n  for (var i = 0; i < arr.length; ++i) {\n    if (arr[i] === obj) return i;\n  }\n  return -1;\n};\n\n//# sourceURL=webpack:///./node_modules/component-indexof/index.js?");
+module.exports = function (arr, obj) {
+  if (arr.indexOf) return arr.indexOf(obj);
+  for (var i = 0; i < arr.length; ++i) {
+    if (arr[i] === obj) return i;
+  }
+  return -1;
+};
 
 /***/ }),
 
@@ -969,7 +4743,27 @@ eval("module.exports = function (arr, obj) {\n  if (arr.indexOf) return arr.inde
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("function one(selector, el) {\n  return el.querySelector(selector);\n}\n\nexports = module.exports = function (selector, el) {\n  el = el || document;\n  return one(selector, el);\n};\n\nexports.all = function (selector, el) {\n  el = el || document;\n  return el.querySelectorAll(selector);\n};\n\nexports.engine = function (obj) {\n  if (!obj.one) throw new Error('.one callback required');\n  if (!obj.all) throw new Error('.all callback required');\n  one = obj.one;\n  exports.all = obj.all;\n  return exports;\n};\n\n//# sourceURL=webpack:///./node_modules/component-query/index.js?");
+function one(selector, el) {
+  return el.querySelector(selector);
+}
+
+exports = module.exports = function (selector, el) {
+  el = el || document;
+  return one(selector, el);
+};
+
+exports.all = function (selector, el) {
+  el = el || document;
+  return el.querySelectorAll(selector);
+};
+
+exports.engine = function (obj) {
+  if (!obj.one) throw new Error('.one callback required');
+  if (!obj.all) throw new Error('.all callback required');
+  one = obj.one;
+  exports.all = obj.all;
+  return exports;
+};
 
 /***/ }),
 
@@ -980,7 +4774,104 @@ eval("function one(selector, el) {\n  return el.querySelector(selector);\n}\n\ne
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-eval("\n/**\n * Expose `parse`.\n */\n\nmodule.exports = parse;\n\n/**\n * Tests for browser support.\n */\n\nvar innerHTMLBug = false;\nvar bugTestDiv;\nif (typeof document !== 'undefined') {\n  bugTestDiv = document.createElement('div');\n  // Setup\n  bugTestDiv.innerHTML = '  <link/><table></table><a href=\"/a\">a</a><input type=\"checkbox\"/>';\n  // Make sure that link elements get serialized correctly by innerHTML\n  // This requires a wrapper element in IE\n  innerHTMLBug = !bugTestDiv.getElementsByTagName('link').length;\n  bugTestDiv = undefined;\n}\n\n/**\n * Wrap map from jquery.\n */\n\nvar map = {\n  legend: [1, '<fieldset>', '</fieldset>'],\n  tr: [2, '<table><tbody>', '</tbody></table>'],\n  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],\n  // for script/link/style tags to work in IE6-8, you have to wrap\n  // in a div with a non-whitespace character in front, ha!\n  _default: innerHTMLBug ? [1, 'X<div>', '</div>'] : [0, '', '']\n};\n\nmap.td = map.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];\n\nmap.option = map.optgroup = [1, '<select multiple=\"multiple\">', '</select>'];\n\nmap.thead = map.tbody = map.colgroup = map.caption = map.tfoot = [1, '<table>', '</table>'];\n\nmap.polyline = map.ellipse = map.polygon = map.circle = map.text = map.line = map.path = map.rect = map.g = [1, '<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">', '</svg>'];\n\n/**\n * Parse `html` and return a DOM Node instance, which could be a TextNode,\n * HTML DOM Node of some kind (<div> for example), or a DocumentFragment\n * instance, depending on the contents of the `html` string.\n *\n * @param {String} html - HTML string to \"domify\"\n * @param {Document} doc - The `document` instance to create the Node for\n * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance\n * @api private\n */\n\nfunction parse(html, doc) {\n  if ('string' != typeof html) throw new TypeError('String expected');\n\n  // default to the global `document` object\n  if (!doc) doc = document;\n\n  // tag name\n  var m = /<([\\w:]+)/.exec(html);\n  if (!m) return doc.createTextNode(html);\n\n  html = html.replace(/^\\s+|\\s+$/g, ''); // Remove leading/trailing whitespace\n\n  var tag = m[1];\n\n  // body support\n  if (tag == 'body') {\n    var el = doc.createElement('html');\n    el.innerHTML = html;\n    return el.removeChild(el.lastChild);\n  }\n\n  // wrap map\n  var wrap = map[tag] || map._default;\n  var depth = wrap[0];\n  var prefix = wrap[1];\n  var suffix = wrap[2];\n  var el = doc.createElement('div');\n  el.innerHTML = prefix + html + suffix;\n  while (depth--) el = el.lastChild;\n\n  // one element\n  if (el.firstChild == el.lastChild) {\n    return el.removeChild(el.firstChild);\n  }\n\n  // several elements\n  var fragment = doc.createDocumentFragment();\n  while (el.firstChild) {\n    fragment.appendChild(el.removeChild(el.firstChild));\n  }\n\n  return fragment;\n}\n\n//# sourceURL=webpack:///./node_modules/domify/index.js?");
+
+/**
+ * Expose `parse`.
+ */
+
+module.exports = parse;
+
+/**
+ * Tests for browser support.
+ */
+
+var innerHTMLBug = false;
+var bugTestDiv;
+if (typeof document !== 'undefined') {
+  bugTestDiv = document.createElement('div');
+  // Setup
+  bugTestDiv.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
+  // Make sure that link elements get serialized correctly by innerHTML
+  // This requires a wrapper element in IE
+  innerHTMLBug = !bugTestDiv.getElementsByTagName('link').length;
+  bugTestDiv = undefined;
+}
+
+/**
+ * Wrap map from jquery.
+ */
+
+var map = {
+  legend: [1, '<fieldset>', '</fieldset>'],
+  tr: [2, '<table><tbody>', '</tbody></table>'],
+  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
+  // for script/link/style tags to work in IE6-8, you have to wrap
+  // in a div with a non-whitespace character in front, ha!
+  _default: innerHTMLBug ? [1, 'X<div>', '</div>'] : [0, '', '']
+};
+
+map.td = map.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
+
+map.option = map.optgroup = [1, '<select multiple="multiple">', '</select>'];
+
+map.thead = map.tbody = map.colgroup = map.caption = map.tfoot = [1, '<table>', '</table>'];
+
+map.polyline = map.ellipse = map.polygon = map.circle = map.text = map.line = map.path = map.rect = map.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">', '</svg>'];
+
+/**
+ * Parse `html` and return a DOM Node instance, which could be a TextNode,
+ * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
+ * instance, depending on the contents of the `html` string.
+ *
+ * @param {String} html - HTML string to "domify"
+ * @param {Document} doc - The `document` instance to create the Node for
+ * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
+ * @api private
+ */
+
+function parse(html, doc) {
+  if ('string' != typeof html) throw new TypeError('String expected');
+
+  // default to the global `document` object
+  if (!doc) doc = document;
+
+  // tag name
+  var m = /<([\w:]+)/.exec(html);
+  if (!m) return doc.createTextNode(html);
+
+  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
+
+  var tag = m[1];
+
+  // body support
+  if (tag == 'body') {
+    var el = doc.createElement('html');
+    el.innerHTML = html;
+    return el.removeChild(el.lastChild);
+  }
+
+  // wrap map
+  var wrap = map[tag] || map._default;
+  var depth = wrap[0];
+  var prefix = wrap[1];
+  var suffix = wrap[2];
+  var el = doc.createElement('div');
+  el.innerHTML = prefix + html + suffix;
+  while (depth--) el = el.lastChild;
+
+  // one element
+  if (el.firstChild == el.lastChild) {
+    return el.removeChild(el.firstChild);
+  }
+
+  // several elements
+  var fragment = doc.createDocumentFragment();
+  while (el.firstChild) {
+    fragment.appendChild(el.removeChild(el.firstChild));
+  }
+
+  return fragment;
+}
 
 /***/ }),
 
@@ -992,7 +4883,648 @@ eval("\n/**\n * Expose `parse`.\n */\n\nmodule.exports = parse;\n\n/**\n * Tests
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"flatten\", function() { return flatten; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"find\", function() { return find; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"findIndex\", function() { return findIndex; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"filter\", function() { return filter; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"forEach\", function() { return forEach; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"without\", function() { return without; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"reduce\", function() { return reduce; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"every\", function() { return every; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"some\", function() { return some; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"map\", function() { return map; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"keys\", function() { return keys; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"size\", function() { return size; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"values\", function() { return values; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"groupBy\", function() { return groupBy; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"uniqueBy\", function() { return uniqueBy; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"unionBy\", function() { return unionBy; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"sortBy\", function() { return sortBy; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"matchPattern\", function() { return matchPattern; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"debounce\", function() { return debounce; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"bind\", function() { return bind; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isUndefined\", function() { return isUndefined; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isDefined\", function() { return isDefined; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isNil\", function() { return isNil; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isArray\", function() { return isArray; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isObject\", function() { return isObject; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isNumber\", function() { return isNumber; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isFunction\", function() { return isFunction; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"isString\", function() { return isString; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"ensureArray\", function() { return ensureArray; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"has\", function() { return has; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"assign\", function() { return assign; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"pick\", function() { return pick; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"omit\", function() { return omit; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"merge\", function() { return merge; });\n/**\n * Flatten array, one level deep.\n *\n * @param {Array<?>} arr\n *\n * @return {Array<?>}\n */\nfunction flatten(arr) {\n  return Array.prototype.concat.apply([], arr);\n}\n\nvar nativeToString = Object.prototype.toString;\nvar nativeHasOwnProperty = Object.prototype.hasOwnProperty;\n\nfunction isUndefined(obj) {\n  return obj === undefined;\n}\n\nfunction isDefined(obj) {\n  return obj !== undefined;\n}\n\nfunction isNil(obj) {\n  return obj == null;\n}\n\nfunction isArray(obj) {\n  return nativeToString.call(obj) === '[object Array]';\n}\n\nfunction isObject(obj) {\n  return nativeToString.call(obj) === '[object Object]';\n}\n\nfunction isNumber(obj) {\n  return nativeToString.call(obj) === '[object Number]';\n}\n\nfunction isFunction(obj) {\n  return nativeToString.call(obj) === '[object Function]';\n}\n\nfunction isString(obj) {\n  return nativeToString.call(obj) === '[object String]';\n}\n\n/**\n * Ensure collection is an array.\n *\n * @param {Object} obj\n */\nfunction ensureArray(obj) {\n\n  if (isArray(obj)) {\n    return;\n  }\n\n  throw new Error('must supply array');\n}\n\n/**\n * Return true, if target owns a property with the given key.\n *\n * @param {Object} target\n * @param {String} key\n *\n * @return {Boolean}\n */\nfunction has(target, key) {\n  return nativeHasOwnProperty.call(target, key);\n}\n\n/**\n * Find element in collection.\n *\n * @param  {Array|Object} collection\n * @param  {Function|Object} matcher\n *\n * @return {Object}\n */\nfunction find(collection, matcher) {\n\n  matcher = toMatcher(matcher);\n\n  var match;\n\n  forEach(collection, function (val, key) {\n    if (matcher(val, key)) {\n      match = val;\n\n      return false;\n    }\n  });\n\n  return match;\n}\n\n/**\n * Find element index in collection.\n *\n * @param  {Array|Object} collection\n * @param  {Function} matcher\n *\n * @return {Object}\n */\nfunction findIndex(collection, matcher) {\n\n  matcher = toMatcher(matcher);\n\n  var idx = isArray(collection) ? -1 : undefined;\n\n  forEach(collection, function (val, key) {\n    if (matcher(val, key)) {\n      idx = key;\n\n      return false;\n    }\n  });\n\n  return idx;\n}\n\n/**\n * Find element in collection.\n *\n * @param  {Array|Object} collection\n * @param  {Function} matcher\n *\n * @return {Array} result\n */\nfunction filter(collection, matcher) {\n\n  var result = [];\n\n  forEach(collection, function (val, key) {\n    if (matcher(val, key)) {\n      result.push(val);\n    }\n  });\n\n  return result;\n}\n\n/**\n * Iterate over collection; returning something\n * (non-undefined) will stop iteration.\n *\n * @param  {Array|Object} collection\n * @param  {Function} iterator\n *\n * @return {Object} return result that stopped the iteration\n */\nfunction forEach(collection, iterator) {\n\n  if (isUndefined(collection)) {\n    return;\n  }\n\n  var convertKey = isArray(collection) ? toNum : identity;\n\n  for (var key in collection) {\n\n    if (has(collection, key)) {\n      var val = collection[key];\n\n      var result = iterator(val, convertKey(key));\n\n      if (result === false) {\n        return;\n      }\n    }\n  }\n}\n\n/**\n * Return collection without element.\n *\n * @param  {Array} arr\n * @param  {Function} matcher\n *\n * @return {Array}\n */\nfunction without(arr, matcher) {\n\n  if (isUndefined(arr)) {\n    return [];\n  }\n\n  ensureArray(arr);\n\n  matcher = toMatcher(matcher);\n\n  return arr.filter(function (el, idx) {\n    return !matcher(el, idx);\n  });\n}\n\n/**\n * Reduce collection, returning a single result.\n *\n * @param  {Object|Array} collection\n * @param  {Function} iterator\n * @param  {Any} result\n *\n * @return {Any} result returned from last iterator\n */\nfunction reduce(collection, iterator, result) {\n\n  forEach(collection, function (value, idx) {\n    result = iterator(result, value, idx);\n  });\n\n  return result;\n}\n\n/**\n * Return true if every element in the collection\n * matches the criteria.\n *\n * @param  {Object|Array} collection\n * @param  {Function} matcher\n *\n * @return {Boolean}\n */\nfunction every(collection, matcher) {\n\n  return reduce(collection, function (matches, val, key) {\n    return matches && matcher(val, key);\n  }, true);\n}\n\n/**\n * Return true if some elements in the collection\n * match the criteria.\n *\n * @param  {Object|Array} collection\n * @param  {Function} matcher\n *\n * @return {Boolean}\n */\nfunction some(collection, matcher) {\n\n  return !!find(collection, matcher);\n}\n\n/**\n * Transform a collection into another collection\n * by piping each member through the given fn.\n *\n * @param  {Object|Array}   collection\n * @param  {Function} fn\n *\n * @return {Array} transformed collection\n */\nfunction map(collection, fn) {\n\n  var result = [];\n\n  forEach(collection, function (val, key) {\n    result.push(fn(val, key));\n  });\n\n  return result;\n}\n\n/**\n * Get the collections keys.\n *\n * @param  {Object|Array} collection\n *\n * @return {Array}\n */\nfunction keys(collection) {\n  return collection && Object.keys(collection) || [];\n}\n\n/**\n * Shorthand for `keys(o).length`.\n *\n * @param  {Object|Array} collection\n *\n * @return {Number}\n */\nfunction size(collection) {\n  return keys(collection).length;\n}\n\n/**\n * Get the values in the collection.\n *\n * @param  {Object|Array} collection\n *\n * @return {Array}\n */\nfunction values(collection) {\n  return map(collection, function (val) {\n    return val;\n  });\n}\n\n/**\n * Group collection members by attribute.\n *\n * @param  {Object|Array} collection\n * @param  {Function} extractor\n *\n * @return {Object} map with { attrValue => [ a, b, c ] }\n */\nfunction groupBy(collection, extractor) {\n  var grouped = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};\n\n  extractor = toExtractor(extractor);\n\n  forEach(collection, function (val) {\n    var discriminator = extractor(val) || '_';\n\n    var group = grouped[discriminator];\n\n    if (!group) {\n      group = grouped[discriminator] = [];\n    }\n\n    group.push(val);\n  });\n\n  return grouped;\n}\n\nfunction uniqueBy(extractor) {\n\n  extractor = toExtractor(extractor);\n\n  var grouped = {};\n\n  for (var _len = arguments.length, collections = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {\n    collections[_key - 1] = arguments[_key];\n  }\n\n  forEach(collections, function (c) {\n    return groupBy(c, extractor, grouped);\n  });\n\n  var result = map(grouped, function (val, key) {\n    return val[0];\n  });\n\n  return result;\n}\n\nvar unionBy = uniqueBy;\n\n/**\n * Sort collection by criteria.\n *\n * @param  {Object|Array} collection\n * @param  {String|Function} extractor\n *\n * @return {Array}\n */\nfunction sortBy(collection, extractor) {\n\n  extractor = toExtractor(extractor);\n\n  var sorted = [];\n\n  forEach(collection, function (value, key) {\n    var disc = extractor(value, key);\n\n    var entry = {\n      d: disc,\n      v: value\n    };\n\n    for (var idx = 0; idx < sorted.length; idx++) {\n      var d = sorted[idx].d;\n\n      if (disc < d) {\n        sorted.splice(idx, 0, entry);\n        return;\n      }\n    }\n\n    // not inserted, append (!)\n    sorted.push(entry);\n  });\n\n  return map(sorted, function (e) {\n    return e.v;\n  });\n}\n\n/**\n * Create an object pattern matcher.\n *\n * @example\n *\n * const matcher = matchPattern({ id: 1 });\n *\n * var element = find(elements, matcher);\n *\n * @param  {Object} pattern\n *\n * @return {Function} matcherFn\n */\nfunction matchPattern(pattern) {\n\n  return function (el) {\n\n    return every(pattern, function (val, key) {\n      return el[key] === val;\n    });\n  };\n}\n\nfunction toExtractor(extractor) {\n  return isFunction(extractor) ? extractor : function (e) {\n    return e[extractor];\n  };\n}\n\nfunction toMatcher(matcher) {\n  return isFunction(matcher) ? matcher : function (e) {\n    return e === matcher;\n  };\n}\n\nfunction identity(arg) {\n  return arg;\n}\n\nfunction toNum(arg) {\n  return Number(arg);\n}\n\nfunction _toConsumableArray(arr) {\n  if (Array.isArray(arr)) {\n    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {\n      arr2[i] = arr[i];\n    }return arr2;\n  } else {\n    return Array.from(arr);\n  }\n}\n\nvar slice = Array.prototype.slice;\n\n/**\n * Debounce fn, calling it only once if\n * the given time elapsed between calls.\n *\n * @param  {Function} fn\n * @param  {Number} timeout\n *\n * @return {Function} debounced function\n */\nfunction debounce(fn, timeout) {\n\n  var timer;\n\n  return function () {\n\n    var args = slice.call(arguments);\n\n    if (timer) {\n      clearTimeout(timer);\n    }\n\n    timer = setTimeout(function () {\n      fn.apply(undefined, _toConsumableArray(args));\n    }, timeout);\n  };\n}\n\n/**\n * Bind function against target <this>.\n *\n * @param  {Function} fn\n * @param  {Object}   target\n *\n * @return {Function} bound function\n */\nfunction bind(fn, target) {\n  return fn.bind(target);\n}\n\nvar _extends = Object.assign || function (target) {\n  for (var i = 1; i < arguments.length; i++) {\n    var source = arguments[i];for (var key in source) {\n      if (Object.prototype.hasOwnProperty.call(source, key)) {\n        target[key] = source[key];\n      }\n    }\n  }return target;\n};\n\n/**\n * Convenience wrapper for `Object.assign`.\n *\n * @param {Object} target\n * @param {...Object} others\n *\n * @return {Object} the target\n */\nfunction assign(target) {\n  for (var _len = arguments.length, others = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {\n    others[_key - 1] = arguments[_key];\n  }\n\n  return _extends.apply(undefined, [target].concat(others));\n}\n\n/**\n * Pick given properties from the target object.\n *\n * @param {Object} target\n * @param {Array} properties\n *\n * @return {Object} target\n */\nfunction pick(target, properties) {\n\n  var result = {};\n\n  var obj = Object(target);\n\n  forEach(properties, function (prop) {\n\n    if (prop in obj) {\n      result[prop] = target[prop];\n    }\n  });\n\n  return result;\n}\n\n/**\n * Pick all target properties, excluding the given ones.\n *\n * @param {Object} target\n * @param {Array} properties\n *\n * @return {Object} target\n */\nfunction omit(target, properties) {\n\n  var result = {};\n\n  var obj = Object(target);\n\n  forEach(obj, function (prop, key) {\n\n    if (properties.indexOf(key) === -1) {\n      result[key] = prop;\n    }\n  });\n\n  return result;\n}\n\n/**\n * Recursively merge `...sources` into given target.\n *\n * Does support merging objects; does not support merging arrays.\n *\n * @param {Object} target\n * @param {...Object} sources\n *\n * @return {Object} the target\n */\nfunction merge(target) {\n  for (var _len2 = arguments.length, sources = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {\n    sources[_key2 - 1] = arguments[_key2];\n  }\n\n  if (!sources.length) {\n    return target;\n  }\n\n  forEach(sources, function (source) {\n\n    // skip non-obj sources, i.e. null\n    if (!source || !isObject(source)) {\n      return;\n    }\n\n    forEach(source, function (sourceVal, key) {\n\n      var targetVal = target[key];\n\n      if (isObject(sourceVal)) {\n\n        if (!isObject(targetVal)) {\n          // override target[key] with object\n          targetVal = {};\n        }\n\n        target[key] = merge(targetVal, sourceVal);\n      } else {\n        target[key] = sourceVal;\n      }\n    });\n  });\n\n  return target;\n}\n\n\n\n//# sourceURL=webpack:///./node_modules/min-dash/dist/index.esm.js?");
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "flatten", function() { return flatten; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "find", function() { return find; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "findIndex", function() { return findIndex; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "filter", function() { return filter; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "forEach", function() { return forEach; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "without", function() { return without; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "reduce", function() { return reduce; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "every", function() { return every; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "some", function() { return some; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "map", function() { return map; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "keys", function() { return keys; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "size", function() { return size; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "values", function() { return values; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "groupBy", function() { return groupBy; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "uniqueBy", function() { return uniqueBy; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "unionBy", function() { return unionBy; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "sortBy", function() { return sortBy; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "matchPattern", function() { return matchPattern; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "debounce", function() { return debounce; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bind", function() { return bind; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isUndefined", function() { return isUndefined; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isDefined", function() { return isDefined; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isNil", function() { return isNil; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isArray", function() { return isArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isObject", function() { return isObject; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isNumber", function() { return isNumber; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isFunction", function() { return isFunction; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isString", function() { return isString; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "ensureArray", function() { return ensureArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "has", function() { return has; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "assign", function() { return assign; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "pick", function() { return pick; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "omit", function() { return omit; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "merge", function() { return merge; });
+/**
+ * Flatten array, one level deep.
+ *
+ * @param {Array<?>} arr
+ *
+ * @return {Array<?>}
+ */
+function flatten(arr) {
+  return Array.prototype.concat.apply([], arr);
+}
+
+var nativeToString = Object.prototype.toString;
+var nativeHasOwnProperty = Object.prototype.hasOwnProperty;
+
+function isUndefined(obj) {
+  return obj === undefined;
+}
+
+function isDefined(obj) {
+  return obj !== undefined;
+}
+
+function isNil(obj) {
+  return obj == null;
+}
+
+function isArray(obj) {
+  return nativeToString.call(obj) === '[object Array]';
+}
+
+function isObject(obj) {
+  return nativeToString.call(obj) === '[object Object]';
+}
+
+function isNumber(obj) {
+  return nativeToString.call(obj) === '[object Number]';
+}
+
+function isFunction(obj) {
+  return nativeToString.call(obj) === '[object Function]';
+}
+
+function isString(obj) {
+  return nativeToString.call(obj) === '[object String]';
+}
+
+/**
+ * Ensure collection is an array.
+ *
+ * @param {Object} obj
+ */
+function ensureArray(obj) {
+
+  if (isArray(obj)) {
+    return;
+  }
+
+  throw new Error('must supply array');
+}
+
+/**
+ * Return true, if target owns a property with the given key.
+ *
+ * @param {Object} target
+ * @param {String} key
+ *
+ * @return {Boolean}
+ */
+function has(target, key) {
+  return nativeHasOwnProperty.call(target, key);
+}
+
+/**
+ * Find element in collection.
+ *
+ * @param  {Array|Object} collection
+ * @param  {Function|Object} matcher
+ *
+ * @return {Object}
+ */
+function find(collection, matcher) {
+
+  matcher = toMatcher(matcher);
+
+  var match;
+
+  forEach(collection, function (val, key) {
+    if (matcher(val, key)) {
+      match = val;
+
+      return false;
+    }
+  });
+
+  return match;
+}
+
+/**
+ * Find element index in collection.
+ *
+ * @param  {Array|Object} collection
+ * @param  {Function} matcher
+ *
+ * @return {Object}
+ */
+function findIndex(collection, matcher) {
+
+  matcher = toMatcher(matcher);
+
+  var idx = isArray(collection) ? -1 : undefined;
+
+  forEach(collection, function (val, key) {
+    if (matcher(val, key)) {
+      idx = key;
+
+      return false;
+    }
+  });
+
+  return idx;
+}
+
+/**
+ * Find element in collection.
+ *
+ * @param  {Array|Object} collection
+ * @param  {Function} matcher
+ *
+ * @return {Array} result
+ */
+function filter(collection, matcher) {
+
+  var result = [];
+
+  forEach(collection, function (val, key) {
+    if (matcher(val, key)) {
+      result.push(val);
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Iterate over collection; returning something
+ * (non-undefined) will stop iteration.
+ *
+ * @param  {Array|Object} collection
+ * @param  {Function} iterator
+ *
+ * @return {Object} return result that stopped the iteration
+ */
+function forEach(collection, iterator) {
+
+  if (isUndefined(collection)) {
+    return;
+  }
+
+  var convertKey = isArray(collection) ? toNum : identity;
+
+  for (var key in collection) {
+
+    if (has(collection, key)) {
+      var val = collection[key];
+
+      var result = iterator(val, convertKey(key));
+
+      if (result === false) {
+        return;
+      }
+    }
+  }
+}
+
+/**
+ * Return collection without element.
+ *
+ * @param  {Array} arr
+ * @param  {Function} matcher
+ *
+ * @return {Array}
+ */
+function without(arr, matcher) {
+
+  if (isUndefined(arr)) {
+    return [];
+  }
+
+  ensureArray(arr);
+
+  matcher = toMatcher(matcher);
+
+  return arr.filter(function (el, idx) {
+    return !matcher(el, idx);
+  });
+}
+
+/**
+ * Reduce collection, returning a single result.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} iterator
+ * @param  {Any} result
+ *
+ * @return {Any} result returned from last iterator
+ */
+function reduce(collection, iterator, result) {
+
+  forEach(collection, function (value, idx) {
+    result = iterator(result, value, idx);
+  });
+
+  return result;
+}
+
+/**
+ * Return true if every element in the collection
+ * matches the criteria.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} matcher
+ *
+ * @return {Boolean}
+ */
+function every(collection, matcher) {
+
+  return reduce(collection, function (matches, val, key) {
+    return matches && matcher(val, key);
+  }, true);
+}
+
+/**
+ * Return true if some elements in the collection
+ * match the criteria.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} matcher
+ *
+ * @return {Boolean}
+ */
+function some(collection, matcher) {
+
+  return !!find(collection, matcher);
+}
+
+/**
+ * Transform a collection into another collection
+ * by piping each member through the given fn.
+ *
+ * @param  {Object|Array}   collection
+ * @param  {Function} fn
+ *
+ * @return {Array} transformed collection
+ */
+function map(collection, fn) {
+
+  var result = [];
+
+  forEach(collection, function (val, key) {
+    result.push(fn(val, key));
+  });
+
+  return result;
+}
+
+/**
+ * Get the collections keys.
+ *
+ * @param  {Object|Array} collection
+ *
+ * @return {Array}
+ */
+function keys(collection) {
+  return collection && Object.keys(collection) || [];
+}
+
+/**
+ * Shorthand for `keys(o).length`.
+ *
+ * @param  {Object|Array} collection
+ *
+ * @return {Number}
+ */
+function size(collection) {
+  return keys(collection).length;
+}
+
+/**
+ * Get the values in the collection.
+ *
+ * @param  {Object|Array} collection
+ *
+ * @return {Array}
+ */
+function values(collection) {
+  return map(collection, function (val) {
+    return val;
+  });
+}
+
+/**
+ * Group collection members by attribute.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} extractor
+ *
+ * @return {Object} map with { attrValue => [ a, b, c ] }
+ */
+function groupBy(collection, extractor) {
+  var grouped = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
+
+  extractor = toExtractor(extractor);
+
+  forEach(collection, function (val) {
+    var discriminator = extractor(val) || '_';
+
+    var group = grouped[discriminator];
+
+    if (!group) {
+      group = grouped[discriminator] = [];
+    }
+
+    group.push(val);
+  });
+
+  return grouped;
+}
+
+function uniqueBy(extractor) {
+
+  extractor = toExtractor(extractor);
+
+  var grouped = {};
+
+  for (var _len = arguments.length, collections = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    collections[_key - 1] = arguments[_key];
+  }
+
+  forEach(collections, function (c) {
+    return groupBy(c, extractor, grouped);
+  });
+
+  var result = map(grouped, function (val, key) {
+    return val[0];
+  });
+
+  return result;
+}
+
+var unionBy = uniqueBy;
+
+/**
+ * Sort collection by criteria.
+ *
+ * @param  {Object|Array} collection
+ * @param  {String|Function} extractor
+ *
+ * @return {Array}
+ */
+function sortBy(collection, extractor) {
+
+  extractor = toExtractor(extractor);
+
+  var sorted = [];
+
+  forEach(collection, function (value, key) {
+    var disc = extractor(value, key);
+
+    var entry = {
+      d: disc,
+      v: value
+    };
+
+    for (var idx = 0; idx < sorted.length; idx++) {
+      var d = sorted[idx].d;
+
+      if (disc < d) {
+        sorted.splice(idx, 0, entry);
+        return;
+      }
+    }
+
+    // not inserted, append (!)
+    sorted.push(entry);
+  });
+
+  return map(sorted, function (e) {
+    return e.v;
+  });
+}
+
+/**
+ * Create an object pattern matcher.
+ *
+ * @example
+ *
+ * const matcher = matchPattern({ id: 1 });
+ *
+ * var element = find(elements, matcher);
+ *
+ * @param  {Object} pattern
+ *
+ * @return {Function} matcherFn
+ */
+function matchPattern(pattern) {
+
+  return function (el) {
+
+    return every(pattern, function (val, key) {
+      return el[key] === val;
+    });
+  };
+}
+
+function toExtractor(extractor) {
+  return isFunction(extractor) ? extractor : function (e) {
+    return e[extractor];
+  };
+}
+
+function toMatcher(matcher) {
+  return isFunction(matcher) ? matcher : function (e) {
+    return e === matcher;
+  };
+}
+
+function identity(arg) {
+  return arg;
+}
+
+function toNum(arg) {
+  return Number(arg);
+}
+
+function _toConsumableArray(arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
+      arr2[i] = arr[i];
+    }return arr2;
+  } else {
+    return Array.from(arr);
+  }
+}
+
+var slice = Array.prototype.slice;
+
+/**
+ * Debounce fn, calling it only once if
+ * the given time elapsed between calls.
+ *
+ * @param  {Function} fn
+ * @param  {Number} timeout
+ *
+ * @return {Function} debounced function
+ */
+function debounce(fn, timeout) {
+
+  var timer;
+
+  return function () {
+
+    var args = slice.call(arguments);
+
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    timer = setTimeout(function () {
+      fn.apply(undefined, _toConsumableArray(args));
+    }, timeout);
+  };
+}
+
+/**
+ * Bind function against target <this>.
+ *
+ * @param  {Function} fn
+ * @param  {Object}   target
+ *
+ * @return {Function} bound function
+ */
+function bind(fn, target) {
+  return fn.bind(target);
+}
+
+var _extends = Object.assign || function (target) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];for (var key in source) {
+      if (Object.prototype.hasOwnProperty.call(source, key)) {
+        target[key] = source[key];
+      }
+    }
+  }return target;
+};
+
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign(target) {
+  for (var _len = arguments.length, others = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    others[_key - 1] = arguments[_key];
+  }
+
+  return _extends.apply(undefined, [target].concat(others));
+}
+
+/**
+ * Pick given properties from the target object.
+ *
+ * @param {Object} target
+ * @param {Array} properties
+ *
+ * @return {Object} target
+ */
+function pick(target, properties) {
+
+  var result = {};
+
+  var obj = Object(target);
+
+  forEach(properties, function (prop) {
+
+    if (prop in obj) {
+      result[prop] = target[prop];
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Pick all target properties, excluding the given ones.
+ *
+ * @param {Object} target
+ * @param {Array} properties
+ *
+ * @return {Object} target
+ */
+function omit(target, properties) {
+
+  var result = {};
+
+  var obj = Object(target);
+
+  forEach(obj, function (prop, key) {
+
+    if (properties.indexOf(key) === -1) {
+      result[key] = prop;
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Recursively merge `...sources` into given target.
+ *
+ * Does support merging objects; does not support merging arrays.
+ *
+ * @param {Object} target
+ * @param {...Object} sources
+ *
+ * @return {Object} the target
+ */
+function merge(target) {
+  for (var _len2 = arguments.length, sources = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+    sources[_key2 - 1] = arguments[_key2];
+  }
+
+  if (!sources.length) {
+    return target;
+  }
+
+  forEach(sources, function (source) {
+
+    // skip non-obj sources, i.e. null
+    if (!source || !isObject(source)) {
+      return;
+    }
+
+    forEach(source, function (sourceVal, key) {
+
+      var targetVal = target[key];
+
+      if (isObject(sourceVal)) {
+
+        if (!isObject(targetVal)) {
+          // override target[key] with object
+          targetVal = {};
+        }
+
+        target[key] = merge(targetVal, sourceVal);
+      } else {
+        target[key] = sourceVal;
+      }
+    });
+  });
+
+  return target;
+}
+
+
 
 /***/ }),
 
@@ -1004,7 +5536,531 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"attr\", function() { return attr; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"classes\", function() { return classes; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"clear\", function() { return clear; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"closest\", function() { return closest; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"delegate\", function() { return delegateEvents; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"domify\", function() { return domify; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"event\", function() { return componentEvent; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"matches\", function() { return matchesSelector$1; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"query\", function() { return query; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"queryAll\", function() { return all; });\n/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, \"remove\", function() { return remove; });\n/**\n * Set attribute `name` to `val`, or get attr `name`.\n *\n * @param {Element} el\n * @param {String} name\n * @param {String} [val]\n * @api public\n */\nfunction attr(el, name, val) {\n  // get\n  if (arguments.length == 2) {\n    return el.getAttribute(name);\n  }\n\n  // remove\n  if (val === null) {\n    return el.removeAttribute(name);\n  }\n\n  // set\n  el.setAttribute(name, val);\n\n  return el;\n}\n\nvar indexOf = [].indexOf;\n\nvar indexof = function (arr, obj) {\n  if (indexOf) return arr.indexOf(obj);\n  for (var i = 0; i < arr.length; ++i) {\n    if (arr[i] === obj) return i;\n  }\n  return -1;\n};\n\n/**\n * Taken from https://github.com/component/classes\n *\n * Without the component bits.\n */\n\n/**\n * Whitespace regexp.\n */\n\nvar re = /\\s+/;\n\n/**\n * toString reference.\n */\n\nvar toString = Object.prototype.toString;\n\n/**\n * Wrap `el` in a `ClassList`.\n *\n * @param {Element} el\n * @return {ClassList}\n * @api public\n */\n\nfunction classes(el) {\n  return new ClassList(el);\n}\n\n/**\n * Initialize a new ClassList for `el`.\n *\n * @param {Element} el\n * @api private\n */\n\nfunction ClassList(el) {\n  if (!el || !el.nodeType) {\n    throw new Error('A DOM element reference is required');\n  }\n  this.el = el;\n  this.list = el.classList;\n}\n\n/**\n * Add class `name` if not already present.\n *\n * @param {String} name\n * @return {ClassList}\n * @api public\n */\n\nClassList.prototype.add = function (name) {\n  // classList\n  if (this.list) {\n    this.list.add(name);\n    return this;\n  }\n\n  // fallback\n  var arr = this.array();\n  var i = indexof(arr, name);\n  if (!~i) arr.push(name);\n  this.el.className = arr.join(' ');\n  return this;\n};\n\n/**\n * Remove class `name` when present, or\n * pass a regular expression to remove\n * any which match.\n *\n * @param {String|RegExp} name\n * @return {ClassList}\n * @api public\n */\n\nClassList.prototype.remove = function (name) {\n  if ('[object RegExp]' == toString.call(name)) {\n    return this.removeMatching(name);\n  }\n\n  // classList\n  if (this.list) {\n    this.list.remove(name);\n    return this;\n  }\n\n  // fallback\n  var arr = this.array();\n  var i = indexof(arr, name);\n  if (~i) arr.splice(i, 1);\n  this.el.className = arr.join(' ');\n  return this;\n};\n\n/**\n * Remove all classes matching `re`.\n *\n * @param {RegExp} re\n * @return {ClassList}\n * @api private\n */\n\nClassList.prototype.removeMatching = function (re) {\n  var arr = this.array();\n  for (var i = 0; i < arr.length; i++) {\n    if (re.test(arr[i])) {\n      this.remove(arr[i]);\n    }\n  }\n  return this;\n};\n\n/**\n * Toggle class `name`, can force state via `force`.\n *\n * For browsers that support classList, but do not support `force` yet,\n * the mistake will be detected and corrected.\n *\n * @param {String} name\n * @param {Boolean} force\n * @return {ClassList}\n * @api public\n */\n\nClassList.prototype.toggle = function (name, force) {\n  // classList\n  if (this.list) {\n    if ('undefined' !== typeof force) {\n      if (force !== this.list.toggle(name, force)) {\n        this.list.toggle(name); // toggle again to correct\n      }\n    } else {\n      this.list.toggle(name);\n    }\n    return this;\n  }\n\n  // fallback\n  if ('undefined' !== typeof force) {\n    if (!force) {\n      this.remove(name);\n    } else {\n      this.add(name);\n    }\n  } else {\n    if (this.has(name)) {\n      this.remove(name);\n    } else {\n      this.add(name);\n    }\n  }\n\n  return this;\n};\n\n/**\n * Return an array of classes.\n *\n * @return {Array}\n * @api public\n */\n\nClassList.prototype.array = function () {\n  var className = this.el.getAttribute('class') || '';\n  var str = className.replace(/^\\s+|\\s+$/g, '');\n  var arr = str.split(re);\n  if ('' === arr[0]) arr.shift();\n  return arr;\n};\n\n/**\n * Check if class `name` is present.\n *\n * @param {String} name\n * @return {ClassList}\n * @api public\n */\n\nClassList.prototype.has = ClassList.prototype.contains = function (name) {\n  return this.list ? this.list.contains(name) : !!~indexof(this.array(), name);\n};\n\n/**\n * Remove all children from the given element.\n */\nfunction clear(el) {\n\n  var c;\n\n  while (el.childNodes.length) {\n    c = el.childNodes[0];\n    el.removeChild(c);\n  }\n\n  return el;\n}\n\n/**\r\n * Element prototype.\r\n */\n\nvar proto = Element.prototype;\n\n/**\r\n * Vendor function.\r\n */\n\nvar vendor = proto.matchesSelector || proto.webkitMatchesSelector || proto.mozMatchesSelector || proto.msMatchesSelector || proto.oMatchesSelector;\n\n/**\r\n * Expose `match()`.\r\n */\n\nvar matchesSelector = match;\n\n/**\r\n * Match `el` to `selector`.\r\n *\r\n * @param {Element} el\r\n * @param {String} selector\r\n * @return {Boolean}\r\n * @api public\r\n */\n\nfunction match(el, selector) {\n  if (vendor) return vendor.call(el, selector);\n  var nodes = el.parentNode.querySelectorAll(selector);\n  for (var i = 0; i < nodes.length; ++i) {\n    if (nodes[i] == el) return true;\n  }\n  return false;\n}\n\nvar closest = function (element, selector, checkYoSelf) {\n  var parent = checkYoSelf ? element : element.parentNode;\n\n  while (parent && parent !== document) {\n    if (matchesSelector(parent, selector)) return parent;\n    parent = parent.parentNode;\n  }\n};\n\nvar bind = window.addEventListener ? 'addEventListener' : 'attachEvent',\n    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',\n    prefix = bind !== 'addEventListener' ? 'on' : '';\n\n/**\n * Bind `el` event `type` to `fn`.\n *\n * @param {Element} el\n * @param {String} type\n * @param {Function} fn\n * @param {Boolean} capture\n * @return {Function}\n * @api public\n */\n\nvar bind_1 = function (el, type, fn, capture) {\n  el[bind](prefix + type, fn, capture || false);\n  return fn;\n};\n\n/**\n * Unbind `el` event `type`'s callback `fn`.\n *\n * @param {Element} el\n * @param {String} type\n * @param {Function} fn\n * @param {Boolean} capture\n * @return {Function}\n * @api public\n */\n\nvar unbind_1 = function (el, type, fn, capture) {\n  el[unbind](prefix + type, fn, capture || false);\n  return fn;\n};\n\nvar componentEvent = {\n  bind: bind_1,\n  unbind: unbind_1\n};\n\n/**\n * Module dependencies.\n */\n\n/**\n * Delegate event `type` to `selector`\n * and invoke `fn(e)`. A callback function\n * is returned which may be passed to `.unbind()`.\n *\n * @param {Element} el\n * @param {String} selector\n * @param {String} type\n * @param {Function} fn\n * @param {Boolean} capture\n * @return {Function}\n * @api public\n */\n\n// Some events don't bubble, so we want to bind to the capture phase instead\n// when delegating.\nvar forceCaptureEvents = ['focus', 'blur'];\n\nvar bind$1 = function (el, selector, type, fn, capture) {\n  if (forceCaptureEvents.indexOf(type) !== -1) capture = true;\n\n  return componentEvent.bind(el, type, function (e) {\n    var target = e.target || e.srcElement;\n    e.delegateTarget = closest(target, selector, true, el);\n    if (e.delegateTarget) fn.call(el, e);\n  }, capture);\n};\n\n/**\n * Unbind event `type`'s callback `fn`.\n *\n * @param {Element} el\n * @param {String} type\n * @param {Function} fn\n * @param {Boolean} capture\n * @api public\n */\n\nvar unbind$1 = function (el, type, fn, capture) {\n  if (forceCaptureEvents.indexOf(type) !== -1) capture = true;\n\n  componentEvent.unbind(el, type, fn, capture);\n};\n\nvar delegateEvents = {\n  bind: bind$1,\n  unbind: unbind$1\n};\n\n/**\n * Expose `parse`.\n */\n\nvar domify = parse;\n\n/**\n * Tests for browser support.\n */\n\nvar innerHTMLBug = false;\nvar bugTestDiv;\nif (typeof document !== 'undefined') {\n  bugTestDiv = document.createElement('div');\n  // Setup\n  bugTestDiv.innerHTML = '  <link/><table></table><a href=\"/a\">a</a><input type=\"checkbox\"/>';\n  // Make sure that link elements get serialized correctly by innerHTML\n  // This requires a wrapper element in IE\n  innerHTMLBug = !bugTestDiv.getElementsByTagName('link').length;\n  bugTestDiv = undefined;\n}\n\n/**\n * Wrap map from jquery.\n */\n\nvar map = {\n  legend: [1, '<fieldset>', '</fieldset>'],\n  tr: [2, '<table><tbody>', '</tbody></table>'],\n  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],\n  // for script/link/style tags to work in IE6-8, you have to wrap\n  // in a div with a non-whitespace character in front, ha!\n  _default: innerHTMLBug ? [1, 'X<div>', '</div>'] : [0, '', '']\n};\n\nmap.td = map.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];\n\nmap.option = map.optgroup = [1, '<select multiple=\"multiple\">', '</select>'];\n\nmap.thead = map.tbody = map.colgroup = map.caption = map.tfoot = [1, '<table>', '</table>'];\n\nmap.polyline = map.ellipse = map.polygon = map.circle = map.text = map.line = map.path = map.rect = map.g = [1, '<svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">', '</svg>'];\n\n/**\n * Parse `html` and return a DOM Node instance, which could be a TextNode,\n * HTML DOM Node of some kind (<div> for example), or a DocumentFragment\n * instance, depending on the contents of the `html` string.\n *\n * @param {String} html - HTML string to \"domify\"\n * @param {Document} doc - The `document` instance to create the Node for\n * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance\n * @api private\n */\n\nfunction parse(html, doc) {\n  if ('string' != typeof html) throw new TypeError('String expected');\n\n  // default to the global `document` object\n  if (!doc) doc = document;\n\n  // tag name\n  var m = /<([\\w:]+)/.exec(html);\n  if (!m) return doc.createTextNode(html);\n\n  html = html.replace(/^\\s+|\\s+$/g, ''); // Remove leading/trailing whitespace\n\n  var tag = m[1];\n\n  // body support\n  if (tag == 'body') {\n    var el = doc.createElement('html');\n    el.innerHTML = html;\n    return el.removeChild(el.lastChild);\n  }\n\n  // wrap map\n  var wrap = map[tag] || map._default;\n  var depth = wrap[0];\n  var prefix = wrap[1];\n  var suffix = wrap[2];\n  var el = doc.createElement('div');\n  el.innerHTML = prefix + html + suffix;\n  while (depth--) el = el.lastChild;\n\n  // one element\n  if (el.firstChild == el.lastChild) {\n    return el.removeChild(el.firstChild);\n  }\n\n  // several elements\n  var fragment = doc.createDocumentFragment();\n  while (el.firstChild) {\n    fragment.appendChild(el.removeChild(el.firstChild));\n  }\n\n  return fragment;\n}\n\nvar proto$1 = typeof Element !== 'undefined' ? Element.prototype : {};\nvar vendor$1 = proto$1.matches || proto$1.matchesSelector || proto$1.webkitMatchesSelector || proto$1.mozMatchesSelector || proto$1.msMatchesSelector || proto$1.oMatchesSelector;\n\nvar matchesSelector$1 = match$1;\n\n/**\n * Match `el` to `selector`.\n *\n * @param {Element} el\n * @param {String} selector\n * @return {Boolean}\n * @api public\n */\n\nfunction match$1(el, selector) {\n  if (!el || el.nodeType !== 1) return false;\n  if (vendor$1) return vendor$1.call(el, selector);\n  var nodes = el.parentNode.querySelectorAll(selector);\n  for (var i = 0; i < nodes.length; i++) {\n    if (nodes[i] == el) return true;\n  }\n  return false;\n}\n\nfunction query(selector, el) {\n  el = el || document;\n\n  return el.querySelector(selector);\n}\n\nfunction all(selector, el) {\n  el = el || document;\n\n  return el.querySelectorAll(selector);\n}\n\nfunction remove(el) {\n  el.parentNode && el.parentNode.removeChild(el);\n}\n\n\n\n//# sourceURL=webpack:///./node_modules/min-dom/dist/index.esm.js?");
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "attr", function() { return attr; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "classes", function() { return classes; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clear", function() { return clear; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "closest", function() { return closest; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "delegate", function() { return delegateEvents; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "domify", function() { return domify; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "event", function() { return componentEvent; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "matches", function() { return matchesSelector$1; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "query", function() { return query; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "queryAll", function() { return all; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "remove", function() { return remove; });
+/**
+ * Set attribute `name` to `val`, or get attr `name`.
+ *
+ * @param {Element} el
+ * @param {String} name
+ * @param {String} [val]
+ * @api public
+ */
+function attr(el, name, val) {
+  // get
+  if (arguments.length == 2) {
+    return el.getAttribute(name);
+  }
+
+  // remove
+  if (val === null) {
+    return el.removeAttribute(name);
+  }
+
+  // set
+  el.setAttribute(name, val);
+
+  return el;
+}
+
+var indexOf = [].indexOf;
+
+var indexof = function (arr, obj) {
+  if (indexOf) return arr.indexOf(obj);
+  for (var i = 0; i < arr.length; ++i) {
+    if (arr[i] === obj) return i;
+  }
+  return -1;
+};
+
+/**
+ * Taken from https://github.com/component/classes
+ *
+ * Without the component bits.
+ */
+
+/**
+ * Whitespace regexp.
+ */
+
+var re = /\s+/;
+
+/**
+ * toString reference.
+ */
+
+var toString = Object.prototype.toString;
+
+/**
+ * Wrap `el` in a `ClassList`.
+ *
+ * @param {Element} el
+ * @return {ClassList}
+ * @api public
+ */
+
+function classes(el) {
+  return new ClassList(el);
+}
+
+/**
+ * Initialize a new ClassList for `el`.
+ *
+ * @param {Element} el
+ * @api private
+ */
+
+function ClassList(el) {
+  if (!el || !el.nodeType) {
+    throw new Error('A DOM element reference is required');
+  }
+  this.el = el;
+  this.list = el.classList;
+}
+
+/**
+ * Add class `name` if not already present.
+ *
+ * @param {String} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.add = function (name) {
+  // classList
+  if (this.list) {
+    this.list.add(name);
+    return this;
+  }
+
+  // fallback
+  var arr = this.array();
+  var i = indexof(arr, name);
+  if (!~i) arr.push(name);
+  this.el.className = arr.join(' ');
+  return this;
+};
+
+/**
+ * Remove class `name` when present, or
+ * pass a regular expression to remove
+ * any which match.
+ *
+ * @param {String|RegExp} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.remove = function (name) {
+  if ('[object RegExp]' == toString.call(name)) {
+    return this.removeMatching(name);
+  }
+
+  // classList
+  if (this.list) {
+    this.list.remove(name);
+    return this;
+  }
+
+  // fallback
+  var arr = this.array();
+  var i = indexof(arr, name);
+  if (~i) arr.splice(i, 1);
+  this.el.className = arr.join(' ');
+  return this;
+};
+
+/**
+ * Remove all classes matching `re`.
+ *
+ * @param {RegExp} re
+ * @return {ClassList}
+ * @api private
+ */
+
+ClassList.prototype.removeMatching = function (re) {
+  var arr = this.array();
+  for (var i = 0; i < arr.length; i++) {
+    if (re.test(arr[i])) {
+      this.remove(arr[i]);
+    }
+  }
+  return this;
+};
+
+/**
+ * Toggle class `name`, can force state via `force`.
+ *
+ * For browsers that support classList, but do not support `force` yet,
+ * the mistake will be detected and corrected.
+ *
+ * @param {String} name
+ * @param {Boolean} force
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.toggle = function (name, force) {
+  // classList
+  if (this.list) {
+    if ('undefined' !== typeof force) {
+      if (force !== this.list.toggle(name, force)) {
+        this.list.toggle(name); // toggle again to correct
+      }
+    } else {
+      this.list.toggle(name);
+    }
+    return this;
+  }
+
+  // fallback
+  if ('undefined' !== typeof force) {
+    if (!force) {
+      this.remove(name);
+    } else {
+      this.add(name);
+    }
+  } else {
+    if (this.has(name)) {
+      this.remove(name);
+    } else {
+      this.add(name);
+    }
+  }
+
+  return this;
+};
+
+/**
+ * Return an array of classes.
+ *
+ * @return {Array}
+ * @api public
+ */
+
+ClassList.prototype.array = function () {
+  var className = this.el.getAttribute('class') || '';
+  var str = className.replace(/^\s+|\s+$/g, '');
+  var arr = str.split(re);
+  if ('' === arr[0]) arr.shift();
+  return arr;
+};
+
+/**
+ * Check if class `name` is present.
+ *
+ * @param {String} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.has = ClassList.prototype.contains = function (name) {
+  return this.list ? this.list.contains(name) : !!~indexof(this.array(), name);
+};
+
+/**
+ * Remove all children from the given element.
+ */
+function clear(el) {
+
+  var c;
+
+  while (el.childNodes.length) {
+    c = el.childNodes[0];
+    el.removeChild(c);
+  }
+
+  return el;
+}
+
+/**
+ * Element prototype.
+ */
+
+var proto = Element.prototype;
+
+/**
+ * Vendor function.
+ */
+
+var vendor = proto.matchesSelector || proto.webkitMatchesSelector || proto.mozMatchesSelector || proto.msMatchesSelector || proto.oMatchesSelector;
+
+/**
+ * Expose `match()`.
+ */
+
+var matchesSelector = match;
+
+/**
+ * Match `el` to `selector`.
+ *
+ * @param {Element} el
+ * @param {String} selector
+ * @return {Boolean}
+ * @api public
+ */
+
+function match(el, selector) {
+  if (vendor) return vendor.call(el, selector);
+  var nodes = el.parentNode.querySelectorAll(selector);
+  for (var i = 0; i < nodes.length; ++i) {
+    if (nodes[i] == el) return true;
+  }
+  return false;
+}
+
+var closest = function (element, selector, checkYoSelf) {
+  var parent = checkYoSelf ? element : element.parentNode;
+
+  while (parent && parent !== document) {
+    if (matchesSelector(parent, selector)) return parent;
+    parent = parent.parentNode;
+  }
+};
+
+var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
+    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
+    prefix = bind !== 'addEventListener' ? 'on' : '';
+
+/**
+ * Bind `el` event `type` to `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+var bind_1 = function (el, type, fn, capture) {
+  el[bind](prefix + type, fn, capture || false);
+  return fn;
+};
+
+/**
+ * Unbind `el` event `type`'s callback `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+var unbind_1 = function (el, type, fn, capture) {
+  el[unbind](prefix + type, fn, capture || false);
+  return fn;
+};
+
+var componentEvent = {
+  bind: bind_1,
+  unbind: unbind_1
+};
+
+/**
+ * Module dependencies.
+ */
+
+/**
+ * Delegate event `type` to `selector`
+ * and invoke `fn(e)`. A callback function
+ * is returned which may be passed to `.unbind()`.
+ *
+ * @param {Element} el
+ * @param {String} selector
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+// Some events don't bubble, so we want to bind to the capture phase instead
+// when delegating.
+var forceCaptureEvents = ['focus', 'blur'];
+
+var bind$1 = function (el, selector, type, fn, capture) {
+  if (forceCaptureEvents.indexOf(type) !== -1) capture = true;
+
+  return componentEvent.bind(el, type, function (e) {
+    var target = e.target || e.srcElement;
+    e.delegateTarget = closest(target, selector, true, el);
+    if (e.delegateTarget) fn.call(el, e);
+  }, capture);
+};
+
+/**
+ * Unbind event `type`'s callback `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @api public
+ */
+
+var unbind$1 = function (el, type, fn, capture) {
+  if (forceCaptureEvents.indexOf(type) !== -1) capture = true;
+
+  componentEvent.unbind(el, type, fn, capture);
+};
+
+var delegateEvents = {
+  bind: bind$1,
+  unbind: unbind$1
+};
+
+/**
+ * Expose `parse`.
+ */
+
+var domify = parse;
+
+/**
+ * Tests for browser support.
+ */
+
+var innerHTMLBug = false;
+var bugTestDiv;
+if (typeof document !== 'undefined') {
+  bugTestDiv = document.createElement('div');
+  // Setup
+  bugTestDiv.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
+  // Make sure that link elements get serialized correctly by innerHTML
+  // This requires a wrapper element in IE
+  innerHTMLBug = !bugTestDiv.getElementsByTagName('link').length;
+  bugTestDiv = undefined;
+}
+
+/**
+ * Wrap map from jquery.
+ */
+
+var map = {
+  legend: [1, '<fieldset>', '</fieldset>'],
+  tr: [2, '<table><tbody>', '</tbody></table>'],
+  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
+  // for script/link/style tags to work in IE6-8, you have to wrap
+  // in a div with a non-whitespace character in front, ha!
+  _default: innerHTMLBug ? [1, 'X<div>', '</div>'] : [0, '', '']
+};
+
+map.td = map.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
+
+map.option = map.optgroup = [1, '<select multiple="multiple">', '</select>'];
+
+map.thead = map.tbody = map.colgroup = map.caption = map.tfoot = [1, '<table>', '</table>'];
+
+map.polyline = map.ellipse = map.polygon = map.circle = map.text = map.line = map.path = map.rect = map.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">', '</svg>'];
+
+/**
+ * Parse `html` and return a DOM Node instance, which could be a TextNode,
+ * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
+ * instance, depending on the contents of the `html` string.
+ *
+ * @param {String} html - HTML string to "domify"
+ * @param {Document} doc - The `document` instance to create the Node for
+ * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
+ * @api private
+ */
+
+function parse(html, doc) {
+  if ('string' != typeof html) throw new TypeError('String expected');
+
+  // default to the global `document` object
+  if (!doc) doc = document;
+
+  // tag name
+  var m = /<([\w:]+)/.exec(html);
+  if (!m) return doc.createTextNode(html);
+
+  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
+
+  var tag = m[1];
+
+  // body support
+  if (tag == 'body') {
+    var el = doc.createElement('html');
+    el.innerHTML = html;
+    return el.removeChild(el.lastChild);
+  }
+
+  // wrap map
+  var wrap = map[tag] || map._default;
+  var depth = wrap[0];
+  var prefix = wrap[1];
+  var suffix = wrap[2];
+  var el = doc.createElement('div');
+  el.innerHTML = prefix + html + suffix;
+  while (depth--) el = el.lastChild;
+
+  // one element
+  if (el.firstChild == el.lastChild) {
+    return el.removeChild(el.firstChild);
+  }
+
+  // several elements
+  var fragment = doc.createDocumentFragment();
+  while (el.firstChild) {
+    fragment.appendChild(el.removeChild(el.firstChild));
+  }
+
+  return fragment;
+}
+
+var proto$1 = typeof Element !== 'undefined' ? Element.prototype : {};
+var vendor$1 = proto$1.matches || proto$1.matchesSelector || proto$1.webkitMatchesSelector || proto$1.mozMatchesSelector || proto$1.msMatchesSelector || proto$1.oMatchesSelector;
+
+var matchesSelector$1 = match$1;
+
+/**
+ * Match `el` to `selector`.
+ *
+ * @param {Element} el
+ * @param {String} selector
+ * @return {Boolean}
+ * @api public
+ */
+
+function match$1(el, selector) {
+  if (!el || el.nodeType !== 1) return false;
+  if (vendor$1) return vendor$1.call(el, selector);
+  var nodes = el.parentNode.querySelectorAll(selector);
+  for (var i = 0; i < nodes.length; i++) {
+    if (nodes[i] == el) return true;
+  }
+  return false;
+}
+
+function query(selector, el) {
+  el = el || document;
+
+  return el.querySelector(selector);
+}
+
+function all(selector, el) {
+  el = el || document;
+
+  return el.querySelectorAll(selector);
+}
+
+function remove(el) {
+  el.parentNode && el.parentNode.removeChild(el);
+}
+
+
 
 /***/ }),
 
@@ -1015,8 +6071,5278 @@ eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export (binding) *
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
-eval("var __WEBPACK_AMD_DEFINE_RESULT__;/*!\n* svg.js - A lightweight library for manipulating and animating SVG.\n* @version 2.7.1\n* https://svgdotjs.github.io/\n*\n* @copyright Wout Fierens <wout@mick-wout.com>\n* @license MIT\n*\n* BUILT: Fri Nov 30 2018 10:01:55 GMT+0100 (GMT+01:00)\n*/;\n(function (root, factory) {\n  /* istanbul ignore next */\n  if (true) {\n    !(__WEBPACK_AMD_DEFINE_RESULT__ = (function () {\n      return factory(root, root.document);\n    }).call(exports, __webpack_require__, exports, module),\n\t\t\t\t__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));\n  } else {}\n})(typeof window !== \"undefined\" ? window : this, function (window, document) {\n\n  // Find global reference - uses 'this' by default when available,\n  // falls back to 'window' otherwise (for bundlers like Webpack)\n  var globalRef = typeof this !== \"undefined\" ? this : window;\n\n  // The main wrapping element\n  var SVG = globalRef.SVG = function (element) {\n    if (SVG.supported) {\n      element = new SVG.Doc(element);\n\n      if (!SVG.parser.draw) SVG.prepare();\n\n      return element;\n    }\n  };\n\n  // Default namespaces\n  SVG.ns = 'http://www.w3.org/2000/svg';\n  SVG.xmlns = 'http://www.w3.org/2000/xmlns/';\n  SVG.xlink = 'http://www.w3.org/1999/xlink';\n  SVG.svgjs = 'http://svgjs.com/svgjs';\n\n  // Svg support test\n  SVG.supported = function () {\n    return !!document.createElementNS && !!document.createElementNS(SVG.ns, 'svg').createSVGRect;\n  }();\n\n  // Don't bother to continue if SVG is not supported\n  if (!SVG.supported) return false;\n\n  // Element id sequence\n  SVG.did = 1000;\n\n  // Get next named element id\n  SVG.eid = function (name) {\n    return 'Svgjs' + capitalize(name) + SVG.did++;\n  };\n\n  // Method for element creation\n  SVG.create = function (name) {\n    // create element\n    var element = document.createElementNS(this.ns, name);\n\n    // apply unique id\n    element.setAttribute('id', this.eid(name));\n\n    return element;\n  };\n\n  // Method for extending objects\n  SVG.extend = function () {\n    var modules, methods, key, i;\n\n    // Get list of modules\n    modules = [].slice.call(arguments);\n\n    // Get object with extensions\n    methods = modules.pop();\n\n    for (i = modules.length - 1; i >= 0; i--) if (modules[i]) for (key in methods) modules[i].prototype[key] = methods[key];\n\n    // Make sure SVG.Set inherits any newly added methods\n    if (SVG.Set && SVG.Set.inherit) SVG.Set.inherit();\n  };\n\n  // Invent new element\n  SVG.invent = function (config) {\n    // Create element initializer\n    var initializer = typeof config.create == 'function' ? config.create : function () {\n      this.constructor.call(this, SVG.create(config.create));\n    };\n\n    // Inherit prototype\n    if (config.inherit) initializer.prototype = new config.inherit();\n\n    // Extend with methods\n    if (config.extend) SVG.extend(initializer, config.extend);\n\n    // Attach construct method to parent\n    if (config.construct) SVG.extend(config.parent || SVG.Container, config.construct);\n\n    return initializer;\n  };\n\n  // Adopt existing svg elements\n  SVG.adopt = function (node) {\n    // check for presence of node\n    if (!node) return null;\n\n    // make sure a node isn't already adopted\n    if (node.instance) return node.instance;\n\n    // initialize variables\n    var element;\n\n    // adopt with element-specific settings\n    if (node.nodeName == 'svg') element = node.parentNode instanceof window.SVGElement ? new SVG.Nested() : new SVG.Doc();else if (node.nodeName == 'linearGradient') element = new SVG.Gradient('linear');else if (node.nodeName == 'radialGradient') element = new SVG.Gradient('radial');else if (SVG[capitalize(node.nodeName)]) element = new SVG[capitalize(node.nodeName)]();else element = new SVG.Element(node);\n\n    // ensure references\n    element.type = node.nodeName;\n    element.node = node;\n    node.instance = element;\n\n    // SVG.Class specific preparations\n    if (element instanceof SVG.Doc) element.namespace().defs();\n\n    // pull svgjs data from the dom (getAttributeNS doesn't work in html5)\n    element.setData(JSON.parse(node.getAttribute('svgjs:data')) || {});\n\n    return element;\n  };\n\n  // Initialize parsing element\n  SVG.prepare = function () {\n    // Select document body and create invisible svg element\n    var body = document.getElementsByTagName('body')[0],\n        draw = (body ? new SVG.Doc(body) : SVG.adopt(document.documentElement).nested()).size(2, 0);\n\n    // Create parser object\n    SVG.parser = {\n      body: body || document.documentElement,\n      draw: draw.style('opacity:0;position:absolute;left:-100%;top:-100%;overflow:hidden').attr('focusable', 'false').node,\n      poly: draw.polyline().node,\n      path: draw.path().node,\n      native: SVG.create('svg')\n    };\n  };\n\n  SVG.parser = {\n    native: SVG.create('svg')\n  };\n\n  document.addEventListener('DOMContentLoaded', function () {\n    if (!SVG.parser.draw) SVG.prepare();\n  }, false);\n\n  // Storage for regular expressions\n  SVG.regex = {\n    // Parse unit value\n    numberAndUnit: /^([+-]?(\\d+(\\.\\d*)?|\\.\\d+)(e[+-]?\\d+)?)([a-z%]*)$/i\n\n    // Parse hex value\n    , hex: /^#?([a-f\\d]{2})([a-f\\d]{2})([a-f\\d]{2})$/i\n\n    // Parse rgb value\n    , rgb: /rgb\\((\\d+),(\\d+),(\\d+)\\)/\n\n    // Parse reference id\n    , reference: /#([a-z0-9\\-_]+)/i\n\n    // splits a transformation chain\n    , transforms: /\\)\\s*,?\\s*/\n\n    // Whitespace\n    , whitespace: /\\s/g\n\n    // Test hex value\n    , isHex: /^#[a-f0-9]{3,6}$/i\n\n    // Test rgb value\n    , isRgb: /^rgb\\(/\n\n    // Test css declaration\n    , isCss: /[^:]+:[^;]+;?/\n\n    // Test for blank string\n    , isBlank: /^(\\s+)?$/\n\n    // Test for numeric string\n    , isNumber: /^[+-]?(\\d+(\\.\\d*)?|\\.\\d+)(e[+-]?\\d+)?$/i\n\n    // Test for percent value\n    , isPercent: /^-?[\\d\\.]+%$/\n\n    // Test for image url\n    , isImage: /\\.(jpg|jpeg|png|gif|svg)(\\?[^=]+.*)?/i\n\n    // split at whitespace and comma\n    , delimiter: /[\\s,]+/\n\n    // The following regex are used to parse the d attribute of a path\n\n    // Matches all hyphens which are not after an exponent\n    , hyphen: /([^e])\\-/gi\n\n    // Replaces and tests for all path letters\n    , pathLetters: /[MLHVCSQTAZ]/gi\n\n    // yes we need this one, too\n    , isPathLetter: /[MLHVCSQTAZ]/i\n\n    // matches 0.154.23.45\n    , numbersWithDots: /((\\d?\\.\\d+(?:e[+-]?\\d+)?)((?:\\.\\d+(?:e[+-]?\\d+)?)+))+/gi\n\n    // matches .\n    , dots: /\\./g\n  };\n\n  SVG.utils = {\n    // Map function\n    map: function (array, block) {\n      var i,\n          il = array.length,\n          result = [];\n\n      for (i = 0; i < il; i++) result.push(block(array[i]));\n\n      return result;\n    }\n\n    // Filter function\n    , filter: function (array, block) {\n      var i,\n          il = array.length,\n          result = [];\n\n      for (i = 0; i < il; i++) if (block(array[i])) result.push(array[i]);\n\n      return result;\n    }\n\n    // Degrees to radians\n    , radians: function (d) {\n      return d % 360 * Math.PI / 180;\n    }\n\n    // Radians to degrees\n    , degrees: function (r) {\n      return r * 180 / Math.PI % 360;\n    },\n\n    filterSVGElements: function (nodes) {\n      return this.filter(nodes, function (el) {\n        return el instanceof window.SVGElement;\n      });\n    }\n\n  };\n\n  SVG.defaults = {\n    // Default attribute values\n    attrs: {\n      // fill and stroke\n      'fill-opacity': 1,\n      'stroke-opacity': 1,\n      'stroke-width': 0,\n      'stroke-linejoin': 'miter',\n      'stroke-linecap': 'butt',\n      fill: '#000000',\n      stroke: '#000000',\n      opacity: 1\n      // position\n      , x: 0,\n      y: 0,\n      cx: 0,\n      cy: 0\n      // size\n      , width: 0,\n      height: 0\n      // radius\n      , r: 0,\n      rx: 0,\n      ry: 0\n      // gradient\n      , offset: 0,\n      'stop-opacity': 1,\n      'stop-color': '#000000'\n      // text\n      , 'font-size': 16,\n      'font-family': 'Helvetica, Arial, sans-serif',\n      'text-anchor': 'start'\n    }\n    // Module for color convertions\n  };SVG.Color = function (color) {\n    var match;\n\n    // initialize defaults\n    this.r = 0;\n    this.g = 0;\n    this.b = 0;\n\n    if (!color) return;\n\n    // parse color\n    if (typeof color === 'string') {\n      if (SVG.regex.isRgb.test(color)) {\n        // get rgb values\n        match = SVG.regex.rgb.exec(color.replace(SVG.regex.whitespace, ''));\n\n        // parse numeric values\n        this.r = parseInt(match[1]);\n        this.g = parseInt(match[2]);\n        this.b = parseInt(match[3]);\n      } else if (SVG.regex.isHex.test(color)) {\n        // get hex values\n        match = SVG.regex.hex.exec(fullHex(color));\n\n        // parse numeric values\n        this.r = parseInt(match[1], 16);\n        this.g = parseInt(match[2], 16);\n        this.b = parseInt(match[3], 16);\n      }\n    } else if (typeof color === 'object') {\n      this.r = color.r;\n      this.g = color.g;\n      this.b = color.b;\n    }\n  };\n\n  SVG.extend(SVG.Color, {\n    // Default to hex conversion\n    toString: function () {\n      return this.toHex();\n    }\n    // Build hex value\n    , toHex: function () {\n      return '#' + compToHex(this.r) + compToHex(this.g) + compToHex(this.b);\n    }\n    // Build rgb value\n    , toRgb: function () {\n      return 'rgb(' + [this.r, this.g, this.b].join() + ')';\n    }\n    // Calculate true brightness\n    , brightness: function () {\n      return this.r / 255 * 0.30 + this.g / 255 * 0.59 + this.b / 255 * 0.11;\n    }\n    // Make color morphable\n    , morph: function (color) {\n      this.destination = new SVG.Color(color);\n\n      return this;\n    }\n    // Get morphed color at given position\n    , at: function (pos) {\n      // make sure a destination is defined\n      if (!this.destination) return this;\n\n      // normalise pos\n      pos = pos < 0 ? 0 : pos > 1 ? 1 : pos;\n\n      // generate morphed color\n      return new SVG.Color({\n        r: ~~(this.r + (this.destination.r - this.r) * pos),\n        g: ~~(this.g + (this.destination.g - this.g) * pos),\n        b: ~~(this.b + (this.destination.b - this.b) * pos)\n      });\n    }\n\n  });\n\n  // Testers\n\n  // Test if given value is a color string\n  SVG.Color.test = function (color) {\n    color += '';\n    return SVG.regex.isHex.test(color) || SVG.regex.isRgb.test(color);\n  };\n\n  // Test if given value is a rgb object\n  SVG.Color.isRgb = function (color) {\n    return color && typeof color.r == 'number' && typeof color.g == 'number' && typeof color.b == 'number';\n  };\n\n  // Test if given value is a color\n  SVG.Color.isColor = function (color) {\n    return SVG.Color.isRgb(color) || SVG.Color.test(color);\n  };\n  // Module for array conversion\n  SVG.Array = function (array, fallback) {\n    array = (array || []).valueOf();\n\n    // if array is empty and fallback is provided, use fallback\n    if (array.length == 0 && fallback) array = fallback.valueOf();\n\n    // parse array\n    this.value = this.parse(array);\n  };\n\n  SVG.extend(SVG.Array, {\n    // Make array morphable\n    morph: function (array) {\n      this.destination = this.parse(array);\n\n      // normalize length of arrays\n      if (this.value.length != this.destination.length) {\n        var lastValue = this.value[this.value.length - 1],\n            lastDestination = this.destination[this.destination.length - 1];\n\n        while (this.value.length > this.destination.length) this.destination.push(lastDestination);\n        while (this.value.length < this.destination.length) this.value.push(lastValue);\n      }\n\n      return this;\n    }\n    // Clean up any duplicate points\n    , settle: function () {\n      // find all unique values\n      for (var i = 0, il = this.value.length, seen = []; i < il; i++) if (seen.indexOf(this.value[i]) == -1) seen.push(this.value[i]);\n\n      // set new value\n      return this.value = seen;\n    }\n    // Get morphed array at given position\n    , at: function (pos) {\n      // make sure a destination is defined\n      if (!this.destination) return this;\n\n      // generate morphed array\n      for (var i = 0, il = this.value.length, array = []; i < il; i++) array.push(this.value[i] + (this.destination[i] - this.value[i]) * pos);\n\n      return new SVG.Array(array);\n    }\n    // Convert array to string\n    , toString: function () {\n      return this.value.join(' ');\n    }\n    // Real value\n    , valueOf: function () {\n      return this.value;\n    }\n    // Parse whitespace separated string\n    , parse: function (array) {\n      array = array.valueOf();\n\n      // if already is an array, no need to parse it\n      if (Array.isArray(array)) return array;\n\n      return this.split(array);\n    }\n    // Strip unnecessary whitespace\n    , split: function (string) {\n      return string.trim().split(SVG.regex.delimiter).map(parseFloat);\n    }\n    // Reverse array\n    , reverse: function () {\n      this.value.reverse();\n\n      return this;\n    },\n    clone: function () {\n      var clone = new this.constructor();\n      clone.value = array_clone(this.value);\n      return clone;\n    }\n  });\n  // Poly points array\n  SVG.PointArray = function (array, fallback) {\n    SVG.Array.call(this, array, fallback || [[0, 0]]);\n  };\n\n  // Inherit from SVG.Array\n  SVG.PointArray.prototype = new SVG.Array();\n  SVG.PointArray.prototype.constructor = SVG.PointArray;\n\n  SVG.extend(SVG.PointArray, {\n    // Convert array to string\n    toString: function () {\n      // convert to a poly point string\n      for (var i = 0, il = this.value.length, array = []; i < il; i++) array.push(this.value[i].join(','));\n\n      return array.join(' ');\n    }\n    // Convert array to line object\n    , toLine: function () {\n      return {\n        x1: this.value[0][0],\n        y1: this.value[0][1],\n        x2: this.value[1][0],\n        y2: this.value[1][1]\n      };\n    }\n    // Get morphed array at given position\n    , at: function (pos) {\n      // make sure a destination is defined\n      if (!this.destination) return this;\n\n      // generate morphed point string\n      for (var i = 0, il = this.value.length, array = []; i < il; i++) array.push([this.value[i][0] + (this.destination[i][0] - this.value[i][0]) * pos, this.value[i][1] + (this.destination[i][1] - this.value[i][1]) * pos]);\n\n      return new SVG.PointArray(array);\n    }\n    // Parse point string and flat array\n    , parse: function (array) {\n      var points = [];\n\n      array = array.valueOf();\n\n      // if it is an array\n      if (Array.isArray(array)) {\n        // and it is not flat, there is no need to parse it\n        if (Array.isArray(array[0])) {\n          // make sure to use a clone\n          return array.map(function (el) {\n            return el.slice();\n          });\n        } else if (array[0].x != null) {\n          // allow point objects to be passed\n          return array.map(function (el) {\n            return [el.x, el.y];\n          });\n        }\n      } else {\n        // Else, it is considered as a string\n        // parse points\n        array = array.trim().split(SVG.regex.delimiter).map(parseFloat);\n      }\n\n      // validate points - https://svgwg.org/svg2-draft/shapes.html#DataTypePoints\n      // Odd number of coordinates is an error. In such cases, drop the last odd coordinate.\n      if (array.length % 2 !== 0) array.pop();\n\n      // wrap points in two-tuples and parse points as floats\n      for (var i = 0, len = array.length; i < len; i = i + 2) points.push([array[i], array[i + 1]]);\n\n      return points;\n    }\n    // Move point string\n    , move: function (x, y) {\n      var box = this.bbox();\n\n      // get relative offset\n      x -= box.x;\n      y -= box.y;\n\n      // move every point\n      if (!isNaN(x) && !isNaN(y)) for (var i = this.value.length - 1; i >= 0; i--) this.value[i] = [this.value[i][0] + x, this.value[i][1] + y];\n\n      return this;\n    }\n    // Resize poly string\n    , size: function (width, height) {\n      var i,\n          box = this.bbox();\n\n      // recalculate position of all points according to new size\n      for (i = this.value.length - 1; i >= 0; i--) {\n        if (box.width) this.value[i][0] = (this.value[i][0] - box.x) * width / box.width + box.x;\n        if (box.height) this.value[i][1] = (this.value[i][1] - box.y) * height / box.height + box.y;\n      }\n\n      return this;\n    }\n    // Get bounding box of points\n    , bbox: function () {\n      SVG.parser.poly.setAttribute('points', this.toString());\n\n      return SVG.parser.poly.getBBox();\n    }\n  });\n\n  var pathHandlers = {\n    M: function (c, p, p0) {\n      p.x = p0.x = c[0];\n      p.y = p0.y = c[1];\n\n      return ['M', p.x, p.y];\n    },\n    L: function (c, p) {\n      p.x = c[0];\n      p.y = c[1];\n      return ['L', c[0], c[1]];\n    },\n    H: function (c, p) {\n      p.x = c[0];\n      return ['H', c[0]];\n    },\n    V: function (c, p) {\n      p.y = c[0];\n      return ['V', c[0]];\n    },\n    C: function (c, p) {\n      p.x = c[4];\n      p.y = c[5];\n      return ['C', c[0], c[1], c[2], c[3], c[4], c[5]];\n    },\n    S: function (c, p) {\n      p.x = c[2];\n      p.y = c[3];\n      return ['S', c[0], c[1], c[2], c[3]];\n    },\n    Q: function (c, p) {\n      p.x = c[2];\n      p.y = c[3];\n      return ['Q', c[0], c[1], c[2], c[3]];\n    },\n    T: function (c, p) {\n      p.x = c[0];\n      p.y = c[1];\n      return ['T', c[0], c[1]];\n    },\n    Z: function (c, p, p0) {\n      p.x = p0.x;\n      p.y = p0.y;\n      return ['Z'];\n    },\n    A: function (c, p) {\n      p.x = c[5];\n      p.y = c[6];\n      return ['A', c[0], c[1], c[2], c[3], c[4], c[5], c[6]];\n    }\n  };\n\n  var mlhvqtcsa = 'mlhvqtcsaz'.split('');\n\n  for (var i = 0, il = mlhvqtcsa.length; i < il; ++i) {\n    pathHandlers[mlhvqtcsa[i]] = function (i) {\n      return function (c, p, p0) {\n        if (i == 'H') c[0] = c[0] + p.x;else if (i == 'V') c[0] = c[0] + p.y;else if (i == 'A') {\n          c[5] = c[5] + p.x, c[6] = c[6] + p.y;\n        } else for (var j = 0, jl = c.length; j < jl; ++j) {\n          c[j] = c[j] + (j % 2 ? p.y : p.x);\n        }\n\n        return pathHandlers[i](c, p, p0);\n      };\n    }(mlhvqtcsa[i].toUpperCase());\n  }\n\n  // Path points array\n  SVG.PathArray = function (array, fallback) {\n    SVG.Array.call(this, array, fallback || [['M', 0, 0]]);\n  };\n\n  // Inherit from SVG.Array\n  SVG.PathArray.prototype = new SVG.Array();\n  SVG.PathArray.prototype.constructor = SVG.PathArray;\n\n  SVG.extend(SVG.PathArray, {\n    // Convert array to string\n    toString: function () {\n      return arrayToString(this.value);\n    }\n    // Move path string\n    , move: function (x, y) {\n      // get bounding box of current situation\n      var box = this.bbox();\n\n      // get relative offset\n      x -= box.x;\n      y -= box.y;\n\n      if (!isNaN(x) && !isNaN(y)) {\n        // move every point\n        for (var l, i = this.value.length - 1; i >= 0; i--) {\n          l = this.value[i][0];\n\n          if (l == 'M' || l == 'L' || l == 'T') {\n            this.value[i][1] += x;\n            this.value[i][2] += y;\n          } else if (l == 'H') {\n            this.value[i][1] += x;\n          } else if (l == 'V') {\n            this.value[i][1] += y;\n          } else if (l == 'C' || l == 'S' || l == 'Q') {\n            this.value[i][1] += x;\n            this.value[i][2] += y;\n            this.value[i][3] += x;\n            this.value[i][4] += y;\n\n            if (l == 'C') {\n              this.value[i][5] += x;\n              this.value[i][6] += y;\n            }\n          } else if (l == 'A') {\n            this.value[i][6] += x;\n            this.value[i][7] += y;\n          }\n        }\n      }\n\n      return this;\n    }\n    // Resize path string\n    , size: function (width, height) {\n      // get bounding box of current situation\n      var i,\n          l,\n          box = this.bbox();\n\n      // recalculate position of all points according to new size\n      for (i = this.value.length - 1; i >= 0; i--) {\n        l = this.value[i][0];\n\n        if (l == 'M' || l == 'L' || l == 'T') {\n          this.value[i][1] = (this.value[i][1] - box.x) * width / box.width + box.x;\n          this.value[i][2] = (this.value[i][2] - box.y) * height / box.height + box.y;\n        } else if (l == 'H') {\n          this.value[i][1] = (this.value[i][1] - box.x) * width / box.width + box.x;\n        } else if (l == 'V') {\n          this.value[i][1] = (this.value[i][1] - box.y) * height / box.height + box.y;\n        } else if (l == 'C' || l == 'S' || l == 'Q') {\n          this.value[i][1] = (this.value[i][1] - box.x) * width / box.width + box.x;\n          this.value[i][2] = (this.value[i][2] - box.y) * height / box.height + box.y;\n          this.value[i][3] = (this.value[i][3] - box.x) * width / box.width + box.x;\n          this.value[i][4] = (this.value[i][4] - box.y) * height / box.height + box.y;\n\n          if (l == 'C') {\n            this.value[i][5] = (this.value[i][5] - box.x) * width / box.width + box.x;\n            this.value[i][6] = (this.value[i][6] - box.y) * height / box.height + box.y;\n          }\n        } else if (l == 'A') {\n          // resize radii\n          this.value[i][1] = this.value[i][1] * width / box.width;\n          this.value[i][2] = this.value[i][2] * height / box.height;\n\n          // move position values\n          this.value[i][6] = (this.value[i][6] - box.x) * width / box.width + box.x;\n          this.value[i][7] = (this.value[i][7] - box.y) * height / box.height + box.y;\n        }\n      }\n\n      return this;\n    }\n    // Test if the passed path array use the same path data commands as this path array\n    , equalCommands: function (pathArray) {\n      var i, il, equalCommands;\n\n      pathArray = new SVG.PathArray(pathArray);\n\n      equalCommands = this.value.length === pathArray.value.length;\n      for (i = 0, il = this.value.length; equalCommands && i < il; i++) {\n        equalCommands = this.value[i][0] === pathArray.value[i][0];\n      }\n\n      return equalCommands;\n    }\n    // Make path array morphable\n    , morph: function (pathArray) {\n      pathArray = new SVG.PathArray(pathArray);\n\n      if (this.equalCommands(pathArray)) {\n        this.destination = pathArray;\n      } else {\n        this.destination = null;\n      }\n\n      return this;\n    }\n    // Get morphed path array at given position\n    , at: function (pos) {\n      // make sure a destination is defined\n      if (!this.destination) return this;\n\n      var sourceArray = this.value,\n          destinationArray = this.destination.value,\n          array = [],\n          pathArray = new SVG.PathArray(),\n          i,\n          il,\n          j,\n          jl;\n\n      // Animate has specified in the SVG spec\n      // See: https://www.w3.org/TR/SVG11/paths.html#PathElement\n      for (i = 0, il = sourceArray.length; i < il; i++) {\n        array[i] = [sourceArray[i][0]];\n        for (j = 1, jl = sourceArray[i].length; j < jl; j++) {\n          array[i][j] = sourceArray[i][j] + (destinationArray[i][j] - sourceArray[i][j]) * pos;\n        }\n        // For the two flags of the elliptical arc command, the SVG spec say:\n        // Flags and booleans are interpolated as fractions between zero and one, with any non-zero value considered to be a value of one/true\n        // Elliptical arc command as an array followed by corresponding indexes:\n        // ['A', rx, ry, x-axis-rotation, large-arc-flag, sweep-flag, x, y]\n        //   0    1   2        3                 4             5      6  7\n        if (array[i][0] === 'A') {\n          array[i][4] = +(array[i][4] != 0);\n          array[i][5] = +(array[i][5] != 0);\n        }\n      }\n\n      // Directly modify the value of a path array, this is done this way for performance\n      pathArray.value = array;\n      return pathArray;\n    }\n    // Absolutize and parse path to array\n    , parse: function (array) {\n      // if it's already a patharray, no need to parse it\n      if (array instanceof SVG.PathArray) return array.valueOf();\n\n      // prepare for parsing\n      var i,\n          x0,\n          y0,\n          s,\n          seg,\n          arr,\n          x = 0,\n          y = 0,\n          paramCnt = { 'M': 2, 'L': 2, 'H': 1, 'V': 1, 'C': 6, 'S': 4, 'Q': 4, 'T': 2, 'A': 7, 'Z': 0 };\n\n      if (typeof array == 'string') {\n\n        array = array.replace(SVG.regex.numbersWithDots, pathRegReplace) // convert 45.123.123 to 45.123 .123\n        .replace(SVG.regex.pathLetters, ' $& ') // put some room between letters and numbers\n        .replace(SVG.regex.hyphen, '$1 -') // add space before hyphen\n        .trim() // trim\n        .split(SVG.regex.delimiter); // split into array\n      } else {\n        array = array.reduce(function (prev, curr) {\n          return [].concat.call(prev, curr);\n        }, []);\n      }\n\n      // array now is an array containing all parts of a path e.g. ['M', '0', '0', 'L', '30', '30' ...]\n      var arr = [],\n          p = new SVG.Point(),\n          p0 = new SVG.Point(),\n          index = 0,\n          len = array.length;\n\n      do {\n        // Test if we have a path letter\n        if (SVG.regex.isPathLetter.test(array[index])) {\n          s = array[index];\n          ++index;\n          // If last letter was a move command and we got no new, it defaults to [L]ine\n        } else if (s == 'M') {\n          s = 'L';\n        } else if (s == 'm') {\n          s = 'l';\n        }\n\n        arr.push(pathHandlers[s].call(null, array.slice(index, index = index + paramCnt[s.toUpperCase()]).map(parseFloat), p, p0));\n      } while (len > index);\n\n      return arr;\n    }\n    // Get bounding box of path\n    , bbox: function () {\n      SVG.parser.path.setAttribute('d', this.toString());\n\n      return SVG.parser.path.getBBox();\n    }\n\n  });\n\n  // Module for unit convertions\n  SVG.Number = SVG.invent({\n    // Initialize\n    create: function (value, unit) {\n      // initialize defaults\n      this.value = 0;\n      this.unit = unit || '';\n\n      // parse value\n      if (typeof value === 'number') {\n        // ensure a valid numeric value\n        this.value = isNaN(value) ? 0 : !isFinite(value) ? value < 0 ? -3.4e+38 : +3.4e+38 : value;\n      } else if (typeof value === 'string') {\n        unit = value.match(SVG.regex.numberAndUnit);\n\n        if (unit) {\n          // make value numeric\n          this.value = parseFloat(unit[1]);\n\n          // normalize\n          if (unit[5] == '%') this.value /= 100;else if (unit[5] == 's') this.value *= 1000;\n\n          // store unit\n          this.unit = unit[5];\n        }\n      } else {\n        if (value instanceof SVG.Number) {\n          this.value = value.valueOf();\n          this.unit = value.unit;\n        }\n      }\n    }\n    // Add methods\n    , extend: {\n      // Stringalize\n      toString: function () {\n        return (this.unit == '%' ? ~~(this.value * 1e8) / 1e6 : this.unit == 's' ? this.value / 1e3 : this.value) + this.unit;\n      },\n      toJSON: function () {\n        return this.toString();\n      },\n      // Convert to primitive\n      valueOf: function () {\n        return this.value;\n      }\n      // Add number\n      , plus: function (number) {\n        number = new SVG.Number(number);\n        return new SVG.Number(this + number, this.unit || number.unit);\n      }\n      // Subtract number\n      , minus: function (number) {\n        number = new SVG.Number(number);\n        return new SVG.Number(this - number, this.unit || number.unit);\n      }\n      // Multiply number\n      , times: function (number) {\n        number = new SVG.Number(number);\n        return new SVG.Number(this * number, this.unit || number.unit);\n      }\n      // Divide number\n      , divide: function (number) {\n        number = new SVG.Number(number);\n        return new SVG.Number(this / number, this.unit || number.unit);\n      }\n      // Convert to different unit\n      , to: function (unit) {\n        var number = new SVG.Number(this);\n\n        if (typeof unit === 'string') number.unit = unit;\n\n        return number;\n      }\n      // Make number morphable\n      , morph: function (number) {\n        this.destination = new SVG.Number(number);\n\n        if (number.relative) {\n          this.destination.value += this.value;\n        }\n\n        return this;\n      }\n      // Get morphed number at given position\n      , at: function (pos) {\n        // Make sure a destination is defined\n        if (!this.destination) return this;\n\n        // Generate new morphed number\n        return new SVG.Number(this.destination).minus(this).times(pos).plus(this);\n      }\n\n    }\n  });\n\n  SVG.Element = SVG.invent({\n    // Initialize node\n    create: function (node) {\n      // make stroke value accessible dynamically\n      this._stroke = SVG.defaults.attrs.stroke;\n      this._event = null;\n      this._events = {};\n\n      // initialize data object\n      this.dom = {};\n\n      // create circular reference\n      if (this.node = node) {\n        this.type = node.nodeName;\n        this.node.instance = this;\n        this._events = node._events || {};\n\n        // store current attribute value\n        this._stroke = node.getAttribute('stroke') || this._stroke;\n      }\n    }\n\n    // Add class methods\n    , extend: {\n      // Move over x-axis\n      x: function (x) {\n        return this.attr('x', x);\n      }\n      // Move over y-axis\n      , y: function (y) {\n        return this.attr('y', y);\n      }\n      // Move by center over x-axis\n      , cx: function (x) {\n        return x == null ? this.x() + this.width() / 2 : this.x(x - this.width() / 2);\n      }\n      // Move by center over y-axis\n      , cy: function (y) {\n        return y == null ? this.y() + this.height() / 2 : this.y(y - this.height() / 2);\n      }\n      // Move element to given x and y values\n      , move: function (x, y) {\n        return this.x(x).y(y);\n      }\n      // Move element by its center\n      , center: function (x, y) {\n        return this.cx(x).cy(y);\n      }\n      // Set width of element\n      , width: function (width) {\n        return this.attr('width', width);\n      }\n      // Set height of element\n      , height: function (height) {\n        return this.attr('height', height);\n      }\n      // Set element size to given width and height\n      , size: function (width, height) {\n        var p = proportionalSize(this, width, height);\n\n        return this.width(new SVG.Number(p.width)).height(new SVG.Number(p.height));\n      }\n      // Clone element\n      , clone: function (parent) {\n        // write dom data to the dom so the clone can pickup the data\n        this.writeDataToDom();\n\n        // clone element and assign new id\n        var clone = assignNewId(this.node.cloneNode(true));\n\n        // insert the clone in the given parent or after myself\n        if (parent) parent.add(clone);else this.after(clone);\n\n        return clone;\n      }\n      // Remove element\n      , remove: function () {\n        if (this.parent()) this.parent().removeElement(this);\n\n        return this;\n      }\n      // Replace element\n      , replace: function (element) {\n        this.after(element).remove();\n\n        return element;\n      }\n      // Add element to given container and return self\n      , addTo: function (parent) {\n        return parent.put(this);\n      }\n      // Add element to given container and return container\n      , putIn: function (parent) {\n        return parent.add(this);\n      }\n      // Get / set id\n      , id: function (id) {\n        return this.attr('id', id);\n      }\n      // Checks whether the given point inside the bounding box of the element\n      , inside: function (x, y) {\n        var box = this.bbox();\n\n        return x > box.x && y > box.y && x < box.x + box.width && y < box.y + box.height;\n      }\n      // Show element\n      , show: function () {\n        return this.style('display', '');\n      }\n      // Hide element\n      , hide: function () {\n        return this.style('display', 'none');\n      }\n      // Is element visible?\n      , visible: function () {\n        return this.style('display') != 'none';\n      }\n      // Return id on string conversion\n      , toString: function () {\n        return this.attr('id');\n      }\n      // Return array of classes on the node\n      , classes: function () {\n        var attr = this.attr('class');\n\n        return attr == null ? [] : attr.trim().split(SVG.regex.delimiter);\n      }\n      // Return true if class exists on the node, false otherwise\n      , hasClass: function (name) {\n        return this.classes().indexOf(name) != -1;\n      }\n      // Add class to the node\n      , addClass: function (name) {\n        if (!this.hasClass(name)) {\n          var array = this.classes();\n          array.push(name);\n          this.attr('class', array.join(' '));\n        }\n\n        return this;\n      }\n      // Remove class from the node\n      , removeClass: function (name) {\n        if (this.hasClass(name)) {\n          this.attr('class', this.classes().filter(function (c) {\n            return c != name;\n          }).join(' '));\n        }\n\n        return this;\n      }\n      // Toggle the presence of a class on the node\n      , toggleClass: function (name) {\n        return this.hasClass(name) ? this.removeClass(name) : this.addClass(name);\n      }\n      // Get referenced element form attribute value\n      , reference: function (attr) {\n        return SVG.get(this.attr(attr));\n      }\n      // Returns the parent element instance\n      , parent: function (type) {\n        var parent = this;\n\n        // check for parent\n        if (!parent.node.parentNode) return null;\n\n        // get parent element\n        parent = SVG.adopt(parent.node.parentNode);\n\n        if (!type) return parent;\n\n        // loop trough ancestors if type is given\n        while (parent && parent.node instanceof window.SVGElement) {\n          if (typeof type === 'string' ? parent.matches(type) : parent instanceof type) return parent;\n          if (!parent.node.parentNode || parent.node.parentNode.nodeName == '#document' || parent.node.parentNode.nodeName == '#document-fragment') return null; // #759, #720\n          parent = SVG.adopt(parent.node.parentNode);\n        }\n      }\n      // Get parent document\n      , doc: function () {\n        return this instanceof SVG.Doc ? this : this.parent(SVG.Doc);\n      }\n      // return array of all ancestors of given type up to the root svg\n      , parents: function (type) {\n        var parents = [],\n            parent = this;\n\n        do {\n          parent = parent.parent(type);\n          if (!parent || !parent.node) break;\n\n          parents.push(parent);\n        } while (parent.parent);\n\n        return parents;\n      }\n      // matches the element vs a css selector\n      , matches: function (selector) {\n        return matches(this.node, selector);\n      }\n      // Returns the svg node to call native svg methods on it\n      , native: function () {\n        return this.node;\n      }\n      // Import raw svg\n      , svg: function (svg) {\n        // create temporary holder\n        var well = document.createElement('svg');\n\n        // act as a setter if svg is given\n        if (svg && this instanceof SVG.Parent) {\n          // dump raw svg\n          well.innerHTML = '<svg>' + svg.replace(/\\n/, '').replace(/<([\\w:-]+)([^<]+?)\\/>/g, '<$1$2></$1>') + '</svg>';\n\n          // transplant nodes\n          for (var i = 0, il = well.firstChild.childNodes.length; i < il; i++) this.node.appendChild(well.firstChild.firstChild);\n\n          // otherwise act as a getter\n        } else {\n          // create a wrapping svg element in case of partial content\n          well.appendChild(svg = document.createElement('svg'));\n\n          // write svgjs data to the dom\n          this.writeDataToDom();\n\n          // insert a copy of this node\n          svg.appendChild(this.node.cloneNode(true));\n\n          // return target element\n          return well.innerHTML.replace(/^<svg>/, '').replace(/<\\/svg>$/, '');\n        }\n\n        return this;\n      }\n      // write svgjs data to the dom\n      , writeDataToDom: function () {\n\n        // dump variables recursively\n        if (this.each || this.lines) {\n          var fn = this.each ? this : this.lines();\n          fn.each(function () {\n            this.writeDataToDom();\n          });\n        }\n\n        // remove previously set data\n        this.node.removeAttribute('svgjs:data');\n\n        if (Object.keys(this.dom).length) this.node.setAttribute('svgjs:data', JSON.stringify(this.dom)); // see #428\n\n        return this;\n      }\n      // set given data to the elements data property\n      , setData: function (o) {\n        this.dom = o;\n        return this;\n      },\n      is: function (obj) {\n        return is(this, obj);\n      }\n    }\n  });\n\n  SVG.easing = {\n    '-': function (pos) {\n      return pos;\n    },\n    '<>': function (pos) {\n      return -Math.cos(pos * Math.PI) / 2 + 0.5;\n    },\n    '>': function (pos) {\n      return Math.sin(pos * Math.PI / 2);\n    },\n    '<': function (pos) {\n      return -Math.cos(pos * Math.PI / 2) + 1;\n    }\n  };\n\n  SVG.morph = function (pos) {\n    return function (from, to) {\n      return new SVG.MorphObj(from, to).at(pos);\n    };\n  };\n\n  SVG.Situation = SVG.invent({\n\n    create: function (o) {\n      this.init = false;\n      this.reversed = false;\n      this.reversing = false;\n\n      this.duration = new SVG.Number(o.duration).valueOf();\n      this.delay = new SVG.Number(o.delay).valueOf();\n\n      this.start = +new Date() + this.delay;\n      this.finish = this.start + this.duration;\n      this.ease = o.ease;\n\n      // this.loop is incremented from 0 to this.loops\n      // it is also incremented when in an infinite loop (when this.loops is true)\n      this.loop = 0;\n      this.loops = false;\n\n      this.animations = {\n        // functionToCall: [list of morphable objects]\n        // e.g. move: [SVG.Number, SVG.Number]\n      };\n\n      this.attrs = {\n        // holds all attributes which are not represented from a function svg.js provides\n        // e.g. someAttr: SVG.Number\n      };\n\n      this.styles = {\n        // holds all styles which should be animated\n        // e.g. fill-color: SVG.Color\n      };\n\n      this.transforms = [\n        // holds all transformations as transformation objects\n        // e.g. [SVG.Rotate, SVG.Translate, SVG.Matrix]\n      ];\n\n      this.once = {\n        // functions to fire at a specific position\n        // e.g. \"0.5\": function foo(){}\n      };\n    }\n\n  });\n\n  SVG.FX = SVG.invent({\n\n    create: function (element) {\n      this._target = element;\n      this.situations = [];\n      this.active = false;\n      this.situation = null;\n      this.paused = false;\n      this.lastPos = 0;\n      this.pos = 0;\n      // The absolute position of an animation is its position in the context of its complete duration (including delay and loops)\n      // When performing a delay, absPos is below 0 and when performing a loop, its value is above 1\n      this.absPos = 0;\n      this._speed = 1;\n    },\n\n    extend: {\n\n      /**\r\n       * sets or returns the target of this animation\r\n       * @param o object || number In case of Object it holds all parameters. In case of number its the duration of the animation\r\n       * @param ease function || string Function which should be used for easing or easing keyword\r\n       * @param delay Number indicating the delay before the animation starts\r\n       * @return target || this\r\n       */\n      animate: function (o, ease, delay) {\n\n        if (typeof o == 'object') {\n          ease = o.ease;\n          delay = o.delay;\n          o = o.duration;\n        }\n\n        var situation = new SVG.Situation({\n          duration: o || 1000,\n          delay: delay || 0,\n          ease: SVG.easing[ease || '-'] || ease\n        });\n\n        this.queue(situation);\n\n        return this;\n      }\n\n      /**\r\n       * sets a delay before the next element of the queue is called\r\n       * @param delay Duration of delay in milliseconds\r\n       * @return this.target()\r\n       */\n      , delay: function (delay) {\n        // The delay is performed by an empty situation with its duration\n        // attribute set to the duration of the delay\n        var situation = new SVG.Situation({\n          duration: delay,\n          delay: 0,\n          ease: SVG.easing['-']\n        });\n\n        return this.queue(situation);\n      }\n\n      /**\r\n       * sets or returns the target of this animation\r\n       * @param null || target SVG.Element which should be set as new target\r\n       * @return target || this\r\n       */\n      , target: function (target) {\n        if (target && target instanceof SVG.Element) {\n          this._target = target;\n          return this;\n        }\n\n        return this._target;\n      }\n\n      // returns the absolute position at a given time\n      , timeToAbsPos: function (timestamp) {\n        return (timestamp - this.situation.start) / (this.situation.duration / this._speed);\n      }\n\n      // returns the timestamp from a given absolute positon\n      , absPosToTime: function (absPos) {\n        return this.situation.duration / this._speed * absPos + this.situation.start;\n      }\n\n      // starts the animationloop\n      , startAnimFrame: function () {\n        this.stopAnimFrame();\n        this.animationFrame = window.requestAnimationFrame(function () {\n          this.step();\n        }.bind(this));\n      }\n\n      // cancels the animationframe\n      , stopAnimFrame: function () {\n        window.cancelAnimationFrame(this.animationFrame);\n      }\n\n      // kicks off the animation - only does something when the queue is currently not active and at least one situation is set\n      , start: function () {\n        // dont start if already started\n        if (!this.active && this.situation) {\n          this.active = true;\n          this.startCurrent();\n        }\n\n        return this;\n      }\n\n      // start the current situation\n      , startCurrent: function () {\n        this.situation.start = +new Date() + this.situation.delay / this._speed;\n        this.situation.finish = this.situation.start + this.situation.duration / this._speed;\n        return this.initAnimations().step();\n      }\n\n      /**\r\n       * adds a function / Situation to the animation queue\r\n       * @param fn function / situation to add\r\n       * @return this\r\n       */\n      , queue: function (fn) {\n        if (typeof fn == 'function' || fn instanceof SVG.Situation) this.situations.push(fn);\n\n        if (!this.situation) this.situation = this.situations.shift();\n\n        return this;\n      }\n\n      /**\r\n       * pulls next element from the queue and execute it\r\n       * @return this\r\n       */\n      , dequeue: function () {\n        // stop current animation\n        this.stop();\n\n        // get next animation from queue\n        this.situation = this.situations.shift();\n\n        if (this.situation) {\n          if (this.situation instanceof SVG.Situation) {\n            this.start();\n          } else {\n            // If it is not a SVG.Situation, then it is a function, we execute it\n            this.situation.call(this);\n          }\n        }\n\n        return this;\n      }\n\n      // updates all animations to the current state of the element\n      // this is important when one property could be changed from another property\n      , initAnimations: function () {\n        var i, j, source;\n        var s = this.situation;\n\n        if (s.init) return this;\n\n        for (i in s.animations) {\n          source = this.target()[i]();\n\n          if (!Array.isArray(source)) {\n            source = [source];\n          }\n\n          if (!Array.isArray(s.animations[i])) {\n            s.animations[i] = [s.animations[i]];\n          }\n\n          //if(s.animations[i].length > source.length) {\n          //  source.concat = source.concat(s.animations[i].slice(source.length, s.animations[i].length))\n          //}\n\n          for (j = source.length; j--;) {\n            // The condition is because some methods return a normal number instead\n            // of a SVG.Number\n            if (s.animations[i][j] instanceof SVG.Number) source[j] = new SVG.Number(source[j]);\n\n            s.animations[i][j] = source[j].morph(s.animations[i][j]);\n          }\n        }\n\n        for (i in s.attrs) {\n          s.attrs[i] = new SVG.MorphObj(this.target().attr(i), s.attrs[i]);\n        }\n\n        for (i in s.styles) {\n          s.styles[i] = new SVG.MorphObj(this.target().style(i), s.styles[i]);\n        }\n\n        s.initialTransformation = this.target().matrixify();\n\n        s.init = true;\n        return this;\n      },\n      clearQueue: function () {\n        this.situations = [];\n        return this;\n      },\n      clearCurrent: function () {\n        this.situation = null;\n        return this;\n      }\n      /** stops the animation immediately\r\n       * @param jumpToEnd A Boolean indicating whether to complete the current animation immediately.\r\n       * @param clearQueue A Boolean indicating whether to remove queued animation as well.\r\n       * @return this\r\n       */\n      , stop: function (jumpToEnd, clearQueue) {\n        var active = this.active;\n        this.active = false;\n\n        if (clearQueue) {\n          this.clearQueue();\n        }\n\n        if (jumpToEnd && this.situation) {\n          // initialize the situation if it was not\n          !active && this.startCurrent();\n          this.atEnd();\n        }\n\n        this.stopAnimFrame();\n\n        return this.clearCurrent();\n      }\n\n      /** resets the element to the state where the current element has started\r\n       * @return this\r\n       */\n      , reset: function () {\n        if (this.situation) {\n          var temp = this.situation;\n          this.stop();\n          this.situation = temp;\n          this.atStart();\n        }\n        return this;\n      }\n\n      // Stop the currently-running animation, remove all queued animations, and complete all animations for the element.\n      , finish: function () {\n\n        this.stop(true, false);\n\n        while (this.dequeue().situation && this.stop(true, false));\n\n        this.clearQueue().clearCurrent();\n\n        return this;\n      }\n\n      // set the internal animation pointer at the start position, before any loops, and updates the visualisation\n      , atStart: function () {\n        return this.at(0, true);\n      }\n\n      // set the internal animation pointer at the end position, after all the loops, and updates the visualisation\n      , atEnd: function () {\n        if (this.situation.loops === true) {\n          // If in a infinite loop, we end the current iteration\n          this.situation.loops = this.situation.loop + 1;\n        }\n\n        if (typeof this.situation.loops == 'number') {\n          // If performing a finite number of loops, we go after all the loops\n          return this.at(this.situation.loops, true);\n        } else {\n          // If no loops, we just go at the end\n          return this.at(1, true);\n        }\n      }\n\n      // set the internal animation pointer to the specified position and updates the visualisation\n      // if isAbsPos is true, pos is treated as an absolute position\n      , at: function (pos, isAbsPos) {\n        var durDivSpd = this.situation.duration / this._speed;\n\n        this.absPos = pos;\n        // If pos is not an absolute position, we convert it into one\n        if (!isAbsPos) {\n          if (this.situation.reversed) this.absPos = 1 - this.absPos;\n          this.absPos += this.situation.loop;\n        }\n\n        this.situation.start = +new Date() - this.absPos * durDivSpd;\n        this.situation.finish = this.situation.start + durDivSpd;\n\n        return this.step(true);\n      }\n\n      /**\r\n       * sets or returns the speed of the animations\r\n       * @param speed null || Number The new speed of the animations\r\n       * @return Number || this\r\n       */\n      , speed: function (speed) {\n        if (speed === 0) return this.pause();\n\n        if (speed) {\n          this._speed = speed;\n          // We use an absolute position here so that speed can affect the delay before the animation\n          return this.at(this.absPos, true);\n        } else return this._speed;\n      }\n\n      // Make loopable\n      , loop: function (times, reverse) {\n        var c = this.last();\n\n        // store total loops\n        c.loops = times != null ? times : true;\n        c.loop = 0;\n\n        if (reverse) c.reversing = true;\n        return this;\n      }\n\n      // pauses the animation\n      , pause: function () {\n        this.paused = true;\n        this.stopAnimFrame();\n\n        return this;\n      }\n\n      // unpause the animation\n      , play: function () {\n        if (!this.paused) return this;\n        this.paused = false;\n        // We use an absolute position here so that the delay before the animation can be paused\n        return this.at(this.absPos, true);\n      }\n\n      /**\r\n       * toggle or set the direction of the animation\r\n       * true sets direction to backwards while false sets it to forwards\r\n       * @param reversed Boolean indicating whether to reverse the animation or not (default: toggle the reverse status)\r\n       * @return this\r\n       */\n      , reverse: function (reversed) {\n        var c = this.last();\n\n        if (typeof reversed == 'undefined') c.reversed = !c.reversed;else c.reversed = reversed;\n\n        return this;\n      }\n\n      /**\r\n       * returns a float from 0-1 indicating the progress of the current animation\r\n       * @param eased Boolean indicating whether the returned position should be eased or not\r\n       * @return number\r\n       */\n      , progress: function (easeIt) {\n        return easeIt ? this.situation.ease(this.pos) : this.pos;\n      }\n\n      /**\r\n       * adds a callback function which is called when the current animation is finished\r\n       * @param fn Function which should be executed as callback\r\n       * @return number\r\n       */\n      , after: function (fn) {\n        var c = this.last(),\n            wrapper = function wrapper(e) {\n          if (e.detail.situation == c) {\n            fn.call(this, c);\n            this.off('finished.fx', wrapper); // prevent memory leak\n          }\n        };\n\n        this.target().on('finished.fx', wrapper);\n\n        return this._callStart();\n      }\n\n      // adds a callback which is called whenever one animation step is performed\n      , during: function (fn) {\n        var c = this.last(),\n            wrapper = function (e) {\n          if (e.detail.situation == c) {\n            fn.call(this, e.detail.pos, SVG.morph(e.detail.pos), e.detail.eased, c);\n          }\n        };\n\n        // see above\n        this.target().off('during.fx', wrapper).on('during.fx', wrapper);\n\n        this.after(function () {\n          this.off('during.fx', wrapper);\n        });\n\n        return this._callStart();\n      }\n\n      // calls after ALL animations in the queue are finished\n      , afterAll: function (fn) {\n        var wrapper = function wrapper(e) {\n          fn.call(this);\n          this.off('allfinished.fx', wrapper);\n        };\n\n        // see above\n        this.target().off('allfinished.fx', wrapper).on('allfinished.fx', wrapper);\n\n        return this._callStart();\n      }\n\n      // calls on every animation step for all animations\n      , duringAll: function (fn) {\n        var wrapper = function (e) {\n          fn.call(this, e.detail.pos, SVG.morph(e.detail.pos), e.detail.eased, e.detail.situation);\n        };\n\n        this.target().off('during.fx', wrapper).on('during.fx', wrapper);\n\n        this.afterAll(function () {\n          this.off('during.fx', wrapper);\n        });\n\n        return this._callStart();\n      },\n\n      last: function () {\n        return this.situations.length ? this.situations[this.situations.length - 1] : this.situation;\n      }\n\n      // adds one property to the animations\n      , add: function (method, args, type) {\n        this.last()[type || 'animations'][method] = args;\n        return this._callStart();\n      }\n\n      /** perform one step of the animation\r\n       *  @param ignoreTime Boolean indicating whether to ignore time and use position directly or recalculate position based on time\r\n       *  @return this\r\n       */\n      , step: function (ignoreTime) {\n\n        // convert current time to an absolute position\n        if (!ignoreTime) this.absPos = this.timeToAbsPos(+new Date());\n\n        // This part convert an absolute position to a position\n        if (this.situation.loops !== false) {\n          var absPos, absPosInt, lastLoop;\n\n          // If the absolute position is below 0, we just treat it as if it was 0\n          absPos = Math.max(this.absPos, 0);\n          absPosInt = Math.floor(absPos);\n\n          if (this.situation.loops === true || absPosInt < this.situation.loops) {\n            this.pos = absPos - absPosInt;\n            lastLoop = this.situation.loop;\n            this.situation.loop = absPosInt;\n          } else {\n            this.absPos = this.situation.loops;\n            this.pos = 1;\n            // The -1 here is because we don't want to toggle reversed when all the loops have been completed\n            lastLoop = this.situation.loop - 1;\n            this.situation.loop = this.situation.loops;\n          }\n\n          if (this.situation.reversing) {\n            // Toggle reversed if an odd number of loops as occured since the last call of step\n            this.situation.reversed = this.situation.reversed != Boolean((this.situation.loop - lastLoop) % 2);\n          }\n        } else {\n          // If there are no loop, the absolute position must not be above 1\n          this.absPos = Math.min(this.absPos, 1);\n          this.pos = this.absPos;\n        }\n\n        // while the absolute position can be below 0, the position must not be below 0\n        if (this.pos < 0) this.pos = 0;\n\n        if (this.situation.reversed) this.pos = 1 - this.pos;\n\n        // apply easing\n        var eased = this.situation.ease(this.pos);\n\n        // call once-callbacks\n        for (var i in this.situation.once) {\n          if (i > this.lastPos && i <= eased) {\n            this.situation.once[i].call(this.target(), this.pos, eased);\n            delete this.situation.once[i];\n          }\n        }\n\n        // fire during callback with position, eased position and current situation as parameter\n        if (this.active) this.target().fire('during', { pos: this.pos, eased: eased, fx: this, situation: this.situation });\n\n        // the user may call stop or finish in the during callback\n        // so make sure that we still have a valid situation\n        if (!this.situation) {\n          return this;\n        }\n\n        // apply the actual animation to every property\n        this.eachAt();\n\n        // do final code when situation is finished\n        if (this.pos == 1 && !this.situation.reversed || this.situation.reversed && this.pos == 0) {\n\n          // stop animation callback\n          this.stopAnimFrame();\n\n          // fire finished callback with current situation as parameter\n          this.target().fire('finished', { fx: this, situation: this.situation });\n\n          if (!this.situations.length) {\n            this.target().fire('allfinished');\n\n            // Recheck the length since the user may call animate in the afterAll callback\n            if (!this.situations.length) {\n              this.target().off('.fx'); // there shouldnt be any binding left, but to make sure...\n              this.active = false;\n            }\n          }\n\n          // start next animation\n          if (this.active) this.dequeue();else this.clearCurrent();\n        } else if (!this.paused && this.active) {\n          // we continue animating when we are not at the end\n          this.startAnimFrame();\n        }\n\n        // save last eased position for once callback triggering\n        this.lastPos = eased;\n        return this;\n      }\n\n      // calculates the step for every property and calls block with it\n      , eachAt: function () {\n        var i,\n            len,\n            at,\n            self = this,\n            target = this.target(),\n            s = this.situation;\n\n        // apply animations which can be called trough a method\n        for (i in s.animations) {\n\n          at = [].concat(s.animations[i]).map(function (el) {\n            return typeof el !== 'string' && el.at ? el.at(s.ease(self.pos), self.pos) : el;\n          });\n\n          target[i].apply(target, at);\n        }\n\n        // apply animation which has to be applied with attr()\n        for (i in s.attrs) {\n\n          at = [i].concat(s.attrs[i]).map(function (el) {\n            return typeof el !== 'string' && el.at ? el.at(s.ease(self.pos), self.pos) : el;\n          });\n\n          target.attr.apply(target, at);\n        }\n\n        // apply animation which has to be applied with style()\n        for (i in s.styles) {\n\n          at = [i].concat(s.styles[i]).map(function (el) {\n            return typeof el !== 'string' && el.at ? el.at(s.ease(self.pos), self.pos) : el;\n          });\n\n          target.style.apply(target, at);\n        }\n\n        // animate initialTransformation which has to be chained\n        if (s.transforms.length) {\n\n          // get initial initialTransformation\n          at = s.initialTransformation;\n          for (i = 0, len = s.transforms.length; i < len; i++) {\n\n            // get next transformation in chain\n            var a = s.transforms[i];\n\n            // multiply matrix directly\n            if (a instanceof SVG.Matrix) {\n\n              if (a.relative) {\n                at = at.multiply(new SVG.Matrix().morph(a).at(s.ease(this.pos)));\n              } else {\n                at = at.morph(a).at(s.ease(this.pos));\n              }\n              continue;\n            }\n\n            // when transformation is absolute we have to reset the needed transformation first\n            if (!a.relative) a.undo(at.extract());\n\n            // and reapply it after\n            at = at.multiply(a.at(s.ease(this.pos)));\n          }\n\n          // set new matrix on element\n          target.matrix(at);\n        }\n\n        return this;\n      }\n\n      // adds an once-callback which is called at a specific position and never again\n      , once: function (pos, fn, isEased) {\n        var c = this.last();\n        if (!isEased) pos = c.ease(pos);\n\n        c.once[pos] = fn;\n\n        return this;\n      },\n\n      _callStart: function () {\n        setTimeout(function () {\n          this.start();\n        }.bind(this), 0);\n        return this;\n      }\n\n    },\n\n    parent: SVG.Element\n\n    // Add method to parent elements\n    , construct: {\n      // Get fx module or create a new one, then animate with given duration and ease\n      animate: function (o, ease, delay) {\n        return (this.fx || (this.fx = new SVG.FX(this))).animate(o, ease, delay);\n      },\n      delay: function (delay) {\n        return (this.fx || (this.fx = new SVG.FX(this))).delay(delay);\n      },\n      stop: function (jumpToEnd, clearQueue) {\n        if (this.fx) this.fx.stop(jumpToEnd, clearQueue);\n\n        return this;\n      },\n      finish: function () {\n        if (this.fx) this.fx.finish();\n\n        return this;\n      }\n      // Pause current animation\n      , pause: function () {\n        if (this.fx) this.fx.pause();\n\n        return this;\n      }\n      // Play paused current animation\n      , play: function () {\n        if (this.fx) this.fx.play();\n\n        return this;\n      }\n      // Set/Get the speed of the animations\n      , speed: function (speed) {\n        if (this.fx) if (speed == null) return this.fx.speed();else this.fx.speed(speed);\n\n        return this;\n      }\n    }\n\n  });\n\n  // MorphObj is used whenever no morphable object is given\n  SVG.MorphObj = SVG.invent({\n\n    create: function (from, to) {\n      // prepare color for morphing\n      if (SVG.Color.isColor(to)) return new SVG.Color(from).morph(to);\n      // check if we have a list of values\n      if (SVG.regex.delimiter.test(from)) {\n        // prepare path for morphing\n        if (SVG.regex.pathLetters.test(from)) return new SVG.PathArray(from).morph(to);\n        // prepare value list for morphing\n        else return new SVG.Array(from).morph(to);\n      }\n      // prepare number for morphing\n      if (SVG.regex.numberAndUnit.test(to)) return new SVG.Number(from).morph(to);\n\n      // prepare for plain morphing\n      this.value = from;\n      this.destination = to;\n    },\n\n    extend: {\n      at: function (pos, real) {\n        return real < 1 ? this.value : this.destination;\n      },\n\n      valueOf: function () {\n        return this.value;\n      }\n    }\n\n  });\n\n  SVG.extend(SVG.FX, {\n    // Add animatable attributes\n    attr: function (a, v, relative) {\n      // apply attributes individually\n      if (typeof a == 'object') {\n        for (var key in a) this.attr(key, a[key]);\n      } else {\n        this.add(a, v, 'attrs');\n      }\n\n      return this;\n    }\n    // Add animatable styles\n    , style: function (s, v) {\n      if (typeof s == 'object') for (var key in s) this.style(key, s[key]);else this.add(s, v, 'styles');\n\n      return this;\n    }\n    // Animatable x-axis\n    , x: function (x, relative) {\n      if (this.target() instanceof SVG.G) {\n        this.transform({ x: x }, relative);\n        return this;\n      }\n\n      var num = new SVG.Number(x);\n      num.relative = relative;\n      return this.add('x', num);\n    }\n    // Animatable y-axis\n    , y: function (y, relative) {\n      if (this.target() instanceof SVG.G) {\n        this.transform({ y: y }, relative);\n        return this;\n      }\n\n      var num = new SVG.Number(y);\n      num.relative = relative;\n      return this.add('y', num);\n    }\n    // Animatable center x-axis\n    , cx: function (x) {\n      return this.add('cx', new SVG.Number(x));\n    }\n    // Animatable center y-axis\n    , cy: function (y) {\n      return this.add('cy', new SVG.Number(y));\n    }\n    // Add animatable move\n    , move: function (x, y) {\n      return this.x(x).y(y);\n    }\n    // Add animatable center\n    , center: function (x, y) {\n      return this.cx(x).cy(y);\n    }\n    // Add animatable size\n    , size: function (width, height) {\n      if (this.target() instanceof SVG.Text) {\n        // animate font size for Text elements\n        this.attr('font-size', width);\n      } else {\n        // animate bbox based size for all other elements\n        var box;\n\n        if (!width || !height) {\n          box = this.target().bbox();\n        }\n\n        if (!width) {\n          width = box.width / box.height * height;\n        }\n\n        if (!height) {\n          height = box.height / box.width * width;\n        }\n\n        this.add('width', new SVG.Number(width)).add('height', new SVG.Number(height));\n      }\n\n      return this;\n    }\n    // Add animatable width\n    , width: function (width) {\n      return this.add('width', new SVG.Number(width));\n    }\n    // Add animatable height\n    , height: function (height) {\n      return this.add('height', new SVG.Number(height));\n    }\n    // Add animatable plot\n    , plot: function (a, b, c, d) {\n      // Lines can be plotted with 4 arguments\n      if (arguments.length == 4) {\n        return this.plot([a, b, c, d]);\n      }\n\n      return this.add('plot', new (this.target().morphArray)(a));\n    }\n    // Add leading method\n    , leading: function (value) {\n      return this.target().leading ? this.add('leading', new SVG.Number(value)) : this;\n    }\n    // Add animatable viewbox\n    , viewbox: function (x, y, width, height) {\n      if (this.target() instanceof SVG.Container) {\n        this.add('viewbox', new SVG.ViewBox(x, y, width, height));\n      }\n\n      return this;\n    },\n    update: function (o) {\n      if (this.target() instanceof SVG.Stop) {\n        if (typeof o == 'number' || o instanceof SVG.Number) {\n          return this.update({\n            offset: arguments[0],\n            color: arguments[1],\n            opacity: arguments[2]\n          });\n        }\n\n        if (o.opacity != null) this.attr('stop-opacity', o.opacity);\n        if (o.color != null) this.attr('stop-color', o.color);\n        if (o.offset != null) this.attr('offset', o.offset);\n      }\n\n      return this;\n    }\n  });\n\n  SVG.Box = SVG.invent({\n    create: function (x, y, width, height) {\n      if (typeof x == 'object' && !(x instanceof SVG.Element)) {\n        // chromes getBoundingClientRect has no x and y property\n        return SVG.Box.call(this, x.left != null ? x.left : x.x, x.top != null ? x.top : x.y, x.width, x.height);\n      } else if (arguments.length == 4) {\n        this.x = x;\n        this.y = y;\n        this.width = width;\n        this.height = height;\n      }\n\n      // add center, right, bottom...\n      fullBox(this);\n    },\n    extend: {\n      // Merge rect box with another, return a new instance\n      merge: function (box) {\n        var b = new this.constructor();\n\n        // merge boxes\n        b.x = Math.min(this.x, box.x);\n        b.y = Math.min(this.y, box.y);\n        b.width = Math.max(this.x + this.width, box.x + box.width) - b.x;\n        b.height = Math.max(this.y + this.height, box.y + box.height) - b.y;\n\n        return fullBox(b);\n      },\n\n      transform: function (m) {\n        var xMin = Infinity,\n            xMax = -Infinity,\n            yMin = Infinity,\n            yMax = -Infinity,\n            p,\n            bbox;\n\n        var pts = [new SVG.Point(this.x, this.y), new SVG.Point(this.x2, this.y), new SVG.Point(this.x, this.y2), new SVG.Point(this.x2, this.y2)];\n\n        pts.forEach(function (p) {\n          p = p.transform(m);\n          xMin = Math.min(xMin, p.x);\n          xMax = Math.max(xMax, p.x);\n          yMin = Math.min(yMin, p.y);\n          yMax = Math.max(yMax, p.y);\n        });\n\n        bbox = new this.constructor();\n        bbox.x = xMin;\n        bbox.width = xMax - xMin;\n        bbox.y = yMin;\n        bbox.height = yMax - yMin;\n\n        fullBox(bbox);\n\n        return bbox;\n      }\n    }\n  });\n\n  SVG.BBox = SVG.invent({\n    // Initialize\n    create: function (element) {\n      SVG.Box.apply(this, [].slice.call(arguments));\n\n      // get values if element is given\n      if (element instanceof SVG.Element) {\n        var box;\n\n        // yes this is ugly, but Firefox can be a pain when it comes to elements that are not yet rendered\n        try {\n\n          if (!document.documentElement.contains) {\n            // This is IE - it does not support contains() for top-level SVGs\n            var topParent = element.node;\n            while (topParent.parentNode) {\n              topParent = topParent.parentNode;\n            }\n            if (topParent != document) throw new Exception('Element not in the dom');\n          } else {\n            // the element is NOT in the dom, throw error\n            if (!document.documentElement.contains(element.node)) throw new Exception('Element not in the dom');\n          }\n\n          // find native bbox\n          box = element.node.getBBox();\n        } catch (e) {\n          if (element instanceof SVG.Shape) {\n            var clone = element.clone(SVG.parser.draw.instance).show();\n            box = clone.node.getBBox();\n            clone.remove();\n          } else {\n            box = {\n              x: element.node.clientLeft,\n              y: element.node.clientTop,\n              width: element.node.clientWidth,\n              height: element.node.clientHeight\n            };\n          }\n        }\n\n        SVG.Box.call(this, box);\n      }\n    }\n\n    // Define ancestor\n    , inherit: SVG.Box\n\n    // Define Parent\n    , parent: SVG.Element\n\n    // Constructor\n    , construct: {\n      // Get bounding box\n      bbox: function () {\n        return new SVG.BBox(this);\n      }\n    }\n\n  });\n\n  SVG.BBox.prototype.constructor = SVG.BBox;\n\n  SVG.extend(SVG.Element, {\n    tbox: function () {\n      console.warn('Use of TBox is deprecated and mapped to RBox. Use .rbox() instead.');\n      return this.rbox(this.doc());\n    }\n  });\n\n  SVG.RBox = SVG.invent({\n    // Initialize\n    create: function (element) {\n      SVG.Box.apply(this, [].slice.call(arguments));\n\n      if (element instanceof SVG.Element) {\n        SVG.Box.call(this, element.node.getBoundingClientRect());\n      }\n    },\n\n    inherit: SVG.Box\n\n    // define Parent\n    , parent: SVG.Element,\n\n    extend: {\n      addOffset: function () {\n        // offset by window scroll position, because getBoundingClientRect changes when window is scrolled\n        this.x += window.pageXOffset;\n        this.y += window.pageYOffset;\n        return this;\n      }\n\n      // Constructor\n    }, construct: {\n      // Get rect box\n      rbox: function (el) {\n        if (el) return new SVG.RBox(this).transform(el.screenCTM().inverse());\n        return new SVG.RBox(this).addOffset();\n      }\n    }\n\n  });\n\n  SVG.RBox.prototype.constructor = SVG.RBox;\n\n  SVG.Matrix = SVG.invent({\n    // Initialize\n    create: function (source) {\n      var i,\n          base = arrayToMatrix([1, 0, 0, 1, 0, 0]);\n\n      // ensure source as object\n      source = source instanceof SVG.Element ? source.matrixify() : typeof source === 'string' ? arrayToMatrix(source.split(SVG.regex.delimiter).map(parseFloat)) : arguments.length == 6 ? arrayToMatrix([].slice.call(arguments)) : Array.isArray(source) ? arrayToMatrix(source) : typeof source === 'object' ? source : base;\n\n      // merge source\n      for (i = abcdef.length - 1; i >= 0; --i) this[abcdef[i]] = source[abcdef[i]] != null ? source[abcdef[i]] : base[abcdef[i]];\n    }\n\n    // Add methods\n    , extend: {\n      // Extract individual transformations\n      extract: function () {\n        // find delta transform points\n        var px = deltaTransformPoint(this, 0, 1),\n            py = deltaTransformPoint(this, 1, 0),\n            skewX = 180 / Math.PI * Math.atan2(px.y, px.x) - 90;\n\n        return {\n          // translation\n          x: this.e,\n          y: this.f,\n          transformedX: (this.e * Math.cos(skewX * Math.PI / 180) + this.f * Math.sin(skewX * Math.PI / 180)) / Math.sqrt(this.a * this.a + this.b * this.b),\n          transformedY: (this.f * Math.cos(skewX * Math.PI / 180) + this.e * Math.sin(-skewX * Math.PI / 180)) / Math.sqrt(this.c * this.c + this.d * this.d)\n          // skew\n          , skewX: -skewX,\n          skewY: 180 / Math.PI * Math.atan2(py.y, py.x)\n          // scale\n          , scaleX: Math.sqrt(this.a * this.a + this.b * this.b),\n          scaleY: Math.sqrt(this.c * this.c + this.d * this.d)\n          // rotation\n          , rotation: skewX,\n          a: this.a,\n          b: this.b,\n          c: this.c,\n          d: this.d,\n          e: this.e,\n          f: this.f,\n          matrix: new SVG.Matrix(this)\n        };\n      }\n      // Clone matrix\n      , clone: function () {\n        return new SVG.Matrix(this);\n      }\n      // Morph one matrix into another\n      , morph: function (matrix) {\n        // store new destination\n        this.destination = new SVG.Matrix(matrix);\n\n        return this;\n      }\n      // Get morphed matrix at a given position\n      , at: function (pos) {\n        // make sure a destination is defined\n        if (!this.destination) return this;\n\n        // calculate morphed matrix at a given position\n        var matrix = new SVG.Matrix({\n          a: this.a + (this.destination.a - this.a) * pos,\n          b: this.b + (this.destination.b - this.b) * pos,\n          c: this.c + (this.destination.c - this.c) * pos,\n          d: this.d + (this.destination.d - this.d) * pos,\n          e: this.e + (this.destination.e - this.e) * pos,\n          f: this.f + (this.destination.f - this.f) * pos\n        });\n\n        return matrix;\n      }\n      // Multiplies by given matrix\n      , multiply: function (matrix) {\n        return new SVG.Matrix(this.native().multiply(parseMatrix(matrix).native()));\n      }\n      // Inverses matrix\n      , inverse: function () {\n        return new SVG.Matrix(this.native().inverse());\n      }\n      // Translate matrix\n      , translate: function (x, y) {\n        return new SVG.Matrix(this.native().translate(x || 0, y || 0));\n      }\n      // Scale matrix\n      , scale: function (x, y, cx, cy) {\n        // support uniformal scale\n        if (arguments.length == 1) {\n          y = x;\n        } else if (arguments.length == 3) {\n          cy = cx;\n          cx = y;\n          y = x;\n        }\n\n        return this.around(cx, cy, new SVG.Matrix(x, 0, 0, y, 0, 0));\n      }\n      // Rotate matrix\n      , rotate: function (r, cx, cy) {\n        // convert degrees to radians\n        r = SVG.utils.radians(r);\n\n        return this.around(cx, cy, new SVG.Matrix(Math.cos(r), Math.sin(r), -Math.sin(r), Math.cos(r), 0, 0));\n      }\n      // Flip matrix on x or y, at a given offset\n      , flip: function (a, o) {\n        return a == 'x' ? this.scale(-1, 1, o, 0) : a == 'y' ? this.scale(1, -1, 0, o) : this.scale(-1, -1, a, o != null ? o : a);\n      }\n      // Skew\n      , skew: function (x, y, cx, cy) {\n        // support uniformal skew\n        if (arguments.length == 1) {\n          y = x;\n        } else if (arguments.length == 3) {\n          cy = cx;\n          cx = y;\n          y = x;\n        }\n\n        // convert degrees to radians\n        x = SVG.utils.radians(x);\n        y = SVG.utils.radians(y);\n\n        return this.around(cx, cy, new SVG.Matrix(1, Math.tan(y), Math.tan(x), 1, 0, 0));\n      }\n      // SkewX\n      , skewX: function (x, cx, cy) {\n        return this.skew(x, 0, cx, cy);\n      }\n      // SkewY\n      , skewY: function (y, cx, cy) {\n        return this.skew(0, y, cx, cy);\n      }\n      // Transform around a center point\n      , around: function (cx, cy, matrix) {\n        return this.multiply(new SVG.Matrix(1, 0, 0, 1, cx || 0, cy || 0)).multiply(matrix).multiply(new SVG.Matrix(1, 0, 0, 1, -cx || 0, -cy || 0));\n      }\n      // Convert to native SVGMatrix\n      , native: function () {\n        // create new matrix\n        var matrix = SVG.parser.native.createSVGMatrix();\n\n        // update with current values\n        for (var i = abcdef.length - 1; i >= 0; i--) matrix[abcdef[i]] = this[abcdef[i]];\n\n        return matrix;\n      }\n      // Convert matrix to string\n      , toString: function () {\n        // Construct the matrix directly, avoid values that are too small\n        return 'matrix(' + float32String(this.a) + ',' + float32String(this.b) + ',' + float32String(this.c) + ',' + float32String(this.d) + ',' + float32String(this.e) + ',' + float32String(this.f) + ')';\n      }\n\n      // Define parent\n    }, parent: SVG.Element\n\n    // Add parent method\n    , construct: {\n      // Get current matrix\n      ctm: function () {\n        return new SVG.Matrix(this.node.getCTM());\n      },\n      // Get current screen matrix\n      screenCTM: function () {\n        /* https://bugzilla.mozilla.org/show_bug.cgi?id=1344537\r\n           This is needed because FF does not return the transformation matrix\r\n           for the inner coordinate system when getScreenCTM() is called on nested svgs.\r\n           However all other Browsers do that */\n        if (this instanceof SVG.Nested) {\n          var rect = this.rect(1, 1);\n          var m = rect.node.getScreenCTM();\n          rect.remove();\n          return new SVG.Matrix(m);\n        }\n        return new SVG.Matrix(this.node.getScreenCTM());\n      }\n\n    }\n\n  });\n\n  SVG.Point = SVG.invent({\n    // Initialize\n    create: function (x, y) {\n      var i,\n          source,\n          base = { x: 0, y: 0\n\n        // ensure source as object\n      };source = Array.isArray(x) ? { x: x[0], y: x[1] } : typeof x === 'object' ? { x: x.x, y: x.y } : x != null ? { x: x, y: y != null ? y : x } : base; // If y has no value, then x is used has its value\n\n      // merge source\n      this.x = source.x;\n      this.y = source.y;\n    }\n\n    // Add methods\n    , extend: {\n      // Clone point\n      clone: function () {\n        return new SVG.Point(this);\n      }\n      // Morph one point into another\n      , morph: function (x, y) {\n        // store new destination\n        this.destination = new SVG.Point(x, y);\n\n        return this;\n      }\n      // Get morphed point at a given position\n      , at: function (pos) {\n        // make sure a destination is defined\n        if (!this.destination) return this;\n\n        // calculate morphed matrix at a given position\n        var point = new SVG.Point({\n          x: this.x + (this.destination.x - this.x) * pos,\n          y: this.y + (this.destination.y - this.y) * pos\n        });\n\n        return point;\n      }\n      // Convert to native SVGPoint\n      , native: function () {\n        // create new point\n        var point = SVG.parser.native.createSVGPoint();\n\n        // update with current values\n        point.x = this.x;\n        point.y = this.y;\n\n        return point;\n      }\n      // transform point with matrix\n      , transform: function (matrix) {\n        return new SVG.Point(this.native().matrixTransform(matrix.native()));\n      }\n\n    }\n\n  });\n\n  SVG.extend(SVG.Element, {\n\n    // Get point\n    point: function (x, y) {\n      return new SVG.Point(x, y).transform(this.screenCTM().inverse());\n    }\n\n  });\n\n  SVG.extend(SVG.Element, {\n    // Set svg element attribute\n    attr: function (a, v, n) {\n      // act as full getter\n      if (a == null) {\n        // get an object of attributes\n        a = {};\n        v = this.node.attributes;\n        for (n = v.length - 1; n >= 0; n--) a[v[n].nodeName] = SVG.regex.isNumber.test(v[n].nodeValue) ? parseFloat(v[n].nodeValue) : v[n].nodeValue;\n\n        return a;\n      } else if (typeof a == 'object') {\n        // apply every attribute individually if an object is passed\n        for (v in a) this.attr(v, a[v]);\n      } else if (v === null) {\n        // remove value\n        this.node.removeAttribute(a);\n      } else if (v == null) {\n        // act as a getter if the first and only argument is not an object\n        v = this.node.getAttribute(a);\n        return v == null ? SVG.defaults.attrs[a] : SVG.regex.isNumber.test(v) ? parseFloat(v) : v;\n      } else {\n        // BUG FIX: some browsers will render a stroke if a color is given even though stroke width is 0\n        if (a == 'stroke-width') this.attr('stroke', parseFloat(v) > 0 ? this._stroke : null);else if (a == 'stroke') this._stroke = v;\n\n        // convert image fill and stroke to patterns\n        if (a == 'fill' || a == 'stroke') {\n          if (SVG.regex.isImage.test(v)) v = this.doc().defs().image(v, 0, 0);\n\n          if (v instanceof SVG.Image) v = this.doc().defs().pattern(0, 0, function () {\n            this.add(v);\n          });\n        }\n\n        // ensure correct numeric values (also accepts NaN and Infinity)\n        if (typeof v === 'number') v = new SVG.Number(v);\n\n        // ensure full hex color\n        else if (SVG.Color.isColor(v)) v = new SVG.Color(v);\n\n          // parse array values\n          else if (Array.isArray(v)) v = new SVG.Array(v);\n\n        // if the passed attribute is leading...\n        if (a == 'leading') {\n          // ... call the leading method instead\n          if (this.leading) this.leading(v);\n        } else {\n          // set given attribute on node\n          typeof n === 'string' ? this.node.setAttributeNS(n, a, v.toString()) : this.node.setAttribute(a, v.toString());\n        }\n\n        // rebuild if required\n        if (this.rebuild && (a == 'font-size' || a == 'x')) this.rebuild(a, v);\n      }\n\n      return this;\n    }\n  });\n  SVG.extend(SVG.Element, {\n    // Add transformations\n    transform: function (o, relative) {\n      // get target in case of the fx module, otherwise reference this\n      var target = this,\n          matrix,\n          bbox;\n\n      // act as a getter\n      if (typeof o !== 'object') {\n        // get current matrix\n        matrix = new SVG.Matrix(target).extract();\n\n        return typeof o === 'string' ? matrix[o] : matrix;\n      }\n\n      // get current matrix\n      matrix = new SVG.Matrix(target);\n\n      // ensure relative flag\n      relative = !!relative || !!o.relative;\n\n      // act on matrix\n      if (o.a != null) {\n        matrix = relative ?\n        // relative\n        matrix.multiply(new SVG.Matrix(o)) :\n        // absolute\n        new SVG.Matrix(o);\n\n        // act on rotation\n      } else if (o.rotation != null) {\n        // ensure centre point\n        ensureCentre(o, target);\n\n        // apply transformation\n        matrix = relative ?\n        // relative\n        matrix.rotate(o.rotation, o.cx, o.cy) :\n        // absolute\n        matrix.rotate(o.rotation - matrix.extract().rotation, o.cx, o.cy);\n\n        // act on scale\n      } else if (o.scale != null || o.scaleX != null || o.scaleY != null) {\n        // ensure centre point\n        ensureCentre(o, target);\n\n        // ensure scale values on both axes\n        o.scaleX = o.scale != null ? o.scale : o.scaleX != null ? o.scaleX : 1;\n        o.scaleY = o.scale != null ? o.scale : o.scaleY != null ? o.scaleY : 1;\n\n        if (!relative) {\n          // absolute; multiply inversed values\n          var e = matrix.extract();\n          o.scaleX = o.scaleX * 1 / e.scaleX;\n          o.scaleY = o.scaleY * 1 / e.scaleY;\n        }\n\n        matrix = matrix.scale(o.scaleX, o.scaleY, o.cx, o.cy);\n\n        // act on skew\n      } else if (o.skew != null || o.skewX != null || o.skewY != null) {\n        // ensure centre point\n        ensureCentre(o, target);\n\n        // ensure skew values on both axes\n        o.skewX = o.skew != null ? o.skew : o.skewX != null ? o.skewX : 0;\n        o.skewY = o.skew != null ? o.skew : o.skewY != null ? o.skewY : 0;\n\n        if (!relative) {\n          // absolute; reset skew values\n          var e = matrix.extract();\n          matrix = matrix.multiply(new SVG.Matrix().skew(e.skewX, e.skewY, o.cx, o.cy).inverse());\n        }\n\n        matrix = matrix.skew(o.skewX, o.skewY, o.cx, o.cy);\n\n        // act on flip\n      } else if (o.flip) {\n        if (o.flip == 'x' || o.flip == 'y') {\n          o.offset = o.offset == null ? target.bbox()['c' + o.flip] : o.offset;\n        } else {\n          if (o.offset == null) {\n            bbox = target.bbox();\n            o.flip = bbox.cx;\n            o.offset = bbox.cy;\n          } else {\n            o.flip = o.offset;\n          }\n        }\n\n        matrix = new SVG.Matrix().flip(o.flip, o.offset);\n\n        // act on translate\n      } else if (o.x != null || o.y != null) {\n        if (relative) {\n          // relative\n          matrix = matrix.translate(o.x, o.y);\n        } else {\n          // absolute\n          if (o.x != null) matrix.e = o.x;\n          if (o.y != null) matrix.f = o.y;\n        }\n      }\n\n      return this.attr('transform', matrix);\n    }\n  });\n\n  SVG.extend(SVG.FX, {\n    transform: function (o, relative) {\n      // get target in case of the fx module, otherwise reference this\n      var target = this.target(),\n          matrix,\n          bbox;\n\n      // act as a getter\n      if (typeof o !== 'object') {\n        // get current matrix\n        matrix = new SVG.Matrix(target).extract();\n\n        return typeof o === 'string' ? matrix[o] : matrix;\n      }\n\n      // ensure relative flag\n      relative = !!relative || !!o.relative;\n\n      // act on matrix\n      if (o.a != null) {\n        matrix = new SVG.Matrix(o);\n\n        // act on rotation\n      } else if (o.rotation != null) {\n        // ensure centre point\n        ensureCentre(o, target);\n\n        // apply transformation\n        matrix = new SVG.Rotate(o.rotation, o.cx, o.cy);\n\n        // act on scale\n      } else if (o.scale != null || o.scaleX != null || o.scaleY != null) {\n        // ensure centre point\n        ensureCentre(o, target);\n\n        // ensure scale values on both axes\n        o.scaleX = o.scale != null ? o.scale : o.scaleX != null ? o.scaleX : 1;\n        o.scaleY = o.scale != null ? o.scale : o.scaleY != null ? o.scaleY : 1;\n\n        matrix = new SVG.Scale(o.scaleX, o.scaleY, o.cx, o.cy);\n\n        // act on skew\n      } else if (o.skewX != null || o.skewY != null) {\n        // ensure centre point\n        ensureCentre(o, target);\n\n        // ensure skew values on both axes\n        o.skewX = o.skewX != null ? o.skewX : 0;\n        o.skewY = o.skewY != null ? o.skewY : 0;\n\n        matrix = new SVG.Skew(o.skewX, o.skewY, o.cx, o.cy);\n\n        // act on flip\n      } else if (o.flip) {\n        if (o.flip == 'x' || o.flip == 'y') {\n          o.offset = o.offset == null ? target.bbox()['c' + o.flip] : o.offset;\n        } else {\n          if (o.offset == null) {\n            bbox = target.bbox();\n            o.flip = bbox.cx;\n            o.offset = bbox.cy;\n          } else {\n            o.flip = o.offset;\n          }\n        }\n\n        matrix = new SVG.Matrix().flip(o.flip, o.offset);\n\n        // act on translate\n      } else if (o.x != null || o.y != null) {\n        matrix = new SVG.Translate(o.x, o.y);\n      }\n\n      if (!matrix) return this;\n\n      matrix.relative = relative;\n\n      this.last().transforms.push(matrix);\n\n      return this._callStart();\n    }\n  });\n\n  SVG.extend(SVG.Element, {\n    // Reset all transformations\n    untransform: function () {\n      return this.attr('transform', null);\n    },\n    // merge the whole transformation chain into one matrix and returns it\n    matrixify: function () {\n\n      var matrix = (this.attr('transform') || '').\n      // split transformations\n      split(SVG.regex.transforms).slice(0, -1).map(function (str) {\n        // generate key => value pairs\n        var kv = str.trim().split('(');\n        return [kv[0], kv[1].split(SVG.regex.delimiter).map(function (str) {\n          return parseFloat(str);\n        })];\n      })\n      // merge every transformation into one matrix\n      .reduce(function (matrix, transform) {\n\n        if (transform[0] == 'matrix') return matrix.multiply(arrayToMatrix(transform[1]));\n        return matrix[transform[0]].apply(matrix, transform[1]);\n      }, new SVG.Matrix());\n\n      return matrix;\n    },\n    // add an element to another parent without changing the visual representation on the screen\n    toParent: function (parent) {\n      if (this == parent) return this;\n      var ctm = this.screenCTM();\n      var pCtm = parent.screenCTM().inverse();\n\n      this.addTo(parent).untransform().transform(pCtm.multiply(ctm));\n\n      return this;\n    },\n    // same as above with parent equals root-svg\n    toDoc: function () {\n      return this.toParent(this.doc());\n    }\n\n  });\n\n  SVG.Transformation = SVG.invent({\n\n    create: function (source, inversed) {\n\n      if (arguments.length > 1 && typeof inversed != 'boolean') {\n        return this.constructor.call(this, [].slice.call(arguments));\n      }\n\n      if (Array.isArray(source)) {\n        for (var i = 0, len = this.arguments.length; i < len; ++i) {\n          this[this.arguments[i]] = source[i];\n        }\n      } else if (typeof source == 'object') {\n        for (var i = 0, len = this.arguments.length; i < len; ++i) {\n          this[this.arguments[i]] = source[this.arguments[i]];\n        }\n      }\n\n      this.inversed = false;\n\n      if (inversed === true) {\n        this.inversed = true;\n      }\n    },\n\n    extend: {\n\n      arguments: [],\n      method: '',\n\n      at: function (pos) {\n\n        var params = [];\n\n        for (var i = 0, len = this.arguments.length; i < len; ++i) {\n          params.push(this[this.arguments[i]]);\n        }\n\n        var m = this._undo || new SVG.Matrix();\n\n        m = new SVG.Matrix().morph(SVG.Matrix.prototype[this.method].apply(m, params)).at(pos);\n\n        return this.inversed ? m.inverse() : m;\n      },\n\n      undo: function (o) {\n        for (var i = 0, len = this.arguments.length; i < len; ++i) {\n          o[this.arguments[i]] = typeof this[this.arguments[i]] == 'undefined' ? 0 : o[this.arguments[i]];\n        }\n\n        // The method SVG.Matrix.extract which was used before calling this\n        // method to obtain a value for the parameter o doesn't return a cx and\n        // a cy so we use the ones that were provided to this object at its creation\n        o.cx = this.cx;\n        o.cy = this.cy;\n\n        this._undo = new SVG[capitalize(this.method)](o, true).at(1);\n\n        return this;\n      }\n\n    }\n\n  });\n\n  SVG.Translate = SVG.invent({\n\n    parent: SVG.Matrix,\n    inherit: SVG.Transformation,\n\n    create: function (source, inversed) {\n      this.constructor.apply(this, [].slice.call(arguments));\n    },\n\n    extend: {\n      arguments: ['transformedX', 'transformedY'],\n      method: 'translate'\n    }\n\n  });\n\n  SVG.Rotate = SVG.invent({\n\n    parent: SVG.Matrix,\n    inherit: SVG.Transformation,\n\n    create: function (source, inversed) {\n      this.constructor.apply(this, [].slice.call(arguments));\n    },\n\n    extend: {\n      arguments: ['rotation', 'cx', 'cy'],\n      method: 'rotate',\n      at: function (pos) {\n        var m = new SVG.Matrix().rotate(new SVG.Number().morph(this.rotation - (this._undo ? this._undo.rotation : 0)).at(pos), this.cx, this.cy);\n        return this.inversed ? m.inverse() : m;\n      },\n      undo: function (o) {\n        this._undo = o;\n        return this;\n      }\n    }\n\n  });\n\n  SVG.Scale = SVG.invent({\n\n    parent: SVG.Matrix,\n    inherit: SVG.Transformation,\n\n    create: function (source, inversed) {\n      this.constructor.apply(this, [].slice.call(arguments));\n    },\n\n    extend: {\n      arguments: ['scaleX', 'scaleY', 'cx', 'cy'],\n      method: 'scale'\n    }\n\n  });\n\n  SVG.Skew = SVG.invent({\n\n    parent: SVG.Matrix,\n    inherit: SVG.Transformation,\n\n    create: function (source, inversed) {\n      this.constructor.apply(this, [].slice.call(arguments));\n    },\n\n    extend: {\n      arguments: ['skewX', 'skewY', 'cx', 'cy'],\n      method: 'skew'\n    }\n\n  });\n\n  SVG.extend(SVG.Element, {\n    // Dynamic style generator\n    style: function (s, v) {\n      if (arguments.length == 0) {\n        // get full style\n        return this.node.style.cssText || '';\n      } else if (arguments.length < 2) {\n        // apply every style individually if an object is passed\n        if (typeof s == 'object') {\n          for (v in s) this.style(v, s[v]);\n        } else if (SVG.regex.isCss.test(s)) {\n          // parse css string\n          s = s.split(/\\s*;\\s*/)\n          // filter out suffix ; and stuff like ;;\n          .filter(function (e) {\n            return !!e;\n          }).map(function (e) {\n            return e.split(/\\s*:\\s*/);\n          });\n\n          // apply every definition individually\n          while (v = s.pop()) {\n            this.style(v[0], v[1]);\n          }\n        } else {\n          // act as a getter if the first and only argument is not an object\n          return this.node.style[camelCase(s)];\n        }\n      } else {\n        this.node.style[camelCase(s)] = v === null || SVG.regex.isBlank.test(v) ? '' : v;\n      }\n\n      return this;\n    }\n  });\n  SVG.Parent = SVG.invent({\n    // Initialize node\n    create: function (element) {\n      this.constructor.call(this, element);\n    }\n\n    // Inherit from\n    , inherit: SVG.Element\n\n    // Add class methods\n    , extend: {\n      // Returns all child elements\n      children: function () {\n        return SVG.utils.map(SVG.utils.filterSVGElements(this.node.childNodes), function (node) {\n          return SVG.adopt(node);\n        });\n      }\n      // Add given element at a position\n      , add: function (element, i) {\n        if (i == null) this.node.appendChild(element.node);else if (element.node != this.node.childNodes[i]) this.node.insertBefore(element.node, this.node.childNodes[i]);\n\n        return this;\n      }\n      // Basically does the same as `add()` but returns the added element instead\n      , put: function (element, i) {\n        this.add(element, i);\n        return element;\n      }\n      // Checks if the given element is a child\n      , has: function (element) {\n        return this.index(element) >= 0;\n      }\n      // Gets index of given element\n      , index: function (element) {\n        return [].slice.call(this.node.childNodes).indexOf(element.node);\n      }\n      // Get a element at the given index\n      , get: function (i) {\n        return SVG.adopt(this.node.childNodes[i]);\n      }\n      // Get first child\n      , first: function () {\n        return this.get(0);\n      }\n      // Get the last child\n      , last: function () {\n        return this.get(this.node.childNodes.length - 1);\n      }\n      // Iterates over all children and invokes a given block\n      , each: function (block, deep) {\n        var i,\n            il,\n            children = this.children();\n\n        for (i = 0, il = children.length; i < il; i++) {\n          if (children[i] instanceof SVG.Element) block.apply(children[i], [i, children]);\n\n          if (deep && children[i] instanceof SVG.Container) children[i].each(block, deep);\n        }\n\n        return this;\n      }\n      // Remove a given child\n      , removeElement: function (element) {\n        this.node.removeChild(element.node);\n\n        return this;\n      }\n      // Remove all elements in this container\n      , clear: function () {\n        // remove children\n        while (this.node.hasChildNodes()) this.node.removeChild(this.node.lastChild);\n\n        // remove defs reference\n        delete this._defs;\n\n        return this;\n      },\n      // Get defs\n      defs: function () {\n        return this.doc().defs();\n      }\n    }\n\n  });\n\n  SVG.extend(SVG.Parent, {\n\n    ungroup: function (parent, depth) {\n      if (depth === 0 || this instanceof SVG.Defs || this.node == SVG.parser.draw) return this;\n\n      parent = parent || (this instanceof SVG.Doc ? this : this.parent(SVG.Parent));\n      depth = depth || Infinity;\n\n      this.each(function () {\n        if (this instanceof SVG.Defs) return this;\n        if (this instanceof SVG.Parent) return this.ungroup(parent, depth - 1);\n        return this.toParent(parent);\n      });\n\n      this.node.firstChild || this.remove();\n\n      return this;\n    },\n\n    flatten: function (parent, depth) {\n      return this.ungroup(parent, depth);\n    }\n\n  });\n  SVG.Container = SVG.invent({\n    // Initialize node\n    create: function (element) {\n      this.constructor.call(this, element);\n    }\n\n    // Inherit from\n    , inherit: SVG.Parent\n\n  });\n\n  SVG.ViewBox = SVG.invent({\n\n    create: function (source) {\n      var i,\n          base = [0, 0, 0, 0];\n\n      var x,\n          y,\n          width,\n          height,\n          box,\n          view,\n          we,\n          he,\n          wm = 1 // width multiplier\n      ,\n          hm = 1 // height multiplier\n      ,\n          reg = /[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:e[+-]?\\d+)?/gi;\n\n      if (source instanceof SVG.Element) {\n\n        we = source;\n        he = source;\n        view = (source.attr('viewBox') || '').match(reg);\n        box = source.bbox;\n\n        // get dimensions of current node\n        width = new SVG.Number(source.width());\n        height = new SVG.Number(source.height());\n\n        // find nearest non-percentual dimensions\n        while (width.unit == '%') {\n          wm *= width.value;\n          width = new SVG.Number(we instanceof SVG.Doc ? we.parent().offsetWidth : we.parent().width());\n          we = we.parent();\n        }\n        while (height.unit == '%') {\n          hm *= height.value;\n          height = new SVG.Number(he instanceof SVG.Doc ? he.parent().offsetHeight : he.parent().height());\n          he = he.parent();\n        }\n\n        // ensure defaults\n        this.x = 0;\n        this.y = 0;\n        this.width = width * wm;\n        this.height = height * hm;\n        this.zoom = 1;\n\n        if (view) {\n          // get width and height from viewbox\n          x = parseFloat(view[0]);\n          y = parseFloat(view[1]);\n          width = parseFloat(view[2]);\n          height = parseFloat(view[3]);\n\n          // calculate zoom accoring to viewbox\n          this.zoom = this.width / this.height > width / height ? this.height / height : this.width / width;\n\n          // calculate real pixel dimensions on parent SVG.Doc element\n          this.x = x;\n          this.y = y;\n          this.width = width;\n          this.height = height;\n        }\n      } else {\n\n        // ensure source as object\n        source = typeof source === 'string' ? source.match(reg).map(function (el) {\n          return parseFloat(el);\n        }) : Array.isArray(source) ? source : typeof source == 'object' ? [source.x, source.y, source.width, source.height] : arguments.length == 4 ? [].slice.call(arguments) : base;\n\n        this.x = source[0];\n        this.y = source[1];\n        this.width = source[2];\n        this.height = source[3];\n      }\n    },\n\n    extend: {\n\n      toString: function () {\n        return this.x + ' ' + this.y + ' ' + this.width + ' ' + this.height;\n      },\n      morph: function (x, y, width, height) {\n        this.destination = new SVG.ViewBox(x, y, width, height);\n        return this;\n      },\n\n      at: function (pos) {\n\n        if (!this.destination) return this;\n\n        return new SVG.ViewBox([this.x + (this.destination.x - this.x) * pos, this.y + (this.destination.y - this.y) * pos, this.width + (this.destination.width - this.width) * pos, this.height + (this.destination.height - this.height) * pos]);\n      }\n\n      // Define parent\n    }, parent: SVG.Container\n\n    // Add parent method\n    , construct: {\n\n      // get/set viewbox\n      viewbox: function (x, y, width, height) {\n        if (arguments.length == 0)\n          // act as a getter if there are no arguments\n          return new SVG.ViewBox(this);\n\n        // otherwise act as a setter\n        return this.attr('viewBox', new SVG.ViewBox(x, y, width, height));\n      }\n\n    }\n\n  })\n  // Add events to elements\n\n  ;['click', 'dblclick', 'mousedown', 'mouseup', 'mouseover', 'mouseout', 'mousemove', 'mouseenter', 'mouseleave', 'touchstart', 'touchmove', 'touchleave', 'touchend', 'touchcancel'].forEach(function (event) {\n    // add event to SVG.Element\n    SVG.Element.prototype[event] = function (f) {\n      // bind event to element rather than element node\n      if (f == null) {\n        SVG.off(this, event);\n      } else {\n        SVG.on(this, event, f);\n      }\n      return this;\n    };\n  });\n\n  SVG.listenerId = 0;\n\n  // Add event binder in the SVG namespace\n  SVG.on = function (node, events, listener, binding, options) {\n    var l = listener.bind(binding || node);\n    var n = node instanceof SVG.Element ? node.node : node;\n\n    // ensure instance object for nodes which are not adopted\n    n.instance = n.instance || { _events: {} };\n\n    var bag = n.instance._events;\n\n    // add id to listener\n    if (!listener._svgjsListenerId) {\n      listener._svgjsListenerId = ++SVG.listenerId;\n    }\n\n    events.split(SVG.regex.delimiter).forEach(function (event) {\n      var ev = event.split('.')[0];\n      var ns = event.split('.')[1] || '*';\n\n      // ensure valid object\n      bag[ev] = bag[ev] || {};\n      bag[ev][ns] = bag[ev][ns] || {};\n\n      // reference listener\n      bag[ev][ns][listener._svgjsListenerId] = l;\n\n      // add listener\n      n.addEventListener(ev, l, options || false);\n    });\n  };\n\n  // Add event unbinder in the SVG namespace\n  SVG.off = function (node, events, listener, options) {\n    var n = node instanceof SVG.Element ? node.node : node;\n    if (!n.instance) return;\n\n    // listener can be a function or a number\n    if (typeof listener === 'function') {\n      listener = listener._svgjsListenerId;\n      if (!listener) return;\n    }\n\n    var bag = n.instance._events;(events || '').split(SVG.regex.delimiter).forEach(function (event) {\n      var ev = event && event.split('.')[0];\n      var ns = event && event.split('.')[1];\n      var namespace, l;\n\n      if (listener) {\n        // remove listener reference\n        if (bag[ev] && bag[ev][ns || '*']) {\n          // removeListener\n          n.removeEventListener(ev, bag[ev][ns || '*'][listener], options || false);\n\n          delete bag[ev][ns || '*'][listener];\n        }\n      } else if (ev && ns) {\n        // remove all listeners for a namespaced event\n        if (bag[ev] && bag[ev][ns]) {\n          for (l in bag[ev][ns]) {\n            SVG.off(n, [ev, ns].join('.'), l);\n          }\n\n          delete bag[ev][ns];\n        }\n      } else if (ns) {\n        // remove all listeners for a specific namespace\n        for (event in bag) {\n          for (namespace in bag[event]) {\n            if (ns === namespace) {\n              SVG.off(n, [event, ns].join('.'));\n            }\n          }\n        }\n      } else if (ev) {\n        // remove all listeners for the event\n        if (bag[ev]) {\n          for (namespace in bag[ev]) {\n            SVG.off(n, [ev, namespace].join('.'));\n          }\n\n          delete bag[ev];\n        }\n      } else {\n        // remove all listeners on a given node\n        for (event in bag) {\n          SVG.off(n, event);\n        }\n\n        n.instance._events = {};\n      }\n    });\n  };\n\n  SVG.extend(SVG.Element, {\n    // Bind given event to listener\n    on: function (event, listener, binding, options) {\n      SVG.on(this, event, listener, binding, options);\n      return this;\n    },\n    // Unbind event from listener\n    off: function (event, listener) {\n      SVG.off(this.node, event, listener);\n      return this;\n    },\n    fire: function (event, data) {\n      // Dispatch event\n      if (event instanceof window.Event) {\n        this.node.dispatchEvent(event);\n      } else {\n        this.node.dispatchEvent(event = new SVG.CustomEvent(event, { detail: data, cancelable: true }));\n      }\n      this._event = event;\n      return this;\n    },\n    event: function () {\n      return this._event;\n    }\n  });\n\n  SVG.Defs = SVG.invent({\n    // Initialize node\n    create: 'defs'\n\n    // Inherit from\n    , inherit: SVG.Container\n\n  });\n  SVG.G = SVG.invent({\n    // Initialize node\n    create: 'g'\n\n    // Inherit from\n    , inherit: SVG.Container\n\n    // Add class methods\n    , extend: {\n      // Move over x-axis\n      x: function (x) {\n        return x == null ? this.transform('x') : this.transform({ x: x - this.x() }, true);\n      }\n      // Move over y-axis\n      , y: function (y) {\n        return y == null ? this.transform('y') : this.transform({ y: y - this.y() }, true);\n      }\n      // Move by center over x-axis\n      , cx: function (x) {\n        return x == null ? this.gbox().cx : this.x(x - this.gbox().width / 2);\n      }\n      // Move by center over y-axis\n      , cy: function (y) {\n        return y == null ? this.gbox().cy : this.y(y - this.gbox().height / 2);\n      },\n      gbox: function () {\n\n        var bbox = this.bbox(),\n            trans = this.transform();\n\n        bbox.x += trans.x;\n        bbox.x2 += trans.x;\n        bbox.cx += trans.x;\n\n        bbox.y += trans.y;\n        bbox.y2 += trans.y;\n        bbox.cy += trans.y;\n\n        return bbox;\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create a group element\n      group: function () {\n        return this.put(new SVG.G());\n      }\n    }\n  });\n\n  SVG.Doc = SVG.invent({\n    // Initialize node\n    create: function (element) {\n      if (element) {\n        // ensure the presence of a dom element\n        element = typeof element == 'string' ? document.getElementById(element) : element;\n\n        // If the target is an svg element, use that element as the main wrapper.\n        // This allows svg.js to work with svg documents as well.\n        if (element.nodeName == 'svg') {\n          this.constructor.call(this, element);\n        } else {\n          this.constructor.call(this, SVG.create('svg'));\n          element.appendChild(this.node);\n          this.size('100%', '100%');\n        }\n\n        // set svg element attributes and ensure defs node\n        this.namespace().defs();\n      }\n    }\n\n    // Inherit from\n    , inherit: SVG.Container\n\n    // Add class methods\n    , extend: {\n      // Add namespaces\n      namespace: function () {\n        return this.attr({ xmlns: SVG.ns, version: '1.1' }).attr('xmlns:xlink', SVG.xlink, SVG.xmlns).attr('xmlns:svgjs', SVG.svgjs, SVG.xmlns);\n      }\n      // Creates and returns defs element\n      , defs: function () {\n        if (!this._defs) {\n          var defs;\n\n          // Find or create a defs element in this instance\n          if (defs = this.node.getElementsByTagName('defs')[0]) this._defs = SVG.adopt(defs);else this._defs = new SVG.Defs();\n\n          // Make sure the defs node is at the end of the stack\n          this.node.appendChild(this._defs.node);\n        }\n\n        return this._defs;\n      }\n      // custom parent method\n      , parent: function () {\n        if (!this.node.parentNode || this.node.parentNode.nodeName == '#document' || this.node.parentNode.nodeName == '#document-fragment') return null;\n        return this.node.parentNode;\n      }\n      // Fix for possible sub-pixel offset. See:\n      // https://bugzilla.mozilla.org/show_bug.cgi?id=608812\n      , spof: function () {\n        var pos = this.node.getScreenCTM();\n\n        if (pos) this.style('left', -pos.e % 1 + 'px').style('top', -pos.f % 1 + 'px');\n\n        return this;\n      }\n\n      // Removes the doc from the DOM\n      , remove: function () {\n        if (this.parent()) {\n          this.parent().removeChild(this.node);\n        }\n\n        return this;\n      },\n      clear: function () {\n        // remove children\n        while (this.node.hasChildNodes()) this.node.removeChild(this.node.lastChild);\n\n        // remove defs reference\n        delete this._defs;\n\n        // add back parser\n        if (!SVG.parser.draw.parentNode) this.node.appendChild(SVG.parser.draw);\n\n        return this;\n      },\n      clone: function (parent) {\n        // write dom data to the dom so the clone can pickup the data\n        this.writeDataToDom();\n\n        // get reference to node\n        var node = this.node;\n\n        // clone element and assign new id\n        var clone = assignNewId(node.cloneNode(true));\n\n        // insert the clone in the given parent or after myself\n        if (parent) {\n          (parent.node || parent).appendChild(clone.node);\n        } else {\n          node.parentNode.insertBefore(clone.node, node.nextSibling);\n        }\n\n        return clone;\n      }\n    }\n\n  });\n\n  // ### This module adds backward / forward functionality to elements.\n\n  //\n  SVG.extend(SVG.Element, {\n    // Get all siblings, including myself\n    siblings: function () {\n      return this.parent().children();\n    }\n    // Get the curent position siblings\n    , position: function () {\n      return this.parent().index(this);\n    }\n    // Get the next element (will return null if there is none)\n    , next: function () {\n      return this.siblings()[this.position() + 1];\n    }\n    // Get the next element (will return null if there is none)\n    , previous: function () {\n      return this.siblings()[this.position() - 1];\n    }\n    // Send given element one step forward\n    , forward: function () {\n      var i = this.position() + 1,\n          p = this.parent();\n\n      // move node one step forward\n      p.removeElement(this).add(this, i);\n\n      // make sure defs node is always at the top\n      if (p instanceof SVG.Doc) p.node.appendChild(p.defs().node);\n\n      return this;\n    }\n    // Send given element one step backward\n    , backward: function () {\n      var i = this.position();\n\n      if (i > 0) this.parent().removeElement(this).add(this, i - 1);\n\n      return this;\n    }\n    // Send given element all the way to the front\n    , front: function () {\n      var p = this.parent();\n\n      // Move node forward\n      p.node.appendChild(this.node);\n\n      // Make sure defs node is always at the top\n      if (p instanceof SVG.Doc) p.node.appendChild(p.defs().node);\n\n      return this;\n    }\n    // Send given element all the way to the back\n    , back: function () {\n      if (this.position() > 0) this.parent().removeElement(this).add(this, 0);\n\n      return this;\n    }\n    // Inserts a given element before the targeted element\n    , before: function (element) {\n      element.remove();\n\n      var i = this.position();\n\n      this.parent().add(element, i);\n\n      return this;\n    }\n    // Insters a given element after the targeted element\n    , after: function (element) {\n      element.remove();\n\n      var i = this.position();\n\n      this.parent().add(element, i + 1);\n\n      return this;\n    }\n\n  });\n  SVG.Mask = SVG.invent({\n    // Initialize node\n    create: function () {\n      this.constructor.call(this, SVG.create('mask'));\n\n      // keep references to masked elements\n      this.targets = [];\n    }\n\n    // Inherit from\n    , inherit: SVG.Container\n\n    // Add class methods\n    , extend: {\n      // Unmask all masked elements and remove itself\n      remove: function () {\n        // unmask all targets\n        for (var i = this.targets.length - 1; i >= 0; i--) if (this.targets[i]) this.targets[i].unmask();\n        this.targets = [];\n\n        // remove mask from parent\n        SVG.Element.prototype.remove.call(this);\n\n        return this;\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create masking element\n      mask: function () {\n        return this.defs().put(new SVG.Mask());\n      }\n    }\n  });\n\n  SVG.extend(SVG.Element, {\n    // Distribute mask to svg element\n    maskWith: function (element) {\n      // use given mask or create a new one\n      this.masker = element instanceof SVG.Mask ? element : this.parent().mask().add(element);\n\n      // store reverence on self in mask\n      this.masker.targets.push(this);\n\n      // apply mask\n      return this.attr('mask', 'url(\"#' + this.masker.attr('id') + '\")');\n    }\n    // Unmask element\n    , unmask: function () {\n      delete this.masker;\n      return this.attr('mask', null);\n    }\n\n  });\n\n  SVG.ClipPath = SVG.invent({\n    // Initialize node\n    create: function () {\n      this.constructor.call(this, SVG.create('clipPath'));\n\n      // keep references to clipped elements\n      this.targets = [];\n    }\n\n    // Inherit from\n    , inherit: SVG.Container\n\n    // Add class methods\n    , extend: {\n      // Unclip all clipped elements and remove itself\n      remove: function () {\n        // unclip all targets\n        for (var i = this.targets.length - 1; i >= 0; i--) if (this.targets[i]) this.targets[i].unclip();\n        this.targets = [];\n\n        // remove clipPath from parent\n        this.parent().removeElement(this);\n\n        return this;\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create clipping element\n      clip: function () {\n        return this.defs().put(new SVG.ClipPath());\n      }\n    }\n  });\n\n  //\n  SVG.extend(SVG.Element, {\n    // Distribute clipPath to svg element\n    clipWith: function (element) {\n      // use given clip or create a new one\n      this.clipper = element instanceof SVG.ClipPath ? element : this.parent().clip().add(element);\n\n      // store reverence on self in mask\n      this.clipper.targets.push(this);\n\n      // apply mask\n      return this.attr('clip-path', 'url(\"#' + this.clipper.attr('id') + '\")');\n    }\n    // Unclip element\n    , unclip: function () {\n      delete this.clipper;\n      return this.attr('clip-path', null);\n    }\n\n  });\n  SVG.Gradient = SVG.invent({\n    // Initialize node\n    create: function (type) {\n      this.constructor.call(this, SVG.create(type + 'Gradient'));\n\n      // store type\n      this.type = type;\n    }\n\n    // Inherit from\n    , inherit: SVG.Container\n\n    // Add class methods\n    , extend: {\n      // Add a color stop\n      at: function (offset, color, opacity) {\n        return this.put(new SVG.Stop()).update(offset, color, opacity);\n      }\n      // Update gradient\n      , update: function (block) {\n        // remove all stops\n        this.clear();\n\n        // invoke passed block\n        if (typeof block == 'function') block.call(this, this);\n\n        return this;\n      }\n      // Return the fill id\n      , fill: function () {\n        return 'url(#' + this.id() + ')';\n      }\n      // Alias string convertion to fill\n      , toString: function () {\n        return this.fill();\n      }\n      // custom attr to handle transform\n      , attr: function (a, b, c) {\n        if (a == 'transform') a = 'gradientTransform';\n        return SVG.Container.prototype.attr.call(this, a, b, c);\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create gradient element in defs\n      gradient: function (type, block) {\n        return this.defs().gradient(type, block);\n      }\n    }\n  });\n\n  // Add animatable methods to both gradient and fx module\n  SVG.extend(SVG.Gradient, SVG.FX, {\n    // From position\n    from: function (x, y) {\n      return (this._target || this).type == 'radial' ? this.attr({ fx: new SVG.Number(x), fy: new SVG.Number(y) }) : this.attr({ x1: new SVG.Number(x), y1: new SVG.Number(y) });\n    }\n    // To position\n    , to: function (x, y) {\n      return (this._target || this).type == 'radial' ? this.attr({ cx: new SVG.Number(x), cy: new SVG.Number(y) }) : this.attr({ x2: new SVG.Number(x), y2: new SVG.Number(y) });\n    }\n  });\n\n  // Base gradient generation\n  SVG.extend(SVG.Defs, {\n    // define gradient\n    gradient: function (type, block) {\n      return this.put(new SVG.Gradient(type)).update(block);\n    }\n\n  });\n\n  SVG.Stop = SVG.invent({\n    // Initialize node\n    create: 'stop'\n\n    // Inherit from\n    , inherit: SVG.Element\n\n    // Add class methods\n    , extend: {\n      // add color stops\n      update: function (o) {\n        if (typeof o == 'number' || o instanceof SVG.Number) {\n          o = {\n            offset: arguments[0],\n            color: arguments[1],\n            opacity: arguments[2]\n          };\n        }\n\n        // set attributes\n        if (o.opacity != null) this.attr('stop-opacity', o.opacity);\n        if (o.color != null) this.attr('stop-color', o.color);\n        if (o.offset != null) this.attr('offset', new SVG.Number(o.offset));\n\n        return this;\n      }\n    }\n\n  });\n\n  SVG.Pattern = SVG.invent({\n    // Initialize node\n    create: 'pattern'\n\n    // Inherit from\n    , inherit: SVG.Container\n\n    // Add class methods\n    , extend: {\n      // Return the fill id\n      fill: function () {\n        return 'url(#' + this.id() + ')';\n      }\n      // Update pattern by rebuilding\n      , update: function (block) {\n        // remove content\n        this.clear();\n\n        // invoke passed block\n        if (typeof block == 'function') block.call(this, this);\n\n        return this;\n      }\n      // Alias string convertion to fill\n      , toString: function () {\n        return this.fill();\n      }\n      // custom attr to handle transform\n      , attr: function (a, b, c) {\n        if (a == 'transform') a = 'patternTransform';\n        return SVG.Container.prototype.attr.call(this, a, b, c);\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create pattern element in defs\n      pattern: function (width, height, block) {\n        return this.defs().pattern(width, height, block);\n      }\n    }\n  });\n\n  SVG.extend(SVG.Defs, {\n    // Define gradient\n    pattern: function (width, height, block) {\n      return this.put(new SVG.Pattern()).update(block).attr({\n        x: 0,\n        y: 0,\n        width: width,\n        height: height,\n        patternUnits: 'userSpaceOnUse'\n      });\n    }\n\n  });\n  SVG.Shape = SVG.invent({\n    // Initialize node\n    create: function (element) {\n      this.constructor.call(this, element);\n    }\n\n    // Inherit from\n    , inherit: SVG.Element\n\n  });\n\n  SVG.Bare = SVG.invent({\n    // Initialize\n    create: function (element, inherit) {\n      // construct element\n      this.constructor.call(this, SVG.create(element));\n\n      // inherit custom methods\n      if (inherit) for (var method in inherit.prototype) if (typeof inherit.prototype[method] === 'function') this[method] = inherit.prototype[method];\n    }\n\n    // Inherit from\n    , inherit: SVG.Element\n\n    // Add methods\n    , extend: {\n      // Insert some plain text\n      words: function (text) {\n        // remove contents\n        while (this.node.hasChildNodes()) this.node.removeChild(this.node.lastChild);\n\n        // create text node\n        this.node.appendChild(document.createTextNode(text));\n\n        return this;\n      }\n    }\n  });\n\n  SVG.extend(SVG.Parent, {\n    // Create an element that is not described by SVG.js\n    element: function (element, inherit) {\n      return this.put(new SVG.Bare(element, inherit));\n    }\n  });\n\n  SVG.Symbol = SVG.invent({\n    // Initialize node\n    create: 'symbol'\n\n    // Inherit from\n    , inherit: SVG.Container,\n\n    construct: {\n      // create symbol\n      symbol: function () {\n        return this.put(new SVG.Symbol());\n      }\n    }\n  });\n\n  SVG.Use = SVG.invent({\n    // Initialize node\n    create: 'use'\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add class methods\n    , extend: {\n      // Use element as a reference\n      element: function (element, file) {\n        // Set lined element\n        return this.attr('href', (file || '') + '#' + element, SVG.xlink);\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create a use element\n      use: function (element, file) {\n        return this.put(new SVG.Use()).element(element, file);\n      }\n    }\n  });\n  SVG.Rect = SVG.invent({\n    // Initialize node\n    create: 'rect'\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add parent method\n    , construct: {\n      // Create a rect element\n      rect: function (width, height) {\n        return this.put(new SVG.Rect()).size(width, height);\n      }\n    }\n  });\n  SVG.Circle = SVG.invent({\n    // Initialize node\n    create: 'circle'\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add parent method\n    , construct: {\n      // Create circle element, based on ellipse\n      circle: function (size) {\n        return this.put(new SVG.Circle()).rx(new SVG.Number(size).divide(2)).move(0, 0);\n      }\n    }\n  });\n\n  SVG.extend(SVG.Circle, SVG.FX, {\n    // Radius x value\n    rx: function (rx) {\n      return this.attr('r', rx);\n    }\n    // Alias radius x value\n    , ry: function (ry) {\n      return this.rx(ry);\n    }\n  });\n\n  SVG.Ellipse = SVG.invent({\n    // Initialize node\n    create: 'ellipse'\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add parent method\n    , construct: {\n      // Create an ellipse\n      ellipse: function (width, height) {\n        return this.put(new SVG.Ellipse()).size(width, height).move(0, 0);\n      }\n    }\n  });\n\n  SVG.extend(SVG.Ellipse, SVG.Rect, SVG.FX, {\n    // Radius x value\n    rx: function (rx) {\n      return this.attr('rx', rx);\n    }\n    // Radius y value\n    , ry: function (ry) {\n      return this.attr('ry', ry);\n    }\n  });\n\n  // Add common method\n  SVG.extend(SVG.Circle, SVG.Ellipse, {\n    // Move over x-axis\n    x: function (x) {\n      return x == null ? this.cx() - this.rx() : this.cx(x + this.rx());\n    }\n    // Move over y-axis\n    , y: function (y) {\n      return y == null ? this.cy() - this.ry() : this.cy(y + this.ry());\n    }\n    // Move by center over x-axis\n    , cx: function (x) {\n      return x == null ? this.attr('cx') : this.attr('cx', x);\n    }\n    // Move by center over y-axis\n    , cy: function (y) {\n      return y == null ? this.attr('cy') : this.attr('cy', y);\n    }\n    // Set width of element\n    , width: function (width) {\n      return width == null ? this.rx() * 2 : this.rx(new SVG.Number(width).divide(2));\n    }\n    // Set height of element\n    , height: function (height) {\n      return height == null ? this.ry() * 2 : this.ry(new SVG.Number(height).divide(2));\n    }\n    // Custom size function\n    , size: function (width, height) {\n      var p = proportionalSize(this, width, height);\n\n      return this.rx(new SVG.Number(p.width).divide(2)).ry(new SVG.Number(p.height).divide(2));\n    }\n  });\n  SVG.Line = SVG.invent({\n    // Initialize node\n    create: 'line'\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add class methods\n    , extend: {\n      // Get array\n      array: function () {\n        return new SVG.PointArray([[this.attr('x1'), this.attr('y1')], [this.attr('x2'), this.attr('y2')]]);\n      }\n      // Overwrite native plot() method\n      , plot: function (x1, y1, x2, y2) {\n        if (x1 == null) return this.array();else if (typeof y1 !== 'undefined') x1 = { x1: x1, y1: y1, x2: x2, y2: y2 };else x1 = new SVG.PointArray(x1).toLine();\n\n        return this.attr(x1);\n      }\n      // Move by left top corner\n      , move: function (x, y) {\n        return this.attr(this.array().move(x, y).toLine());\n      }\n      // Set element size to given width and height\n      , size: function (width, height) {\n        var p = proportionalSize(this, width, height);\n\n        return this.attr(this.array().size(p.width, p.height).toLine());\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create a line element\n      line: function (x1, y1, x2, y2) {\n        // make sure plot is called as a setter\n        // x1 is not necessarily a number, it can also be an array, a string and a SVG.PointArray\n        return SVG.Line.prototype.plot.apply(this.put(new SVG.Line()), x1 != null ? [x1, y1, x2, y2] : [0, 0, 0, 0]);\n      }\n    }\n  });\n\n  SVG.Polyline = SVG.invent({\n    // Initialize node\n    create: 'polyline'\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add parent method\n    , construct: {\n      // Create a wrapped polyline element\n      polyline: function (p) {\n        // make sure plot is called as a setter\n        return this.put(new SVG.Polyline()).plot(p || new SVG.PointArray());\n      }\n    }\n  });\n\n  SVG.Polygon = SVG.invent({\n    // Initialize node\n    create: 'polygon'\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add parent method\n    , construct: {\n      // Create a wrapped polygon element\n      polygon: function (p) {\n        // make sure plot is called as a setter\n        return this.put(new SVG.Polygon()).plot(p || new SVG.PointArray());\n      }\n    }\n  });\n\n  // Add polygon-specific functions\n  SVG.extend(SVG.Polyline, SVG.Polygon, {\n    // Get array\n    array: function () {\n      return this._array || (this._array = new SVG.PointArray(this.attr('points')));\n    }\n    // Plot new path\n    , plot: function (p) {\n      return p == null ? this.array() : this.clear().attr('points', typeof p == 'string' ? p : this._array = new SVG.PointArray(p));\n    }\n    // Clear array cache\n    , clear: function () {\n      delete this._array;\n      return this;\n    }\n    // Move by left top corner\n    , move: function (x, y) {\n      return this.attr('points', this.array().move(x, y));\n    }\n    // Set element size to given width and height\n    , size: function (width, height) {\n      var p = proportionalSize(this, width, height);\n\n      return this.attr('points', this.array().size(p.width, p.height));\n    }\n\n  });\n\n  // unify all point to point elements\n  SVG.extend(SVG.Line, SVG.Polyline, SVG.Polygon, {\n    // Define morphable array\n    morphArray: SVG.PointArray\n    // Move by left top corner over x-axis\n    , x: function (x) {\n      return x == null ? this.bbox().x : this.move(x, this.bbox().y);\n    }\n    // Move by left top corner over y-axis\n    , y: function (y) {\n      return y == null ? this.bbox().y : this.move(this.bbox().x, y);\n    }\n    // Set width of element\n    , width: function (width) {\n      var b = this.bbox();\n\n      return width == null ? b.width : this.size(width, b.height);\n    }\n    // Set height of element\n    , height: function (height) {\n      var b = this.bbox();\n\n      return height == null ? b.height : this.size(b.width, height);\n    }\n  });\n  SVG.Path = SVG.invent({\n    // Initialize node\n    create: 'path'\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add class methods\n    , extend: {\n      // Define morphable array\n      morphArray: SVG.PathArray\n      // Get array\n      , array: function () {\n        return this._array || (this._array = new SVG.PathArray(this.attr('d')));\n      }\n      // Plot new path\n      , plot: function (d) {\n        return d == null ? this.array() : this.clear().attr('d', typeof d == 'string' ? d : this._array = new SVG.PathArray(d));\n      }\n      // Clear array cache\n      , clear: function () {\n        delete this._array;\n        return this;\n      }\n      // Move by left top corner\n      , move: function (x, y) {\n        return this.attr('d', this.array().move(x, y));\n      }\n      // Move by left top corner over x-axis\n      , x: function (x) {\n        return x == null ? this.bbox().x : this.move(x, this.bbox().y);\n      }\n      // Move by left top corner over y-axis\n      , y: function (y) {\n        return y == null ? this.bbox().y : this.move(this.bbox().x, y);\n      }\n      // Set element size to given width and height\n      , size: function (width, height) {\n        var p = proportionalSize(this, width, height);\n\n        return this.attr('d', this.array().size(p.width, p.height));\n      }\n      // Set width of element\n      , width: function (width) {\n        return width == null ? this.bbox().width : this.size(width, this.bbox().height);\n      }\n      // Set height of element\n      , height: function (height) {\n        return height == null ? this.bbox().height : this.size(this.bbox().width, height);\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create a wrapped path element\n      path: function (d) {\n        // make sure plot is called as a setter\n        return this.put(new SVG.Path()).plot(d || new SVG.PathArray());\n      }\n    }\n  });\n\n  SVG.Image = SVG.invent({\n    // Initialize node\n    create: 'image'\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add class methods\n    , extend: {\n      // (re)load image\n      load: function (url) {\n        if (!url) return this;\n\n        var self = this,\n            img = new window.Image();\n\n        // preload image\n        SVG.on(img, 'load', function () {\n          SVG.off(img);\n\n          var p = self.parent(SVG.Pattern);\n\n          if (p === null) return;\n\n          // ensure image size\n          if (self.width() == 0 && self.height() == 0) self.size(img.width, img.height);\n\n          // ensure pattern size if not set\n          if (p && p.width() == 0 && p.height() == 0) p.size(self.width(), self.height());\n\n          // callback\n          if (typeof self._loaded === 'function') self._loaded.call(self, {\n            width: img.width,\n            height: img.height,\n            ratio: img.width / img.height,\n            url: url\n          });\n        });\n\n        SVG.on(img, 'error', function (e) {\n          SVG.off(img);\n\n          if (typeof self._error === 'function') {\n            self._error.call(self, e);\n          }\n        });\n\n        return this.attr('href', img.src = this.src = url, SVG.xlink);\n      }\n      // Add loaded callback\n      , loaded: function (loaded) {\n        this._loaded = loaded;\n        return this;\n      },\n\n      error: function (error) {\n        this._error = error;\n        return this;\n      }\n\n      // Add parent method\n    }, construct: {\n      // create image element, load image and set its size\n      image: function (source, width, height) {\n        return this.put(new SVG.Image()).load(source).size(width || 0, height || width || 0);\n      }\n    }\n\n  });\n  SVG.Text = SVG.invent({\n    // Initialize node\n    create: function () {\n      this.constructor.call(this, SVG.create('text'));\n\n      this.dom.leading = new SVG.Number(1.3); // store leading value for rebuilding\n      this._rebuild = true; // enable automatic updating of dy values\n      this._build = false; // disable build mode for adding multiple lines\n\n      // set default font\n      this.attr('font-family', SVG.defaults.attrs['font-family']);\n    }\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add class methods\n    , extend: {\n      // Move over x-axis\n      x: function (x) {\n        // act as getter\n        if (x == null) return this.attr('x');\n\n        return this.attr('x', x);\n      }\n      // Move over y-axis\n      , y: function (y) {\n        var oy = this.attr('y'),\n            o = typeof oy === 'number' ? oy - this.bbox().y : 0;\n\n        // act as getter\n        if (y == null) return typeof oy === 'number' ? oy - o : oy;\n\n        return this.attr('y', typeof y.valueOf() === 'number' ? y + o : y);\n      }\n      // Move center over x-axis\n      , cx: function (x) {\n        return x == null ? this.bbox().cx : this.x(x - this.bbox().width / 2);\n      }\n      // Move center over y-axis\n      , cy: function (y) {\n        return y == null ? this.bbox().cy : this.y(y - this.bbox().height / 2);\n      }\n      // Set the text content\n      , text: function (text) {\n        // act as getter\n        if (typeof text === 'undefined') {\n          var text = '';\n          var children = this.node.childNodes;\n          for (var i = 0, len = children.length; i < len; ++i) {\n\n            // add newline if its not the first child and newLined is set to true\n            if (i != 0 && children[i].nodeType != 3 && SVG.adopt(children[i]).dom.newLined == true) {\n              text += '\\n';\n            }\n\n            // add content of this node\n            text += children[i].textContent;\n          }\n\n          return text;\n        }\n\n        // remove existing content\n        this.clear().build(true);\n\n        if (typeof text === 'function') {\n          // call block\n          text.call(this, this);\n        } else {\n          // store text and make sure text is not blank\n          text = text.split('\\n');\n\n          // build new lines\n          for (var i = 0, il = text.length; i < il; i++) this.tspan(text[i]).newLine();\n        }\n\n        // disable build mode and rebuild lines\n        return this.build(false).rebuild();\n      }\n      // Set font size\n      , size: function (size) {\n        return this.attr('font-size', size).rebuild();\n      }\n      // Set / get leading\n      , leading: function (value) {\n        // act as getter\n        if (value == null) return this.dom.leading;\n\n        // act as setter\n        this.dom.leading = new SVG.Number(value);\n\n        return this.rebuild();\n      }\n      // Get all the first level lines\n      , lines: function () {\n        var node = (this.textPath && this.textPath() || this).node;\n\n        // filter tspans and map them to SVG.js instances\n        var lines = SVG.utils.map(SVG.utils.filterSVGElements(node.childNodes), function (el) {\n          return SVG.adopt(el);\n        });\n\n        // return an instance of SVG.set\n        return new SVG.Set(lines);\n      }\n      // Rebuild appearance type\n      , rebuild: function (rebuild) {\n        // store new rebuild flag if given\n        if (typeof rebuild == 'boolean') this._rebuild = rebuild;\n\n        // define position of all lines\n        if (this._rebuild) {\n          var self = this,\n              blankLineOffset = 0,\n              dy = this.dom.leading * new SVG.Number(this.attr('font-size'));\n\n          this.lines().each(function () {\n            if (this.dom.newLined) {\n              if (!self.textPath()) this.attr('x', self.attr('x'));\n              if (this.text() == '\\n') {\n                blankLineOffset += dy;\n              } else {\n                this.attr('dy', dy + blankLineOffset);\n                blankLineOffset = 0;\n              }\n            }\n          });\n\n          this.fire('rebuild');\n        }\n\n        return this;\n      }\n      // Enable / disable build mode\n      , build: function (build) {\n        this._build = !!build;\n        return this;\n      }\n      // overwrite method from parent to set data properly\n      , setData: function (o) {\n        this.dom = o;\n        this.dom.leading = new SVG.Number(o.leading || 1.3);\n        return this;\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create text element\n      text: function (text) {\n        return this.put(new SVG.Text()).text(text);\n      }\n      // Create plain text element\n      , plain: function (text) {\n        return this.put(new SVG.Text()).plain(text);\n      }\n    }\n\n  });\n\n  SVG.Tspan = SVG.invent({\n    // Initialize node\n    create: 'tspan'\n\n    // Inherit from\n    , inherit: SVG.Shape\n\n    // Add class methods\n    , extend: {\n      // Set text content\n      text: function (text) {\n        if (text == null) return this.node.textContent + (this.dom.newLined ? '\\n' : '');\n\n        typeof text === 'function' ? text.call(this, this) : this.plain(text);\n\n        return this;\n      }\n      // Shortcut dx\n      , dx: function (dx) {\n        return this.attr('dx', dx);\n      }\n      // Shortcut dy\n      , dy: function (dy) {\n        return this.attr('dy', dy);\n      }\n      // Create new line\n      , newLine: function () {\n        // fetch text parent\n        var t = this.parent(SVG.Text);\n\n        // mark new line\n        this.dom.newLined = true;\n\n        // apply new hy¡n\n        return this.dy(t.dom.leading * t.attr('font-size')).attr('x', t.x());\n      }\n    }\n\n  });\n\n  SVG.extend(SVG.Text, SVG.Tspan, {\n    // Create plain text node\n    plain: function (text) {\n      // clear if build mode is disabled\n      if (this._build === false) this.clear();\n\n      // create text node\n      this.node.appendChild(document.createTextNode(text));\n\n      return this;\n    }\n    // Create a tspan\n    , tspan: function (text) {\n      var node = (this.textPath && this.textPath() || this).node,\n          tspan = new SVG.Tspan();\n\n      // clear if build mode is disabled\n      if (this._build === false) this.clear();\n\n      // add new tspan\n      node.appendChild(tspan.node);\n\n      return tspan.text(text);\n    }\n    // Clear all lines\n    , clear: function () {\n      var node = (this.textPath && this.textPath() || this).node;\n\n      // remove existing child nodes\n      while (node.hasChildNodes()) node.removeChild(node.lastChild);\n\n      return this;\n    }\n    // Get length of text element\n    , length: function () {\n      return this.node.getComputedTextLength();\n    }\n  });\n\n  SVG.TextPath = SVG.invent({\n    // Initialize node\n    create: 'textPath'\n\n    // Inherit from\n    , inherit: SVG.Parent\n\n    // Define parent class\n    , parent: SVG.Text\n\n    // Add parent method\n    , construct: {\n      morphArray: SVG.PathArray\n      // Create path for text to run on\n      , path: function (d) {\n        // create textPath element\n        var path = new SVG.TextPath(),\n            track = this.doc().defs().path(d);\n\n        // move lines to textpath\n        while (this.node.hasChildNodes()) path.node.appendChild(this.node.firstChild);\n\n        // add textPath element as child node\n        this.node.appendChild(path.node);\n\n        // link textPath to path and add content\n        path.attr('href', '#' + track, SVG.xlink);\n\n        return this;\n      }\n      // return the array of the path track element\n      , array: function () {\n        var track = this.track();\n\n        return track ? track.array() : null;\n      }\n      // Plot path if any\n      , plot: function (d) {\n        var track = this.track(),\n            pathArray = null;\n\n        if (track) {\n          pathArray = track.plot(d);\n        }\n\n        return d == null ? pathArray : this;\n      }\n      // Get the path track element\n      , track: function () {\n        var path = this.textPath();\n\n        if (path) return path.reference('href');\n      }\n      // Get the textPath child\n      , textPath: function () {\n        if (this.node.firstChild && this.node.firstChild.nodeName == 'textPath') return SVG.adopt(this.node.firstChild);\n      }\n    }\n  });\n\n  SVG.Nested = SVG.invent({\n    // Initialize node\n    create: function () {\n      this.constructor.call(this, SVG.create('svg'));\n\n      this.style('overflow', 'visible');\n    }\n\n    // Inherit from\n    , inherit: SVG.Container\n\n    // Add parent method\n    , construct: {\n      // Create nested svg document\n      nested: function () {\n        return this.put(new SVG.Nested());\n      }\n    }\n  });\n  SVG.A = SVG.invent({\n    // Initialize node\n    create: 'a'\n\n    // Inherit from\n    , inherit: SVG.Container\n\n    // Add class methods\n    , extend: {\n      // Link url\n      to: function (url) {\n        return this.attr('href', url, SVG.xlink);\n      }\n      // Link show attribute\n      , show: function (target) {\n        return this.attr('show', target, SVG.xlink);\n      }\n      // Link target attribute\n      , target: function (target) {\n        return this.attr('target', target);\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create a hyperlink element\n      link: function (url) {\n        return this.put(new SVG.A()).to(url);\n      }\n    }\n  });\n\n  SVG.extend(SVG.Element, {\n    // Create a hyperlink element\n    linkTo: function (url) {\n      var link = new SVG.A();\n\n      if (typeof url == 'function') url.call(link, link);else link.to(url);\n\n      return this.parent().put(link).put(this);\n    }\n\n  });\n  SVG.Marker = SVG.invent({\n    // Initialize node\n    create: 'marker'\n\n    // Inherit from\n    , inherit: SVG.Container\n\n    // Add class methods\n    , extend: {\n      // Set width of element\n      width: function (width) {\n        return this.attr('markerWidth', width);\n      }\n      // Set height of element\n      , height: function (height) {\n        return this.attr('markerHeight', height);\n      }\n      // Set marker refX and refY\n      , ref: function (x, y) {\n        return this.attr('refX', x).attr('refY', y);\n      }\n      // Update marker\n      , update: function (block) {\n        // remove all content\n        this.clear();\n\n        // invoke passed block\n        if (typeof block == 'function') block.call(this, this);\n\n        return this;\n      }\n      // Return the fill id\n      , toString: function () {\n        return 'url(#' + this.id() + ')';\n      }\n\n      // Add parent method\n    }, construct: {\n      marker: function (width, height, block) {\n        // Create marker element in defs\n        return this.defs().marker(width, height, block);\n      }\n    }\n\n  });\n\n  SVG.extend(SVG.Defs, {\n    // Create marker\n    marker: function (width, height, block) {\n      // Set default viewbox to match the width and height, set ref to cx and cy and set orient to auto\n      return this.put(new SVG.Marker()).size(width, height).ref(width / 2, height / 2).viewbox(0, 0, width, height).attr('orient', 'auto').update(block);\n    }\n\n  });\n\n  SVG.extend(SVG.Line, SVG.Polyline, SVG.Polygon, SVG.Path, {\n    // Create and attach markers\n    marker: function (marker, width, height, block) {\n      var attr = ['marker'];\n\n      // Build attribute name\n      if (marker != 'all') attr.push(marker);\n      attr = attr.join('-');\n\n      // Set marker attribute\n      marker = arguments[1] instanceof SVG.Marker ? arguments[1] : this.doc().marker(width, height, block);\n\n      return this.attr(attr, marker);\n    }\n\n  });\n  // Define list of available attributes for stroke and fill\n  var sugar = {\n    stroke: ['color', 'width', 'opacity', 'linecap', 'linejoin', 'miterlimit', 'dasharray', 'dashoffset'],\n    fill: ['color', 'opacity', 'rule'],\n    prefix: function (t, a) {\n      return a == 'color' ? t : t + '-' + a;\n    }\n\n    // Add sugar for fill and stroke\n  };['fill', 'stroke'].forEach(function (m) {\n    var i,\n        extension = {};\n\n    extension[m] = function (o) {\n      if (typeof o == 'undefined') return this;\n      if (typeof o == 'string' || SVG.Color.isRgb(o) || o && typeof o.fill === 'function') this.attr(m, o);else\n        // set all attributes from sugar.fill and sugar.stroke list\n        for (i = sugar[m].length - 1; i >= 0; i--) if (o[sugar[m][i]] != null) this.attr(sugar.prefix(m, sugar[m][i]), o[sugar[m][i]]);\n\n      return this;\n    };\n\n    SVG.extend(SVG.Element, SVG.FX, extension);\n  });\n\n  SVG.extend(SVG.Element, SVG.FX, {\n    // Map rotation to transform\n    rotate: function (d, cx, cy) {\n      return this.transform({ rotation: d, cx: cx, cy: cy });\n    }\n    // Map skew to transform\n    , skew: function (x, y, cx, cy) {\n      return arguments.length == 1 || arguments.length == 3 ? this.transform({ skew: x, cx: y, cy: cx }) : this.transform({ skewX: x, skewY: y, cx: cx, cy: cy });\n    }\n    // Map scale to transform\n    , scale: function (x, y, cx, cy) {\n      return arguments.length == 1 || arguments.length == 3 ? this.transform({ scale: x, cx: y, cy: cx }) : this.transform({ scaleX: x, scaleY: y, cx: cx, cy: cy });\n    }\n    // Map translate to transform\n    , translate: function (x, y) {\n      return this.transform({ x: x, y: y });\n    }\n    // Map flip to transform\n    , flip: function (a, o) {\n      o = typeof a == 'number' ? a : o;\n      return this.transform({ flip: a || 'both', offset: o });\n    }\n    // Map matrix to transform\n    , matrix: function (m) {\n      return this.attr('transform', new SVG.Matrix(arguments.length == 6 ? [].slice.call(arguments) : m));\n    }\n    // Opacity\n    , opacity: function (value) {\n      return this.attr('opacity', value);\n    }\n    // Relative move over x axis\n    , dx: function (x) {\n      return this.x(new SVG.Number(x).plus(this instanceof SVG.FX ? 0 : this.x()), true);\n    }\n    // Relative move over y axis\n    , dy: function (y) {\n      return this.y(new SVG.Number(y).plus(this instanceof SVG.FX ? 0 : this.y()), true);\n    }\n    // Relative move over x and y axes\n    , dmove: function (x, y) {\n      return this.dx(x).dy(y);\n    }\n  });\n\n  SVG.extend(SVG.Rect, SVG.Ellipse, SVG.Circle, SVG.Gradient, SVG.FX, {\n    // Add x and y radius\n    radius: function (x, y) {\n      var type = (this._target || this).type;\n      return type == 'radial' || type == 'circle' ? this.attr('r', new SVG.Number(x)) : this.rx(x).ry(y == null ? x : y);\n    }\n  });\n\n  SVG.extend(SVG.Path, {\n    // Get path length\n    length: function () {\n      return this.node.getTotalLength();\n    }\n    // Get point at length\n    , pointAt: function (length) {\n      return this.node.getPointAtLength(length);\n    }\n  });\n\n  SVG.extend(SVG.Parent, SVG.Text, SVG.Tspan, SVG.FX, {\n    // Set font\n    font: function (a, v) {\n      if (typeof a == 'object') {\n        for (v in a) this.font(v, a[v]);\n      }\n\n      return a == 'leading' ? this.leading(v) : a == 'anchor' ? this.attr('text-anchor', v) : a == 'size' || a == 'family' || a == 'weight' || a == 'stretch' || a == 'variant' || a == 'style' ? this.attr('font-' + a, v) : this.attr(a, v);\n    }\n  });\n\n  SVG.Set = SVG.invent({\n    // Initialize\n    create: function (members) {\n      if (members instanceof SVG.Set) {\n        this.members = members.members.slice();\n      } else {\n        Array.isArray(members) ? this.members = members : this.clear();\n      }\n    }\n\n    // Add class methods\n    , extend: {\n      // Add element to set\n      add: function () {\n        var i,\n            il,\n            elements = [].slice.call(arguments);\n\n        for (i = 0, il = elements.length; i < il; i++) this.members.push(elements[i]);\n\n        return this;\n      }\n      // Remove element from set\n      , remove: function (element) {\n        var i = this.index(element);\n\n        // remove given child\n        if (i > -1) this.members.splice(i, 1);\n\n        return this;\n      }\n      // Iterate over all members\n      , each: function (block) {\n        for (var i = 0, il = this.members.length; i < il; i++) block.apply(this.members[i], [i, this.members]);\n\n        return this;\n      }\n      // Restore to defaults\n      , clear: function () {\n        // initialize store\n        this.members = [];\n\n        return this;\n      }\n      // Get the length of a set\n      , length: function () {\n        return this.members.length;\n      }\n      // Checks if a given element is present in set\n      , has: function (element) {\n        return this.index(element) >= 0;\n      }\n      // retuns index of given element in set\n      , index: function (element) {\n        return this.members.indexOf(element);\n      }\n      // Get member at given index\n      , get: function (i) {\n        return this.members[i];\n      }\n      // Get first member\n      , first: function () {\n        return this.get(0);\n      }\n      // Get last member\n      , last: function () {\n        return this.get(this.members.length - 1);\n      }\n      // Default value\n      , valueOf: function () {\n        return this.members;\n      }\n      // Get the bounding box of all members included or empty box if set has no items\n      , bbox: function () {\n        // return an empty box of there are no members\n        if (this.members.length == 0) return new SVG.RBox();\n\n        // get the first rbox and update the target bbox\n        var rbox = this.members[0].rbox(this.members[0].doc());\n\n        this.each(function () {\n          // user rbox for correct position and visual representation\n          rbox = rbox.merge(this.rbox(this.doc()));\n        });\n\n        return rbox;\n      }\n\n      // Add parent method\n    }, construct: {\n      // Create a new set\n      set: function (members) {\n        return new SVG.Set(members);\n      }\n    }\n  });\n\n  SVG.FX.Set = SVG.invent({\n    // Initialize node\n    create: function (set) {\n      // store reference to set\n      this.set = set;\n    }\n\n  });\n\n  // Alias methods\n  SVG.Set.inherit = function () {\n    var m,\n        methods = [];\n\n    // gather shape methods\n    for (var m in SVG.Shape.prototype) if (typeof SVG.Shape.prototype[m] == 'function' && typeof SVG.Set.prototype[m] != 'function') methods.push(m);\n\n    // apply shape aliasses\n    methods.forEach(function (method) {\n      SVG.Set.prototype[method] = function () {\n        for (var i = 0, il = this.members.length; i < il; i++) if (this.members[i] && typeof this.members[i][method] == 'function') this.members[i][method].apply(this.members[i], arguments);\n\n        return method == 'animate' ? this.fx || (this.fx = new SVG.FX.Set(this)) : this;\n      };\n    });\n\n    // clear methods for the next round\n    methods = [];\n\n    // gather fx methods\n    for (var m in SVG.FX.prototype) if (typeof SVG.FX.prototype[m] == 'function' && typeof SVG.FX.Set.prototype[m] != 'function') methods.push(m);\n\n    // apply fx aliasses\n    methods.forEach(function (method) {\n      SVG.FX.Set.prototype[method] = function () {\n        for (var i = 0, il = this.set.members.length; i < il; i++) this.set.members[i].fx[method].apply(this.set.members[i].fx, arguments);\n\n        return this;\n      };\n    });\n  };\n\n  SVG.extend(SVG.Element, {\n    // Store data values on svg nodes\n    data: function (a, v, r) {\n      if (typeof a == 'object') {\n        for (v in a) this.data(v, a[v]);\n      } else if (arguments.length < 2) {\n        try {\n          return JSON.parse(this.attr('data-' + a));\n        } catch (e) {\n          return this.attr('data-' + a);\n        }\n      } else {\n        this.attr('data-' + a, v === null ? null : r === true || typeof v === 'string' || typeof v === 'number' ? v : JSON.stringify(v));\n      }\n\n      return this;\n    }\n  });\n  SVG.extend(SVG.Element, {\n    // Remember arbitrary data\n    remember: function (k, v) {\n      // remember every item in an object individually\n      if (typeof arguments[0] == 'object') for (var v in k) this.remember(v, k[v]);\n\n      // retrieve memory\n      else if (arguments.length == 1) return this.memory()[k];\n\n        // store memory\n        else this.memory()[k] = v;\n\n      return this;\n    }\n\n    // Erase a given memory\n    , forget: function () {\n      if (arguments.length == 0) this._memory = {};else for (var i = arguments.length - 1; i >= 0; i--) delete this.memory()[arguments[i]];\n\n      return this;\n    }\n\n    // Initialize or return local memory object\n    , memory: function () {\n      return this._memory || (this._memory = {});\n    }\n\n  });\n  // Method for getting an element by id\n  SVG.get = function (id) {\n    var node = document.getElementById(idFromReference(id) || id);\n    return SVG.adopt(node);\n  };\n\n  // Select elements by query string\n  SVG.select = function (query, parent) {\n    return new SVG.Set(SVG.utils.map((parent || document).querySelectorAll(query), function (node) {\n      return SVG.adopt(node);\n    }));\n  };\n\n  SVG.extend(SVG.Parent, {\n    // Scoped select method\n    select: function (query) {\n      return SVG.select(query, this.node);\n    }\n\n  });\n  function pathRegReplace(a, b, c, d) {\n    return c + d.replace(SVG.regex.dots, ' .');\n  }\n\n  // creates deep clone of array\n  function array_clone(arr) {\n    var clone = arr.slice(0);\n    for (var i = clone.length; i--;) {\n      if (Array.isArray(clone[i])) {\n        clone[i] = array_clone(clone[i]);\n      }\n    }\n    return clone;\n  }\n\n  // tests if a given element is instance of an object\n  function is(el, obj) {\n    return el instanceof obj;\n  }\n\n  // tests if a given selector matches an element\n  function matches(el, selector) {\n    return (el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector).call(el, selector);\n  }\n\n  // Convert dash-separated-string to camelCase\n  function camelCase(s) {\n    return s.toLowerCase().replace(/-(.)/g, function (m, g) {\n      return g.toUpperCase();\n    });\n  }\n\n  // Capitalize first letter of a string\n  function capitalize(s) {\n    return s.charAt(0).toUpperCase() + s.slice(1);\n  }\n\n  // Ensure to six-based hex\n  function fullHex(hex) {\n    return hex.length == 4 ? ['#', hex.substring(1, 2), hex.substring(1, 2), hex.substring(2, 3), hex.substring(2, 3), hex.substring(3, 4), hex.substring(3, 4)].join('') : hex;\n  }\n\n  // Component to hex value\n  function compToHex(comp) {\n    var hex = comp.toString(16);\n    return hex.length == 1 ? '0' + hex : hex;\n  }\n\n  // Calculate proportional width and height values when necessary\n  function proportionalSize(element, width, height) {\n    if (width == null || height == null) {\n      var box = element.bbox();\n\n      if (width == null) width = box.width / box.height * height;else if (height == null) height = box.height / box.width * width;\n    }\n\n    return {\n      width: width,\n      height: height\n    };\n  }\n\n  // Delta transform point\n  function deltaTransformPoint(matrix, x, y) {\n    return {\n      x: x * matrix.a + y * matrix.c + 0,\n      y: x * matrix.b + y * matrix.d + 0\n    };\n  }\n\n  // Map matrix array to object\n  function arrayToMatrix(a) {\n    return { a: a[0], b: a[1], c: a[2], d: a[3], e: a[4], f: a[5] };\n  }\n\n  // Parse matrix if required\n  function parseMatrix(matrix) {\n    if (!(matrix instanceof SVG.Matrix)) matrix = new SVG.Matrix(matrix);\n\n    return matrix;\n  }\n\n  // Add centre point to transform object\n  function ensureCentre(o, target) {\n    o.cx = o.cx == null ? target.bbox().cx : o.cx;\n    o.cy = o.cy == null ? target.bbox().cy : o.cy;\n  }\n\n  // PathArray Helpers\n  function arrayToString(a) {\n    for (var i = 0, il = a.length, s = ''; i < il; i++) {\n      s += a[i][0];\n\n      if (a[i][1] != null) {\n        s += a[i][1];\n\n        if (a[i][2] != null) {\n          s += ' ';\n          s += a[i][2];\n\n          if (a[i][3] != null) {\n            s += ' ';\n            s += a[i][3];\n            s += ' ';\n            s += a[i][4];\n\n            if (a[i][5] != null) {\n              s += ' ';\n              s += a[i][5];\n              s += ' ';\n              s += a[i][6];\n\n              if (a[i][7] != null) {\n                s += ' ';\n                s += a[i][7];\n              }\n            }\n          }\n        }\n      }\n    }\n\n    return s + ' ';\n  }\n\n  // Deep new id assignment\n  function assignNewId(node) {\n    // do the same for SVG child nodes as well\n    for (var i = node.childNodes.length - 1; i >= 0; i--) if (node.childNodes[i] instanceof window.SVGElement) assignNewId(node.childNodes[i]);\n\n    return SVG.adopt(node).id(SVG.eid(node.nodeName));\n  }\n\n  // Add more bounding box properties\n  function fullBox(b) {\n    if (b.x == null) {\n      b.x = 0;\n      b.y = 0;\n      b.width = 0;\n      b.height = 0;\n    }\n\n    b.w = b.width;\n    b.h = b.height;\n    b.x2 = b.x + b.width;\n    b.y2 = b.y + b.height;\n    b.cx = b.x + b.width / 2;\n    b.cy = b.y + b.height / 2;\n\n    return b;\n  }\n\n  // Get id from reference string\n  function idFromReference(url) {\n    var m = (url || '').toString().match(SVG.regex.reference);\n\n    if (m) return m[1];\n  }\n\n  // If values like 1e-88 are passed, this is not a valid 32 bit float,\n  // but in those cases, we are so close to 0 that 0 works well!\n  function float32String(v) {\n    return Math.abs(v) > 1e-37 ? v : 0;\n  }\n\n  // Create matrix array for looping\n  var abcdef = 'abcdef'.split('');\n\n  // Add CustomEvent to IE9 and IE10\n  if (typeof window.CustomEvent !== 'function') {\n    // Code from: https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent\n    var CustomEventPoly = function (event, options) {\n      options = options || { bubbles: false, cancelable: false, detail: undefined };\n      var e = document.createEvent('CustomEvent');\n      e.initCustomEvent(event, options.bubbles, options.cancelable, options.detail);\n      return e;\n    };\n\n    CustomEventPoly.prototype = window.Event.prototype;\n\n    SVG.CustomEvent = CustomEventPoly;\n  } else {\n    SVG.CustomEvent = window.CustomEvent;\n  }\n\n  // requestAnimationFrame / cancelAnimationFrame Polyfill with fallback based on Paul Irish\n  (function (w) {\n    var lastTime = 0;\n    var vendors = ['moz', 'webkit'];\n\n    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {\n      w.requestAnimationFrame = w[vendors[x] + 'RequestAnimationFrame'];\n      w.cancelAnimationFrame = w[vendors[x] + 'CancelAnimationFrame'] || w[vendors[x] + 'CancelRequestAnimationFrame'];\n    }\n\n    w.requestAnimationFrame = w.requestAnimationFrame || function (callback) {\n      var currTime = new Date().getTime();\n      var timeToCall = Math.max(0, 16 - (currTime - lastTime));\n\n      var id = w.setTimeout(function () {\n        callback(currTime + timeToCall);\n      }, timeToCall);\n\n      lastTime = currTime + timeToCall;\n      return id;\n    };\n\n    w.cancelAnimationFrame = w.cancelAnimationFrame || w.clearTimeout;\n  })(window);\n\n  return SVG;\n});\n\n//# sourceURL=webpack:///./node_modules/svg.js/dist/svg.js?");
+var __WEBPACK_AMD_DEFINE_RESULT__;/*!
+* svg.js - A lightweight library for manipulating and animating SVG.
+* @version 2.7.1
+* https://svgdotjs.github.io/
+*
+* @copyright Wout Fierens <wout@mick-wout.com>
+* @license MIT
+*
+* BUILT: Fri Nov 30 2018 10:01:55 GMT+0100 (GMT+01:00)
+*/;
+(function (root, factory) {
+  /* istanbul ignore next */
+  if (true) {
+    !(__WEBPACK_AMD_DEFINE_RESULT__ = (function () {
+      return factory(root, root.document);
+    }).call(exports, __webpack_require__, exports, module),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+  } else {}
+})(typeof window !== "undefined" ? window : this, function (window, document) {
+
+  // Find global reference - uses 'this' by default when available,
+  // falls back to 'window' otherwise (for bundlers like Webpack)
+  var globalRef = typeof this !== "undefined" ? this : window;
+
+  // The main wrapping element
+  var SVG = globalRef.SVG = function (element) {
+    if (SVG.supported) {
+      element = new SVG.Doc(element);
+
+      if (!SVG.parser.draw) SVG.prepare();
+
+      return element;
+    }
+  };
+
+  // Default namespaces
+  SVG.ns = 'http://www.w3.org/2000/svg';
+  SVG.xmlns = 'http://www.w3.org/2000/xmlns/';
+  SVG.xlink = 'http://www.w3.org/1999/xlink';
+  SVG.svgjs = 'http://svgjs.com/svgjs';
+
+  // Svg support test
+  SVG.supported = function () {
+    return !!document.createElementNS && !!document.createElementNS(SVG.ns, 'svg').createSVGRect;
+  }();
+
+  // Don't bother to continue if SVG is not supported
+  if (!SVG.supported) return false;
+
+  // Element id sequence
+  SVG.did = 1000;
+
+  // Get next named element id
+  SVG.eid = function (name) {
+    return 'Svgjs' + capitalize(name) + SVG.did++;
+  };
+
+  // Method for element creation
+  SVG.create = function (name) {
+    // create element
+    var element = document.createElementNS(this.ns, name);
+
+    // apply unique id
+    element.setAttribute('id', this.eid(name));
+
+    return element;
+  };
+
+  // Method for extending objects
+  SVG.extend = function () {
+    var modules, methods, key, i;
+
+    // Get list of modules
+    modules = [].slice.call(arguments);
+
+    // Get object with extensions
+    methods = modules.pop();
+
+    for (i = modules.length - 1; i >= 0; i--) if (modules[i]) for (key in methods) modules[i].prototype[key] = methods[key];
+
+    // Make sure SVG.Set inherits any newly added methods
+    if (SVG.Set && SVG.Set.inherit) SVG.Set.inherit();
+  };
+
+  // Invent new element
+  SVG.invent = function (config) {
+    // Create element initializer
+    var initializer = typeof config.create == 'function' ? config.create : function () {
+      this.constructor.call(this, SVG.create(config.create));
+    };
+
+    // Inherit prototype
+    if (config.inherit) initializer.prototype = new config.inherit();
+
+    // Extend with methods
+    if (config.extend) SVG.extend(initializer, config.extend);
+
+    // Attach construct method to parent
+    if (config.construct) SVG.extend(config.parent || SVG.Container, config.construct);
+
+    return initializer;
+  };
+
+  // Adopt existing svg elements
+  SVG.adopt = function (node) {
+    // check for presence of node
+    if (!node) return null;
+
+    // make sure a node isn't already adopted
+    if (node.instance) return node.instance;
+
+    // initialize variables
+    var element;
+
+    // adopt with element-specific settings
+    if (node.nodeName == 'svg') element = node.parentNode instanceof window.SVGElement ? new SVG.Nested() : new SVG.Doc();else if (node.nodeName == 'linearGradient') element = new SVG.Gradient('linear');else if (node.nodeName == 'radialGradient') element = new SVG.Gradient('radial');else if (SVG[capitalize(node.nodeName)]) element = new SVG[capitalize(node.nodeName)]();else element = new SVG.Element(node);
+
+    // ensure references
+    element.type = node.nodeName;
+    element.node = node;
+    node.instance = element;
+
+    // SVG.Class specific preparations
+    if (element instanceof SVG.Doc) element.namespace().defs();
+
+    // pull svgjs data from the dom (getAttributeNS doesn't work in html5)
+    element.setData(JSON.parse(node.getAttribute('svgjs:data')) || {});
+
+    return element;
+  };
+
+  // Initialize parsing element
+  SVG.prepare = function () {
+    // Select document body and create invisible svg element
+    var body = document.getElementsByTagName('body')[0],
+        draw = (body ? new SVG.Doc(body) : SVG.adopt(document.documentElement).nested()).size(2, 0);
+
+    // Create parser object
+    SVG.parser = {
+      body: body || document.documentElement,
+      draw: draw.style('opacity:0;position:absolute;left:-100%;top:-100%;overflow:hidden').attr('focusable', 'false').node,
+      poly: draw.polyline().node,
+      path: draw.path().node,
+      native: SVG.create('svg')
+    };
+  };
+
+  SVG.parser = {
+    native: SVG.create('svg')
+  };
+
+  document.addEventListener('DOMContentLoaded', function () {
+    if (!SVG.parser.draw) SVG.prepare();
+  }, false);
+
+  // Storage for regular expressions
+  SVG.regex = {
+    // Parse unit value
+    numberAndUnit: /^([+-]?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?)([a-z%]*)$/i
+
+    // Parse hex value
+    , hex: /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i
+
+    // Parse rgb value
+    , rgb: /rgb\((\d+),(\d+),(\d+)\)/
+
+    // Parse reference id
+    , reference: /#([a-z0-9\-_]+)/i
+
+    // splits a transformation chain
+    , transforms: /\)\s*,?\s*/
+
+    // Whitespace
+    , whitespace: /\s/g
+
+    // Test hex value
+    , isHex: /^#[a-f0-9]{3,6}$/i
+
+    // Test rgb value
+    , isRgb: /^rgb\(/
+
+    // Test css declaration
+    , isCss: /[^:]+:[^;]+;?/
+
+    // Test for blank string
+    , isBlank: /^(\s+)?$/
+
+    // Test for numeric string
+    , isNumber: /^[+-]?(\d+(\.\d*)?|\.\d+)(e[+-]?\d+)?$/i
+
+    // Test for percent value
+    , isPercent: /^-?[\d\.]+%$/
+
+    // Test for image url
+    , isImage: /\.(jpg|jpeg|png|gif|svg)(\?[^=]+.*)?/i
+
+    // split at whitespace and comma
+    , delimiter: /[\s,]+/
+
+    // The following regex are used to parse the d attribute of a path
+
+    // Matches all hyphens which are not after an exponent
+    , hyphen: /([^e])\-/gi
+
+    // Replaces and tests for all path letters
+    , pathLetters: /[MLHVCSQTAZ]/gi
+
+    // yes we need this one, too
+    , isPathLetter: /[MLHVCSQTAZ]/i
+
+    // matches 0.154.23.45
+    , numbersWithDots: /((\d?\.\d+(?:e[+-]?\d+)?)((?:\.\d+(?:e[+-]?\d+)?)+))+/gi
+
+    // matches .
+    , dots: /\./g
+  };
+
+  SVG.utils = {
+    // Map function
+    map: function (array, block) {
+      var i,
+          il = array.length,
+          result = [];
+
+      for (i = 0; i < il; i++) result.push(block(array[i]));
+
+      return result;
+    }
+
+    // Filter function
+    , filter: function (array, block) {
+      var i,
+          il = array.length,
+          result = [];
+
+      for (i = 0; i < il; i++) if (block(array[i])) result.push(array[i]);
+
+      return result;
+    }
+
+    // Degrees to radians
+    , radians: function (d) {
+      return d % 360 * Math.PI / 180;
+    }
+
+    // Radians to degrees
+    , degrees: function (r) {
+      return r * 180 / Math.PI % 360;
+    },
+
+    filterSVGElements: function (nodes) {
+      return this.filter(nodes, function (el) {
+        return el instanceof window.SVGElement;
+      });
+    }
+
+  };
+
+  SVG.defaults = {
+    // Default attribute values
+    attrs: {
+      // fill and stroke
+      'fill-opacity': 1,
+      'stroke-opacity': 1,
+      'stroke-width': 0,
+      'stroke-linejoin': 'miter',
+      'stroke-linecap': 'butt',
+      fill: '#000000',
+      stroke: '#000000',
+      opacity: 1
+      // position
+      , x: 0,
+      y: 0,
+      cx: 0,
+      cy: 0
+      // size
+      , width: 0,
+      height: 0
+      // radius
+      , r: 0,
+      rx: 0,
+      ry: 0
+      // gradient
+      , offset: 0,
+      'stop-opacity': 1,
+      'stop-color': '#000000'
+      // text
+      , 'font-size': 16,
+      'font-family': 'Helvetica, Arial, sans-serif',
+      'text-anchor': 'start'
+    }
+    // Module for color convertions
+  };SVG.Color = function (color) {
+    var match;
+
+    // initialize defaults
+    this.r = 0;
+    this.g = 0;
+    this.b = 0;
+
+    if (!color) return;
+
+    // parse color
+    if (typeof color === 'string') {
+      if (SVG.regex.isRgb.test(color)) {
+        // get rgb values
+        match = SVG.regex.rgb.exec(color.replace(SVG.regex.whitespace, ''));
+
+        // parse numeric values
+        this.r = parseInt(match[1]);
+        this.g = parseInt(match[2]);
+        this.b = parseInt(match[3]);
+      } else if (SVG.regex.isHex.test(color)) {
+        // get hex values
+        match = SVG.regex.hex.exec(fullHex(color));
+
+        // parse numeric values
+        this.r = parseInt(match[1], 16);
+        this.g = parseInt(match[2], 16);
+        this.b = parseInt(match[3], 16);
+      }
+    } else if (typeof color === 'object') {
+      this.r = color.r;
+      this.g = color.g;
+      this.b = color.b;
+    }
+  };
+
+  SVG.extend(SVG.Color, {
+    // Default to hex conversion
+    toString: function () {
+      return this.toHex();
+    }
+    // Build hex value
+    , toHex: function () {
+      return '#' + compToHex(this.r) + compToHex(this.g) + compToHex(this.b);
+    }
+    // Build rgb value
+    , toRgb: function () {
+      return 'rgb(' + [this.r, this.g, this.b].join() + ')';
+    }
+    // Calculate true brightness
+    , brightness: function () {
+      return this.r / 255 * 0.30 + this.g / 255 * 0.59 + this.b / 255 * 0.11;
+    }
+    // Make color morphable
+    , morph: function (color) {
+      this.destination = new SVG.Color(color);
+
+      return this;
+    }
+    // Get morphed color at given position
+    , at: function (pos) {
+      // make sure a destination is defined
+      if (!this.destination) return this;
+
+      // normalise pos
+      pos = pos < 0 ? 0 : pos > 1 ? 1 : pos;
+
+      // generate morphed color
+      return new SVG.Color({
+        r: ~~(this.r + (this.destination.r - this.r) * pos),
+        g: ~~(this.g + (this.destination.g - this.g) * pos),
+        b: ~~(this.b + (this.destination.b - this.b) * pos)
+      });
+    }
+
+  });
+
+  // Testers
+
+  // Test if given value is a color string
+  SVG.Color.test = function (color) {
+    color += '';
+    return SVG.regex.isHex.test(color) || SVG.regex.isRgb.test(color);
+  };
+
+  // Test if given value is a rgb object
+  SVG.Color.isRgb = function (color) {
+    return color && typeof color.r == 'number' && typeof color.g == 'number' && typeof color.b == 'number';
+  };
+
+  // Test if given value is a color
+  SVG.Color.isColor = function (color) {
+    return SVG.Color.isRgb(color) || SVG.Color.test(color);
+  };
+  // Module for array conversion
+  SVG.Array = function (array, fallback) {
+    array = (array || []).valueOf();
+
+    // if array is empty and fallback is provided, use fallback
+    if (array.length == 0 && fallback) array = fallback.valueOf();
+
+    // parse array
+    this.value = this.parse(array);
+  };
+
+  SVG.extend(SVG.Array, {
+    // Make array morphable
+    morph: function (array) {
+      this.destination = this.parse(array);
+
+      // normalize length of arrays
+      if (this.value.length != this.destination.length) {
+        var lastValue = this.value[this.value.length - 1],
+            lastDestination = this.destination[this.destination.length - 1];
+
+        while (this.value.length > this.destination.length) this.destination.push(lastDestination);
+        while (this.value.length < this.destination.length) this.value.push(lastValue);
+      }
+
+      return this;
+    }
+    // Clean up any duplicate points
+    , settle: function () {
+      // find all unique values
+      for (var i = 0, il = this.value.length, seen = []; i < il; i++) if (seen.indexOf(this.value[i]) == -1) seen.push(this.value[i]);
+
+      // set new value
+      return this.value = seen;
+    }
+    // Get morphed array at given position
+    , at: function (pos) {
+      // make sure a destination is defined
+      if (!this.destination) return this;
+
+      // generate morphed array
+      for (var i = 0, il = this.value.length, array = []; i < il; i++) array.push(this.value[i] + (this.destination[i] - this.value[i]) * pos);
+
+      return new SVG.Array(array);
+    }
+    // Convert array to string
+    , toString: function () {
+      return this.value.join(' ');
+    }
+    // Real value
+    , valueOf: function () {
+      return this.value;
+    }
+    // Parse whitespace separated string
+    , parse: function (array) {
+      array = array.valueOf();
+
+      // if already is an array, no need to parse it
+      if (Array.isArray(array)) return array;
+
+      return this.split(array);
+    }
+    // Strip unnecessary whitespace
+    , split: function (string) {
+      return string.trim().split(SVG.regex.delimiter).map(parseFloat);
+    }
+    // Reverse array
+    , reverse: function () {
+      this.value.reverse();
+
+      return this;
+    },
+    clone: function () {
+      var clone = new this.constructor();
+      clone.value = array_clone(this.value);
+      return clone;
+    }
+  });
+  // Poly points array
+  SVG.PointArray = function (array, fallback) {
+    SVG.Array.call(this, array, fallback || [[0, 0]]);
+  };
+
+  // Inherit from SVG.Array
+  SVG.PointArray.prototype = new SVG.Array();
+  SVG.PointArray.prototype.constructor = SVG.PointArray;
+
+  SVG.extend(SVG.PointArray, {
+    // Convert array to string
+    toString: function () {
+      // convert to a poly point string
+      for (var i = 0, il = this.value.length, array = []; i < il; i++) array.push(this.value[i].join(','));
+
+      return array.join(' ');
+    }
+    // Convert array to line object
+    , toLine: function () {
+      return {
+        x1: this.value[0][0],
+        y1: this.value[0][1],
+        x2: this.value[1][0],
+        y2: this.value[1][1]
+      };
+    }
+    // Get morphed array at given position
+    , at: function (pos) {
+      // make sure a destination is defined
+      if (!this.destination) return this;
+
+      // generate morphed point string
+      for (var i = 0, il = this.value.length, array = []; i < il; i++) array.push([this.value[i][0] + (this.destination[i][0] - this.value[i][0]) * pos, this.value[i][1] + (this.destination[i][1] - this.value[i][1]) * pos]);
+
+      return new SVG.PointArray(array);
+    }
+    // Parse point string and flat array
+    , parse: function (array) {
+      var points = [];
+
+      array = array.valueOf();
+
+      // if it is an array
+      if (Array.isArray(array)) {
+        // and it is not flat, there is no need to parse it
+        if (Array.isArray(array[0])) {
+          // make sure to use a clone
+          return array.map(function (el) {
+            return el.slice();
+          });
+        } else if (array[0].x != null) {
+          // allow point objects to be passed
+          return array.map(function (el) {
+            return [el.x, el.y];
+          });
+        }
+      } else {
+        // Else, it is considered as a string
+        // parse points
+        array = array.trim().split(SVG.regex.delimiter).map(parseFloat);
+      }
+
+      // validate points - https://svgwg.org/svg2-draft/shapes.html#DataTypePoints
+      // Odd number of coordinates is an error. In such cases, drop the last odd coordinate.
+      if (array.length % 2 !== 0) array.pop();
+
+      // wrap points in two-tuples and parse points as floats
+      for (var i = 0, len = array.length; i < len; i = i + 2) points.push([array[i], array[i + 1]]);
+
+      return points;
+    }
+    // Move point string
+    , move: function (x, y) {
+      var box = this.bbox();
+
+      // get relative offset
+      x -= box.x;
+      y -= box.y;
+
+      // move every point
+      if (!isNaN(x) && !isNaN(y)) for (var i = this.value.length - 1; i >= 0; i--) this.value[i] = [this.value[i][0] + x, this.value[i][1] + y];
+
+      return this;
+    }
+    // Resize poly string
+    , size: function (width, height) {
+      var i,
+          box = this.bbox();
+
+      // recalculate position of all points according to new size
+      for (i = this.value.length - 1; i >= 0; i--) {
+        if (box.width) this.value[i][0] = (this.value[i][0] - box.x) * width / box.width + box.x;
+        if (box.height) this.value[i][1] = (this.value[i][1] - box.y) * height / box.height + box.y;
+      }
+
+      return this;
+    }
+    // Get bounding box of points
+    , bbox: function () {
+      SVG.parser.poly.setAttribute('points', this.toString());
+
+      return SVG.parser.poly.getBBox();
+    }
+  });
+
+  var pathHandlers = {
+    M: function (c, p, p0) {
+      p.x = p0.x = c[0];
+      p.y = p0.y = c[1];
+
+      return ['M', p.x, p.y];
+    },
+    L: function (c, p) {
+      p.x = c[0];
+      p.y = c[1];
+      return ['L', c[0], c[1]];
+    },
+    H: function (c, p) {
+      p.x = c[0];
+      return ['H', c[0]];
+    },
+    V: function (c, p) {
+      p.y = c[0];
+      return ['V', c[0]];
+    },
+    C: function (c, p) {
+      p.x = c[4];
+      p.y = c[5];
+      return ['C', c[0], c[1], c[2], c[3], c[4], c[5]];
+    },
+    S: function (c, p) {
+      p.x = c[2];
+      p.y = c[3];
+      return ['S', c[0], c[1], c[2], c[3]];
+    },
+    Q: function (c, p) {
+      p.x = c[2];
+      p.y = c[3];
+      return ['Q', c[0], c[1], c[2], c[3]];
+    },
+    T: function (c, p) {
+      p.x = c[0];
+      p.y = c[1];
+      return ['T', c[0], c[1]];
+    },
+    Z: function (c, p, p0) {
+      p.x = p0.x;
+      p.y = p0.y;
+      return ['Z'];
+    },
+    A: function (c, p) {
+      p.x = c[5];
+      p.y = c[6];
+      return ['A', c[0], c[1], c[2], c[3], c[4], c[5], c[6]];
+    }
+  };
+
+  var mlhvqtcsa = 'mlhvqtcsaz'.split('');
+
+  for (var i = 0, il = mlhvqtcsa.length; i < il; ++i) {
+    pathHandlers[mlhvqtcsa[i]] = function (i) {
+      return function (c, p, p0) {
+        if (i == 'H') c[0] = c[0] + p.x;else if (i == 'V') c[0] = c[0] + p.y;else if (i == 'A') {
+          c[5] = c[5] + p.x, c[6] = c[6] + p.y;
+        } else for (var j = 0, jl = c.length; j < jl; ++j) {
+          c[j] = c[j] + (j % 2 ? p.y : p.x);
+        }
+
+        return pathHandlers[i](c, p, p0);
+      };
+    }(mlhvqtcsa[i].toUpperCase());
+  }
+
+  // Path points array
+  SVG.PathArray = function (array, fallback) {
+    SVG.Array.call(this, array, fallback || [['M', 0, 0]]);
+  };
+
+  // Inherit from SVG.Array
+  SVG.PathArray.prototype = new SVG.Array();
+  SVG.PathArray.prototype.constructor = SVG.PathArray;
+
+  SVG.extend(SVG.PathArray, {
+    // Convert array to string
+    toString: function () {
+      return arrayToString(this.value);
+    }
+    // Move path string
+    , move: function (x, y) {
+      // get bounding box of current situation
+      var box = this.bbox();
+
+      // get relative offset
+      x -= box.x;
+      y -= box.y;
+
+      if (!isNaN(x) && !isNaN(y)) {
+        // move every point
+        for (var l, i = this.value.length - 1; i >= 0; i--) {
+          l = this.value[i][0];
+
+          if (l == 'M' || l == 'L' || l == 'T') {
+            this.value[i][1] += x;
+            this.value[i][2] += y;
+          } else if (l == 'H') {
+            this.value[i][1] += x;
+          } else if (l == 'V') {
+            this.value[i][1] += y;
+          } else if (l == 'C' || l == 'S' || l == 'Q') {
+            this.value[i][1] += x;
+            this.value[i][2] += y;
+            this.value[i][3] += x;
+            this.value[i][4] += y;
+
+            if (l == 'C') {
+              this.value[i][5] += x;
+              this.value[i][6] += y;
+            }
+          } else if (l == 'A') {
+            this.value[i][6] += x;
+            this.value[i][7] += y;
+          }
+        }
+      }
+
+      return this;
+    }
+    // Resize path string
+    , size: function (width, height) {
+      // get bounding box of current situation
+      var i,
+          l,
+          box = this.bbox();
+
+      // recalculate position of all points according to new size
+      for (i = this.value.length - 1; i >= 0; i--) {
+        l = this.value[i][0];
+
+        if (l == 'M' || l == 'L' || l == 'T') {
+          this.value[i][1] = (this.value[i][1] - box.x) * width / box.width + box.x;
+          this.value[i][2] = (this.value[i][2] - box.y) * height / box.height + box.y;
+        } else if (l == 'H') {
+          this.value[i][1] = (this.value[i][1] - box.x) * width / box.width + box.x;
+        } else if (l == 'V') {
+          this.value[i][1] = (this.value[i][1] - box.y) * height / box.height + box.y;
+        } else if (l == 'C' || l == 'S' || l == 'Q') {
+          this.value[i][1] = (this.value[i][1] - box.x) * width / box.width + box.x;
+          this.value[i][2] = (this.value[i][2] - box.y) * height / box.height + box.y;
+          this.value[i][3] = (this.value[i][3] - box.x) * width / box.width + box.x;
+          this.value[i][4] = (this.value[i][4] - box.y) * height / box.height + box.y;
+
+          if (l == 'C') {
+            this.value[i][5] = (this.value[i][5] - box.x) * width / box.width + box.x;
+            this.value[i][6] = (this.value[i][6] - box.y) * height / box.height + box.y;
+          }
+        } else if (l == 'A') {
+          // resize radii
+          this.value[i][1] = this.value[i][1] * width / box.width;
+          this.value[i][2] = this.value[i][2] * height / box.height;
+
+          // move position values
+          this.value[i][6] = (this.value[i][6] - box.x) * width / box.width + box.x;
+          this.value[i][7] = (this.value[i][7] - box.y) * height / box.height + box.y;
+        }
+      }
+
+      return this;
+    }
+    // Test if the passed path array use the same path data commands as this path array
+    , equalCommands: function (pathArray) {
+      var i, il, equalCommands;
+
+      pathArray = new SVG.PathArray(pathArray);
+
+      equalCommands = this.value.length === pathArray.value.length;
+      for (i = 0, il = this.value.length; equalCommands && i < il; i++) {
+        equalCommands = this.value[i][0] === pathArray.value[i][0];
+      }
+
+      return equalCommands;
+    }
+    // Make path array morphable
+    , morph: function (pathArray) {
+      pathArray = new SVG.PathArray(pathArray);
+
+      if (this.equalCommands(pathArray)) {
+        this.destination = pathArray;
+      } else {
+        this.destination = null;
+      }
+
+      return this;
+    }
+    // Get morphed path array at given position
+    , at: function (pos) {
+      // make sure a destination is defined
+      if (!this.destination) return this;
+
+      var sourceArray = this.value,
+          destinationArray = this.destination.value,
+          array = [],
+          pathArray = new SVG.PathArray(),
+          i,
+          il,
+          j,
+          jl;
+
+      // Animate has specified in the SVG spec
+      // See: https://www.w3.org/TR/SVG11/paths.html#PathElement
+      for (i = 0, il = sourceArray.length; i < il; i++) {
+        array[i] = [sourceArray[i][0]];
+        for (j = 1, jl = sourceArray[i].length; j < jl; j++) {
+          array[i][j] = sourceArray[i][j] + (destinationArray[i][j] - sourceArray[i][j]) * pos;
+        }
+        // For the two flags of the elliptical arc command, the SVG spec say:
+        // Flags and booleans are interpolated as fractions between zero and one, with any non-zero value considered to be a value of one/true
+        // Elliptical arc command as an array followed by corresponding indexes:
+        // ['A', rx, ry, x-axis-rotation, large-arc-flag, sweep-flag, x, y]
+        //   0    1   2        3                 4             5      6  7
+        if (array[i][0] === 'A') {
+          array[i][4] = +(array[i][4] != 0);
+          array[i][5] = +(array[i][5] != 0);
+        }
+      }
+
+      // Directly modify the value of a path array, this is done this way for performance
+      pathArray.value = array;
+      return pathArray;
+    }
+    // Absolutize and parse path to array
+    , parse: function (array) {
+      // if it's already a patharray, no need to parse it
+      if (array instanceof SVG.PathArray) return array.valueOf();
+
+      // prepare for parsing
+      var i,
+          x0,
+          y0,
+          s,
+          seg,
+          arr,
+          x = 0,
+          y = 0,
+          paramCnt = { 'M': 2, 'L': 2, 'H': 1, 'V': 1, 'C': 6, 'S': 4, 'Q': 4, 'T': 2, 'A': 7, 'Z': 0 };
+
+      if (typeof array == 'string') {
+
+        array = array.replace(SVG.regex.numbersWithDots, pathRegReplace) // convert 45.123.123 to 45.123 .123
+        .replace(SVG.regex.pathLetters, ' $& ') // put some room between letters and numbers
+        .replace(SVG.regex.hyphen, '$1 -') // add space before hyphen
+        .trim() // trim
+        .split(SVG.regex.delimiter); // split into array
+      } else {
+        array = array.reduce(function (prev, curr) {
+          return [].concat.call(prev, curr);
+        }, []);
+      }
+
+      // array now is an array containing all parts of a path e.g. ['M', '0', '0', 'L', '30', '30' ...]
+      var arr = [],
+          p = new SVG.Point(),
+          p0 = new SVG.Point(),
+          index = 0,
+          len = array.length;
+
+      do {
+        // Test if we have a path letter
+        if (SVG.regex.isPathLetter.test(array[index])) {
+          s = array[index];
+          ++index;
+          // If last letter was a move command and we got no new, it defaults to [L]ine
+        } else if (s == 'M') {
+          s = 'L';
+        } else if (s == 'm') {
+          s = 'l';
+        }
+
+        arr.push(pathHandlers[s].call(null, array.slice(index, index = index + paramCnt[s.toUpperCase()]).map(parseFloat), p, p0));
+      } while (len > index);
+
+      return arr;
+    }
+    // Get bounding box of path
+    , bbox: function () {
+      SVG.parser.path.setAttribute('d', this.toString());
+
+      return SVG.parser.path.getBBox();
+    }
+
+  });
+
+  // Module for unit convertions
+  SVG.Number = SVG.invent({
+    // Initialize
+    create: function (value, unit) {
+      // initialize defaults
+      this.value = 0;
+      this.unit = unit || '';
+
+      // parse value
+      if (typeof value === 'number') {
+        // ensure a valid numeric value
+        this.value = isNaN(value) ? 0 : !isFinite(value) ? value < 0 ? -3.4e+38 : +3.4e+38 : value;
+      } else if (typeof value === 'string') {
+        unit = value.match(SVG.regex.numberAndUnit);
+
+        if (unit) {
+          // make value numeric
+          this.value = parseFloat(unit[1]);
+
+          // normalize
+          if (unit[5] == '%') this.value /= 100;else if (unit[5] == 's') this.value *= 1000;
+
+          // store unit
+          this.unit = unit[5];
+        }
+      } else {
+        if (value instanceof SVG.Number) {
+          this.value = value.valueOf();
+          this.unit = value.unit;
+        }
+      }
+    }
+    // Add methods
+    , extend: {
+      // Stringalize
+      toString: function () {
+        return (this.unit == '%' ? ~~(this.value * 1e8) / 1e6 : this.unit == 's' ? this.value / 1e3 : this.value) + this.unit;
+      },
+      toJSON: function () {
+        return this.toString();
+      },
+      // Convert to primitive
+      valueOf: function () {
+        return this.value;
+      }
+      // Add number
+      , plus: function (number) {
+        number = new SVG.Number(number);
+        return new SVG.Number(this + number, this.unit || number.unit);
+      }
+      // Subtract number
+      , minus: function (number) {
+        number = new SVG.Number(number);
+        return new SVG.Number(this - number, this.unit || number.unit);
+      }
+      // Multiply number
+      , times: function (number) {
+        number = new SVG.Number(number);
+        return new SVG.Number(this * number, this.unit || number.unit);
+      }
+      // Divide number
+      , divide: function (number) {
+        number = new SVG.Number(number);
+        return new SVG.Number(this / number, this.unit || number.unit);
+      }
+      // Convert to different unit
+      , to: function (unit) {
+        var number = new SVG.Number(this);
+
+        if (typeof unit === 'string') number.unit = unit;
+
+        return number;
+      }
+      // Make number morphable
+      , morph: function (number) {
+        this.destination = new SVG.Number(number);
+
+        if (number.relative) {
+          this.destination.value += this.value;
+        }
+
+        return this;
+      }
+      // Get morphed number at given position
+      , at: function (pos) {
+        // Make sure a destination is defined
+        if (!this.destination) return this;
+
+        // Generate new morphed number
+        return new SVG.Number(this.destination).minus(this).times(pos).plus(this);
+      }
+
+    }
+  });
+
+  SVG.Element = SVG.invent({
+    // Initialize node
+    create: function (node) {
+      // make stroke value accessible dynamically
+      this._stroke = SVG.defaults.attrs.stroke;
+      this._event = null;
+      this._events = {};
+
+      // initialize data object
+      this.dom = {};
+
+      // create circular reference
+      if (this.node = node) {
+        this.type = node.nodeName;
+        this.node.instance = this;
+        this._events = node._events || {};
+
+        // store current attribute value
+        this._stroke = node.getAttribute('stroke') || this._stroke;
+      }
+    }
+
+    // Add class methods
+    , extend: {
+      // Move over x-axis
+      x: function (x) {
+        return this.attr('x', x);
+      }
+      // Move over y-axis
+      , y: function (y) {
+        return this.attr('y', y);
+      }
+      // Move by center over x-axis
+      , cx: function (x) {
+        return x == null ? this.x() + this.width() / 2 : this.x(x - this.width() / 2);
+      }
+      // Move by center over y-axis
+      , cy: function (y) {
+        return y == null ? this.y() + this.height() / 2 : this.y(y - this.height() / 2);
+      }
+      // Move element to given x and y values
+      , move: function (x, y) {
+        return this.x(x).y(y);
+      }
+      // Move element by its center
+      , center: function (x, y) {
+        return this.cx(x).cy(y);
+      }
+      // Set width of element
+      , width: function (width) {
+        return this.attr('width', width);
+      }
+      // Set height of element
+      , height: function (height) {
+        return this.attr('height', height);
+      }
+      // Set element size to given width and height
+      , size: function (width, height) {
+        var p = proportionalSize(this, width, height);
+
+        return this.width(new SVG.Number(p.width)).height(new SVG.Number(p.height));
+      }
+      // Clone element
+      , clone: function (parent) {
+        // write dom data to the dom so the clone can pickup the data
+        this.writeDataToDom();
+
+        // clone element and assign new id
+        var clone = assignNewId(this.node.cloneNode(true));
+
+        // insert the clone in the given parent or after myself
+        if (parent) parent.add(clone);else this.after(clone);
+
+        return clone;
+      }
+      // Remove element
+      , remove: function () {
+        if (this.parent()) this.parent().removeElement(this);
+
+        return this;
+      }
+      // Replace element
+      , replace: function (element) {
+        this.after(element).remove();
+
+        return element;
+      }
+      // Add element to given container and return self
+      , addTo: function (parent) {
+        return parent.put(this);
+      }
+      // Add element to given container and return container
+      , putIn: function (parent) {
+        return parent.add(this);
+      }
+      // Get / set id
+      , id: function (id) {
+        return this.attr('id', id);
+      }
+      // Checks whether the given point inside the bounding box of the element
+      , inside: function (x, y) {
+        var box = this.bbox();
+
+        return x > box.x && y > box.y && x < box.x + box.width && y < box.y + box.height;
+      }
+      // Show element
+      , show: function () {
+        return this.style('display', '');
+      }
+      // Hide element
+      , hide: function () {
+        return this.style('display', 'none');
+      }
+      // Is element visible?
+      , visible: function () {
+        return this.style('display') != 'none';
+      }
+      // Return id on string conversion
+      , toString: function () {
+        return this.attr('id');
+      }
+      // Return array of classes on the node
+      , classes: function () {
+        var attr = this.attr('class');
+
+        return attr == null ? [] : attr.trim().split(SVG.regex.delimiter);
+      }
+      // Return true if class exists on the node, false otherwise
+      , hasClass: function (name) {
+        return this.classes().indexOf(name) != -1;
+      }
+      // Add class to the node
+      , addClass: function (name) {
+        if (!this.hasClass(name)) {
+          var array = this.classes();
+          array.push(name);
+          this.attr('class', array.join(' '));
+        }
+
+        return this;
+      }
+      // Remove class from the node
+      , removeClass: function (name) {
+        if (this.hasClass(name)) {
+          this.attr('class', this.classes().filter(function (c) {
+            return c != name;
+          }).join(' '));
+        }
+
+        return this;
+      }
+      // Toggle the presence of a class on the node
+      , toggleClass: function (name) {
+        return this.hasClass(name) ? this.removeClass(name) : this.addClass(name);
+      }
+      // Get referenced element form attribute value
+      , reference: function (attr) {
+        return SVG.get(this.attr(attr));
+      }
+      // Returns the parent element instance
+      , parent: function (type) {
+        var parent = this;
+
+        // check for parent
+        if (!parent.node.parentNode) return null;
+
+        // get parent element
+        parent = SVG.adopt(parent.node.parentNode);
+
+        if (!type) return parent;
+
+        // loop trough ancestors if type is given
+        while (parent && parent.node instanceof window.SVGElement) {
+          if (typeof type === 'string' ? parent.matches(type) : parent instanceof type) return parent;
+          if (!parent.node.parentNode || parent.node.parentNode.nodeName == '#document' || parent.node.parentNode.nodeName == '#document-fragment') return null; // #759, #720
+          parent = SVG.adopt(parent.node.parentNode);
+        }
+      }
+      // Get parent document
+      , doc: function () {
+        return this instanceof SVG.Doc ? this : this.parent(SVG.Doc);
+      }
+      // return array of all ancestors of given type up to the root svg
+      , parents: function (type) {
+        var parents = [],
+            parent = this;
+
+        do {
+          parent = parent.parent(type);
+          if (!parent || !parent.node) break;
+
+          parents.push(parent);
+        } while (parent.parent);
+
+        return parents;
+      }
+      // matches the element vs a css selector
+      , matches: function (selector) {
+        return matches(this.node, selector);
+      }
+      // Returns the svg node to call native svg methods on it
+      , native: function () {
+        return this.node;
+      }
+      // Import raw svg
+      , svg: function (svg) {
+        // create temporary holder
+        var well = document.createElement('svg');
+
+        // act as a setter if svg is given
+        if (svg && this instanceof SVG.Parent) {
+          // dump raw svg
+          well.innerHTML = '<svg>' + svg.replace(/\n/, '').replace(/<([\w:-]+)([^<]+?)\/>/g, '<$1$2></$1>') + '</svg>';
+
+          // transplant nodes
+          for (var i = 0, il = well.firstChild.childNodes.length; i < il; i++) this.node.appendChild(well.firstChild.firstChild);
+
+          // otherwise act as a getter
+        } else {
+          // create a wrapping svg element in case of partial content
+          well.appendChild(svg = document.createElement('svg'));
+
+          // write svgjs data to the dom
+          this.writeDataToDom();
+
+          // insert a copy of this node
+          svg.appendChild(this.node.cloneNode(true));
+
+          // return target element
+          return well.innerHTML.replace(/^<svg>/, '').replace(/<\/svg>$/, '');
+        }
+
+        return this;
+      }
+      // write svgjs data to the dom
+      , writeDataToDom: function () {
+
+        // dump variables recursively
+        if (this.each || this.lines) {
+          var fn = this.each ? this : this.lines();
+          fn.each(function () {
+            this.writeDataToDom();
+          });
+        }
+
+        // remove previously set data
+        this.node.removeAttribute('svgjs:data');
+
+        if (Object.keys(this.dom).length) this.node.setAttribute('svgjs:data', JSON.stringify(this.dom)); // see #428
+
+        return this;
+      }
+      // set given data to the elements data property
+      , setData: function (o) {
+        this.dom = o;
+        return this;
+      },
+      is: function (obj) {
+        return is(this, obj);
+      }
+    }
+  });
+
+  SVG.easing = {
+    '-': function (pos) {
+      return pos;
+    },
+    '<>': function (pos) {
+      return -Math.cos(pos * Math.PI) / 2 + 0.5;
+    },
+    '>': function (pos) {
+      return Math.sin(pos * Math.PI / 2);
+    },
+    '<': function (pos) {
+      return -Math.cos(pos * Math.PI / 2) + 1;
+    }
+  };
+
+  SVG.morph = function (pos) {
+    return function (from, to) {
+      return new SVG.MorphObj(from, to).at(pos);
+    };
+  };
+
+  SVG.Situation = SVG.invent({
+
+    create: function (o) {
+      this.init = false;
+      this.reversed = false;
+      this.reversing = false;
+
+      this.duration = new SVG.Number(o.duration).valueOf();
+      this.delay = new SVG.Number(o.delay).valueOf();
+
+      this.start = +new Date() + this.delay;
+      this.finish = this.start + this.duration;
+      this.ease = o.ease;
+
+      // this.loop is incremented from 0 to this.loops
+      // it is also incremented when in an infinite loop (when this.loops is true)
+      this.loop = 0;
+      this.loops = false;
+
+      this.animations = {
+        // functionToCall: [list of morphable objects]
+        // e.g. move: [SVG.Number, SVG.Number]
+      };
+
+      this.attrs = {
+        // holds all attributes which are not represented from a function svg.js provides
+        // e.g. someAttr: SVG.Number
+      };
+
+      this.styles = {
+        // holds all styles which should be animated
+        // e.g. fill-color: SVG.Color
+      };
+
+      this.transforms = [
+        // holds all transformations as transformation objects
+        // e.g. [SVG.Rotate, SVG.Translate, SVG.Matrix]
+      ];
+
+      this.once = {
+        // functions to fire at a specific position
+        // e.g. "0.5": function foo(){}
+      };
+    }
+
+  });
+
+  SVG.FX = SVG.invent({
+
+    create: function (element) {
+      this._target = element;
+      this.situations = [];
+      this.active = false;
+      this.situation = null;
+      this.paused = false;
+      this.lastPos = 0;
+      this.pos = 0;
+      // The absolute position of an animation is its position in the context of its complete duration (including delay and loops)
+      // When performing a delay, absPos is below 0 and when performing a loop, its value is above 1
+      this.absPos = 0;
+      this._speed = 1;
+    },
+
+    extend: {
+
+      /**
+       * sets or returns the target of this animation
+       * @param o object || number In case of Object it holds all parameters. In case of number its the duration of the animation
+       * @param ease function || string Function which should be used for easing or easing keyword
+       * @param delay Number indicating the delay before the animation starts
+       * @return target || this
+       */
+      animate: function (o, ease, delay) {
+
+        if (typeof o == 'object') {
+          ease = o.ease;
+          delay = o.delay;
+          o = o.duration;
+        }
+
+        var situation = new SVG.Situation({
+          duration: o || 1000,
+          delay: delay || 0,
+          ease: SVG.easing[ease || '-'] || ease
+        });
+
+        this.queue(situation);
+
+        return this;
+      }
+
+      /**
+       * sets a delay before the next element of the queue is called
+       * @param delay Duration of delay in milliseconds
+       * @return this.target()
+       */
+      , delay: function (delay) {
+        // The delay is performed by an empty situation with its duration
+        // attribute set to the duration of the delay
+        var situation = new SVG.Situation({
+          duration: delay,
+          delay: 0,
+          ease: SVG.easing['-']
+        });
+
+        return this.queue(situation);
+      }
+
+      /**
+       * sets or returns the target of this animation
+       * @param null || target SVG.Element which should be set as new target
+       * @return target || this
+       */
+      , target: function (target) {
+        if (target && target instanceof SVG.Element) {
+          this._target = target;
+          return this;
+        }
+
+        return this._target;
+      }
+
+      // returns the absolute position at a given time
+      , timeToAbsPos: function (timestamp) {
+        return (timestamp - this.situation.start) / (this.situation.duration / this._speed);
+      }
+
+      // returns the timestamp from a given absolute positon
+      , absPosToTime: function (absPos) {
+        return this.situation.duration / this._speed * absPos + this.situation.start;
+      }
+
+      // starts the animationloop
+      , startAnimFrame: function () {
+        this.stopAnimFrame();
+        this.animationFrame = window.requestAnimationFrame(function () {
+          this.step();
+        }.bind(this));
+      }
+
+      // cancels the animationframe
+      , stopAnimFrame: function () {
+        window.cancelAnimationFrame(this.animationFrame);
+      }
+
+      // kicks off the animation - only does something when the queue is currently not active and at least one situation is set
+      , start: function () {
+        // dont start if already started
+        if (!this.active && this.situation) {
+          this.active = true;
+          this.startCurrent();
+        }
+
+        return this;
+      }
+
+      // start the current situation
+      , startCurrent: function () {
+        this.situation.start = +new Date() + this.situation.delay / this._speed;
+        this.situation.finish = this.situation.start + this.situation.duration / this._speed;
+        return this.initAnimations().step();
+      }
+
+      /**
+       * adds a function / Situation to the animation queue
+       * @param fn function / situation to add
+       * @return this
+       */
+      , queue: function (fn) {
+        if (typeof fn == 'function' || fn instanceof SVG.Situation) this.situations.push(fn);
+
+        if (!this.situation) this.situation = this.situations.shift();
+
+        return this;
+      }
+
+      /**
+       * pulls next element from the queue and execute it
+       * @return this
+       */
+      , dequeue: function () {
+        // stop current animation
+        this.stop();
+
+        // get next animation from queue
+        this.situation = this.situations.shift();
+
+        if (this.situation) {
+          if (this.situation instanceof SVG.Situation) {
+            this.start();
+          } else {
+            // If it is not a SVG.Situation, then it is a function, we execute it
+            this.situation.call(this);
+          }
+        }
+
+        return this;
+      }
+
+      // updates all animations to the current state of the element
+      // this is important when one property could be changed from another property
+      , initAnimations: function () {
+        var i, j, source;
+        var s = this.situation;
+
+        if (s.init) return this;
+
+        for (i in s.animations) {
+          source = this.target()[i]();
+
+          if (!Array.isArray(source)) {
+            source = [source];
+          }
+
+          if (!Array.isArray(s.animations[i])) {
+            s.animations[i] = [s.animations[i]];
+          }
+
+          //if(s.animations[i].length > source.length) {
+          //  source.concat = source.concat(s.animations[i].slice(source.length, s.animations[i].length))
+          //}
+
+          for (j = source.length; j--;) {
+            // The condition is because some methods return a normal number instead
+            // of a SVG.Number
+            if (s.animations[i][j] instanceof SVG.Number) source[j] = new SVG.Number(source[j]);
+
+            s.animations[i][j] = source[j].morph(s.animations[i][j]);
+          }
+        }
+
+        for (i in s.attrs) {
+          s.attrs[i] = new SVG.MorphObj(this.target().attr(i), s.attrs[i]);
+        }
+
+        for (i in s.styles) {
+          s.styles[i] = new SVG.MorphObj(this.target().style(i), s.styles[i]);
+        }
+
+        s.initialTransformation = this.target().matrixify();
+
+        s.init = true;
+        return this;
+      },
+      clearQueue: function () {
+        this.situations = [];
+        return this;
+      },
+      clearCurrent: function () {
+        this.situation = null;
+        return this;
+      }
+      /** stops the animation immediately
+       * @param jumpToEnd A Boolean indicating whether to complete the current animation immediately.
+       * @param clearQueue A Boolean indicating whether to remove queued animation as well.
+       * @return this
+       */
+      , stop: function (jumpToEnd, clearQueue) {
+        var active = this.active;
+        this.active = false;
+
+        if (clearQueue) {
+          this.clearQueue();
+        }
+
+        if (jumpToEnd && this.situation) {
+          // initialize the situation if it was not
+          !active && this.startCurrent();
+          this.atEnd();
+        }
+
+        this.stopAnimFrame();
+
+        return this.clearCurrent();
+      }
+
+      /** resets the element to the state where the current element has started
+       * @return this
+       */
+      , reset: function () {
+        if (this.situation) {
+          var temp = this.situation;
+          this.stop();
+          this.situation = temp;
+          this.atStart();
+        }
+        return this;
+      }
+
+      // Stop the currently-running animation, remove all queued animations, and complete all animations for the element.
+      , finish: function () {
+
+        this.stop(true, false);
+
+        while (this.dequeue().situation && this.stop(true, false));
+
+        this.clearQueue().clearCurrent();
+
+        return this;
+      }
+
+      // set the internal animation pointer at the start position, before any loops, and updates the visualisation
+      , atStart: function () {
+        return this.at(0, true);
+      }
+
+      // set the internal animation pointer at the end position, after all the loops, and updates the visualisation
+      , atEnd: function () {
+        if (this.situation.loops === true) {
+          // If in a infinite loop, we end the current iteration
+          this.situation.loops = this.situation.loop + 1;
+        }
+
+        if (typeof this.situation.loops == 'number') {
+          // If performing a finite number of loops, we go after all the loops
+          return this.at(this.situation.loops, true);
+        } else {
+          // If no loops, we just go at the end
+          return this.at(1, true);
+        }
+      }
+
+      // set the internal animation pointer to the specified position and updates the visualisation
+      // if isAbsPos is true, pos is treated as an absolute position
+      , at: function (pos, isAbsPos) {
+        var durDivSpd = this.situation.duration / this._speed;
+
+        this.absPos = pos;
+        // If pos is not an absolute position, we convert it into one
+        if (!isAbsPos) {
+          if (this.situation.reversed) this.absPos = 1 - this.absPos;
+          this.absPos += this.situation.loop;
+        }
+
+        this.situation.start = +new Date() - this.absPos * durDivSpd;
+        this.situation.finish = this.situation.start + durDivSpd;
+
+        return this.step(true);
+      }
+
+      /**
+       * sets or returns the speed of the animations
+       * @param speed null || Number The new speed of the animations
+       * @return Number || this
+       */
+      , speed: function (speed) {
+        if (speed === 0) return this.pause();
+
+        if (speed) {
+          this._speed = speed;
+          // We use an absolute position here so that speed can affect the delay before the animation
+          return this.at(this.absPos, true);
+        } else return this._speed;
+      }
+
+      // Make loopable
+      , loop: function (times, reverse) {
+        var c = this.last();
+
+        // store total loops
+        c.loops = times != null ? times : true;
+        c.loop = 0;
+
+        if (reverse) c.reversing = true;
+        return this;
+      }
+
+      // pauses the animation
+      , pause: function () {
+        this.paused = true;
+        this.stopAnimFrame();
+
+        return this;
+      }
+
+      // unpause the animation
+      , play: function () {
+        if (!this.paused) return this;
+        this.paused = false;
+        // We use an absolute position here so that the delay before the animation can be paused
+        return this.at(this.absPos, true);
+      }
+
+      /**
+       * toggle or set the direction of the animation
+       * true sets direction to backwards while false sets it to forwards
+       * @param reversed Boolean indicating whether to reverse the animation or not (default: toggle the reverse status)
+       * @return this
+       */
+      , reverse: function (reversed) {
+        var c = this.last();
+
+        if (typeof reversed == 'undefined') c.reversed = !c.reversed;else c.reversed = reversed;
+
+        return this;
+      }
+
+      /**
+       * returns a float from 0-1 indicating the progress of the current animation
+       * @param eased Boolean indicating whether the returned position should be eased or not
+       * @return number
+       */
+      , progress: function (easeIt) {
+        return easeIt ? this.situation.ease(this.pos) : this.pos;
+      }
+
+      /**
+       * adds a callback function which is called when the current animation is finished
+       * @param fn Function which should be executed as callback
+       * @return number
+       */
+      , after: function (fn) {
+        var c = this.last(),
+            wrapper = function wrapper(e) {
+          if (e.detail.situation == c) {
+            fn.call(this, c);
+            this.off('finished.fx', wrapper); // prevent memory leak
+          }
+        };
+
+        this.target().on('finished.fx', wrapper);
+
+        return this._callStart();
+      }
+
+      // adds a callback which is called whenever one animation step is performed
+      , during: function (fn) {
+        var c = this.last(),
+            wrapper = function (e) {
+          if (e.detail.situation == c) {
+            fn.call(this, e.detail.pos, SVG.morph(e.detail.pos), e.detail.eased, c);
+          }
+        };
+
+        // see above
+        this.target().off('during.fx', wrapper).on('during.fx', wrapper);
+
+        this.after(function () {
+          this.off('during.fx', wrapper);
+        });
+
+        return this._callStart();
+      }
+
+      // calls after ALL animations in the queue are finished
+      , afterAll: function (fn) {
+        var wrapper = function wrapper(e) {
+          fn.call(this);
+          this.off('allfinished.fx', wrapper);
+        };
+
+        // see above
+        this.target().off('allfinished.fx', wrapper).on('allfinished.fx', wrapper);
+
+        return this._callStart();
+      }
+
+      // calls on every animation step for all animations
+      , duringAll: function (fn) {
+        var wrapper = function (e) {
+          fn.call(this, e.detail.pos, SVG.morph(e.detail.pos), e.detail.eased, e.detail.situation);
+        };
+
+        this.target().off('during.fx', wrapper).on('during.fx', wrapper);
+
+        this.afterAll(function () {
+          this.off('during.fx', wrapper);
+        });
+
+        return this._callStart();
+      },
+
+      last: function () {
+        return this.situations.length ? this.situations[this.situations.length - 1] : this.situation;
+      }
+
+      // adds one property to the animations
+      , add: function (method, args, type) {
+        this.last()[type || 'animations'][method] = args;
+        return this._callStart();
+      }
+
+      /** perform one step of the animation
+       *  @param ignoreTime Boolean indicating whether to ignore time and use position directly or recalculate position based on time
+       *  @return this
+       */
+      , step: function (ignoreTime) {
+
+        // convert current time to an absolute position
+        if (!ignoreTime) this.absPos = this.timeToAbsPos(+new Date());
+
+        // This part convert an absolute position to a position
+        if (this.situation.loops !== false) {
+          var absPos, absPosInt, lastLoop;
+
+          // If the absolute position is below 0, we just treat it as if it was 0
+          absPos = Math.max(this.absPos, 0);
+          absPosInt = Math.floor(absPos);
+
+          if (this.situation.loops === true || absPosInt < this.situation.loops) {
+            this.pos = absPos - absPosInt;
+            lastLoop = this.situation.loop;
+            this.situation.loop = absPosInt;
+          } else {
+            this.absPos = this.situation.loops;
+            this.pos = 1;
+            // The -1 here is because we don't want to toggle reversed when all the loops have been completed
+            lastLoop = this.situation.loop - 1;
+            this.situation.loop = this.situation.loops;
+          }
+
+          if (this.situation.reversing) {
+            // Toggle reversed if an odd number of loops as occured since the last call of step
+            this.situation.reversed = this.situation.reversed != Boolean((this.situation.loop - lastLoop) % 2);
+          }
+        } else {
+          // If there are no loop, the absolute position must not be above 1
+          this.absPos = Math.min(this.absPos, 1);
+          this.pos = this.absPos;
+        }
+
+        // while the absolute position can be below 0, the position must not be below 0
+        if (this.pos < 0) this.pos = 0;
+
+        if (this.situation.reversed) this.pos = 1 - this.pos;
+
+        // apply easing
+        var eased = this.situation.ease(this.pos);
+
+        // call once-callbacks
+        for (var i in this.situation.once) {
+          if (i > this.lastPos && i <= eased) {
+            this.situation.once[i].call(this.target(), this.pos, eased);
+            delete this.situation.once[i];
+          }
+        }
+
+        // fire during callback with position, eased position and current situation as parameter
+        if (this.active) this.target().fire('during', { pos: this.pos, eased: eased, fx: this, situation: this.situation });
+
+        // the user may call stop or finish in the during callback
+        // so make sure that we still have a valid situation
+        if (!this.situation) {
+          return this;
+        }
+
+        // apply the actual animation to every property
+        this.eachAt();
+
+        // do final code when situation is finished
+        if (this.pos == 1 && !this.situation.reversed || this.situation.reversed && this.pos == 0) {
+
+          // stop animation callback
+          this.stopAnimFrame();
+
+          // fire finished callback with current situation as parameter
+          this.target().fire('finished', { fx: this, situation: this.situation });
+
+          if (!this.situations.length) {
+            this.target().fire('allfinished');
+
+            // Recheck the length since the user may call animate in the afterAll callback
+            if (!this.situations.length) {
+              this.target().off('.fx'); // there shouldnt be any binding left, but to make sure...
+              this.active = false;
+            }
+          }
+
+          // start next animation
+          if (this.active) this.dequeue();else this.clearCurrent();
+        } else if (!this.paused && this.active) {
+          // we continue animating when we are not at the end
+          this.startAnimFrame();
+        }
+
+        // save last eased position for once callback triggering
+        this.lastPos = eased;
+        return this;
+      }
+
+      // calculates the step for every property and calls block with it
+      , eachAt: function () {
+        var i,
+            len,
+            at,
+            self = this,
+            target = this.target(),
+            s = this.situation;
+
+        // apply animations which can be called trough a method
+        for (i in s.animations) {
+
+          at = [].concat(s.animations[i]).map(function (el) {
+            return typeof el !== 'string' && el.at ? el.at(s.ease(self.pos), self.pos) : el;
+          });
+
+          target[i].apply(target, at);
+        }
+
+        // apply animation which has to be applied with attr()
+        for (i in s.attrs) {
+
+          at = [i].concat(s.attrs[i]).map(function (el) {
+            return typeof el !== 'string' && el.at ? el.at(s.ease(self.pos), self.pos) : el;
+          });
+
+          target.attr.apply(target, at);
+        }
+
+        // apply animation which has to be applied with style()
+        for (i in s.styles) {
+
+          at = [i].concat(s.styles[i]).map(function (el) {
+            return typeof el !== 'string' && el.at ? el.at(s.ease(self.pos), self.pos) : el;
+          });
+
+          target.style.apply(target, at);
+        }
+
+        // animate initialTransformation which has to be chained
+        if (s.transforms.length) {
+
+          // get initial initialTransformation
+          at = s.initialTransformation;
+          for (i = 0, len = s.transforms.length; i < len; i++) {
+
+            // get next transformation in chain
+            var a = s.transforms[i];
+
+            // multiply matrix directly
+            if (a instanceof SVG.Matrix) {
+
+              if (a.relative) {
+                at = at.multiply(new SVG.Matrix().morph(a).at(s.ease(this.pos)));
+              } else {
+                at = at.morph(a).at(s.ease(this.pos));
+              }
+              continue;
+            }
+
+            // when transformation is absolute we have to reset the needed transformation first
+            if (!a.relative) a.undo(at.extract());
+
+            // and reapply it after
+            at = at.multiply(a.at(s.ease(this.pos)));
+          }
+
+          // set new matrix on element
+          target.matrix(at);
+        }
+
+        return this;
+      }
+
+      // adds an once-callback which is called at a specific position and never again
+      , once: function (pos, fn, isEased) {
+        var c = this.last();
+        if (!isEased) pos = c.ease(pos);
+
+        c.once[pos] = fn;
+
+        return this;
+      },
+
+      _callStart: function () {
+        setTimeout(function () {
+          this.start();
+        }.bind(this), 0);
+        return this;
+      }
+
+    },
+
+    parent: SVG.Element
+
+    // Add method to parent elements
+    , construct: {
+      // Get fx module or create a new one, then animate with given duration and ease
+      animate: function (o, ease, delay) {
+        return (this.fx || (this.fx = new SVG.FX(this))).animate(o, ease, delay);
+      },
+      delay: function (delay) {
+        return (this.fx || (this.fx = new SVG.FX(this))).delay(delay);
+      },
+      stop: function (jumpToEnd, clearQueue) {
+        if (this.fx) this.fx.stop(jumpToEnd, clearQueue);
+
+        return this;
+      },
+      finish: function () {
+        if (this.fx) this.fx.finish();
+
+        return this;
+      }
+      // Pause current animation
+      , pause: function () {
+        if (this.fx) this.fx.pause();
+
+        return this;
+      }
+      // Play paused current animation
+      , play: function () {
+        if (this.fx) this.fx.play();
+
+        return this;
+      }
+      // Set/Get the speed of the animations
+      , speed: function (speed) {
+        if (this.fx) if (speed == null) return this.fx.speed();else this.fx.speed(speed);
+
+        return this;
+      }
+    }
+
+  });
+
+  // MorphObj is used whenever no morphable object is given
+  SVG.MorphObj = SVG.invent({
+
+    create: function (from, to) {
+      // prepare color for morphing
+      if (SVG.Color.isColor(to)) return new SVG.Color(from).morph(to);
+      // check if we have a list of values
+      if (SVG.regex.delimiter.test(from)) {
+        // prepare path for morphing
+        if (SVG.regex.pathLetters.test(from)) return new SVG.PathArray(from).morph(to);
+        // prepare value list for morphing
+        else return new SVG.Array(from).morph(to);
+      }
+      // prepare number for morphing
+      if (SVG.regex.numberAndUnit.test(to)) return new SVG.Number(from).morph(to);
+
+      // prepare for plain morphing
+      this.value = from;
+      this.destination = to;
+    },
+
+    extend: {
+      at: function (pos, real) {
+        return real < 1 ? this.value : this.destination;
+      },
+
+      valueOf: function () {
+        return this.value;
+      }
+    }
+
+  });
+
+  SVG.extend(SVG.FX, {
+    // Add animatable attributes
+    attr: function (a, v, relative) {
+      // apply attributes individually
+      if (typeof a == 'object') {
+        for (var key in a) this.attr(key, a[key]);
+      } else {
+        this.add(a, v, 'attrs');
+      }
+
+      return this;
+    }
+    // Add animatable styles
+    , style: function (s, v) {
+      if (typeof s == 'object') for (var key in s) this.style(key, s[key]);else this.add(s, v, 'styles');
+
+      return this;
+    }
+    // Animatable x-axis
+    , x: function (x, relative) {
+      if (this.target() instanceof SVG.G) {
+        this.transform({ x: x }, relative);
+        return this;
+      }
+
+      var num = new SVG.Number(x);
+      num.relative = relative;
+      return this.add('x', num);
+    }
+    // Animatable y-axis
+    , y: function (y, relative) {
+      if (this.target() instanceof SVG.G) {
+        this.transform({ y: y }, relative);
+        return this;
+      }
+
+      var num = new SVG.Number(y);
+      num.relative = relative;
+      return this.add('y', num);
+    }
+    // Animatable center x-axis
+    , cx: function (x) {
+      return this.add('cx', new SVG.Number(x));
+    }
+    // Animatable center y-axis
+    , cy: function (y) {
+      return this.add('cy', new SVG.Number(y));
+    }
+    // Add animatable move
+    , move: function (x, y) {
+      return this.x(x).y(y);
+    }
+    // Add animatable center
+    , center: function (x, y) {
+      return this.cx(x).cy(y);
+    }
+    // Add animatable size
+    , size: function (width, height) {
+      if (this.target() instanceof SVG.Text) {
+        // animate font size for Text elements
+        this.attr('font-size', width);
+      } else {
+        // animate bbox based size for all other elements
+        var box;
+
+        if (!width || !height) {
+          box = this.target().bbox();
+        }
+
+        if (!width) {
+          width = box.width / box.height * height;
+        }
+
+        if (!height) {
+          height = box.height / box.width * width;
+        }
+
+        this.add('width', new SVG.Number(width)).add('height', new SVG.Number(height));
+      }
+
+      return this;
+    }
+    // Add animatable width
+    , width: function (width) {
+      return this.add('width', new SVG.Number(width));
+    }
+    // Add animatable height
+    , height: function (height) {
+      return this.add('height', new SVG.Number(height));
+    }
+    // Add animatable plot
+    , plot: function (a, b, c, d) {
+      // Lines can be plotted with 4 arguments
+      if (arguments.length == 4) {
+        return this.plot([a, b, c, d]);
+      }
+
+      return this.add('plot', new (this.target().morphArray)(a));
+    }
+    // Add leading method
+    , leading: function (value) {
+      return this.target().leading ? this.add('leading', new SVG.Number(value)) : this;
+    }
+    // Add animatable viewbox
+    , viewbox: function (x, y, width, height) {
+      if (this.target() instanceof SVG.Container) {
+        this.add('viewbox', new SVG.ViewBox(x, y, width, height));
+      }
+
+      return this;
+    },
+    update: function (o) {
+      if (this.target() instanceof SVG.Stop) {
+        if (typeof o == 'number' || o instanceof SVG.Number) {
+          return this.update({
+            offset: arguments[0],
+            color: arguments[1],
+            opacity: arguments[2]
+          });
+        }
+
+        if (o.opacity != null) this.attr('stop-opacity', o.opacity);
+        if (o.color != null) this.attr('stop-color', o.color);
+        if (o.offset != null) this.attr('offset', o.offset);
+      }
+
+      return this;
+    }
+  });
+
+  SVG.Box = SVG.invent({
+    create: function (x, y, width, height) {
+      if (typeof x == 'object' && !(x instanceof SVG.Element)) {
+        // chromes getBoundingClientRect has no x and y property
+        return SVG.Box.call(this, x.left != null ? x.left : x.x, x.top != null ? x.top : x.y, x.width, x.height);
+      } else if (arguments.length == 4) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+      }
+
+      // add center, right, bottom...
+      fullBox(this);
+    },
+    extend: {
+      // Merge rect box with another, return a new instance
+      merge: function (box) {
+        var b = new this.constructor();
+
+        // merge boxes
+        b.x = Math.min(this.x, box.x);
+        b.y = Math.min(this.y, box.y);
+        b.width = Math.max(this.x + this.width, box.x + box.width) - b.x;
+        b.height = Math.max(this.y + this.height, box.y + box.height) - b.y;
+
+        return fullBox(b);
+      },
+
+      transform: function (m) {
+        var xMin = Infinity,
+            xMax = -Infinity,
+            yMin = Infinity,
+            yMax = -Infinity,
+            p,
+            bbox;
+
+        var pts = [new SVG.Point(this.x, this.y), new SVG.Point(this.x2, this.y), new SVG.Point(this.x, this.y2), new SVG.Point(this.x2, this.y2)];
+
+        pts.forEach(function (p) {
+          p = p.transform(m);
+          xMin = Math.min(xMin, p.x);
+          xMax = Math.max(xMax, p.x);
+          yMin = Math.min(yMin, p.y);
+          yMax = Math.max(yMax, p.y);
+        });
+
+        bbox = new this.constructor();
+        bbox.x = xMin;
+        bbox.width = xMax - xMin;
+        bbox.y = yMin;
+        bbox.height = yMax - yMin;
+
+        fullBox(bbox);
+
+        return bbox;
+      }
+    }
+  });
+
+  SVG.BBox = SVG.invent({
+    // Initialize
+    create: function (element) {
+      SVG.Box.apply(this, [].slice.call(arguments));
+
+      // get values if element is given
+      if (element instanceof SVG.Element) {
+        var box;
+
+        // yes this is ugly, but Firefox can be a pain when it comes to elements that are not yet rendered
+        try {
+
+          if (!document.documentElement.contains) {
+            // This is IE - it does not support contains() for top-level SVGs
+            var topParent = element.node;
+            while (topParent.parentNode) {
+              topParent = topParent.parentNode;
+            }
+            if (topParent != document) throw new Exception('Element not in the dom');
+          } else {
+            // the element is NOT in the dom, throw error
+            if (!document.documentElement.contains(element.node)) throw new Exception('Element not in the dom');
+          }
+
+          // find native bbox
+          box = element.node.getBBox();
+        } catch (e) {
+          if (element instanceof SVG.Shape) {
+            var clone = element.clone(SVG.parser.draw.instance).show();
+            box = clone.node.getBBox();
+            clone.remove();
+          } else {
+            box = {
+              x: element.node.clientLeft,
+              y: element.node.clientTop,
+              width: element.node.clientWidth,
+              height: element.node.clientHeight
+            };
+          }
+        }
+
+        SVG.Box.call(this, box);
+      }
+    }
+
+    // Define ancestor
+    , inherit: SVG.Box
+
+    // Define Parent
+    , parent: SVG.Element
+
+    // Constructor
+    , construct: {
+      // Get bounding box
+      bbox: function () {
+        return new SVG.BBox(this);
+      }
+    }
+
+  });
+
+  SVG.BBox.prototype.constructor = SVG.BBox;
+
+  SVG.extend(SVG.Element, {
+    tbox: function () {
+      console.warn('Use of TBox is deprecated and mapped to RBox. Use .rbox() instead.');
+      return this.rbox(this.doc());
+    }
+  });
+
+  SVG.RBox = SVG.invent({
+    // Initialize
+    create: function (element) {
+      SVG.Box.apply(this, [].slice.call(arguments));
+
+      if (element instanceof SVG.Element) {
+        SVG.Box.call(this, element.node.getBoundingClientRect());
+      }
+    },
+
+    inherit: SVG.Box
+
+    // define Parent
+    , parent: SVG.Element,
+
+    extend: {
+      addOffset: function () {
+        // offset by window scroll position, because getBoundingClientRect changes when window is scrolled
+        this.x += window.pageXOffset;
+        this.y += window.pageYOffset;
+        return this;
+      }
+
+      // Constructor
+    }, construct: {
+      // Get rect box
+      rbox: function (el) {
+        if (el) return new SVG.RBox(this).transform(el.screenCTM().inverse());
+        return new SVG.RBox(this).addOffset();
+      }
+    }
+
+  });
+
+  SVG.RBox.prototype.constructor = SVG.RBox;
+
+  SVG.Matrix = SVG.invent({
+    // Initialize
+    create: function (source) {
+      var i,
+          base = arrayToMatrix([1, 0, 0, 1, 0, 0]);
+
+      // ensure source as object
+      source = source instanceof SVG.Element ? source.matrixify() : typeof source === 'string' ? arrayToMatrix(source.split(SVG.regex.delimiter).map(parseFloat)) : arguments.length == 6 ? arrayToMatrix([].slice.call(arguments)) : Array.isArray(source) ? arrayToMatrix(source) : typeof source === 'object' ? source : base;
+
+      // merge source
+      for (i = abcdef.length - 1; i >= 0; --i) this[abcdef[i]] = source[abcdef[i]] != null ? source[abcdef[i]] : base[abcdef[i]];
+    }
+
+    // Add methods
+    , extend: {
+      // Extract individual transformations
+      extract: function () {
+        // find delta transform points
+        var px = deltaTransformPoint(this, 0, 1),
+            py = deltaTransformPoint(this, 1, 0),
+            skewX = 180 / Math.PI * Math.atan2(px.y, px.x) - 90;
+
+        return {
+          // translation
+          x: this.e,
+          y: this.f,
+          transformedX: (this.e * Math.cos(skewX * Math.PI / 180) + this.f * Math.sin(skewX * Math.PI / 180)) / Math.sqrt(this.a * this.a + this.b * this.b),
+          transformedY: (this.f * Math.cos(skewX * Math.PI / 180) + this.e * Math.sin(-skewX * Math.PI / 180)) / Math.sqrt(this.c * this.c + this.d * this.d)
+          // skew
+          , skewX: -skewX,
+          skewY: 180 / Math.PI * Math.atan2(py.y, py.x)
+          // scale
+          , scaleX: Math.sqrt(this.a * this.a + this.b * this.b),
+          scaleY: Math.sqrt(this.c * this.c + this.d * this.d)
+          // rotation
+          , rotation: skewX,
+          a: this.a,
+          b: this.b,
+          c: this.c,
+          d: this.d,
+          e: this.e,
+          f: this.f,
+          matrix: new SVG.Matrix(this)
+        };
+      }
+      // Clone matrix
+      , clone: function () {
+        return new SVG.Matrix(this);
+      }
+      // Morph one matrix into another
+      , morph: function (matrix) {
+        // store new destination
+        this.destination = new SVG.Matrix(matrix);
+
+        return this;
+      }
+      // Get morphed matrix at a given position
+      , at: function (pos) {
+        // make sure a destination is defined
+        if (!this.destination) return this;
+
+        // calculate morphed matrix at a given position
+        var matrix = new SVG.Matrix({
+          a: this.a + (this.destination.a - this.a) * pos,
+          b: this.b + (this.destination.b - this.b) * pos,
+          c: this.c + (this.destination.c - this.c) * pos,
+          d: this.d + (this.destination.d - this.d) * pos,
+          e: this.e + (this.destination.e - this.e) * pos,
+          f: this.f + (this.destination.f - this.f) * pos
+        });
+
+        return matrix;
+      }
+      // Multiplies by given matrix
+      , multiply: function (matrix) {
+        return new SVG.Matrix(this.native().multiply(parseMatrix(matrix).native()));
+      }
+      // Inverses matrix
+      , inverse: function () {
+        return new SVG.Matrix(this.native().inverse());
+      }
+      // Translate matrix
+      , translate: function (x, y) {
+        return new SVG.Matrix(this.native().translate(x || 0, y || 0));
+      }
+      // Scale matrix
+      , scale: function (x, y, cx, cy) {
+        // support uniformal scale
+        if (arguments.length == 1) {
+          y = x;
+        } else if (arguments.length == 3) {
+          cy = cx;
+          cx = y;
+          y = x;
+        }
+
+        return this.around(cx, cy, new SVG.Matrix(x, 0, 0, y, 0, 0));
+      }
+      // Rotate matrix
+      , rotate: function (r, cx, cy) {
+        // convert degrees to radians
+        r = SVG.utils.radians(r);
+
+        return this.around(cx, cy, new SVG.Matrix(Math.cos(r), Math.sin(r), -Math.sin(r), Math.cos(r), 0, 0));
+      }
+      // Flip matrix on x or y, at a given offset
+      , flip: function (a, o) {
+        return a == 'x' ? this.scale(-1, 1, o, 0) : a == 'y' ? this.scale(1, -1, 0, o) : this.scale(-1, -1, a, o != null ? o : a);
+      }
+      // Skew
+      , skew: function (x, y, cx, cy) {
+        // support uniformal skew
+        if (arguments.length == 1) {
+          y = x;
+        } else if (arguments.length == 3) {
+          cy = cx;
+          cx = y;
+          y = x;
+        }
+
+        // convert degrees to radians
+        x = SVG.utils.radians(x);
+        y = SVG.utils.radians(y);
+
+        return this.around(cx, cy, new SVG.Matrix(1, Math.tan(y), Math.tan(x), 1, 0, 0));
+      }
+      // SkewX
+      , skewX: function (x, cx, cy) {
+        return this.skew(x, 0, cx, cy);
+      }
+      // SkewY
+      , skewY: function (y, cx, cy) {
+        return this.skew(0, y, cx, cy);
+      }
+      // Transform around a center point
+      , around: function (cx, cy, matrix) {
+        return this.multiply(new SVG.Matrix(1, 0, 0, 1, cx || 0, cy || 0)).multiply(matrix).multiply(new SVG.Matrix(1, 0, 0, 1, -cx || 0, -cy || 0));
+      }
+      // Convert to native SVGMatrix
+      , native: function () {
+        // create new matrix
+        var matrix = SVG.parser.native.createSVGMatrix();
+
+        // update with current values
+        for (var i = abcdef.length - 1; i >= 0; i--) matrix[abcdef[i]] = this[abcdef[i]];
+
+        return matrix;
+      }
+      // Convert matrix to string
+      , toString: function () {
+        // Construct the matrix directly, avoid values that are too small
+        return 'matrix(' + float32String(this.a) + ',' + float32String(this.b) + ',' + float32String(this.c) + ',' + float32String(this.d) + ',' + float32String(this.e) + ',' + float32String(this.f) + ')';
+      }
+
+      // Define parent
+    }, parent: SVG.Element
+
+    // Add parent method
+    , construct: {
+      // Get current matrix
+      ctm: function () {
+        return new SVG.Matrix(this.node.getCTM());
+      },
+      // Get current screen matrix
+      screenCTM: function () {
+        /* https://bugzilla.mozilla.org/show_bug.cgi?id=1344537
+           This is needed because FF does not return the transformation matrix
+           for the inner coordinate system when getScreenCTM() is called on nested svgs.
+           However all other Browsers do that */
+        if (this instanceof SVG.Nested) {
+          var rect = this.rect(1, 1);
+          var m = rect.node.getScreenCTM();
+          rect.remove();
+          return new SVG.Matrix(m);
+        }
+        return new SVG.Matrix(this.node.getScreenCTM());
+      }
+
+    }
+
+  });
+
+  SVG.Point = SVG.invent({
+    // Initialize
+    create: function (x, y) {
+      var i,
+          source,
+          base = { x: 0, y: 0
+
+        // ensure source as object
+      };source = Array.isArray(x) ? { x: x[0], y: x[1] } : typeof x === 'object' ? { x: x.x, y: x.y } : x != null ? { x: x, y: y != null ? y : x } : base; // If y has no value, then x is used has its value
+
+      // merge source
+      this.x = source.x;
+      this.y = source.y;
+    }
+
+    // Add methods
+    , extend: {
+      // Clone point
+      clone: function () {
+        return new SVG.Point(this);
+      }
+      // Morph one point into another
+      , morph: function (x, y) {
+        // store new destination
+        this.destination = new SVG.Point(x, y);
+
+        return this;
+      }
+      // Get morphed point at a given position
+      , at: function (pos) {
+        // make sure a destination is defined
+        if (!this.destination) return this;
+
+        // calculate morphed matrix at a given position
+        var point = new SVG.Point({
+          x: this.x + (this.destination.x - this.x) * pos,
+          y: this.y + (this.destination.y - this.y) * pos
+        });
+
+        return point;
+      }
+      // Convert to native SVGPoint
+      , native: function () {
+        // create new point
+        var point = SVG.parser.native.createSVGPoint();
+
+        // update with current values
+        point.x = this.x;
+        point.y = this.y;
+
+        return point;
+      }
+      // transform point with matrix
+      , transform: function (matrix) {
+        return new SVG.Point(this.native().matrixTransform(matrix.native()));
+      }
+
+    }
+
+  });
+
+  SVG.extend(SVG.Element, {
+
+    // Get point
+    point: function (x, y) {
+      return new SVG.Point(x, y).transform(this.screenCTM().inverse());
+    }
+
+  });
+
+  SVG.extend(SVG.Element, {
+    // Set svg element attribute
+    attr: function (a, v, n) {
+      // act as full getter
+      if (a == null) {
+        // get an object of attributes
+        a = {};
+        v = this.node.attributes;
+        for (n = v.length - 1; n >= 0; n--) a[v[n].nodeName] = SVG.regex.isNumber.test(v[n].nodeValue) ? parseFloat(v[n].nodeValue) : v[n].nodeValue;
+
+        return a;
+      } else if (typeof a == 'object') {
+        // apply every attribute individually if an object is passed
+        for (v in a) this.attr(v, a[v]);
+      } else if (v === null) {
+        // remove value
+        this.node.removeAttribute(a);
+      } else if (v == null) {
+        // act as a getter if the first and only argument is not an object
+        v = this.node.getAttribute(a);
+        return v == null ? SVG.defaults.attrs[a] : SVG.regex.isNumber.test(v) ? parseFloat(v) : v;
+      } else {
+        // BUG FIX: some browsers will render a stroke if a color is given even though stroke width is 0
+        if (a == 'stroke-width') this.attr('stroke', parseFloat(v) > 0 ? this._stroke : null);else if (a == 'stroke') this._stroke = v;
+
+        // convert image fill and stroke to patterns
+        if (a == 'fill' || a == 'stroke') {
+          if (SVG.regex.isImage.test(v)) v = this.doc().defs().image(v, 0, 0);
+
+          if (v instanceof SVG.Image) v = this.doc().defs().pattern(0, 0, function () {
+            this.add(v);
+          });
+        }
+
+        // ensure correct numeric values (also accepts NaN and Infinity)
+        if (typeof v === 'number') v = new SVG.Number(v);
+
+        // ensure full hex color
+        else if (SVG.Color.isColor(v)) v = new SVG.Color(v);
+
+          // parse array values
+          else if (Array.isArray(v)) v = new SVG.Array(v);
+
+        // if the passed attribute is leading...
+        if (a == 'leading') {
+          // ... call the leading method instead
+          if (this.leading) this.leading(v);
+        } else {
+          // set given attribute on node
+          typeof n === 'string' ? this.node.setAttributeNS(n, a, v.toString()) : this.node.setAttribute(a, v.toString());
+        }
+
+        // rebuild if required
+        if (this.rebuild && (a == 'font-size' || a == 'x')) this.rebuild(a, v);
+      }
+
+      return this;
+    }
+  });
+  SVG.extend(SVG.Element, {
+    // Add transformations
+    transform: function (o, relative) {
+      // get target in case of the fx module, otherwise reference this
+      var target = this,
+          matrix,
+          bbox;
+
+      // act as a getter
+      if (typeof o !== 'object') {
+        // get current matrix
+        matrix = new SVG.Matrix(target).extract();
+
+        return typeof o === 'string' ? matrix[o] : matrix;
+      }
+
+      // get current matrix
+      matrix = new SVG.Matrix(target);
+
+      // ensure relative flag
+      relative = !!relative || !!o.relative;
+
+      // act on matrix
+      if (o.a != null) {
+        matrix = relative ?
+        // relative
+        matrix.multiply(new SVG.Matrix(o)) :
+        // absolute
+        new SVG.Matrix(o);
+
+        // act on rotation
+      } else if (o.rotation != null) {
+        // ensure centre point
+        ensureCentre(o, target);
+
+        // apply transformation
+        matrix = relative ?
+        // relative
+        matrix.rotate(o.rotation, o.cx, o.cy) :
+        // absolute
+        matrix.rotate(o.rotation - matrix.extract().rotation, o.cx, o.cy);
+
+        // act on scale
+      } else if (o.scale != null || o.scaleX != null || o.scaleY != null) {
+        // ensure centre point
+        ensureCentre(o, target);
+
+        // ensure scale values on both axes
+        o.scaleX = o.scale != null ? o.scale : o.scaleX != null ? o.scaleX : 1;
+        o.scaleY = o.scale != null ? o.scale : o.scaleY != null ? o.scaleY : 1;
+
+        if (!relative) {
+          // absolute; multiply inversed values
+          var e = matrix.extract();
+          o.scaleX = o.scaleX * 1 / e.scaleX;
+          o.scaleY = o.scaleY * 1 / e.scaleY;
+        }
+
+        matrix = matrix.scale(o.scaleX, o.scaleY, o.cx, o.cy);
+
+        // act on skew
+      } else if (o.skew != null || o.skewX != null || o.skewY != null) {
+        // ensure centre point
+        ensureCentre(o, target);
+
+        // ensure skew values on both axes
+        o.skewX = o.skew != null ? o.skew : o.skewX != null ? o.skewX : 0;
+        o.skewY = o.skew != null ? o.skew : o.skewY != null ? o.skewY : 0;
+
+        if (!relative) {
+          // absolute; reset skew values
+          var e = matrix.extract();
+          matrix = matrix.multiply(new SVG.Matrix().skew(e.skewX, e.skewY, o.cx, o.cy).inverse());
+        }
+
+        matrix = matrix.skew(o.skewX, o.skewY, o.cx, o.cy);
+
+        // act on flip
+      } else if (o.flip) {
+        if (o.flip == 'x' || o.flip == 'y') {
+          o.offset = o.offset == null ? target.bbox()['c' + o.flip] : o.offset;
+        } else {
+          if (o.offset == null) {
+            bbox = target.bbox();
+            o.flip = bbox.cx;
+            o.offset = bbox.cy;
+          } else {
+            o.flip = o.offset;
+          }
+        }
+
+        matrix = new SVG.Matrix().flip(o.flip, o.offset);
+
+        // act on translate
+      } else if (o.x != null || o.y != null) {
+        if (relative) {
+          // relative
+          matrix = matrix.translate(o.x, o.y);
+        } else {
+          // absolute
+          if (o.x != null) matrix.e = o.x;
+          if (o.y != null) matrix.f = o.y;
+        }
+      }
+
+      return this.attr('transform', matrix);
+    }
+  });
+
+  SVG.extend(SVG.FX, {
+    transform: function (o, relative) {
+      // get target in case of the fx module, otherwise reference this
+      var target = this.target(),
+          matrix,
+          bbox;
+
+      // act as a getter
+      if (typeof o !== 'object') {
+        // get current matrix
+        matrix = new SVG.Matrix(target).extract();
+
+        return typeof o === 'string' ? matrix[o] : matrix;
+      }
+
+      // ensure relative flag
+      relative = !!relative || !!o.relative;
+
+      // act on matrix
+      if (o.a != null) {
+        matrix = new SVG.Matrix(o);
+
+        // act on rotation
+      } else if (o.rotation != null) {
+        // ensure centre point
+        ensureCentre(o, target);
+
+        // apply transformation
+        matrix = new SVG.Rotate(o.rotation, o.cx, o.cy);
+
+        // act on scale
+      } else if (o.scale != null || o.scaleX != null || o.scaleY != null) {
+        // ensure centre point
+        ensureCentre(o, target);
+
+        // ensure scale values on both axes
+        o.scaleX = o.scale != null ? o.scale : o.scaleX != null ? o.scaleX : 1;
+        o.scaleY = o.scale != null ? o.scale : o.scaleY != null ? o.scaleY : 1;
+
+        matrix = new SVG.Scale(o.scaleX, o.scaleY, o.cx, o.cy);
+
+        // act on skew
+      } else if (o.skewX != null || o.skewY != null) {
+        // ensure centre point
+        ensureCentre(o, target);
+
+        // ensure skew values on both axes
+        o.skewX = o.skewX != null ? o.skewX : 0;
+        o.skewY = o.skewY != null ? o.skewY : 0;
+
+        matrix = new SVG.Skew(o.skewX, o.skewY, o.cx, o.cy);
+
+        // act on flip
+      } else if (o.flip) {
+        if (o.flip == 'x' || o.flip == 'y') {
+          o.offset = o.offset == null ? target.bbox()['c' + o.flip] : o.offset;
+        } else {
+          if (o.offset == null) {
+            bbox = target.bbox();
+            o.flip = bbox.cx;
+            o.offset = bbox.cy;
+          } else {
+            o.flip = o.offset;
+          }
+        }
+
+        matrix = new SVG.Matrix().flip(o.flip, o.offset);
+
+        // act on translate
+      } else if (o.x != null || o.y != null) {
+        matrix = new SVG.Translate(o.x, o.y);
+      }
+
+      if (!matrix) return this;
+
+      matrix.relative = relative;
+
+      this.last().transforms.push(matrix);
+
+      return this._callStart();
+    }
+  });
+
+  SVG.extend(SVG.Element, {
+    // Reset all transformations
+    untransform: function () {
+      return this.attr('transform', null);
+    },
+    // merge the whole transformation chain into one matrix and returns it
+    matrixify: function () {
+
+      var matrix = (this.attr('transform') || '').
+      // split transformations
+      split(SVG.regex.transforms).slice(0, -1).map(function (str) {
+        // generate key => value pairs
+        var kv = str.trim().split('(');
+        return [kv[0], kv[1].split(SVG.regex.delimiter).map(function (str) {
+          return parseFloat(str);
+        })];
+      })
+      // merge every transformation into one matrix
+      .reduce(function (matrix, transform) {
+
+        if (transform[0] == 'matrix') return matrix.multiply(arrayToMatrix(transform[1]));
+        return matrix[transform[0]].apply(matrix, transform[1]);
+      }, new SVG.Matrix());
+
+      return matrix;
+    },
+    // add an element to another parent without changing the visual representation on the screen
+    toParent: function (parent) {
+      if (this == parent) return this;
+      var ctm = this.screenCTM();
+      var pCtm = parent.screenCTM().inverse();
+
+      this.addTo(parent).untransform().transform(pCtm.multiply(ctm));
+
+      return this;
+    },
+    // same as above with parent equals root-svg
+    toDoc: function () {
+      return this.toParent(this.doc());
+    }
+
+  });
+
+  SVG.Transformation = SVG.invent({
+
+    create: function (source, inversed) {
+
+      if (arguments.length > 1 && typeof inversed != 'boolean') {
+        return this.constructor.call(this, [].slice.call(arguments));
+      }
+
+      if (Array.isArray(source)) {
+        for (var i = 0, len = this.arguments.length; i < len; ++i) {
+          this[this.arguments[i]] = source[i];
+        }
+      } else if (typeof source == 'object') {
+        for (var i = 0, len = this.arguments.length; i < len; ++i) {
+          this[this.arguments[i]] = source[this.arguments[i]];
+        }
+      }
+
+      this.inversed = false;
+
+      if (inversed === true) {
+        this.inversed = true;
+      }
+    },
+
+    extend: {
+
+      arguments: [],
+      method: '',
+
+      at: function (pos) {
+
+        var params = [];
+
+        for (var i = 0, len = this.arguments.length; i < len; ++i) {
+          params.push(this[this.arguments[i]]);
+        }
+
+        var m = this._undo || new SVG.Matrix();
+
+        m = new SVG.Matrix().morph(SVG.Matrix.prototype[this.method].apply(m, params)).at(pos);
+
+        return this.inversed ? m.inverse() : m;
+      },
+
+      undo: function (o) {
+        for (var i = 0, len = this.arguments.length; i < len; ++i) {
+          o[this.arguments[i]] = typeof this[this.arguments[i]] == 'undefined' ? 0 : o[this.arguments[i]];
+        }
+
+        // The method SVG.Matrix.extract which was used before calling this
+        // method to obtain a value for the parameter o doesn't return a cx and
+        // a cy so we use the ones that were provided to this object at its creation
+        o.cx = this.cx;
+        o.cy = this.cy;
+
+        this._undo = new SVG[capitalize(this.method)](o, true).at(1);
+
+        return this;
+      }
+
+    }
+
+  });
+
+  SVG.Translate = SVG.invent({
+
+    parent: SVG.Matrix,
+    inherit: SVG.Transformation,
+
+    create: function (source, inversed) {
+      this.constructor.apply(this, [].slice.call(arguments));
+    },
+
+    extend: {
+      arguments: ['transformedX', 'transformedY'],
+      method: 'translate'
+    }
+
+  });
+
+  SVG.Rotate = SVG.invent({
+
+    parent: SVG.Matrix,
+    inherit: SVG.Transformation,
+
+    create: function (source, inversed) {
+      this.constructor.apply(this, [].slice.call(arguments));
+    },
+
+    extend: {
+      arguments: ['rotation', 'cx', 'cy'],
+      method: 'rotate',
+      at: function (pos) {
+        var m = new SVG.Matrix().rotate(new SVG.Number().morph(this.rotation - (this._undo ? this._undo.rotation : 0)).at(pos), this.cx, this.cy);
+        return this.inversed ? m.inverse() : m;
+      },
+      undo: function (o) {
+        this._undo = o;
+        return this;
+      }
+    }
+
+  });
+
+  SVG.Scale = SVG.invent({
+
+    parent: SVG.Matrix,
+    inherit: SVG.Transformation,
+
+    create: function (source, inversed) {
+      this.constructor.apply(this, [].slice.call(arguments));
+    },
+
+    extend: {
+      arguments: ['scaleX', 'scaleY', 'cx', 'cy'],
+      method: 'scale'
+    }
+
+  });
+
+  SVG.Skew = SVG.invent({
+
+    parent: SVG.Matrix,
+    inherit: SVG.Transformation,
+
+    create: function (source, inversed) {
+      this.constructor.apply(this, [].slice.call(arguments));
+    },
+
+    extend: {
+      arguments: ['skewX', 'skewY', 'cx', 'cy'],
+      method: 'skew'
+    }
+
+  });
+
+  SVG.extend(SVG.Element, {
+    // Dynamic style generator
+    style: function (s, v) {
+      if (arguments.length == 0) {
+        // get full style
+        return this.node.style.cssText || '';
+      } else if (arguments.length < 2) {
+        // apply every style individually if an object is passed
+        if (typeof s == 'object') {
+          for (v in s) this.style(v, s[v]);
+        } else if (SVG.regex.isCss.test(s)) {
+          // parse css string
+          s = s.split(/\s*;\s*/)
+          // filter out suffix ; and stuff like ;;
+          .filter(function (e) {
+            return !!e;
+          }).map(function (e) {
+            return e.split(/\s*:\s*/);
+          });
+
+          // apply every definition individually
+          while (v = s.pop()) {
+            this.style(v[0], v[1]);
+          }
+        } else {
+          // act as a getter if the first and only argument is not an object
+          return this.node.style[camelCase(s)];
+        }
+      } else {
+        this.node.style[camelCase(s)] = v === null || SVG.regex.isBlank.test(v) ? '' : v;
+      }
+
+      return this;
+    }
+  });
+  SVG.Parent = SVG.invent({
+    // Initialize node
+    create: function (element) {
+      this.constructor.call(this, element);
+    }
+
+    // Inherit from
+    , inherit: SVG.Element
+
+    // Add class methods
+    , extend: {
+      // Returns all child elements
+      children: function () {
+        return SVG.utils.map(SVG.utils.filterSVGElements(this.node.childNodes), function (node) {
+          return SVG.adopt(node);
+        });
+      }
+      // Add given element at a position
+      , add: function (element, i) {
+        if (i == null) this.node.appendChild(element.node);else if (element.node != this.node.childNodes[i]) this.node.insertBefore(element.node, this.node.childNodes[i]);
+
+        return this;
+      }
+      // Basically does the same as `add()` but returns the added element instead
+      , put: function (element, i) {
+        this.add(element, i);
+        return element;
+      }
+      // Checks if the given element is a child
+      , has: function (element) {
+        return this.index(element) >= 0;
+      }
+      // Gets index of given element
+      , index: function (element) {
+        return [].slice.call(this.node.childNodes).indexOf(element.node);
+      }
+      // Get a element at the given index
+      , get: function (i) {
+        return SVG.adopt(this.node.childNodes[i]);
+      }
+      // Get first child
+      , first: function () {
+        return this.get(0);
+      }
+      // Get the last child
+      , last: function () {
+        return this.get(this.node.childNodes.length - 1);
+      }
+      // Iterates over all children and invokes a given block
+      , each: function (block, deep) {
+        var i,
+            il,
+            children = this.children();
+
+        for (i = 0, il = children.length; i < il; i++) {
+          if (children[i] instanceof SVG.Element) block.apply(children[i], [i, children]);
+
+          if (deep && children[i] instanceof SVG.Container) children[i].each(block, deep);
+        }
+
+        return this;
+      }
+      // Remove a given child
+      , removeElement: function (element) {
+        this.node.removeChild(element.node);
+
+        return this;
+      }
+      // Remove all elements in this container
+      , clear: function () {
+        // remove children
+        while (this.node.hasChildNodes()) this.node.removeChild(this.node.lastChild);
+
+        // remove defs reference
+        delete this._defs;
+
+        return this;
+      },
+      // Get defs
+      defs: function () {
+        return this.doc().defs();
+      }
+    }
+
+  });
+
+  SVG.extend(SVG.Parent, {
+
+    ungroup: function (parent, depth) {
+      if (depth === 0 || this instanceof SVG.Defs || this.node == SVG.parser.draw) return this;
+
+      parent = parent || (this instanceof SVG.Doc ? this : this.parent(SVG.Parent));
+      depth = depth || Infinity;
+
+      this.each(function () {
+        if (this instanceof SVG.Defs) return this;
+        if (this instanceof SVG.Parent) return this.ungroup(parent, depth - 1);
+        return this.toParent(parent);
+      });
+
+      this.node.firstChild || this.remove();
+
+      return this;
+    },
+
+    flatten: function (parent, depth) {
+      return this.ungroup(parent, depth);
+    }
+
+  });
+  SVG.Container = SVG.invent({
+    // Initialize node
+    create: function (element) {
+      this.constructor.call(this, element);
+    }
+
+    // Inherit from
+    , inherit: SVG.Parent
+
+  });
+
+  SVG.ViewBox = SVG.invent({
+
+    create: function (source) {
+      var i,
+          base = [0, 0, 0, 0];
+
+      var x,
+          y,
+          width,
+          height,
+          box,
+          view,
+          we,
+          he,
+          wm = 1 // width multiplier
+      ,
+          hm = 1 // height multiplier
+      ,
+          reg = /[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?/gi;
+
+      if (source instanceof SVG.Element) {
+
+        we = source;
+        he = source;
+        view = (source.attr('viewBox') || '').match(reg);
+        box = source.bbox;
+
+        // get dimensions of current node
+        width = new SVG.Number(source.width());
+        height = new SVG.Number(source.height());
+
+        // find nearest non-percentual dimensions
+        while (width.unit == '%') {
+          wm *= width.value;
+          width = new SVG.Number(we instanceof SVG.Doc ? we.parent().offsetWidth : we.parent().width());
+          we = we.parent();
+        }
+        while (height.unit == '%') {
+          hm *= height.value;
+          height = new SVG.Number(he instanceof SVG.Doc ? he.parent().offsetHeight : he.parent().height());
+          he = he.parent();
+        }
+
+        // ensure defaults
+        this.x = 0;
+        this.y = 0;
+        this.width = width * wm;
+        this.height = height * hm;
+        this.zoom = 1;
+
+        if (view) {
+          // get width and height from viewbox
+          x = parseFloat(view[0]);
+          y = parseFloat(view[1]);
+          width = parseFloat(view[2]);
+          height = parseFloat(view[3]);
+
+          // calculate zoom accoring to viewbox
+          this.zoom = this.width / this.height > width / height ? this.height / height : this.width / width;
+
+          // calculate real pixel dimensions on parent SVG.Doc element
+          this.x = x;
+          this.y = y;
+          this.width = width;
+          this.height = height;
+        }
+      } else {
+
+        // ensure source as object
+        source = typeof source === 'string' ? source.match(reg).map(function (el) {
+          return parseFloat(el);
+        }) : Array.isArray(source) ? source : typeof source == 'object' ? [source.x, source.y, source.width, source.height] : arguments.length == 4 ? [].slice.call(arguments) : base;
+
+        this.x = source[0];
+        this.y = source[1];
+        this.width = source[2];
+        this.height = source[3];
+      }
+    },
+
+    extend: {
+
+      toString: function () {
+        return this.x + ' ' + this.y + ' ' + this.width + ' ' + this.height;
+      },
+      morph: function (x, y, width, height) {
+        this.destination = new SVG.ViewBox(x, y, width, height);
+        return this;
+      },
+
+      at: function (pos) {
+
+        if (!this.destination) return this;
+
+        return new SVG.ViewBox([this.x + (this.destination.x - this.x) * pos, this.y + (this.destination.y - this.y) * pos, this.width + (this.destination.width - this.width) * pos, this.height + (this.destination.height - this.height) * pos]);
+      }
+
+      // Define parent
+    }, parent: SVG.Container
+
+    // Add parent method
+    , construct: {
+
+      // get/set viewbox
+      viewbox: function (x, y, width, height) {
+        if (arguments.length == 0)
+          // act as a getter if there are no arguments
+          return new SVG.ViewBox(this);
+
+        // otherwise act as a setter
+        return this.attr('viewBox', new SVG.ViewBox(x, y, width, height));
+      }
+
+    }
+
+  })
+  // Add events to elements
+
+  ;['click', 'dblclick', 'mousedown', 'mouseup', 'mouseover', 'mouseout', 'mousemove', 'mouseenter', 'mouseleave', 'touchstart', 'touchmove', 'touchleave', 'touchend', 'touchcancel'].forEach(function (event) {
+    // add event to SVG.Element
+    SVG.Element.prototype[event] = function (f) {
+      // bind event to element rather than element node
+      if (f == null) {
+        SVG.off(this, event);
+      } else {
+        SVG.on(this, event, f);
+      }
+      return this;
+    };
+  });
+
+  SVG.listenerId = 0;
+
+  // Add event binder in the SVG namespace
+  SVG.on = function (node, events, listener, binding, options) {
+    var l = listener.bind(binding || node);
+    var n = node instanceof SVG.Element ? node.node : node;
+
+    // ensure instance object for nodes which are not adopted
+    n.instance = n.instance || { _events: {} };
+
+    var bag = n.instance._events;
+
+    // add id to listener
+    if (!listener._svgjsListenerId) {
+      listener._svgjsListenerId = ++SVG.listenerId;
+    }
+
+    events.split(SVG.regex.delimiter).forEach(function (event) {
+      var ev = event.split('.')[0];
+      var ns = event.split('.')[1] || '*';
+
+      // ensure valid object
+      bag[ev] = bag[ev] || {};
+      bag[ev][ns] = bag[ev][ns] || {};
+
+      // reference listener
+      bag[ev][ns][listener._svgjsListenerId] = l;
+
+      // add listener
+      n.addEventListener(ev, l, options || false);
+    });
+  };
+
+  // Add event unbinder in the SVG namespace
+  SVG.off = function (node, events, listener, options) {
+    var n = node instanceof SVG.Element ? node.node : node;
+    if (!n.instance) return;
+
+    // listener can be a function or a number
+    if (typeof listener === 'function') {
+      listener = listener._svgjsListenerId;
+      if (!listener) return;
+    }
+
+    var bag = n.instance._events;(events || '').split(SVG.regex.delimiter).forEach(function (event) {
+      var ev = event && event.split('.')[0];
+      var ns = event && event.split('.')[1];
+      var namespace, l;
+
+      if (listener) {
+        // remove listener reference
+        if (bag[ev] && bag[ev][ns || '*']) {
+          // removeListener
+          n.removeEventListener(ev, bag[ev][ns || '*'][listener], options || false);
+
+          delete bag[ev][ns || '*'][listener];
+        }
+      } else if (ev && ns) {
+        // remove all listeners for a namespaced event
+        if (bag[ev] && bag[ev][ns]) {
+          for (l in bag[ev][ns]) {
+            SVG.off(n, [ev, ns].join('.'), l);
+          }
+
+          delete bag[ev][ns];
+        }
+      } else if (ns) {
+        // remove all listeners for a specific namespace
+        for (event in bag) {
+          for (namespace in bag[event]) {
+            if (ns === namespace) {
+              SVG.off(n, [event, ns].join('.'));
+            }
+          }
+        }
+      } else if (ev) {
+        // remove all listeners for the event
+        if (bag[ev]) {
+          for (namespace in bag[ev]) {
+            SVG.off(n, [ev, namespace].join('.'));
+          }
+
+          delete bag[ev];
+        }
+      } else {
+        // remove all listeners on a given node
+        for (event in bag) {
+          SVG.off(n, event);
+        }
+
+        n.instance._events = {};
+      }
+    });
+  };
+
+  SVG.extend(SVG.Element, {
+    // Bind given event to listener
+    on: function (event, listener, binding, options) {
+      SVG.on(this, event, listener, binding, options);
+      return this;
+    },
+    // Unbind event from listener
+    off: function (event, listener) {
+      SVG.off(this.node, event, listener);
+      return this;
+    },
+    fire: function (event, data) {
+      // Dispatch event
+      if (event instanceof window.Event) {
+        this.node.dispatchEvent(event);
+      } else {
+        this.node.dispatchEvent(event = new SVG.CustomEvent(event, { detail: data, cancelable: true }));
+      }
+      this._event = event;
+      return this;
+    },
+    event: function () {
+      return this._event;
+    }
+  });
+
+  SVG.Defs = SVG.invent({
+    // Initialize node
+    create: 'defs'
+
+    // Inherit from
+    , inherit: SVG.Container
+
+  });
+  SVG.G = SVG.invent({
+    // Initialize node
+    create: 'g'
+
+    // Inherit from
+    , inherit: SVG.Container
+
+    // Add class methods
+    , extend: {
+      // Move over x-axis
+      x: function (x) {
+        return x == null ? this.transform('x') : this.transform({ x: x - this.x() }, true);
+      }
+      // Move over y-axis
+      , y: function (y) {
+        return y == null ? this.transform('y') : this.transform({ y: y - this.y() }, true);
+      }
+      // Move by center over x-axis
+      , cx: function (x) {
+        return x == null ? this.gbox().cx : this.x(x - this.gbox().width / 2);
+      }
+      // Move by center over y-axis
+      , cy: function (y) {
+        return y == null ? this.gbox().cy : this.y(y - this.gbox().height / 2);
+      },
+      gbox: function () {
+
+        var bbox = this.bbox(),
+            trans = this.transform();
+
+        bbox.x += trans.x;
+        bbox.x2 += trans.x;
+        bbox.cx += trans.x;
+
+        bbox.y += trans.y;
+        bbox.y2 += trans.y;
+        bbox.cy += trans.y;
+
+        return bbox;
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create a group element
+      group: function () {
+        return this.put(new SVG.G());
+      }
+    }
+  });
+
+  SVG.Doc = SVG.invent({
+    // Initialize node
+    create: function (element) {
+      if (element) {
+        // ensure the presence of a dom element
+        element = typeof element == 'string' ? document.getElementById(element) : element;
+
+        // If the target is an svg element, use that element as the main wrapper.
+        // This allows svg.js to work with svg documents as well.
+        if (element.nodeName == 'svg') {
+          this.constructor.call(this, element);
+        } else {
+          this.constructor.call(this, SVG.create('svg'));
+          element.appendChild(this.node);
+          this.size('100%', '100%');
+        }
+
+        // set svg element attributes and ensure defs node
+        this.namespace().defs();
+      }
+    }
+
+    // Inherit from
+    , inherit: SVG.Container
+
+    // Add class methods
+    , extend: {
+      // Add namespaces
+      namespace: function () {
+        return this.attr({ xmlns: SVG.ns, version: '1.1' }).attr('xmlns:xlink', SVG.xlink, SVG.xmlns).attr('xmlns:svgjs', SVG.svgjs, SVG.xmlns);
+      }
+      // Creates and returns defs element
+      , defs: function () {
+        if (!this._defs) {
+          var defs;
+
+          // Find or create a defs element in this instance
+          if (defs = this.node.getElementsByTagName('defs')[0]) this._defs = SVG.adopt(defs);else this._defs = new SVG.Defs();
+
+          // Make sure the defs node is at the end of the stack
+          this.node.appendChild(this._defs.node);
+        }
+
+        return this._defs;
+      }
+      // custom parent method
+      , parent: function () {
+        if (!this.node.parentNode || this.node.parentNode.nodeName == '#document' || this.node.parentNode.nodeName == '#document-fragment') return null;
+        return this.node.parentNode;
+      }
+      // Fix for possible sub-pixel offset. See:
+      // https://bugzilla.mozilla.org/show_bug.cgi?id=608812
+      , spof: function () {
+        var pos = this.node.getScreenCTM();
+
+        if (pos) this.style('left', -pos.e % 1 + 'px').style('top', -pos.f % 1 + 'px');
+
+        return this;
+      }
+
+      // Removes the doc from the DOM
+      , remove: function () {
+        if (this.parent()) {
+          this.parent().removeChild(this.node);
+        }
+
+        return this;
+      },
+      clear: function () {
+        // remove children
+        while (this.node.hasChildNodes()) this.node.removeChild(this.node.lastChild);
+
+        // remove defs reference
+        delete this._defs;
+
+        // add back parser
+        if (!SVG.parser.draw.parentNode) this.node.appendChild(SVG.parser.draw);
+
+        return this;
+      },
+      clone: function (parent) {
+        // write dom data to the dom so the clone can pickup the data
+        this.writeDataToDom();
+
+        // get reference to node
+        var node = this.node;
+
+        // clone element and assign new id
+        var clone = assignNewId(node.cloneNode(true));
+
+        // insert the clone in the given parent or after myself
+        if (parent) {
+          (parent.node || parent).appendChild(clone.node);
+        } else {
+          node.parentNode.insertBefore(clone.node, node.nextSibling);
+        }
+
+        return clone;
+      }
+    }
+
+  });
+
+  // ### This module adds backward / forward functionality to elements.
+
+  //
+  SVG.extend(SVG.Element, {
+    // Get all siblings, including myself
+    siblings: function () {
+      return this.parent().children();
+    }
+    // Get the curent position siblings
+    , position: function () {
+      return this.parent().index(this);
+    }
+    // Get the next element (will return null if there is none)
+    , next: function () {
+      return this.siblings()[this.position() + 1];
+    }
+    // Get the next element (will return null if there is none)
+    , previous: function () {
+      return this.siblings()[this.position() - 1];
+    }
+    // Send given element one step forward
+    , forward: function () {
+      var i = this.position() + 1,
+          p = this.parent();
+
+      // move node one step forward
+      p.removeElement(this).add(this, i);
+
+      // make sure defs node is always at the top
+      if (p instanceof SVG.Doc) p.node.appendChild(p.defs().node);
+
+      return this;
+    }
+    // Send given element one step backward
+    , backward: function () {
+      var i = this.position();
+
+      if (i > 0) this.parent().removeElement(this).add(this, i - 1);
+
+      return this;
+    }
+    // Send given element all the way to the front
+    , front: function () {
+      var p = this.parent();
+
+      // Move node forward
+      p.node.appendChild(this.node);
+
+      // Make sure defs node is always at the top
+      if (p instanceof SVG.Doc) p.node.appendChild(p.defs().node);
+
+      return this;
+    }
+    // Send given element all the way to the back
+    , back: function () {
+      if (this.position() > 0) this.parent().removeElement(this).add(this, 0);
+
+      return this;
+    }
+    // Inserts a given element before the targeted element
+    , before: function (element) {
+      element.remove();
+
+      var i = this.position();
+
+      this.parent().add(element, i);
+
+      return this;
+    }
+    // Insters a given element after the targeted element
+    , after: function (element) {
+      element.remove();
+
+      var i = this.position();
+
+      this.parent().add(element, i + 1);
+
+      return this;
+    }
+
+  });
+  SVG.Mask = SVG.invent({
+    // Initialize node
+    create: function () {
+      this.constructor.call(this, SVG.create('mask'));
+
+      // keep references to masked elements
+      this.targets = [];
+    }
+
+    // Inherit from
+    , inherit: SVG.Container
+
+    // Add class methods
+    , extend: {
+      // Unmask all masked elements and remove itself
+      remove: function () {
+        // unmask all targets
+        for (var i = this.targets.length - 1; i >= 0; i--) if (this.targets[i]) this.targets[i].unmask();
+        this.targets = [];
+
+        // remove mask from parent
+        SVG.Element.prototype.remove.call(this);
+
+        return this;
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create masking element
+      mask: function () {
+        return this.defs().put(new SVG.Mask());
+      }
+    }
+  });
+
+  SVG.extend(SVG.Element, {
+    // Distribute mask to svg element
+    maskWith: function (element) {
+      // use given mask or create a new one
+      this.masker = element instanceof SVG.Mask ? element : this.parent().mask().add(element);
+
+      // store reverence on self in mask
+      this.masker.targets.push(this);
+
+      // apply mask
+      return this.attr('mask', 'url("#' + this.masker.attr('id') + '")');
+    }
+    // Unmask element
+    , unmask: function () {
+      delete this.masker;
+      return this.attr('mask', null);
+    }
+
+  });
+
+  SVG.ClipPath = SVG.invent({
+    // Initialize node
+    create: function () {
+      this.constructor.call(this, SVG.create('clipPath'));
+
+      // keep references to clipped elements
+      this.targets = [];
+    }
+
+    // Inherit from
+    , inherit: SVG.Container
+
+    // Add class methods
+    , extend: {
+      // Unclip all clipped elements and remove itself
+      remove: function () {
+        // unclip all targets
+        for (var i = this.targets.length - 1; i >= 0; i--) if (this.targets[i]) this.targets[i].unclip();
+        this.targets = [];
+
+        // remove clipPath from parent
+        this.parent().removeElement(this);
+
+        return this;
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create clipping element
+      clip: function () {
+        return this.defs().put(new SVG.ClipPath());
+      }
+    }
+  });
+
+  //
+  SVG.extend(SVG.Element, {
+    // Distribute clipPath to svg element
+    clipWith: function (element) {
+      // use given clip or create a new one
+      this.clipper = element instanceof SVG.ClipPath ? element : this.parent().clip().add(element);
+
+      // store reverence on self in mask
+      this.clipper.targets.push(this);
+
+      // apply mask
+      return this.attr('clip-path', 'url("#' + this.clipper.attr('id') + '")');
+    }
+    // Unclip element
+    , unclip: function () {
+      delete this.clipper;
+      return this.attr('clip-path', null);
+    }
+
+  });
+  SVG.Gradient = SVG.invent({
+    // Initialize node
+    create: function (type) {
+      this.constructor.call(this, SVG.create(type + 'Gradient'));
+
+      // store type
+      this.type = type;
+    }
+
+    // Inherit from
+    , inherit: SVG.Container
+
+    // Add class methods
+    , extend: {
+      // Add a color stop
+      at: function (offset, color, opacity) {
+        return this.put(new SVG.Stop()).update(offset, color, opacity);
+      }
+      // Update gradient
+      , update: function (block) {
+        // remove all stops
+        this.clear();
+
+        // invoke passed block
+        if (typeof block == 'function') block.call(this, this);
+
+        return this;
+      }
+      // Return the fill id
+      , fill: function () {
+        return 'url(#' + this.id() + ')';
+      }
+      // Alias string convertion to fill
+      , toString: function () {
+        return this.fill();
+      }
+      // custom attr to handle transform
+      , attr: function (a, b, c) {
+        if (a == 'transform') a = 'gradientTransform';
+        return SVG.Container.prototype.attr.call(this, a, b, c);
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create gradient element in defs
+      gradient: function (type, block) {
+        return this.defs().gradient(type, block);
+      }
+    }
+  });
+
+  // Add animatable methods to both gradient and fx module
+  SVG.extend(SVG.Gradient, SVG.FX, {
+    // From position
+    from: function (x, y) {
+      return (this._target || this).type == 'radial' ? this.attr({ fx: new SVG.Number(x), fy: new SVG.Number(y) }) : this.attr({ x1: new SVG.Number(x), y1: new SVG.Number(y) });
+    }
+    // To position
+    , to: function (x, y) {
+      return (this._target || this).type == 'radial' ? this.attr({ cx: new SVG.Number(x), cy: new SVG.Number(y) }) : this.attr({ x2: new SVG.Number(x), y2: new SVG.Number(y) });
+    }
+  });
+
+  // Base gradient generation
+  SVG.extend(SVG.Defs, {
+    // define gradient
+    gradient: function (type, block) {
+      return this.put(new SVG.Gradient(type)).update(block);
+    }
+
+  });
+
+  SVG.Stop = SVG.invent({
+    // Initialize node
+    create: 'stop'
+
+    // Inherit from
+    , inherit: SVG.Element
+
+    // Add class methods
+    , extend: {
+      // add color stops
+      update: function (o) {
+        if (typeof o == 'number' || o instanceof SVG.Number) {
+          o = {
+            offset: arguments[0],
+            color: arguments[1],
+            opacity: arguments[2]
+          };
+        }
+
+        // set attributes
+        if (o.opacity != null) this.attr('stop-opacity', o.opacity);
+        if (o.color != null) this.attr('stop-color', o.color);
+        if (o.offset != null) this.attr('offset', new SVG.Number(o.offset));
+
+        return this;
+      }
+    }
+
+  });
+
+  SVG.Pattern = SVG.invent({
+    // Initialize node
+    create: 'pattern'
+
+    // Inherit from
+    , inherit: SVG.Container
+
+    // Add class methods
+    , extend: {
+      // Return the fill id
+      fill: function () {
+        return 'url(#' + this.id() + ')';
+      }
+      // Update pattern by rebuilding
+      , update: function (block) {
+        // remove content
+        this.clear();
+
+        // invoke passed block
+        if (typeof block == 'function') block.call(this, this);
+
+        return this;
+      }
+      // Alias string convertion to fill
+      , toString: function () {
+        return this.fill();
+      }
+      // custom attr to handle transform
+      , attr: function (a, b, c) {
+        if (a == 'transform') a = 'patternTransform';
+        return SVG.Container.prototype.attr.call(this, a, b, c);
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create pattern element in defs
+      pattern: function (width, height, block) {
+        return this.defs().pattern(width, height, block);
+      }
+    }
+  });
+
+  SVG.extend(SVG.Defs, {
+    // Define gradient
+    pattern: function (width, height, block) {
+      return this.put(new SVG.Pattern()).update(block).attr({
+        x: 0,
+        y: 0,
+        width: width,
+        height: height,
+        patternUnits: 'userSpaceOnUse'
+      });
+    }
+
+  });
+  SVG.Shape = SVG.invent({
+    // Initialize node
+    create: function (element) {
+      this.constructor.call(this, element);
+    }
+
+    // Inherit from
+    , inherit: SVG.Element
+
+  });
+
+  SVG.Bare = SVG.invent({
+    // Initialize
+    create: function (element, inherit) {
+      // construct element
+      this.constructor.call(this, SVG.create(element));
+
+      // inherit custom methods
+      if (inherit) for (var method in inherit.prototype) if (typeof inherit.prototype[method] === 'function') this[method] = inherit.prototype[method];
+    }
+
+    // Inherit from
+    , inherit: SVG.Element
+
+    // Add methods
+    , extend: {
+      // Insert some plain text
+      words: function (text) {
+        // remove contents
+        while (this.node.hasChildNodes()) this.node.removeChild(this.node.lastChild);
+
+        // create text node
+        this.node.appendChild(document.createTextNode(text));
+
+        return this;
+      }
+    }
+  });
+
+  SVG.extend(SVG.Parent, {
+    // Create an element that is not described by SVG.js
+    element: function (element, inherit) {
+      return this.put(new SVG.Bare(element, inherit));
+    }
+  });
+
+  SVG.Symbol = SVG.invent({
+    // Initialize node
+    create: 'symbol'
+
+    // Inherit from
+    , inherit: SVG.Container,
+
+    construct: {
+      // create symbol
+      symbol: function () {
+        return this.put(new SVG.Symbol());
+      }
+    }
+  });
+
+  SVG.Use = SVG.invent({
+    // Initialize node
+    create: 'use'
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add class methods
+    , extend: {
+      // Use element as a reference
+      element: function (element, file) {
+        // Set lined element
+        return this.attr('href', (file || '') + '#' + element, SVG.xlink);
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create a use element
+      use: function (element, file) {
+        return this.put(new SVG.Use()).element(element, file);
+      }
+    }
+  });
+  SVG.Rect = SVG.invent({
+    // Initialize node
+    create: 'rect'
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add parent method
+    , construct: {
+      // Create a rect element
+      rect: function (width, height) {
+        return this.put(new SVG.Rect()).size(width, height);
+      }
+    }
+  });
+  SVG.Circle = SVG.invent({
+    // Initialize node
+    create: 'circle'
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add parent method
+    , construct: {
+      // Create circle element, based on ellipse
+      circle: function (size) {
+        return this.put(new SVG.Circle()).rx(new SVG.Number(size).divide(2)).move(0, 0);
+      }
+    }
+  });
+
+  SVG.extend(SVG.Circle, SVG.FX, {
+    // Radius x value
+    rx: function (rx) {
+      return this.attr('r', rx);
+    }
+    // Alias radius x value
+    , ry: function (ry) {
+      return this.rx(ry);
+    }
+  });
+
+  SVG.Ellipse = SVG.invent({
+    // Initialize node
+    create: 'ellipse'
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add parent method
+    , construct: {
+      // Create an ellipse
+      ellipse: function (width, height) {
+        return this.put(new SVG.Ellipse()).size(width, height).move(0, 0);
+      }
+    }
+  });
+
+  SVG.extend(SVG.Ellipse, SVG.Rect, SVG.FX, {
+    // Radius x value
+    rx: function (rx) {
+      return this.attr('rx', rx);
+    }
+    // Radius y value
+    , ry: function (ry) {
+      return this.attr('ry', ry);
+    }
+  });
+
+  // Add common method
+  SVG.extend(SVG.Circle, SVG.Ellipse, {
+    // Move over x-axis
+    x: function (x) {
+      return x == null ? this.cx() - this.rx() : this.cx(x + this.rx());
+    }
+    // Move over y-axis
+    , y: function (y) {
+      return y == null ? this.cy() - this.ry() : this.cy(y + this.ry());
+    }
+    // Move by center over x-axis
+    , cx: function (x) {
+      return x == null ? this.attr('cx') : this.attr('cx', x);
+    }
+    // Move by center over y-axis
+    , cy: function (y) {
+      return y == null ? this.attr('cy') : this.attr('cy', y);
+    }
+    // Set width of element
+    , width: function (width) {
+      return width == null ? this.rx() * 2 : this.rx(new SVG.Number(width).divide(2));
+    }
+    // Set height of element
+    , height: function (height) {
+      return height == null ? this.ry() * 2 : this.ry(new SVG.Number(height).divide(2));
+    }
+    // Custom size function
+    , size: function (width, height) {
+      var p = proportionalSize(this, width, height);
+
+      return this.rx(new SVG.Number(p.width).divide(2)).ry(new SVG.Number(p.height).divide(2));
+    }
+  });
+  SVG.Line = SVG.invent({
+    // Initialize node
+    create: 'line'
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add class methods
+    , extend: {
+      // Get array
+      array: function () {
+        return new SVG.PointArray([[this.attr('x1'), this.attr('y1')], [this.attr('x2'), this.attr('y2')]]);
+      }
+      // Overwrite native plot() method
+      , plot: function (x1, y1, x2, y2) {
+        if (x1 == null) return this.array();else if (typeof y1 !== 'undefined') x1 = { x1: x1, y1: y1, x2: x2, y2: y2 };else x1 = new SVG.PointArray(x1).toLine();
+
+        return this.attr(x1);
+      }
+      // Move by left top corner
+      , move: function (x, y) {
+        return this.attr(this.array().move(x, y).toLine());
+      }
+      // Set element size to given width and height
+      , size: function (width, height) {
+        var p = proportionalSize(this, width, height);
+
+        return this.attr(this.array().size(p.width, p.height).toLine());
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create a line element
+      line: function (x1, y1, x2, y2) {
+        // make sure plot is called as a setter
+        // x1 is not necessarily a number, it can also be an array, a string and a SVG.PointArray
+        return SVG.Line.prototype.plot.apply(this.put(new SVG.Line()), x1 != null ? [x1, y1, x2, y2] : [0, 0, 0, 0]);
+      }
+    }
+  });
+
+  SVG.Polyline = SVG.invent({
+    // Initialize node
+    create: 'polyline'
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add parent method
+    , construct: {
+      // Create a wrapped polyline element
+      polyline: function (p) {
+        // make sure plot is called as a setter
+        return this.put(new SVG.Polyline()).plot(p || new SVG.PointArray());
+      }
+    }
+  });
+
+  SVG.Polygon = SVG.invent({
+    // Initialize node
+    create: 'polygon'
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add parent method
+    , construct: {
+      // Create a wrapped polygon element
+      polygon: function (p) {
+        // make sure plot is called as a setter
+        return this.put(new SVG.Polygon()).plot(p || new SVG.PointArray());
+      }
+    }
+  });
+
+  // Add polygon-specific functions
+  SVG.extend(SVG.Polyline, SVG.Polygon, {
+    // Get array
+    array: function () {
+      return this._array || (this._array = new SVG.PointArray(this.attr('points')));
+    }
+    // Plot new path
+    , plot: function (p) {
+      return p == null ? this.array() : this.clear().attr('points', typeof p == 'string' ? p : this._array = new SVG.PointArray(p));
+    }
+    // Clear array cache
+    , clear: function () {
+      delete this._array;
+      return this;
+    }
+    // Move by left top corner
+    , move: function (x, y) {
+      return this.attr('points', this.array().move(x, y));
+    }
+    // Set element size to given width and height
+    , size: function (width, height) {
+      var p = proportionalSize(this, width, height);
+
+      return this.attr('points', this.array().size(p.width, p.height));
+    }
+
+  });
+
+  // unify all point to point elements
+  SVG.extend(SVG.Line, SVG.Polyline, SVG.Polygon, {
+    // Define morphable array
+    morphArray: SVG.PointArray
+    // Move by left top corner over x-axis
+    , x: function (x) {
+      return x == null ? this.bbox().x : this.move(x, this.bbox().y);
+    }
+    // Move by left top corner over y-axis
+    , y: function (y) {
+      return y == null ? this.bbox().y : this.move(this.bbox().x, y);
+    }
+    // Set width of element
+    , width: function (width) {
+      var b = this.bbox();
+
+      return width == null ? b.width : this.size(width, b.height);
+    }
+    // Set height of element
+    , height: function (height) {
+      var b = this.bbox();
+
+      return height == null ? b.height : this.size(b.width, height);
+    }
+  });
+  SVG.Path = SVG.invent({
+    // Initialize node
+    create: 'path'
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add class methods
+    , extend: {
+      // Define morphable array
+      morphArray: SVG.PathArray
+      // Get array
+      , array: function () {
+        return this._array || (this._array = new SVG.PathArray(this.attr('d')));
+      }
+      // Plot new path
+      , plot: function (d) {
+        return d == null ? this.array() : this.clear().attr('d', typeof d == 'string' ? d : this._array = new SVG.PathArray(d));
+      }
+      // Clear array cache
+      , clear: function () {
+        delete this._array;
+        return this;
+      }
+      // Move by left top corner
+      , move: function (x, y) {
+        return this.attr('d', this.array().move(x, y));
+      }
+      // Move by left top corner over x-axis
+      , x: function (x) {
+        return x == null ? this.bbox().x : this.move(x, this.bbox().y);
+      }
+      // Move by left top corner over y-axis
+      , y: function (y) {
+        return y == null ? this.bbox().y : this.move(this.bbox().x, y);
+      }
+      // Set element size to given width and height
+      , size: function (width, height) {
+        var p = proportionalSize(this, width, height);
+
+        return this.attr('d', this.array().size(p.width, p.height));
+      }
+      // Set width of element
+      , width: function (width) {
+        return width == null ? this.bbox().width : this.size(width, this.bbox().height);
+      }
+      // Set height of element
+      , height: function (height) {
+        return height == null ? this.bbox().height : this.size(this.bbox().width, height);
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create a wrapped path element
+      path: function (d) {
+        // make sure plot is called as a setter
+        return this.put(new SVG.Path()).plot(d || new SVG.PathArray());
+      }
+    }
+  });
+
+  SVG.Image = SVG.invent({
+    // Initialize node
+    create: 'image'
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add class methods
+    , extend: {
+      // (re)load image
+      load: function (url) {
+        if (!url) return this;
+
+        var self = this,
+            img = new window.Image();
+
+        // preload image
+        SVG.on(img, 'load', function () {
+          SVG.off(img);
+
+          var p = self.parent(SVG.Pattern);
+
+          if (p === null) return;
+
+          // ensure image size
+          if (self.width() == 0 && self.height() == 0) self.size(img.width, img.height);
+
+          // ensure pattern size if not set
+          if (p && p.width() == 0 && p.height() == 0) p.size(self.width(), self.height());
+
+          // callback
+          if (typeof self._loaded === 'function') self._loaded.call(self, {
+            width: img.width,
+            height: img.height,
+            ratio: img.width / img.height,
+            url: url
+          });
+        });
+
+        SVG.on(img, 'error', function (e) {
+          SVG.off(img);
+
+          if (typeof self._error === 'function') {
+            self._error.call(self, e);
+          }
+        });
+
+        return this.attr('href', img.src = this.src = url, SVG.xlink);
+      }
+      // Add loaded callback
+      , loaded: function (loaded) {
+        this._loaded = loaded;
+        return this;
+      },
+
+      error: function (error) {
+        this._error = error;
+        return this;
+      }
+
+      // Add parent method
+    }, construct: {
+      // create image element, load image and set its size
+      image: function (source, width, height) {
+        return this.put(new SVG.Image()).load(source).size(width || 0, height || width || 0);
+      }
+    }
+
+  });
+  SVG.Text = SVG.invent({
+    // Initialize node
+    create: function () {
+      this.constructor.call(this, SVG.create('text'));
+
+      this.dom.leading = new SVG.Number(1.3); // store leading value for rebuilding
+      this._rebuild = true; // enable automatic updating of dy values
+      this._build = false; // disable build mode for adding multiple lines
+
+      // set default font
+      this.attr('font-family', SVG.defaults.attrs['font-family']);
+    }
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add class methods
+    , extend: {
+      // Move over x-axis
+      x: function (x) {
+        // act as getter
+        if (x == null) return this.attr('x');
+
+        return this.attr('x', x);
+      }
+      // Move over y-axis
+      , y: function (y) {
+        var oy = this.attr('y'),
+            o = typeof oy === 'number' ? oy - this.bbox().y : 0;
+
+        // act as getter
+        if (y == null) return typeof oy === 'number' ? oy - o : oy;
+
+        return this.attr('y', typeof y.valueOf() === 'number' ? y + o : y);
+      }
+      // Move center over x-axis
+      , cx: function (x) {
+        return x == null ? this.bbox().cx : this.x(x - this.bbox().width / 2);
+      }
+      // Move center over y-axis
+      , cy: function (y) {
+        return y == null ? this.bbox().cy : this.y(y - this.bbox().height / 2);
+      }
+      // Set the text content
+      , text: function (text) {
+        // act as getter
+        if (typeof text === 'undefined') {
+          var text = '';
+          var children = this.node.childNodes;
+          for (var i = 0, len = children.length; i < len; ++i) {
+
+            // add newline if its not the first child and newLined is set to true
+            if (i != 0 && children[i].nodeType != 3 && SVG.adopt(children[i]).dom.newLined == true) {
+              text += '\n';
+            }
+
+            // add content of this node
+            text += children[i].textContent;
+          }
+
+          return text;
+        }
+
+        // remove existing content
+        this.clear().build(true);
+
+        if (typeof text === 'function') {
+          // call block
+          text.call(this, this);
+        } else {
+          // store text and make sure text is not blank
+          text = text.split('\n');
+
+          // build new lines
+          for (var i = 0, il = text.length; i < il; i++) this.tspan(text[i]).newLine();
+        }
+
+        // disable build mode and rebuild lines
+        return this.build(false).rebuild();
+      }
+      // Set font size
+      , size: function (size) {
+        return this.attr('font-size', size).rebuild();
+      }
+      // Set / get leading
+      , leading: function (value) {
+        // act as getter
+        if (value == null) return this.dom.leading;
+
+        // act as setter
+        this.dom.leading = new SVG.Number(value);
+
+        return this.rebuild();
+      }
+      // Get all the first level lines
+      , lines: function () {
+        var node = (this.textPath && this.textPath() || this).node;
+
+        // filter tspans and map them to SVG.js instances
+        var lines = SVG.utils.map(SVG.utils.filterSVGElements(node.childNodes), function (el) {
+          return SVG.adopt(el);
+        });
+
+        // return an instance of SVG.set
+        return new SVG.Set(lines);
+      }
+      // Rebuild appearance type
+      , rebuild: function (rebuild) {
+        // store new rebuild flag if given
+        if (typeof rebuild == 'boolean') this._rebuild = rebuild;
+
+        // define position of all lines
+        if (this._rebuild) {
+          var self = this,
+              blankLineOffset = 0,
+              dy = this.dom.leading * new SVG.Number(this.attr('font-size'));
+
+          this.lines().each(function () {
+            if (this.dom.newLined) {
+              if (!self.textPath()) this.attr('x', self.attr('x'));
+              if (this.text() == '\n') {
+                blankLineOffset += dy;
+              } else {
+                this.attr('dy', dy + blankLineOffset);
+                blankLineOffset = 0;
+              }
+            }
+          });
+
+          this.fire('rebuild');
+        }
+
+        return this;
+      }
+      // Enable / disable build mode
+      , build: function (build) {
+        this._build = !!build;
+        return this;
+      }
+      // overwrite method from parent to set data properly
+      , setData: function (o) {
+        this.dom = o;
+        this.dom.leading = new SVG.Number(o.leading || 1.3);
+        return this;
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create text element
+      text: function (text) {
+        return this.put(new SVG.Text()).text(text);
+      }
+      // Create plain text element
+      , plain: function (text) {
+        return this.put(new SVG.Text()).plain(text);
+      }
+    }
+
+  });
+
+  SVG.Tspan = SVG.invent({
+    // Initialize node
+    create: 'tspan'
+
+    // Inherit from
+    , inherit: SVG.Shape
+
+    // Add class methods
+    , extend: {
+      // Set text content
+      text: function (text) {
+        if (text == null) return this.node.textContent + (this.dom.newLined ? '\n' : '');
+
+        typeof text === 'function' ? text.call(this, this) : this.plain(text);
+
+        return this;
+      }
+      // Shortcut dx
+      , dx: function (dx) {
+        return this.attr('dx', dx);
+      }
+      // Shortcut dy
+      , dy: function (dy) {
+        return this.attr('dy', dy);
+      }
+      // Create new line
+      , newLine: function () {
+        // fetch text parent
+        var t = this.parent(SVG.Text);
+
+        // mark new line
+        this.dom.newLined = true;
+
+        // apply new hy¡n
+        return this.dy(t.dom.leading * t.attr('font-size')).attr('x', t.x());
+      }
+    }
+
+  });
+
+  SVG.extend(SVG.Text, SVG.Tspan, {
+    // Create plain text node
+    plain: function (text) {
+      // clear if build mode is disabled
+      if (this._build === false) this.clear();
+
+      // create text node
+      this.node.appendChild(document.createTextNode(text));
+
+      return this;
+    }
+    // Create a tspan
+    , tspan: function (text) {
+      var node = (this.textPath && this.textPath() || this).node,
+          tspan = new SVG.Tspan();
+
+      // clear if build mode is disabled
+      if (this._build === false) this.clear();
+
+      // add new tspan
+      node.appendChild(tspan.node);
+
+      return tspan.text(text);
+    }
+    // Clear all lines
+    , clear: function () {
+      var node = (this.textPath && this.textPath() || this).node;
+
+      // remove existing child nodes
+      while (node.hasChildNodes()) node.removeChild(node.lastChild);
+
+      return this;
+    }
+    // Get length of text element
+    , length: function () {
+      return this.node.getComputedTextLength();
+    }
+  });
+
+  SVG.TextPath = SVG.invent({
+    // Initialize node
+    create: 'textPath'
+
+    // Inherit from
+    , inherit: SVG.Parent
+
+    // Define parent class
+    , parent: SVG.Text
+
+    // Add parent method
+    , construct: {
+      morphArray: SVG.PathArray
+      // Create path for text to run on
+      , path: function (d) {
+        // create textPath element
+        var path = new SVG.TextPath(),
+            track = this.doc().defs().path(d);
+
+        // move lines to textpath
+        while (this.node.hasChildNodes()) path.node.appendChild(this.node.firstChild);
+
+        // add textPath element as child node
+        this.node.appendChild(path.node);
+
+        // link textPath to path and add content
+        path.attr('href', '#' + track, SVG.xlink);
+
+        return this;
+      }
+      // return the array of the path track element
+      , array: function () {
+        var track = this.track();
+
+        return track ? track.array() : null;
+      }
+      // Plot path if any
+      , plot: function (d) {
+        var track = this.track(),
+            pathArray = null;
+
+        if (track) {
+          pathArray = track.plot(d);
+        }
+
+        return d == null ? pathArray : this;
+      }
+      // Get the path track element
+      , track: function () {
+        var path = this.textPath();
+
+        if (path) return path.reference('href');
+      }
+      // Get the textPath child
+      , textPath: function () {
+        if (this.node.firstChild && this.node.firstChild.nodeName == 'textPath') return SVG.adopt(this.node.firstChild);
+      }
+    }
+  });
+
+  SVG.Nested = SVG.invent({
+    // Initialize node
+    create: function () {
+      this.constructor.call(this, SVG.create('svg'));
+
+      this.style('overflow', 'visible');
+    }
+
+    // Inherit from
+    , inherit: SVG.Container
+
+    // Add parent method
+    , construct: {
+      // Create nested svg document
+      nested: function () {
+        return this.put(new SVG.Nested());
+      }
+    }
+  });
+  SVG.A = SVG.invent({
+    // Initialize node
+    create: 'a'
+
+    // Inherit from
+    , inherit: SVG.Container
+
+    // Add class methods
+    , extend: {
+      // Link url
+      to: function (url) {
+        return this.attr('href', url, SVG.xlink);
+      }
+      // Link show attribute
+      , show: function (target) {
+        return this.attr('show', target, SVG.xlink);
+      }
+      // Link target attribute
+      , target: function (target) {
+        return this.attr('target', target);
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create a hyperlink element
+      link: function (url) {
+        return this.put(new SVG.A()).to(url);
+      }
+    }
+  });
+
+  SVG.extend(SVG.Element, {
+    // Create a hyperlink element
+    linkTo: function (url) {
+      var link = new SVG.A();
+
+      if (typeof url == 'function') url.call(link, link);else link.to(url);
+
+      return this.parent().put(link).put(this);
+    }
+
+  });
+  SVG.Marker = SVG.invent({
+    // Initialize node
+    create: 'marker'
+
+    // Inherit from
+    , inherit: SVG.Container
+
+    // Add class methods
+    , extend: {
+      // Set width of element
+      width: function (width) {
+        return this.attr('markerWidth', width);
+      }
+      // Set height of element
+      , height: function (height) {
+        return this.attr('markerHeight', height);
+      }
+      // Set marker refX and refY
+      , ref: function (x, y) {
+        return this.attr('refX', x).attr('refY', y);
+      }
+      // Update marker
+      , update: function (block) {
+        // remove all content
+        this.clear();
+
+        // invoke passed block
+        if (typeof block == 'function') block.call(this, this);
+
+        return this;
+      }
+      // Return the fill id
+      , toString: function () {
+        return 'url(#' + this.id() + ')';
+      }
+
+      // Add parent method
+    }, construct: {
+      marker: function (width, height, block) {
+        // Create marker element in defs
+        return this.defs().marker(width, height, block);
+      }
+    }
+
+  });
+
+  SVG.extend(SVG.Defs, {
+    // Create marker
+    marker: function (width, height, block) {
+      // Set default viewbox to match the width and height, set ref to cx and cy and set orient to auto
+      return this.put(new SVG.Marker()).size(width, height).ref(width / 2, height / 2).viewbox(0, 0, width, height).attr('orient', 'auto').update(block);
+    }
+
+  });
+
+  SVG.extend(SVG.Line, SVG.Polyline, SVG.Polygon, SVG.Path, {
+    // Create and attach markers
+    marker: function (marker, width, height, block) {
+      var attr = ['marker'];
+
+      // Build attribute name
+      if (marker != 'all') attr.push(marker);
+      attr = attr.join('-');
+
+      // Set marker attribute
+      marker = arguments[1] instanceof SVG.Marker ? arguments[1] : this.doc().marker(width, height, block);
+
+      return this.attr(attr, marker);
+    }
+
+  });
+  // Define list of available attributes for stroke and fill
+  var sugar = {
+    stroke: ['color', 'width', 'opacity', 'linecap', 'linejoin', 'miterlimit', 'dasharray', 'dashoffset'],
+    fill: ['color', 'opacity', 'rule'],
+    prefix: function (t, a) {
+      return a == 'color' ? t : t + '-' + a;
+    }
+
+    // Add sugar for fill and stroke
+  };['fill', 'stroke'].forEach(function (m) {
+    var i,
+        extension = {};
+
+    extension[m] = function (o) {
+      if (typeof o == 'undefined') return this;
+      if (typeof o == 'string' || SVG.Color.isRgb(o) || o && typeof o.fill === 'function') this.attr(m, o);else
+        // set all attributes from sugar.fill and sugar.stroke list
+        for (i = sugar[m].length - 1; i >= 0; i--) if (o[sugar[m][i]] != null) this.attr(sugar.prefix(m, sugar[m][i]), o[sugar[m][i]]);
+
+      return this;
+    };
+
+    SVG.extend(SVG.Element, SVG.FX, extension);
+  });
+
+  SVG.extend(SVG.Element, SVG.FX, {
+    // Map rotation to transform
+    rotate: function (d, cx, cy) {
+      return this.transform({ rotation: d, cx: cx, cy: cy });
+    }
+    // Map skew to transform
+    , skew: function (x, y, cx, cy) {
+      return arguments.length == 1 || arguments.length == 3 ? this.transform({ skew: x, cx: y, cy: cx }) : this.transform({ skewX: x, skewY: y, cx: cx, cy: cy });
+    }
+    // Map scale to transform
+    , scale: function (x, y, cx, cy) {
+      return arguments.length == 1 || arguments.length == 3 ? this.transform({ scale: x, cx: y, cy: cx }) : this.transform({ scaleX: x, scaleY: y, cx: cx, cy: cy });
+    }
+    // Map translate to transform
+    , translate: function (x, y) {
+      return this.transform({ x: x, y: y });
+    }
+    // Map flip to transform
+    , flip: function (a, o) {
+      o = typeof a == 'number' ? a : o;
+      return this.transform({ flip: a || 'both', offset: o });
+    }
+    // Map matrix to transform
+    , matrix: function (m) {
+      return this.attr('transform', new SVG.Matrix(arguments.length == 6 ? [].slice.call(arguments) : m));
+    }
+    // Opacity
+    , opacity: function (value) {
+      return this.attr('opacity', value);
+    }
+    // Relative move over x axis
+    , dx: function (x) {
+      return this.x(new SVG.Number(x).plus(this instanceof SVG.FX ? 0 : this.x()), true);
+    }
+    // Relative move over y axis
+    , dy: function (y) {
+      return this.y(new SVG.Number(y).plus(this instanceof SVG.FX ? 0 : this.y()), true);
+    }
+    // Relative move over x and y axes
+    , dmove: function (x, y) {
+      return this.dx(x).dy(y);
+    }
+  });
+
+  SVG.extend(SVG.Rect, SVG.Ellipse, SVG.Circle, SVG.Gradient, SVG.FX, {
+    // Add x and y radius
+    radius: function (x, y) {
+      var type = (this._target || this).type;
+      return type == 'radial' || type == 'circle' ? this.attr('r', new SVG.Number(x)) : this.rx(x).ry(y == null ? x : y);
+    }
+  });
+
+  SVG.extend(SVG.Path, {
+    // Get path length
+    length: function () {
+      return this.node.getTotalLength();
+    }
+    // Get point at length
+    , pointAt: function (length) {
+      return this.node.getPointAtLength(length);
+    }
+  });
+
+  SVG.extend(SVG.Parent, SVG.Text, SVG.Tspan, SVG.FX, {
+    // Set font
+    font: function (a, v) {
+      if (typeof a == 'object') {
+        for (v in a) this.font(v, a[v]);
+      }
+
+      return a == 'leading' ? this.leading(v) : a == 'anchor' ? this.attr('text-anchor', v) : a == 'size' || a == 'family' || a == 'weight' || a == 'stretch' || a == 'variant' || a == 'style' ? this.attr('font-' + a, v) : this.attr(a, v);
+    }
+  });
+
+  SVG.Set = SVG.invent({
+    // Initialize
+    create: function (members) {
+      if (members instanceof SVG.Set) {
+        this.members = members.members.slice();
+      } else {
+        Array.isArray(members) ? this.members = members : this.clear();
+      }
+    }
+
+    // Add class methods
+    , extend: {
+      // Add element to set
+      add: function () {
+        var i,
+            il,
+            elements = [].slice.call(arguments);
+
+        for (i = 0, il = elements.length; i < il; i++) this.members.push(elements[i]);
+
+        return this;
+      }
+      // Remove element from set
+      , remove: function (element) {
+        var i = this.index(element);
+
+        // remove given child
+        if (i > -1) this.members.splice(i, 1);
+
+        return this;
+      }
+      // Iterate over all members
+      , each: function (block) {
+        for (var i = 0, il = this.members.length; i < il; i++) block.apply(this.members[i], [i, this.members]);
+
+        return this;
+      }
+      // Restore to defaults
+      , clear: function () {
+        // initialize store
+        this.members = [];
+
+        return this;
+      }
+      // Get the length of a set
+      , length: function () {
+        return this.members.length;
+      }
+      // Checks if a given element is present in set
+      , has: function (element) {
+        return this.index(element) >= 0;
+      }
+      // retuns index of given element in set
+      , index: function (element) {
+        return this.members.indexOf(element);
+      }
+      // Get member at given index
+      , get: function (i) {
+        return this.members[i];
+      }
+      // Get first member
+      , first: function () {
+        return this.get(0);
+      }
+      // Get last member
+      , last: function () {
+        return this.get(this.members.length - 1);
+      }
+      // Default value
+      , valueOf: function () {
+        return this.members;
+      }
+      // Get the bounding box of all members included or empty box if set has no items
+      , bbox: function () {
+        // return an empty box of there are no members
+        if (this.members.length == 0) return new SVG.RBox();
+
+        // get the first rbox and update the target bbox
+        var rbox = this.members[0].rbox(this.members[0].doc());
+
+        this.each(function () {
+          // user rbox for correct position and visual representation
+          rbox = rbox.merge(this.rbox(this.doc()));
+        });
+
+        return rbox;
+      }
+
+      // Add parent method
+    }, construct: {
+      // Create a new set
+      set: function (members) {
+        return new SVG.Set(members);
+      }
+    }
+  });
+
+  SVG.FX.Set = SVG.invent({
+    // Initialize node
+    create: function (set) {
+      // store reference to set
+      this.set = set;
+    }
+
+  });
+
+  // Alias methods
+  SVG.Set.inherit = function () {
+    var m,
+        methods = [];
+
+    // gather shape methods
+    for (var m in SVG.Shape.prototype) if (typeof SVG.Shape.prototype[m] == 'function' && typeof SVG.Set.prototype[m] != 'function') methods.push(m);
+
+    // apply shape aliasses
+    methods.forEach(function (method) {
+      SVG.Set.prototype[method] = function () {
+        for (var i = 0, il = this.members.length; i < il; i++) if (this.members[i] && typeof this.members[i][method] == 'function') this.members[i][method].apply(this.members[i], arguments);
+
+        return method == 'animate' ? this.fx || (this.fx = new SVG.FX.Set(this)) : this;
+      };
+    });
+
+    // clear methods for the next round
+    methods = [];
+
+    // gather fx methods
+    for (var m in SVG.FX.prototype) if (typeof SVG.FX.prototype[m] == 'function' && typeof SVG.FX.Set.prototype[m] != 'function') methods.push(m);
+
+    // apply fx aliasses
+    methods.forEach(function (method) {
+      SVG.FX.Set.prototype[method] = function () {
+        for (var i = 0, il = this.set.members.length; i < il; i++) this.set.members[i].fx[method].apply(this.set.members[i].fx, arguments);
+
+        return this;
+      };
+    });
+  };
+
+  SVG.extend(SVG.Element, {
+    // Store data values on svg nodes
+    data: function (a, v, r) {
+      if (typeof a == 'object') {
+        for (v in a) this.data(v, a[v]);
+      } else if (arguments.length < 2) {
+        try {
+          return JSON.parse(this.attr('data-' + a));
+        } catch (e) {
+          return this.attr('data-' + a);
+        }
+      } else {
+        this.attr('data-' + a, v === null ? null : r === true || typeof v === 'string' || typeof v === 'number' ? v : JSON.stringify(v));
+      }
+
+      return this;
+    }
+  });
+  SVG.extend(SVG.Element, {
+    // Remember arbitrary data
+    remember: function (k, v) {
+      // remember every item in an object individually
+      if (typeof arguments[0] == 'object') for (var v in k) this.remember(v, k[v]);
+
+      // retrieve memory
+      else if (arguments.length == 1) return this.memory()[k];
+
+        // store memory
+        else this.memory()[k] = v;
+
+      return this;
+    }
+
+    // Erase a given memory
+    , forget: function () {
+      if (arguments.length == 0) this._memory = {};else for (var i = arguments.length - 1; i >= 0; i--) delete this.memory()[arguments[i]];
+
+      return this;
+    }
+
+    // Initialize or return local memory object
+    , memory: function () {
+      return this._memory || (this._memory = {});
+    }
+
+  });
+  // Method for getting an element by id
+  SVG.get = function (id) {
+    var node = document.getElementById(idFromReference(id) || id);
+    return SVG.adopt(node);
+  };
+
+  // Select elements by query string
+  SVG.select = function (query, parent) {
+    return new SVG.Set(SVG.utils.map((parent || document).querySelectorAll(query), function (node) {
+      return SVG.adopt(node);
+    }));
+  };
+
+  SVG.extend(SVG.Parent, {
+    // Scoped select method
+    select: function (query) {
+      return SVG.select(query, this.node);
+    }
+
+  });
+  function pathRegReplace(a, b, c, d) {
+    return c + d.replace(SVG.regex.dots, ' .');
+  }
+
+  // creates deep clone of array
+  function array_clone(arr) {
+    var clone = arr.slice(0);
+    for (var i = clone.length; i--;) {
+      if (Array.isArray(clone[i])) {
+        clone[i] = array_clone(clone[i]);
+      }
+    }
+    return clone;
+  }
+
+  // tests if a given element is instance of an object
+  function is(el, obj) {
+    return el instanceof obj;
+  }
+
+  // tests if a given selector matches an element
+  function matches(el, selector) {
+    return (el.matches || el.matchesSelector || el.msMatchesSelector || el.mozMatchesSelector || el.webkitMatchesSelector || el.oMatchesSelector).call(el, selector);
+  }
+
+  // Convert dash-separated-string to camelCase
+  function camelCase(s) {
+    return s.toLowerCase().replace(/-(.)/g, function (m, g) {
+      return g.toUpperCase();
+    });
+  }
+
+  // Capitalize first letter of a string
+  function capitalize(s) {
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  // Ensure to six-based hex
+  function fullHex(hex) {
+    return hex.length == 4 ? ['#', hex.substring(1, 2), hex.substring(1, 2), hex.substring(2, 3), hex.substring(2, 3), hex.substring(3, 4), hex.substring(3, 4)].join('') : hex;
+  }
+
+  // Component to hex value
+  function compToHex(comp) {
+    var hex = comp.toString(16);
+    return hex.length == 1 ? '0' + hex : hex;
+  }
+
+  // Calculate proportional width and height values when necessary
+  function proportionalSize(element, width, height) {
+    if (width == null || height == null) {
+      var box = element.bbox();
+
+      if (width == null) width = box.width / box.height * height;else if (height == null) height = box.height / box.width * width;
+    }
+
+    return {
+      width: width,
+      height: height
+    };
+  }
+
+  // Delta transform point
+  function deltaTransformPoint(matrix, x, y) {
+    return {
+      x: x * matrix.a + y * matrix.c + 0,
+      y: x * matrix.b + y * matrix.d + 0
+    };
+  }
+
+  // Map matrix array to object
+  function arrayToMatrix(a) {
+    return { a: a[0], b: a[1], c: a[2], d: a[3], e: a[4], f: a[5] };
+  }
+
+  // Parse matrix if required
+  function parseMatrix(matrix) {
+    if (!(matrix instanceof SVG.Matrix)) matrix = new SVG.Matrix(matrix);
+
+    return matrix;
+  }
+
+  // Add centre point to transform object
+  function ensureCentre(o, target) {
+    o.cx = o.cx == null ? target.bbox().cx : o.cx;
+    o.cy = o.cy == null ? target.bbox().cy : o.cy;
+  }
+
+  // PathArray Helpers
+  function arrayToString(a) {
+    for (var i = 0, il = a.length, s = ''; i < il; i++) {
+      s += a[i][0];
+
+      if (a[i][1] != null) {
+        s += a[i][1];
+
+        if (a[i][2] != null) {
+          s += ' ';
+          s += a[i][2];
+
+          if (a[i][3] != null) {
+            s += ' ';
+            s += a[i][3];
+            s += ' ';
+            s += a[i][4];
+
+            if (a[i][5] != null) {
+              s += ' ';
+              s += a[i][5];
+              s += ' ';
+              s += a[i][6];
+
+              if (a[i][7] != null) {
+                s += ' ';
+                s += a[i][7];
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return s + ' ';
+  }
+
+  // Deep new id assignment
+  function assignNewId(node) {
+    // do the same for SVG child nodes as well
+    for (var i = node.childNodes.length - 1; i >= 0; i--) if (node.childNodes[i] instanceof window.SVGElement) assignNewId(node.childNodes[i]);
+
+    return SVG.adopt(node).id(SVG.eid(node.nodeName));
+  }
+
+  // Add more bounding box properties
+  function fullBox(b) {
+    if (b.x == null) {
+      b.x = 0;
+      b.y = 0;
+      b.width = 0;
+      b.height = 0;
+    }
+
+    b.w = b.width;
+    b.h = b.height;
+    b.x2 = b.x + b.width;
+    b.y2 = b.y + b.height;
+    b.cx = b.x + b.width / 2;
+    b.cy = b.y + b.height / 2;
+
+    return b;
+  }
+
+  // Get id from reference string
+  function idFromReference(url) {
+    var m = (url || '').toString().match(SVG.regex.reference);
+
+    if (m) return m[1];
+  }
+
+  // If values like 1e-88 are passed, this is not a valid 32 bit float,
+  // but in those cases, we are so close to 0 that 0 works well!
+  function float32String(v) {
+    return Math.abs(v) > 1e-37 ? v : 0;
+  }
+
+  // Create matrix array for looping
+  var abcdef = 'abcdef'.split('');
+
+  // Add CustomEvent to IE9 and IE10
+  if (typeof window.CustomEvent !== 'function') {
+    // Code from: https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent
+    var CustomEventPoly = function (event, options) {
+      options = options || { bubbles: false, cancelable: false, detail: undefined };
+      var e = document.createEvent('CustomEvent');
+      e.initCustomEvent(event, options.bubbles, options.cancelable, options.detail);
+      return e;
+    };
+
+    CustomEventPoly.prototype = window.Event.prototype;
+
+    SVG.CustomEvent = CustomEventPoly;
+  } else {
+    SVG.CustomEvent = window.CustomEvent;
+  }
+
+  // requestAnimationFrame / cancelAnimationFrame Polyfill with fallback based on Paul Irish
+  (function (w) {
+    var lastTime = 0;
+    var vendors = ['moz', 'webkit'];
+
+    for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+      w.requestAnimationFrame = w[vendors[x] + 'RequestAnimationFrame'];
+      w.cancelAnimationFrame = w[vendors[x] + 'CancelAnimationFrame'] || w[vendors[x] + 'CancelRequestAnimationFrame'];
+    }
+
+    w.requestAnimationFrame = w.requestAnimationFrame || function (callback) {
+      var currTime = new Date().getTime();
+      var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+
+      var id = w.setTimeout(function () {
+        callback(currTime + timeToCall);
+      }, timeToCall);
+
+      lastTime = currTime + timeToCall;
+      return id;
+    };
+
+    w.cancelAnimationFrame = w.cancelAnimationFrame || w.clearTimeout;
+  })(window);
+
+  return SVG;
+});
 
 /***/ })
 
 /******/ });
+//# sourceMappingURL=client.bundle.js.map
