@@ -1,7 +1,7 @@
 # Token Simulation for the Camunda Modeler
 
 [![Build Status](https://travis-ci.com/bpmn-io/bpmn-js-token-simulation-plugin.svg?branch=master)](https://travis-ci.com/bpmn-io/bpmn-js-token-simulation-plugin)
-[![Compatible with Camunda Modeler version 2.2](https://img.shields.io/badge/Camunda%20Modeler-2.2+-brightgreen.svg)](https://github.com/camunda/camunda-modeler)
+[![Compatible with Camunda Modeler version 2.2](https://img.shields.io/badge/Camunda%20Modeler-2.2+-blue.svg)](https://github.com/camunda/camunda-modeler)
 
 [bpmn-js-token-simulation](https://github.com/bpmn-io/bpmn-js-token-simulation) as a plugin for the [Camunda Modeler](https://camunda.org/bpmn/tool/).
 
