@@ -1552,7 +1552,54 @@ var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/b
 
 function KeyboardBindings(eventBus, injector) {
 
+  var editorActions = injector.get('editorActions', false),
+      keyboard = injector.get('keyboard', false);
+
+  if (!keyboard || !editorActions) {
+    return;
+  }
+
   var isActive = false;
+
+  function handleKeyEvent(keyEvent) {
+    if (isKey(['t', 'T'], keyEvent)) {
+      editorActions.trigger('toggleTokenSimulation');
+
+      return true;
+    }
+
+    if (!isActive) {
+      return;
+    }
+
+    if (isKey(['l', 'L'], keyEvent)) {
+      editorActions.trigger('toggleTokenSimulationLog');
+
+      return true;
+    }
+
+    // see https://developer.mozilla.org/de/docs/Web/API/KeyboardEvent/key/Key_Values#Whitespace_keys
+    if (isKey([' ', 'Spacebar'], keyEvent)) {
+      editorActions.trigger('togglePauseTokenSimulation');
+
+      return true;
+    }
+
+    if (isKey(['r', 'R'], keyEvent)) {
+      editorActions.trigger('resetTokenSimulation');
+
+      return true;
+    }
+  }
+
+  eventBus.on('keyboard.init', function () {
+
+    keyboard.addListener(VERY_HIGH_PRIORITY, function (event) {
+      var keyEvent = event.keyEvent;
+
+      handleKeyEvent(keyEvent);
+    });
+  });
 
   eventBus.on(TOGGLE_MODE_EVENT, function (context) {
     var simulationModeActive = context.simulationModeActive;
@@ -1561,51 +1608,6 @@ function KeyboardBindings(eventBus, injector) {
       isActive = true;
     } else {
       isActive = false;
-    }
-  });
-
-  eventBus.on('import.done', function () {
-
-    function handleKeyEvent(keyEvent) {
-      if (isKey(['t', 'T'], keyEvent)) {
-        editorActions.trigger('toggleTokenSimulation');
-
-        return true;
-      }
-
-      if (!isActive) {
-        return;
-      }
-
-      if (isKey(['l', 'L'], keyEvent)) {
-        editorActions.trigger('toggleTokenSimulationLog');
-
-        return true;
-      }
-
-      // see https://developer.mozilla.org/de/docs/Web/API/KeyboardEvent/key/Key_Values#Whitespace_keys
-      if (isKey([' ', 'Spacebar'], keyEvent)) {
-        editorActions.trigger('togglePauseTokenSimulation');
-
-        return true;
-      }
-
-      if (isKey(['r', 'R'], keyEvent)) {
-        editorActions.trigger('resetTokenSimulation');
-
-        return true;
-      }
-    }
-
-    var editorActions = injector.get('editorActions', false),
-        keyboard = injector.get('keyboard', false);
-
-    if (editorActions && keyboard && isKeyboardBound(keyboard)) {
-      keyboard.addListener(VERY_HIGH_PRIORITY, function (event) {
-        var keyEvent = event.keyEvent;
-
-        handleKeyEvent(keyEvent);
-      });
     }
   });
 }
@@ -1618,10 +1620,6 @@ module.exports = KeyboardBindings;
 
 function isKey(keys, event) {
   return keys.indexOf(event.key) > -1;
-}
-
-function isKeyboardBound(keyboard) {
-  return keyboard._config && keyboard._config.bindTo;
 }
 
 /***/ }),
@@ -4185,14 +4183,13 @@ module.exports = __webpack_require__(/*! ./TokenSimulationBehavior */ "./node_mo
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = {
-  __init__: ['animation', 'contextPads', 'disableModeling', 'elementNotifications', 'elementSupport', 'exclusiveGatewaySettings', 'keyboardBindings', 'log', 'notifications', 'pauseSimulation', 'preserveElementColors', 'processInstanceIds', 'processInstanceSettings', 'processInstances', 'resetSimulation', 'setAnimationSpeed', 'showProcessInstance', 'simulationState', 'toggleMode', 'tokenCount', 'tokenSimulationBehavior', 'tokenSimulationEditorActions', 'tokenSimulationPalette'],
+  __init__: ['animation', 'contextPads', 'disableModeling', 'elementNotifications', 'elementSupport', 'exclusiveGatewaySettings', 'log', 'notifications', 'pauseSimulation', 'preserveElementColors', 'processInstanceIds', 'processInstanceSettings', 'processInstances', 'resetSimulation', 'setAnimationSpeed', 'showProcessInstance', 'simulationState', 'toggleMode', 'tokenCount', 'tokenSimulationBehavior', 'tokenSimulationEditorActions', 'tokenSimulationKeyboardBindings', 'tokenSimulationPalette'],
   'animation': ['type', __webpack_require__(/*! ./animation/Animation */ "./node_modules/bpmn-js-token-simulation/lib/animation/Animation.js")],
   'contextPads': ['type', __webpack_require__(/*! ./features/context-pads */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/index.js")],
   'disableModeling': ['type', __webpack_require__(/*! ./features/disable-modeling */ "./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/index.js")],
   'elementNotifications': ['type', __webpack_require__(/*! ./features/element-notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js")],
   'elementSupport': ['type', __webpack_require__(/*! ./features/element-support */ "./node_modules/bpmn-js-token-simulation/lib/features/element-support/index.js")],
   'exclusiveGatewaySettings': ['type', __webpack_require__(/*! ./features/exclusive-gateway-settings */ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/index.js")],
-  'keyboardBindings': ['type', __webpack_require__(/*! ./features/keyboard-bindings */ "./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/index.js")],
   'log': ['type', __webpack_require__(/*! ./features/log */ "./node_modules/bpmn-js-token-simulation/lib/features/log/index.js")],
   'notifications': ['type', __webpack_require__(/*! ./features/notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js")],
   'pauseSimulation': ['type', __webpack_require__(/*! ./features/pause-simulation */ "./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/index.js")],
@@ -4208,6 +4205,7 @@ module.exports = {
   'tokenCount': ['type', __webpack_require__(/*! ./features/token-count */ "./node_modules/bpmn-js-token-simulation/lib/features/token-count/index.js")],
   'tokenSimulationBehavior': ['type', __webpack_require__(/*! ./features/token-simulation-behavior */ "./node_modules/bpmn-js-token-simulation/lib/features/token-simulation-behavior/index.js")],
   'tokenSimulationEditorActions': ['type', __webpack_require__(/*! ./features/editor-actions */ "./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/index.js")],
+  'tokenSimulationKeyboardBindings': ['type', __webpack_require__(/*! ./features/keyboard-bindings */ "./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/index.js")],
   'tokenSimulationPalette': ['type', __webpack_require__(/*! ./features/palette */ "./node_modules/bpmn-js-token-simulation/lib/features/palette/index.js")]
 };
 
@@ -4879,7 +4877,7 @@ function parse(html, doc) {
 /*!*************************************************!*\
   !*** ./node_modules/min-dash/dist/index.esm.js ***!
   \*************************************************/
-/*! exports provided: flatten, find, findIndex, filter, forEach, without, reduce, every, some, map, keys, size, values, groupBy, uniqueBy, unionBy, sortBy, matchPattern, debounce, bind, isUndefined, isDefined, isNil, isArray, isObject, isNumber, isFunction, isString, ensureArray, has, assign, pick, omit, merge */
+/*! exports provided: flatten, find, findIndex, filter, forEach, without, reduce, every, some, map, keys, size, values, groupBy, uniqueBy, unionBy, sortBy, matchPattern, debounce, throttle, bind, isUndefined, isDefined, isNil, isArray, isObject, isNumber, isFunction, isString, ensureArray, has, assign, pick, omit, merge */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -4903,6 +4901,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "sortBy", function() { return sortBy; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "matchPattern", function() { return matchPattern; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "debounce", function() { return debounce; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "throttle", function() { return throttle; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "bind", function() { return bind; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isUndefined", function() { return isUndefined; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "isDefined", function() { return isDefined; });
@@ -5352,18 +5351,6 @@ function toNum(arg) {
   return Number(arg);
 }
 
-function _toConsumableArray(arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) {
-      arr2[i] = arr[i];
-    }return arr2;
-  } else {
-    return Array.from(arr);
-  }
-}
-
-var slice = Array.prototype.slice;
-
 /**
  * Debounce fn, calling it only once if
  * the given time elapsed between calls.
@@ -5377,17 +5364,73 @@ function debounce(fn, timeout) {
 
   var timer;
 
-  return function () {
+  var lastArgs;
+  var lastThis;
 
-    var args = slice.call(arguments);
+  var lastNow;
 
-    if (timer) {
-      clearTimeout(timer);
+  function fire() {
+
+    var now = Date.now();
+
+    var scheduledDiff = lastNow + timeout - now;
+
+    if (scheduledDiff > 0) {
+      return schedule(scheduledDiff);
     }
 
-    timer = setTimeout(function () {
-      fn.apply(undefined, _toConsumableArray(args));
-    }, timeout);
+    fn.apply(lastThis, lastArgs);
+
+    timer = lastNow = lastArgs = lastThis = undefined;
+  }
+
+  function schedule(timeout) {
+    timer = setTimeout(fire, timeout);
+  }
+
+  return function () {
+
+    lastNow = Date.now();
+
+    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    lastArgs = args;
+    lastThis = this;
+
+    // ensure an execution is scheduled
+    if (!timer) {
+      schedule(timeout);
+    }
+  };
+}
+
+/**
+ * Throttle fn, calling at most once
+ * in the given interval.
+ *
+ * @param  {Function} fn
+ * @param  {Number} interval
+ *
+ * @return {Function} throttled function
+ */
+function throttle(fn, interval) {
+
+  var throttling = false;
+
+  return function () {
+
+    if (throttling) {
+      return;
+    }
+
+    fn.apply(undefined, arguments);
+    throttling = true;
+
+    setTimeout(function () {
+      throttling = false;
+    }, interval);
   };
 }
 
