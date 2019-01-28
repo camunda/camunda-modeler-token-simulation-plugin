@@ -20,7 +20,7 @@ function HideModelerElements(eventBus) {
     var simulationModeActive = context.simulationModeActive;
 
     var propertiesPanel = domQuery('.properties');
-    var xmlTab = domQuery('.tabs a.tab:not(.active)');
+    var xmlTab = domQuery('[data-tab-id="xml"') || domQuery('.tabs a.tab:not(.active)');
 
     if (simulationModeActive) {
       domClasses(propertiesPanel).add('hidden');
