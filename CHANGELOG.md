@@ -6,6 +6,10 @@ All notable changes to the [bpmn-js-token-simulation-plugin](https://github.com/
 
 ___Note:__ Yet to be released changes appear here._
 
+## 0.9.0
+
+* `CHORE`: support Camunda Modeler v3.x.x
+
 ## 0.8.0
 
 * `CHORE`: support Camunda Modeler v2.1.0 ([#13](https://github.com/bpmn-io/bpmn-js-token-simulation-plugin/pull/13))
