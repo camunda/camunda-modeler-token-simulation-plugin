@@ -18,6 +18,11 @@
 
 This plug-in is compatible with Camunda Modeler `v2.2+`.
 
+## Additional Resources
+
+* [List of existing plug-ins](https://github.com/camunda/camunda-modeler-plugins)
+* [Plugins documentation](https://github.com/camunda/camunda-modeler/tree/master/docs/plugins)
+* [Plugin starter project](https://github.com/camunda/camunda-modeler-plugin-example)
 
 ## Licence
 
