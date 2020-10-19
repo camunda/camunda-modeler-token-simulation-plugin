@@ -191,6 +191,8 @@ var isAncestor = __webpack_require__(/*! ../util/ElementHelper */ "./node_module
 var geometryUtil = __webpack_require__(/*! ../util/GeometryUtil */ "./node_modules/bpmn-js-token-simulation/lib/util/GeometryUtil.js"),
     distance = geometryUtil.distance;
 
+var STROKE_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--token-simulation-green-base-44');
+
 function isFirstSegment(index) {
   return index === 1;
 }
@@ -338,7 +340,7 @@ Animation.prototype.setAnimationSpeed = function (speed) {
 Animation.prototype._createTokenGfx = function (processInstanceId) {
   var parent = this.group.group().attr('class', 'token').hide();
 
-  parent.circle(TOKEN_SIZE, TOKEN_SIZE).attr('fill', '#52b415').attr('class', 'circle');
+  parent.circle(TOKEN_SIZE, TOKEN_SIZE).attr('fill', STROKE_COLOR).attr('class', 'circle');
 
   parent.text(processInstanceId.toString()).attr('transform', 'translate(10, -7)').attr('text-anchor', 'middle').attr('class', 'text');
 
@@ -1409,7 +1411,8 @@ var is = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpm
 var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
 
-var NO_CONFIGURATION_COLOR = '#999';
+var NOT_SELECTED_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--token-simulation-grey-lighten-56'),
+    SELECTED_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--token-simulation-grey-darken-30');
 
 function getNext(gateway) {
   var outgoing = gateway.outgoing.filter(isSequenceFlow);
@@ -1502,9 +1505,9 @@ ExclusiveGatewaySettings.prototype.setSequenceFlow = function (gateway) {
   // set colors
   gateway.outgoing.forEach(function (outgoing) {
     if (outgoing === gateway.sequenceFlow) {
-      self.setColor(outgoing, '#000');
+      self.setColor(outgoing, SELECTED_COLOR);
     } else {
-      self.setColor(outgoing, NO_CONFIGURATION_COLOR);
+      self.setColor(outgoing, NOT_SELECTED_COLOR);
     }
   });
 };
@@ -1679,18 +1682,22 @@ function Log(eventBus, notifications, tokenSimulationPalette, canvas) {
     var element = context.element,
         elementName = getElementName(element);
 
-    if (is(element, 'bpmn:StartEvent')) {
-      self.log(elementName || 'Start Event', 'info', 'bpmn-icon-start-event-none');
-    } else if (is(element, 'bpmn:Task')) {
-      self.log(elementName || 'Task', 'info', 'bpmn-icon-task');
-    } else if (is(element, 'bpmn:BusinessRuleTask')) {
+    if (is(element, 'bpmn:BusinessRuleTask')) {
       self.log(elementName || 'Business Rule Task', 'info', 'bpmn-icon-business-rule');
+    } else if (is(element, 'bpmn:CallActivity')) {
+      self.log(elementName || 'Call Activity', 'info', 'bpmn-icon-call-activity');
+    } else if (is(element, ['bpmn:IntermediateCatchEvent', 'bpmn:IntermediateThrowEvent'])) {
+      self.log(elementName || 'Intermediate Event', 'info', 'bpmn-icon-intermediate-event-none');
     } else if (is(element, 'bpmn:ManualTask')) {
       self.log(elementName || 'Manual Task', 'info', 'bpmn-icon-manual');
     } else if (is(element, 'bpmn:ScriptTask')) {
       self.log(elementName || 'Script Task', 'info', 'bpmn-icon-script');
     } else if (is(element, 'bpmn:ServiceTask')) {
       self.log(elementName || 'Service Task', 'info', 'bpmn-icon-service');
+    } else if (is(element, 'bpmn:StartEvent')) {
+      self.log(elementName || 'Start Event', 'info', 'bpmn-icon-start-event-none');
+    } else if (is(element, 'bpmn:Task')) {
+      self.log(elementName || 'Task', 'info', 'bpmn-icon-task');
     } else if (is(element, 'bpmn:UserTask')) {
       self.log(elementName || 'User Task', 'info', 'bpmn-icon-user');
     } else if (is(element, 'bpmn:ExclusiveGateway')) {
@@ -1707,8 +1714,6 @@ function Log(eventBus, notifications, tokenSimulationPalette, canvas) {
       }
 
       self.log(text, 'info', 'bpmn-icon-gateway-xor');
-    } else if (is(element, ['bpmn:IntermediateCatchEvent', 'bpmn:IntermediateThrowEvent'])) {
-      self.log(elementName || 'Intermediate Event', 'info', 'bpmn-icon-intermediate-event-none');
     }
   });
 
@@ -2781,6 +2786,9 @@ var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/b
     PROCESS_INSTANCE_HIDDEN_EVENT = events.PROCESS_INSTANCE_HIDDEN_EVENT,
     RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT;
 
+var FILL_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--token-simulation-silver-base-97'),
+    STROKE_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--token-simulation-green-base-44');
+
 function isNull(value) {
   return value === null;
 }
@@ -2911,7 +2919,7 @@ ShowProcessInstance.prototype.setInstanceHidden = function (processInstanceId) {
 };
 
 ShowProcessInstance.prototype.addHighlightToProcess = function (element) {
-  this.setColor(element, '#52b415', '#ecfbe3');
+  this.setColor(element, STROKE_COLOR, FILL_COLOR);
 
   if (!element.parent) {
     domClasses(this._canvas.getContainer()).add('highlight');
@@ -3090,7 +3098,7 @@ SimulationState.prototype.isFinished = function (element, processInstanceId) {
   var hasAnimations = false;
 
   this._animation.animations.forEach(function (animation) {
-    if (isAncestor(animation.element, parent) && animation.processInstanceId === processInstanceId) {
+    if (isAncestor(parent, animation.element) && animation.processInstanceId === processInstanceId) {
       hasAnimations = true;
     }
   });
@@ -3438,7 +3446,7 @@ function TokenSimulationBehavior(eventBus, animation, injector) {
   this.registerHandler('bpmn:StartEvent', StartEventHandler);
   this.registerHandler('bpmn:SubProcess', SubProcessHandler);
   this.registerHandler('bpmn:BoundaryEvent', BoundaryEventHandler);
-  this.registerHandler(['bpmn:BusinessRuleTask', 'bpmn:Task', 'bpmn:ManualTask', 'bpmn:ScriptTask', 'bpmn:ServiceTask', 'bpmn:UserTask'], TaskHandler);
+  this.registerHandler(['bpmn:BusinessRuleTask', 'bpmn:CallActivity', 'bpmn:ManualTask', 'bpmn:ScriptTask', 'bpmn:ServiceTask', 'bpmn:Task', 'bpmn:UserTask'], TaskHandler);
 
   // create animations on generate token
   eventBus.on(GENERATE_TOKEN_EVENT, function (context) {
@@ -4286,7 +4294,7 @@ module.exports.getDescendants = function (elements, ancestor) {
   });
 };
 
-module.exports.supportedElements = ['bpmn:Association', 'bpmn:BusinessRuleTask', 'bpmn:DataInputAssociation', 'bpmn:DataOutputAssociation', 'bpmn:DataObjectReference', 'bpmn:DataStoreReference', 'bpmn:EndEvent', 'bpmn:EventBasedGateway', 'bpmn:ExclusiveGateway', 'bpmn:IntermediateCatchEvent', 'bpmn:ManualTask', 'bpmn:ParallelGateway', 'bpmn:Process', 'bpmn:ScriptTask', 'bpmn:SequenceFlow', 'bpmn:ServiceTask', 'bpmn:StartEvent', 'bpmn:SubProcess', 'bpmn:Task', 'bpmn:TextAnnotation', 'bpmn:UserTask', 'bpmn:BoundaryEvent'];
+module.exports.supportedElements = ['bpmn:Association', 'bpmn:BoundaryEvent', 'bpmn:BusinessRuleTask', 'bpmn:CallActivity', 'bpmn:DataInputAssociation', 'bpmn:DataObjectReference', 'bpmn:DataOutputAssociation', 'bpmn:DataStoreReference', 'bpmn:EndEvent', 'bpmn:EventBasedGateway', 'bpmn:ExclusiveGateway', 'bpmn:IntermediateCatchEvent', 'bpmn:ManualTask', 'bpmn:ParallelGateway', 'bpmn:Process', 'bpmn:ScriptTask', 'bpmn:SequenceFlow', 'bpmn:ServiceTask', 'bpmn:StartEvent', 'bpmn:SubProcess', 'bpmn:Task', 'bpmn:TextAnnotation', 'bpmn:UserTask'];
 
 /***/ }),
 
@@ -4930,53 +4938,44 @@ function flatten(arr) {
 
 var nativeToString = Object.prototype.toString;
 var nativeHasOwnProperty = Object.prototype.hasOwnProperty;
-
 function isUndefined(obj) {
   return obj === undefined;
 }
-
 function isDefined(obj) {
   return obj !== undefined;
 }
-
 function isNil(obj) {
   return obj == null;
 }
-
 function isArray(obj) {
   return nativeToString.call(obj) === '[object Array]';
 }
-
 function isObject(obj) {
   return nativeToString.call(obj) === '[object Object]';
 }
-
 function isNumber(obj) {
   return nativeToString.call(obj) === '[object Number]';
 }
-
 function isFunction(obj) {
-  return nativeToString.call(obj) === '[object Function]';
+  var tag = nativeToString.call(obj);
+  return tag === '[object Function]' || tag === '[object AsyncFunction]' || tag === '[object GeneratorFunction]' || tag === '[object AsyncGeneratorFunction]' || tag === '[object Proxy]';
 }
-
 function isString(obj) {
   return nativeToString.call(obj) === '[object String]';
 }
-
 /**
  * Ensure collection is an array.
  *
  * @param {Object} obj
  */
-function ensureArray(obj) {
 
+function ensureArray(obj) {
   if (isArray(obj)) {
     return;
   }
 
   throw new Error('must supply array');
 }
-
 /**
  * Return true, if target owns a property with the given key.
  *
@@ -4985,6 +4984,7 @@ function ensureArray(obj) {
  *
  * @return {Boolean}
  */
+
 function has(target, key) {
   return nativeHasOwnProperty.call(target, key);
 }
@@ -4997,23 +4997,18 @@ function has(target, key) {
  *
  * @return {Object}
  */
+
 function find(collection, matcher) {
-
   matcher = toMatcher(matcher);
-
   var match;
-
   forEach(collection, function (val, key) {
     if (matcher(val, key)) {
       match = val;
-
       return false;
     }
   });
-
   return match;
 }
-
 /**
  * Find element index in collection.
  *
@@ -5022,23 +5017,18 @@ function find(collection, matcher) {
  *
  * @return {Object}
  */
+
 function findIndex(collection, matcher) {
-
   matcher = toMatcher(matcher);
-
   var idx = isArray(collection) ? -1 : undefined;
-
   forEach(collection, function (val, key) {
     if (matcher(val, key)) {
       idx = key;
-
       return false;
     }
   });
-
   return idx;
 }
-
 /**
  * Find element in collection.
  *
@@ -5047,19 +5037,16 @@ function findIndex(collection, matcher) {
  *
  * @return {Array} result
  */
+
 function filter(collection, matcher) {
-
   var result = [];
-
   forEach(collection, function (val, key) {
     if (matcher(val, key)) {
       result.push(val);
     }
   });
-
   return result;
 }
-
 /**
  * Iterate over collection; returning something
  * (non-undefined) will stop iteration.
@@ -5069,7 +5056,9 @@ function filter(collection, matcher) {
  *
  * @return {Object} return result that stopped the iteration
  */
+
 function forEach(collection, iterator) {
+  var val, result;
 
   if (isUndefined(collection)) {
     return;
@@ -5078,19 +5067,16 @@ function forEach(collection, iterator) {
   var convertKey = isArray(collection) ? toNum : identity;
 
   for (var key in collection) {
-
     if (has(collection, key)) {
-      var val = collection[key];
-
-      var result = iterator(val, convertKey(key));
+      val = collection[key];
+      result = iterator(val, convertKey(key));
 
       if (result === false) {
-        return;
+        return val;
       }
     }
   }
 }
-
 /**
  * Return collection without element.
  *
@@ -5099,21 +5085,18 @@ function forEach(collection, iterator) {
  *
  * @return {Array}
  */
-function without(arr, matcher) {
 
+function without(arr, matcher) {
   if (isUndefined(arr)) {
     return [];
   }
 
   ensureArray(arr);
-
   matcher = toMatcher(matcher);
-
   return arr.filter(function (el, idx) {
     return !matcher(el, idx);
   });
 }
-
 /**
  * Reduce collection, returning a single result.
  *
@@ -5123,15 +5106,13 @@ function without(arr, matcher) {
  *
  * @return {Any} result returned from last iterator
  */
-function reduce(collection, iterator, result) {
 
+function reduce(collection, iterator, result) {
   forEach(collection, function (value, idx) {
     result = iterator(result, value, idx);
   });
-
   return result;
 }
-
 /**
  * Return true if every element in the collection
  * matches the criteria.
@@ -5141,13 +5122,12 @@ function reduce(collection, iterator, result) {
  *
  * @return {Boolean}
  */
-function every(collection, matcher) {
 
-  return reduce(collection, function (matches, val, key) {
+function every(collection, matcher) {
+  return !!reduce(collection, function (matches, val, key) {
     return matches && matcher(val, key);
   }, true);
 }
-
 /**
  * Return true if some elements in the collection
  * match the criteria.
@@ -5157,11 +5137,10 @@ function every(collection, matcher) {
  *
  * @return {Boolean}
  */
-function some(collection, matcher) {
 
+function some(collection, matcher) {
   return !!find(collection, matcher);
 }
-
 /**
  * Transform a collection into another collection
  * by piping each member through the given fn.
@@ -5171,17 +5150,14 @@ function some(collection, matcher) {
  *
  * @return {Array} transformed collection
  */
+
 function map(collection, fn) {
-
   var result = [];
-
   forEach(collection, function (val, key) {
     result.push(fn(val, key));
   });
-
   return result;
 }
-
 /**
  * Get the collections keys.
  *
@@ -5189,10 +5165,10 @@ function map(collection, fn) {
  *
  * @return {Array}
  */
+
 function keys(collection) {
   return collection && Object.keys(collection) || [];
 }
-
 /**
  * Shorthand for `keys(o).length`.
  *
@@ -5200,10 +5176,10 @@ function keys(collection) {
  *
  * @return {Number}
  */
+
 function size(collection) {
   return keys(collection).length;
 }
-
 /**
  * Get the values in the collection.
  *
@@ -5211,12 +5187,12 @@ function size(collection) {
  *
  * @return {Array}
  */
+
 function values(collection) {
   return map(collection, function (val) {
     return val;
   });
 }
-
 /**
  * Group collection members by attribute.
  *
@@ -5225,14 +5201,12 @@ function values(collection) {
  *
  * @return {Object} map with { attrValue => [ a, b, c ] }
  */
+
 function groupBy(collection, extractor) {
   var grouped = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-
   extractor = toExtractor(extractor);
-
   forEach(collection, function (val) {
     var discriminator = extractor(val) || '_';
-
     var group = grouped[discriminator];
 
     if (!group) {
@@ -5241,33 +5215,25 @@ function groupBy(collection, extractor) {
 
     group.push(val);
   });
-
   return grouped;
 }
-
 function uniqueBy(extractor) {
-
   extractor = toExtractor(extractor);
-
   var grouped = {};
 
-  for (var _len = arguments.length, collections = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+  for (var _len = arguments.length, collections = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
     collections[_key - 1] = arguments[_key];
   }
 
   forEach(collections, function (c) {
     return groupBy(c, extractor, grouped);
   });
-
   var result = map(grouped, function (val, key) {
     return val[0];
   });
-
   return result;
 }
-
 var unionBy = uniqueBy;
-
 /**
  * Sort collection by criteria.
  *
@@ -5276,15 +5242,12 @@ var unionBy = uniqueBy;
  *
  * @return {Array}
  */
+
 function sortBy(collection, extractor) {
-
   extractor = toExtractor(extractor);
-
   var sorted = [];
-
   forEach(collection, function (value, key) {
     var disc = extractor(value, key);
-
     var entry = {
       d: disc,
       v: value
@@ -5297,17 +5260,15 @@ function sortBy(collection, extractor) {
         sorted.splice(idx, 0, entry);
         return;
       }
-    }
+    } // not inserted, append (!)
 
-    // not inserted, append (!)
+
     sorted.push(entry);
   });
-
   return map(sorted, function (e) {
     return e.v;
   });
 }
-
 /**
  * Create an object pattern matcher.
  *
@@ -5321,10 +5282,9 @@ function sortBy(collection, extractor) {
  *
  * @return {Function} matcherFn
  */
+
 function matchPattern(pattern) {
-
   return function (el) {
-
     return every(pattern, function (val, key) {
       return el[key] === val;
     });
@@ -5361,18 +5321,13 @@ function toNum(arg) {
  * @return {Function} debounced function
  */
 function debounce(fn, timeout) {
-
   var timer;
-
   var lastArgs;
   var lastThis;
-
   var lastNow;
 
   function fire() {
-
     var now = Date.now();
-
     var scheduledDiff = lastNow + timeout - now;
 
     if (scheduledDiff > 0) {
@@ -5380,7 +5335,6 @@ function debounce(fn, timeout) {
     }
 
     fn.apply(lastThis, lastArgs);
-
     timer = lastNow = lastArgs = lastThis = undefined;
   }
 
@@ -5389,23 +5343,20 @@ function debounce(fn, timeout) {
   }
 
   return function () {
-
     lastNow = Date.now();
 
-    for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
     }
 
     lastArgs = args;
-    lastThis = this;
+    lastThis = this; // ensure an execution is scheduled
 
-    // ensure an execution is scheduled
     if (!timer) {
       schedule(timeout);
     }
   };
 }
-
 /**
  * Throttle fn, calling at most once
  * in the given interval.
@@ -5415,25 +5366,21 @@ function debounce(fn, timeout) {
  *
  * @return {Function} throttled function
  */
+
 function throttle(fn, interval) {
-
   var throttling = false;
-
   return function () {
-
     if (throttling) {
       return;
     }
 
-    fn.apply(undefined, arguments);
+    fn.apply(void 0, arguments);
     throttling = true;
-
     setTimeout(function () {
       throttling = false;
     }, interval);
   };
 }
-
 /**
  * Bind function against target <this>.
  *
@@ -5442,19 +5389,28 @@ function throttle(fn, interval) {
  *
  * @return {Function} bound function
  */
+
 function bind(fn, target) {
   return fn.bind(target);
 }
 
-var _extends = Object.assign || function (target) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i];for (var key in source) {
-      if (Object.prototype.hasOwnProperty.call(source, key)) {
-        target[key] = source[key];
+function _extends() {
+  _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
       }
     }
-  }return target;
-};
+
+    return target;
+  };
+
+  return _extends.apply(this, arguments);
+}
 
 /**
  * Convenience wrapper for `Object.assign`.
@@ -5464,14 +5420,14 @@ var _extends = Object.assign || function (target) {
  *
  * @return {Object} the target
  */
+
 function assign(target) {
-  for (var _len = arguments.length, others = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+  for (var _len = arguments.length, others = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
     others[_key - 1] = arguments[_key];
   }
 
-  return _extends.apply(undefined, [target].concat(others));
+  return _extends.apply(void 0, [target].concat(others));
 }
-
 /**
  * Pick given properties from the target object.
  *
@@ -5480,22 +5436,17 @@ function assign(target) {
  *
  * @return {Object} target
  */
+
 function pick(target, properties) {
-
   var result = {};
-
   var obj = Object(target);
-
   forEach(properties, function (prop) {
-
     if (prop in obj) {
       result[prop] = target[prop];
     }
   });
-
   return result;
 }
-
 /**
  * Pick all target properties, excluding the given ones.
  *
@@ -5504,22 +5455,17 @@ function pick(target, properties) {
  *
  * @return {Object} target
  */
+
 function omit(target, properties) {
-
   var result = {};
-
   var obj = Object(target);
-
   forEach(obj, function (prop, key) {
-
     if (properties.indexOf(key) === -1) {
       result[key] = prop;
     }
   });
-
   return result;
 }
-
 /**
  * Recursively merge `...sources` into given target.
  *
@@ -5530,8 +5476,9 @@ function omit(target, properties) {
  *
  * @return {Object} the target
  */
+
 function merge(target) {
-  for (var _len2 = arguments.length, sources = Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+  for (var _len2 = arguments.length, sources = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
     sources[_key2 - 1] = arguments[_key2];
   }
 
@@ -5540,18 +5487,19 @@ function merge(target) {
   }
 
   forEach(sources, function (source) {
-
     // skip non-obj sources, i.e. null
     if (!source || !isObject(source)) {
       return;
     }
 
     forEach(source, function (sourceVal, key) {
+      if (key === '__proto__') {
+        return;
+      }
 
       var targetVal = target[key];
 
       if (isObject(sourceVal)) {
-
         if (!isObject(targetVal)) {
           // override target[key] with object
           targetVal = {};
@@ -5563,7 +5511,6 @@ function merge(target) {
       }
     });
   });
-
   return target;
 }
 
