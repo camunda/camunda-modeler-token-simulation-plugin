@@ -30,7 +30,7 @@
     "webpack-cli": "^3.3.12"
   },
   "dependencies": {
-    "bpmn-js-token-simulation": "^0.10.0",
+    "bpmn-js-token-simulation": "^0.11.1",
     "camunda-modeler-plugin-helpers": "^2.1.0",
     "min-dom": "^3.1.3"
   }
