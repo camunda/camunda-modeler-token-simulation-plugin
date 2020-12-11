@@ -6,6 +6,10 @@ All notable changes to the [bpmn-js-token-simulation-plugin](https://github.com/
 
 ___Note:__ Yet to be released changes appear here._
 
+## 0.11.0
+
+* `CHORE`: bump to `bpmn-js-token-simulation@0.11.0`
+
 ## 0.10.1
 
 * `FIX`: update token simulation styles ([#18](https://github.com/bpmn-io/bpmn-js-token-simulation-plugin/issues/18))
