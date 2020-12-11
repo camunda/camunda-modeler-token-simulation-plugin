@@ -176,7 +176,7 @@ module.exports = __webpack_require__(/*! ./lib/modeler */ "./node_modules/bpmn-j
 
 var SVG = __webpack_require__(/*! svg.js */ "./node_modules/svg.js/dist/svg.js");
 
-var domQuery = __webpack_require__(/*! min-dom/lib/query */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js");
+var domQuery = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").query;
 
 var events = __webpack_require__(/*! ../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
     RESET_SIMULATION_EVENT = events.RESET_SIMULATION_EVENT,
@@ -193,18 +193,31 @@ var geometryUtil = __webpack_require__(/*! ../util/GeometryUtil */ "./node_modul
 
 var STROKE_COLOR = getComputedStyle(document.documentElement).getPropertyValue('--token-simulation-green-base-44');
 
-function isFirstSegment(index) {
-  return index === 1;
-}
+function getSegmentEasing(index, waypoints) {
 
-function isSingleSegment(waypoints) {
-  return waypoints.length == 2;
+  // only a single segment
+  if (waypoints.length === 2) {
+    return EASE_IN_OUT;
+  }
+
+  // first segment
+  if (index === 1) {
+    return EASE_IN;
+  }
+
+  // last segment
+  if (index === waypoints.length - 1) {
+    return EASE_OUT;
+  }
+
+  return EASE_LINEAR;
 }
 
 var DELAY = 0;
 
 var EASE_LINEAR = '-',
     EASE_IN = '<',
+    EASE_OUT = '>',
     EASE_IN_OUT = '<>';
 
 var TOKEN_SIZE = 20;
@@ -331,7 +344,7 @@ Animation.prototype.createAnimation = function (connection, processInstanceId, d
 
 Animation.prototype.setAnimationSpeed = function (speed) {
   this.animations.forEach(function (animation) {
-    animation.tokenGfx.fx._speed = speed;
+    animation.animation.setTokenSpeed(speed);
   });
 
   this.animationSpeed = speed;
@@ -389,18 +402,28 @@ _Animation.prototype.create = function () {
 
   gfx.show().move(waypoints[0].x - TOKEN_SIZE / 2, waypoints[0].y - TOKEN_SIZE / 2);
 
+  var totalLength = waypoints.reduce(function (length, waypoint, index) {
+
+    var lastWaypoint = waypoints[index - 1];
+
+    if (lastWaypoint) {
+
+      length += distance(lastWaypoint, waypoint);
+    }
+
+    return length;
+  }, 0);
+
+  var todalDuration = 1250;
+
   waypoints.forEach(function (waypoint, index) {
     if (index > 0) {
       var x = waypoint.x - TOKEN_SIZE / 2,
           y = waypoint.y - TOKEN_SIZE / 2;
 
-      var ease = isFirstSegment(index) ? EASE_IN : EASE_LINEAR;
+      var ease = getSegmentEasing(index, waypoints);
 
-      if (isSingleSegment(waypoints)) {
-        ease = EASE_IN_OUT;
-      }
-
-      var duration = distance(waypoints[index - 1], waypoint) * 20;
+      var duration = distance(waypoints[index - 1], waypoint) / totalLength * todalDuration;
 
       fx = fx.animate(duration, ease, DELAY).move(x, y);
     }
@@ -424,6 +447,10 @@ _Animation.prototype.pause = function () {
 _Animation.prototype.stop = function () {
   this.fx.stop();
   this.gfx.remove();
+};
+
+_Animation.prototype.setTokenSpeed = function (speed) {
+  this.fx._speed = speed;
 };
 
 /***/ }),
@@ -475,6 +502,7 @@ function ContextPads(eventBus, elementRegistry, overlays, injector, canvas, proc
 
   this.registerHandler('bpmn:ExclusiveGateway', ExclusiveGatewayHandler);
   this.registerHandler('bpmn:IntermediateCatchEvent', IntermediateCatchEventHandler);
+  this.registerHandler('bpmn:ReceiveTask', IntermediateCatchEventHandler);
   this.registerHandler('bpmn:SubProcess', ProcessHandler);
   this.registerHandler('bpmn:SubProcess', BoundaryEventHandler);
   this.registerHandler('bpmn:StartEvent', StartEventHandler);
@@ -634,6 +662,10 @@ ContextPads.prototype.closeElementContextPads = function (element) {
   delete this.overlayIds[element.id];
 };
 
+ContextPads.prototype.get = function (element) {
+  return this.overlayIds[element.id || element];
+};
+
 ContextPads.$inject = ['eventBus', 'elementRegistry', 'overlays', 'injector', 'canvas', 'processInstances'];
 
 module.exports = ContextPads;
@@ -650,8 +682,8 @@ module.exports = ContextPads;
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event;
 
 var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
 
@@ -670,8 +702,12 @@ BoundaryEventHandler.prototype.createContextPads = function (element) {
     return;
   }
 
-  if (!this._processInstances.getProcessInstances(element).length) {
-    return;
+  var processInstances = this._processInstances.getProcessInstances(element).filter(function (instance) {
+    return !instance.isFinished;
+  });
+
+  if (!processInstances.length) {
+    return [];
   }
 
   var incomingSequenceFlows = element.incoming.filter(function (incoming) {
@@ -748,8 +784,8 @@ module.exports = BoundaryEventHandler;
 
 var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event;
 
 function ExclusiveGatewayHandler(exluciveGatewaySettings) {
   this._exclusiveGatewaySettings = exluciveGatewaySettings;
@@ -794,8 +830,8 @@ module.exports = ExclusiveGatewayHandler;
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event;
 
 var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
 
@@ -885,8 +921,8 @@ module.exports = IntermeditateCatchEventHandler;
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event;
 
 /**
  * Is used for subprocesses and participants.
@@ -935,8 +971,8 @@ module.exports = ProcessHandler;
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event;
 
 var is = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
 
@@ -1191,7 +1227,7 @@ module.exports = __webpack_require__(/*! ./EditorActions */ "./node_modules/bpmn
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify;
 
 var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
@@ -1289,7 +1325,7 @@ module.exports = __webpack_require__(/*! ./ElementNotifications */ "./node_modul
 "use strict";
 
 
-var domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js");
+var domClasses = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").classes;
 
 var elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
     is = elementHelper.is,
@@ -1299,7 +1335,7 @@ var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/b
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
     GENERATE_TOKEN_EVENT = events.GENERATE_TOKEN_EVENT;
 
-var IGNORED_ELEMENTS = ['bpmn:Process', 'bpmn:Collaboration', 'bpmn:Participant', 'bpmn:Lane', 'bpmn:TextAnnotation'];
+var IGNORED_ELEMENTS = ['bpmn:Process', 'bpmn:Collaboration', 'bpmn:Participant', 'bpmn:Lane', 'bpmn:TextAnnotation', 'bpmn:MessageFlow', 'bpmn:Group'];
 
 function isLabel(element) {
   return element.labelTarget;
@@ -1513,6 +1549,8 @@ ExclusiveGatewaySettings.prototype.setSequenceFlow = function (gateway) {
 };
 
 ExclusiveGatewaySettings.prototype.setColor = function (sequenceFlow, color) {
+
+  var label = sequenceFlow.label;
   var businessObject = sequenceFlow.businessObject;
 
   businessObject.di.set('stroke', color);
@@ -1520,6 +1558,10 @@ ExclusiveGatewaySettings.prototype.setColor = function (sequenceFlow, color) {
   var gfx = this._elementRegistry.getGraphics(sequenceFlow);
 
   this._graphicsFactory.update('connection', sequenceFlow, gfx);
+
+  if (label) {
+    this._graphicsFactory.update('connection', label, this._elementRegistry.getGraphics(label));
+  }
 };
 
 ExclusiveGatewaySettings.$inject = ['eventBus', 'elementRegistry', 'graphicsFactory'];
@@ -1648,10 +1690,10 @@ module.exports = __webpack_require__(/*! ./KeyboardBindings */ "./node_modules/b
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js"),
-    domQuery = __webpack_require__(/*! min-dom/lib/query */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domClasses = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").classes,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event,
+    domQuery = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").query;
 
 var elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
     getBusinessObject = elementHelper.getBusinessObject,
@@ -1874,7 +1916,7 @@ module.exports = __webpack_require__(/*! ./Log */ "./node_modules/bpmn-js-token-
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify;
 
 var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
@@ -1964,8 +2006,8 @@ module.exports = __webpack_require__(/*! ./Notifications */ "./node_modules/bpmn
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domClasses = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").classes;
 
 var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
@@ -2040,9 +2082,9 @@ module.exports = __webpack_require__(/*! ./Palette */ "./node_modules/bpmn-js-to
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domClasses = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").classes,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event;
 
 var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
@@ -2588,9 +2630,9 @@ module.exports = __webpack_require__(/*! ./ProcessInstances */ "./node_modules/b
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domClasses = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").classes,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event;
 
 var is = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js").is;
 
@@ -2679,10 +2721,11 @@ module.exports = __webpack_require__(/*! ./ResetSimulation */ "./node_modules/bp
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js"),
-    domQuery = __webpack_require__(/*! min-dom/lib/query */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domClasses = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").classes,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event,
+    domQuery = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").query,
+    domQueryAll = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").queryAll;
 
 var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
@@ -2738,7 +2781,7 @@ SetAnimationSpeed.prototype._init = function () {
 };
 
 SetAnimationSpeed.prototype.setActive = function (element) {
-  domQuery.all('.animation-speed-button', this.container).forEach(function (button) {
+  domQueryAll('.animation-speed-button', this.container).forEach(function (button) {
     domClasses(button).remove('active');
   });
 
@@ -2772,11 +2815,11 @@ module.exports = __webpack_require__(/*! ./SetAnimationSpeed */ "./node_modules/
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js"),
-    domQuery = __webpack_require__(/*! min-dom/lib/query */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js"),
-    domClear = __webpack_require__(/*! min-dom/lib/clear */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/clear.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domClasses = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").classes,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event,
+    domQuery = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").query,
+    domClear = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").clear;
 
 var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT,
@@ -2988,6 +3031,7 @@ var events = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/b
 var VERY_LOW_PRIORITY = 250;
 
 function SimulationState(eventBus, animation, elementRegistry, log, elementNotifications, canvas, processInstances) {
+
   // var self = this;
 
   this._animation = animation;
@@ -2998,6 +3042,7 @@ function SimulationState(eventBus, animation, elementRegistry, log, elementNotif
   this._processInstances = processInstances;
 
   eventBus.on(CONSUME_TOKEN_EVENT, VERY_LOW_PRIORITY, function () {
+
     // self.isDeadlock();
   });
 }
@@ -3075,36 +3120,37 @@ SimulationState.prototype.isDeadlock = function () {
   }
 };
 
+SimulationState.prototype.hasTokens = function (scopeElement, processInstanceId) {
+  return scopeElement.children.reduce(function (hasTokens, element) {
+    return hasTokens || element.tokenCount && element.tokenCount[processInstanceId];
+  }, false);
+};
+
+SimulationState.prototype.hasAnimations = function (scopeElement, processInstanceId) {
+  return this._animation.animations.reduce(function (hasAnimations, animation) {
+    return hasAnimations || isAncestor(scopeElement, animation.element) && animation.processInstanceId === processInstanceId;
+  }, false);
+};
+
 /**
  * Check if process instance finished.
  * Element is necessary to display element notification if finished.
  */
 SimulationState.prototype.isFinished = function (element, processInstanceId) {
   var processInstance = this._processInstances.getProcessInstance(processInstanceId);
-  var parent = processInstance.parent;
 
-  var hasTokens = false;
+  var scopeElement = processInstance.parent;
 
-  if (!parent) {
-    parent = this._canvas.getRootElement();
+  if (!scopeElement) {
+    scopeElement = this._canvas.getRootElement();
   }
 
-  parent.children.forEach(function (element) {
-    if (element.tokenCount && element.tokenCount[processInstanceId] && element.tokenCount[processInstanceId].length) {
-      hasTokens = true;
-    }
-  });
+  var hasTokens = this.hasTokens(scopeElement, processInstanceId);
 
-  var hasAnimations = false;
-
-  this._animation.animations.forEach(function (animation) {
-    if (isAncestor(parent, animation.element) && animation.processInstanceId === processInstanceId) {
-      hasAnimations = true;
-    }
-  });
+  var hasAnimations = this.hasAnimations(scopeElement, processInstanceId);
 
   if (!hasTokens && !hasAnimations) {
-    if (is(parent, 'bpmn:SubProcess')) {
+    if (is(scopeElement, 'bpmn:SubProcess')) {
       this._log.log('Subprocess ' + processInstanceId + ' finished', 'info', 'fa-check-circle');
     } else {
       this._log.log('Process ' + processInstanceId + ' finished', 'success', 'fa-check-circle');
@@ -3147,10 +3193,10 @@ module.exports = __webpack_require__(/*! ./SimulationState */ "./node_modules/bp
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js"),
-    domClasses = __webpack_require__(/*! min-dom/lib/classes */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js"),
-    domEvent = __webpack_require__(/*! min-dom/lib/event */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js"),
-    domQuery = __webpack_require__(/*! min-dom/lib/query */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify,
+    domClasses = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").classes,
+    domEvent = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").event,
+    domQuery = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").query;
 
 var events = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"),
     TOGGLE_MODE_EVENT = events.TOGGLE_MODE_EVENT;
@@ -3242,7 +3288,7 @@ module.exports = __webpack_require__(/*! ./ToggleMode.js */ "./node_modules/bpmn
 "use strict";
 
 
-var domify = __webpack_require__(/*! min-dom/lib/domify */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js");
+var domify = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js").domify;
 
 var elementHelper = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"),
     isAncestor = elementHelper.isAncestor;
@@ -3440,13 +3486,13 @@ function TokenSimulationBehavior(eventBus, animation, injector) {
   this.registerHandler('bpmn:EndEvent', EndEventHandler);
   this.registerHandler('bpmn:EventBasedGateway', EventBasedGatewayHandler);
   this.registerHandler('bpmn:ExclusiveGateway', ExclusiveGatewayHandler);
-  this.registerHandler('bpmn:IntermediateCatchEvent', IntermediateCatchEventHandler);
+  this.registerHandler(['bpmn:IntermediateCatchEvent', 'bpmn:ReceiveTask'], IntermediateCatchEventHandler);
   this.registerHandler('bpmn:IntermediateThrowEvent', IntermediateThrowEventHandler);
   this.registerHandler('bpmn:ParallelGateway', ParallelGatewayHandler);
   this.registerHandler('bpmn:StartEvent', StartEventHandler);
   this.registerHandler('bpmn:SubProcess', SubProcessHandler);
   this.registerHandler('bpmn:BoundaryEvent', BoundaryEventHandler);
-  this.registerHandler(['bpmn:BusinessRuleTask', 'bpmn:CallActivity', 'bpmn:ManualTask', 'bpmn:ScriptTask', 'bpmn:ServiceTask', 'bpmn:Task', 'bpmn:UserTask'], TaskHandler);
+  this.registerHandler(['bpmn:BusinessRuleTask', 'bpmn:CallActivity', 'bpmn:ManualTask', 'bpmn:ScriptTask', 'bpmn:SendTask', 'bpmn:ServiceTask', 'bpmn:Task', 'bpmn:UserTask'], TaskHandler);
 
   // create animations on generate token
   eventBus.on(GENERATE_TOKEN_EVENT, function (context) {
@@ -3799,6 +3845,7 @@ IntermediateCatchEventHandler.prototype.consume = function (context) {
   element.tokenCount[processInstanceId]++;
 
   this._eventBus.fire(UPDATE_ELEMENT_EVENT, {
+    processInstanceId: processInstanceId,
     element: element
   });
 };
@@ -3829,6 +3876,7 @@ IntermediateCatchEventHandler.prototype.generate = function (context) {
   });
 
   this._eventBus.fire(UPDATE_ELEMENTS_EVENT, {
+    processInstanceId: processInstanceId,
     elements: events
   });
 };
@@ -3860,23 +3908,27 @@ function IntermediateThrowEventHandler(animation, eventBus) {
   this._eventBus = eventBus;
 }
 
-IntermediateThrowEventHandler.prototype.consume = function (element) {
-  this._eventBus.fire(GENERATE_TOKEN_EVENT, {
-    element: element
-  });
+IntermediateThrowEventHandler.prototype.consume = function (context) {
+
+  // fire to generate token on self
+  this._eventBus.fire(GENERATE_TOKEN_EVENT, context);
 };
 
-IntermediateThrowEventHandler.prototype.generate = function (element) {
+IntermediateThrowEventHandler.prototype.generate = function (context) {
   var self = this;
+
+  var element = context.element,
+      processInstanceId = context.processInstanceId;
 
   var outgoingSequenceFlows = element.outgoing.filter(function (outgoing) {
     return is(outgoing, 'bpmn:SequenceFlow');
   });
 
-  outgoingSequenceFlows.forEach(function (connection) {
-    self._animation.createAnimation(connection, function () {
+  outgoingSequenceFlows.forEach(function (outgoing) {
+    self._animation.createAnimation(outgoing, processInstanceId, function () {
       self._eventBus.fire(CONSUME_TOKEN_EVENT, {
-        element: connection.target
+        element: outgoing.target,
+        processInstanceId: processInstanceId
       });
     });
   });
@@ -4294,7 +4346,7 @@ module.exports.getDescendants = function (elements, ancestor) {
   });
 };
 
-module.exports.supportedElements = ['bpmn:Association', 'bpmn:BoundaryEvent', 'bpmn:BusinessRuleTask', 'bpmn:CallActivity', 'bpmn:DataInputAssociation', 'bpmn:DataObjectReference', 'bpmn:DataOutputAssociation', 'bpmn:DataStoreReference', 'bpmn:EndEvent', 'bpmn:EventBasedGateway', 'bpmn:ExclusiveGateway', 'bpmn:IntermediateCatchEvent', 'bpmn:ManualTask', 'bpmn:ParallelGateway', 'bpmn:Process', 'bpmn:ScriptTask', 'bpmn:SequenceFlow', 'bpmn:ServiceTask', 'bpmn:StartEvent', 'bpmn:SubProcess', 'bpmn:Task', 'bpmn:TextAnnotation', 'bpmn:UserTask'];
+module.exports.supportedElements = ['bpmn:Association', 'bpmn:BoundaryEvent', 'bpmn:BusinessRuleTask', 'bpmn:CallActivity', 'bpmn:DataInputAssociation', 'bpmn:DataObjectReference', 'bpmn:DataOutputAssociation', 'bpmn:DataStoreReference', 'bpmn:EndEvent', 'bpmn:EventBasedGateway', 'bpmn:ExclusiveGateway', 'bpmn:IntermediateCatchEvent', 'bpmn:IntermediateThrowEvent', 'bpmn:ManualTask', 'bpmn:ParallelGateway', 'bpmn:Process', 'bpmn:ScriptTask', 'bpmn:SendTask', 'bpmn:ReceiveTask', 'bpmn:SequenceFlow', 'bpmn:ServiceTask', 'bpmn:StartEvent', 'bpmn:SubProcess', 'bpmn:Task', 'bpmn:TextAnnotation', 'bpmn:UserTask'];
 
 /***/ }),
 
@@ -4345,71 +4397,6 @@ module.exports.getMid = function (element) {
 module.exports.distance = function (a, b) {
   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 };
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js":
-/*!***********************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/classes.js ***!
-  \***********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(/*! component-classes */ "./node_modules/component-classes/index.js");
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/clear.js":
-/*!*********************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/clear.js ***!
-  \*********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = function (el) {
-
-  var c;
-
-  while (el.childNodes.length) {
-    c = el.childNodes[0];
-    el.removeChild(c);
-  }
-
-  return el;
-};
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js":
-/*!**********************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/domify.js ***!
-  \**********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(/*! domify */ "./node_modules/domify/index.js");
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js":
-/*!*********************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/event.js ***!
-  \*********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(/*! component-event */ "./node_modules/component-event/index.js");
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js":
-/*!*********************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dom/lib/query.js ***!
-  \*********************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports = __webpack_require__(/*! component-query */ "./node_modules/component-query/index.js");
 
 /***/ }),
 
@@ -4479,405 +4466,6 @@ function registerBpmnJSModdleExtension(plugin) {
 }
 
 module.exports.registerBpmnJSModdleExtension = registerBpmnJSModdleExtension;
-
-/***/ }),
-
-/***/ "./node_modules/component-classes/index.js":
-/*!*************************************************!*\
-  !*** ./node_modules/component-classes/index.js ***!
-  \*************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-/**
- * Module dependencies.
- */
-
-try {
-  var index = __webpack_require__(/*! indexof */ "./node_modules/component-indexof/index.js");
-} catch (err) {
-  var index = __webpack_require__(/*! component-indexof */ "./node_modules/component-indexof/index.js");
-}
-
-/**
- * Whitespace regexp.
- */
-
-var re = /\s+/;
-
-/**
- * toString reference.
- */
-
-var toString = Object.prototype.toString;
-
-/**
- * Wrap `el` in a `ClassList`.
- *
- * @param {Element} el
- * @return {ClassList}
- * @api public
- */
-
-module.exports = function (el) {
-  return new ClassList(el);
-};
-
-/**
- * Initialize a new ClassList for `el`.
- *
- * @param {Element} el
- * @api private
- */
-
-function ClassList(el) {
-  if (!el || !el.nodeType) {
-    throw new Error('A DOM element reference is required');
-  }
-  this.el = el;
-  this.list = el.classList;
-}
-
-/**
- * Add class `name` if not already present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.add = function (name) {
-  // classList
-  if (this.list) {
-    this.list.add(name);
-    return this;
-  }
-
-  // fallback
-  var arr = this.array();
-  var i = index(arr, name);
-  if (!~i) arr.push(name);
-  this.el.className = arr.join(' ');
-  return this;
-};
-
-/**
- * Remove class `name` when present, or
- * pass a regular expression to remove
- * any which match.
- *
- * @param {String|RegExp} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.remove = function (name) {
-  if ('[object RegExp]' == toString.call(name)) {
-    return this.removeMatching(name);
-  }
-
-  // classList
-  if (this.list) {
-    this.list.remove(name);
-    return this;
-  }
-
-  // fallback
-  var arr = this.array();
-  var i = index(arr, name);
-  if (~i) arr.splice(i, 1);
-  this.el.className = arr.join(' ');
-  return this;
-};
-
-/**
- * Remove all classes matching `re`.
- *
- * @param {RegExp} re
- * @return {ClassList}
- * @api private
- */
-
-ClassList.prototype.removeMatching = function (re) {
-  var arr = this.array();
-  for (var i = 0; i < arr.length; i++) {
-    if (re.test(arr[i])) {
-      this.remove(arr[i]);
-    }
-  }
-  return this;
-};
-
-/**
- * Toggle class `name`, can force state via `force`.
- *
- * For browsers that support classList, but do not support `force` yet,
- * the mistake will be detected and corrected.
- *
- * @param {String} name
- * @param {Boolean} force
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.toggle = function (name, force) {
-  // classList
-  if (this.list) {
-    if ("undefined" !== typeof force) {
-      if (force !== this.list.toggle(name, force)) {
-        this.list.toggle(name); // toggle again to correct
-      }
-    } else {
-      this.list.toggle(name);
-    }
-    return this;
-  }
-
-  // fallback
-  if ("undefined" !== typeof force) {
-    if (!force) {
-      this.remove(name);
-    } else {
-      this.add(name);
-    }
-  } else {
-    if (this.has(name)) {
-      this.remove(name);
-    } else {
-      this.add(name);
-    }
-  }
-
-  return this;
-};
-
-/**
- * Return an array of classes.
- *
- * @return {Array}
- * @api public
- */
-
-ClassList.prototype.array = function () {
-  var className = this.el.getAttribute('class') || '';
-  var str = className.replace(/^\s+|\s+$/g, '');
-  var arr = str.split(re);
-  if ('' === arr[0]) arr.shift();
-  return arr;
-};
-
-/**
- * Check if class `name` is present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.has = ClassList.prototype.contains = function (name) {
-  return this.list ? this.list.contains(name) : !!~index(this.array(), name);
-};
-
-/***/ }),
-
-/***/ "./node_modules/component-event/index.js":
-/*!***********************************************!*\
-  !*** ./node_modules/component-event/index.js ***!
-  \***********************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
-    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
-    prefix = bind !== 'addEventListener' ? 'on' : '';
-
-/**
- * Bind `el` event `type` to `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-exports.bind = function (el, type, fn, capture) {
-  el[bind](prefix + type, fn, capture || false);
-  return fn;
-};
-
-/**
- * Unbind `el` event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-exports.unbind = function (el, type, fn, capture) {
-  el[unbind](prefix + type, fn, capture || false);
-  return fn;
-};
-
-/***/ }),
-
-/***/ "./node_modules/component-indexof/index.js":
-/*!*************************************************!*\
-  !*** ./node_modules/component-indexof/index.js ***!
-  \*************************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-module.exports = function (arr, obj) {
-  if (arr.indexOf) return arr.indexOf(obj);
-  for (var i = 0; i < arr.length; ++i) {
-    if (arr[i] === obj) return i;
-  }
-  return -1;
-};
-
-/***/ }),
-
-/***/ "./node_modules/component-query/index.js":
-/*!***********************************************!*\
-  !*** ./node_modules/component-query/index.js ***!
-  \***********************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-function one(selector, el) {
-  return el.querySelector(selector);
-}
-
-exports = module.exports = function (selector, el) {
-  el = el || document;
-  return one(selector, el);
-};
-
-exports.all = function (selector, el) {
-  el = el || document;
-  return el.querySelectorAll(selector);
-};
-
-exports.engine = function (obj) {
-  if (!obj.one) throw new Error('.one callback required');
-  if (!obj.all) throw new Error('.all callback required');
-  one = obj.one;
-  exports.all = obj.all;
-  return exports;
-};
-
-/***/ }),
-
-/***/ "./node_modules/domify/index.js":
-/*!**************************************!*\
-  !*** ./node_modules/domify/index.js ***!
-  \**************************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-
-/**
- * Expose `parse`.
- */
-
-module.exports = parse;
-
-/**
- * Tests for browser support.
- */
-
-var innerHTMLBug = false;
-var bugTestDiv;
-if (typeof document !== 'undefined') {
-  bugTestDiv = document.createElement('div');
-  // Setup
-  bugTestDiv.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
-  // Make sure that link elements get serialized correctly by innerHTML
-  // This requires a wrapper element in IE
-  innerHTMLBug = !bugTestDiv.getElementsByTagName('link').length;
-  bugTestDiv = undefined;
-}
-
-/**
- * Wrap map from jquery.
- */
-
-var map = {
-  legend: [1, '<fieldset>', '</fieldset>'],
-  tr: [2, '<table><tbody>', '</tbody></table>'],
-  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-  // for script/link/style tags to work in IE6-8, you have to wrap
-  // in a div with a non-whitespace character in front, ha!
-  _default: innerHTMLBug ? [1, 'X<div>', '</div>'] : [0, '', '']
-};
-
-map.td = map.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
-
-map.option = map.optgroup = [1, '<select multiple="multiple">', '</select>'];
-
-map.thead = map.tbody = map.colgroup = map.caption = map.tfoot = [1, '<table>', '</table>'];
-
-map.polyline = map.ellipse = map.polygon = map.circle = map.text = map.line = map.path = map.rect = map.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">', '</svg>'];
-
-/**
- * Parse `html` and return a DOM Node instance, which could be a TextNode,
- * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
- * instance, depending on the contents of the `html` string.
- *
- * @param {String} html - HTML string to "domify"
- * @param {Document} doc - The `document` instance to create the Node for
- * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
- * @api private
- */
-
-function parse(html, doc) {
-  if ('string' != typeof html) throw new TypeError('String expected');
-
-  // default to the global `document` object
-  if (!doc) doc = document;
-
-  // tag name
-  var m = /<([\w:]+)/.exec(html);
-  if (!m) return doc.createTextNode(html);
-
-  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
-
-  var tag = m[1];
-
-  // body support
-  if (tag == 'body') {
-    var el = doc.createElement('html');
-    el.innerHTML = html;
-    return el.removeChild(el.lastChild);
-  }
-
-  // wrap map
-  var wrap = map[tag] || map._default;
-  var depth = wrap[0];
-  var prefix = wrap[1];
-  var suffix = wrap[2];
-  var el = doc.createElement('div');
-  el.innerHTML = prefix + html + suffix;
-  while (depth--) el = el.lastChild;
-
-  // one element
-  if (el.firstChild == el.lastChild) {
-    return el.removeChild(el.firstChild);
-  }
-
-  // several elements
-  var fragment = doc.createDocumentFragment();
-  while (el.firstChild) {
-    fragment.appendChild(el.removeChild(el.firstChild));
-  }
-
-  return fragment;
-}
 
 /***/ }),
 
@@ -5531,10 +5119,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "classes", function() { return classes; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "clear", function() { return clear; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "closest", function() { return closest; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "delegate", function() { return delegateEvents; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "delegate", function() { return delegate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "domify", function() { return domify; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "event", function() { return componentEvent; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "matches", function() { return matchesSelector$1; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "matches", function() { return matchesSelector; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "query", function() { return query; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "queryAll", function() { return all; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "remove", function() { return remove; });
@@ -5773,21 +5361,8 @@ function clear(el) {
   return el;
 }
 
-/**
- * Element prototype.
- */
-
-var proto = Element.prototype;
-
-/**
- * Vendor function.
- */
-
-var vendor = proto.matchesSelector || proto.webkitMatchesSelector || proto.mozMatchesSelector || proto.msMatchesSelector || proto.oMatchesSelector;
-
-/**
- * Expose `match()`.
- */
+var proto = typeof Element !== 'undefined' ? Element.prototype : {};
+var vendor = proto.matches || proto.matchesSelector || proto.webkitMatchesSelector || proto.mozMatchesSelector || proto.msMatchesSelector || proto.oMatchesSelector;
 
 var matchesSelector = match;
 
@@ -5801,22 +5376,36 @@ var matchesSelector = match;
  */
 
 function match(el, selector) {
+  if (!el || el.nodeType !== 1) return false;
   if (vendor) return vendor.call(el, selector);
   var nodes = el.parentNode.querySelectorAll(selector);
-  for (var i = 0; i < nodes.length; ++i) {
+  for (var i = 0; i < nodes.length; i++) {
     if (nodes[i] == el) return true;
   }
   return false;
 }
 
-var closest = function (element, selector, checkYoSelf) {
-  var parent = checkYoSelf ? element : element.parentNode;
+/**
+ * Closest
+ *
+ * @param {Element} el
+ * @param {String} selector
+ * @param {Boolean} checkYourSelf (optional)
+ */
+function closest(element, selector, checkYourSelf) {
+  var currentElem = checkYourSelf ? element : element.parentNode;
 
-  while (parent && parent !== document) {
-    if (matchesSelector(parent, selector)) return parent;
-    parent = parent.parentNode;
+  while (currentElem && currentElem.nodeType !== document.DOCUMENT_NODE && currentElem.nodeType !== document.DOCUMENT_FRAGMENT_NODE) {
+
+    if (matchesSelector(currentElem, selector)) {
+      return currentElem;
+    }
+
+    currentElem = currentElem.parentNode;
   }
-};
+
+  return matchesSelector(currentElem, selector) ? currentElem : null;
+}
 
 var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
     unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
@@ -5881,15 +5470,19 @@ var componentEvent = {
 // when delegating.
 var forceCaptureEvents = ['focus', 'blur'];
 
-var bind$1 = function (el, selector, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) capture = true;
+function bind$1(el, selector, type, fn, capture) {
+  if (forceCaptureEvents.indexOf(type) !== -1) {
+    capture = true;
+  }
 
   return componentEvent.bind(el, type, function (e) {
     var target = e.target || e.srcElement;
     e.delegateTarget = closest(target, selector, true, el);
-    if (e.delegateTarget) fn.call(el, e);
+    if (e.delegateTarget) {
+      fn.call(el, e);
+    }
   }, capture);
-};
+}
 
 /**
  * Unbind event `type`'s callback `fn`.
@@ -5900,14 +5493,15 @@ var bind$1 = function (el, selector, type, fn, capture) {
  * @param {Boolean} capture
  * @api public
  */
+function unbind$1(el, type, fn, capture) {
+  if (forceCaptureEvents.indexOf(type) !== -1) {
+    capture = true;
+  }
 
-var unbind$1 = function (el, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) capture = true;
+  return componentEvent.unbind(el, type, fn, capture);
+}
 
-  componentEvent.unbind(el, type, fn, capture);
-};
-
-var delegateEvents = {
+var delegate = {
   bind: bind$1,
   unbind: unbind$1
 };
@@ -6008,30 +5602,6 @@ function parse(html, doc) {
   }
 
   return fragment;
-}
-
-var proto$1 = typeof Element !== 'undefined' ? Element.prototype : {};
-var vendor$1 = proto$1.matches || proto$1.matchesSelector || proto$1.webkitMatchesSelector || proto$1.mozMatchesSelector || proto$1.msMatchesSelector || proto$1.oMatchesSelector;
-
-var matchesSelector$1 = match$1;
-
-/**
- * Match `el` to `selector`.
- *
- * @param {Element} el
- * @param {String} selector
- * @return {Boolean}
- * @api public
- */
-
-function match$1(el, selector) {
-  if (!el || el.nodeType !== 1) return false;
-  if (vendor$1) return vendor$1.call(el, selector);
-  var nodes = el.parentNode.querySelectorAll(selector);
-  for (var i = 0; i < nodes.length; i++) {
-    if (nodes[i] == el) return true;
-  }
-  return false;
 }
 
 function query(selector, el) {
