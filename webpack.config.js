@@ -21,10 +21,10 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { 
-		  from: 'node_modules/bpmn-js-token-simulation/assets', 
-		  to: '../' 
-		},
+        {
+          from: 'node_modules/bpmn-js-token-simulation/assets',
+          to: 'assets/bpmn-js-token-simulation'
+        }
       ],
     })
   ],
