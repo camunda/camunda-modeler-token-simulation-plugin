@@ -13,6 +13,14 @@
 2. Start the Camunda Modeler
 3. Simulate tokens in a regular BPMN tab
 
+### Installing on macOS
+Open a Terminal window and run the following commands:
+1. `cd ~/Library/Application Support/camunda-modeler`
+2. `mkdir -p resources/plugins`
+3. `cd resources/plugins`
+4. `git clone https://github.com/bpmn-io/bpmn-js-token-simulation-plugin`
+
+Restart Camunda Modeler. 
 
 ## Compatibility Notice
 
