@@ -20,14 +20,14 @@ function HideModelerElements(eventBus) {
     var simulationModeActive = context.simulationModeActive;
 
     var propertiesPanel = domQuery('.properties');
-    var xmlTab = domQuery('[data-tab-id="xml"') || domQuery('.tabs a.tab:not(.active)');
+    var xmlTab = domQuery('[data-tab-id="xml"]') || domQuery('.tabs a.tab:not(.active)');
 
     if (simulationModeActive) {
       domClasses(propertiesPanel).add('hidden');
-      domClasses(xmlTab).add('hidden');
+      xmlTab && domClasses(xmlTab).add('hidden');
     } else {
       domClasses(propertiesPanel).remove('hidden');
-      domClasses(xmlTab).remove('hidden');
+      xmlTab && domClasses(xmlTab).remove('hidden');
     }
   });
 }
