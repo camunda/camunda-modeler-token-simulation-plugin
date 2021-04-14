@@ -6,6 +6,11 @@ All notable changes to the [bpmn-js-token-simulation-plugin](https://github.com/
 
 ___Note:__ Yet to be released changes appear here._
 
+## 0.12.0
+
+* `FEAT`: allow switch to XML tab / diagram save when simulation is active
+* `FIX`: make compatible with Camunda Modeler v4.6+
+
 ## 0.11.0
 
 * `CHORE`: bump to `bpmn-js-token-simulation@0.11.0`
