@@ -5,7 +5,7 @@ var domClasses = require('min-dom').classes,
 
 var TOGGLE_MODE_EVENT = require('bpmn-js-token-simulation/lib/util/EventHelper').TOGGLE_MODE_EVENT;
 
-function HideModelerElements(eventBus) {
+function HideModelerElements(eventBus, toggleMode) {
   var css = '.properties.hidden { display: none; } .tabs .tab.hidden { display: none; }',
       head = document.head,
       style = document.createElement('style');
@@ -16,22 +16,26 @@ function HideModelerElements(eventBus) {
 
   head.appendChild(style);
 
+  eventBus.on('saveXML.start', 5000, function() {
+    // disable simulation before saving
+    if (toggleMode.simulationModeActive) {
+      toggleMode.toggleMode();
+    }
+  });
+
   eventBus.on(TOGGLE_MODE_EVENT, function(context) {
     var simulationModeActive = context.simulationModeActive;
 
     var propertiesPanel = domQuery('.properties');
-    var xmlTab = domQuery('[data-tab-id="xml"]') || domQuery('.tabs a.tab:not(.active)');
 
     if (simulationModeActive) {
       domClasses(propertiesPanel).add('hidden');
-      xmlTab && domClasses(xmlTab).add('hidden');
     } else {
       domClasses(propertiesPanel).remove('hidden');
-      xmlTab && domClasses(xmlTab).remove('hidden');
     }
   });
 }
 
-HideModelerElements.$inject = [ 'eventBus' ];
+HideModelerElements.$inject = [ 'eventBus', 'toggleMode' ];
 
 module.exports = HideModelerElements;
