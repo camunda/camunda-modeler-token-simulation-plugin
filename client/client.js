@@ -1,9 +1,14 @@
-var registerBpmnJSPlugin = require('camunda-modeler-plugin-helpers').registerBpmnJSPlugin;
+import {
+  registerBpmnJSPlugin
+} from 'camunda-modeler-plugin-helpers';
 
-var tokenSimulation = require('bpmn-js-token-simulation').default,
-    HideModelerElements = require('./HideModelerElements');
+import TokenSimulationModule from 'bpmn-js-token-simulation';
+import HideModelerElements from './HideModelerElements';
 
-tokenSimulation.__init__.push('hideModelerElements');
-tokenSimulation.hideModelerElements = [ 'type', HideModelerElements ];
+const TokenSimulationPluginModule = {
+  __init__: [ 'hideModelerElements' ],
+  hideModelerElements: [ 'type', HideModelerElements ]
+};
 
-registerBpmnJSPlugin(tokenSimulation);
+registerBpmnJSPlugin(TokenSimulationModule);
+registerBpmnJSPlugin(TokenSimulationPluginModule);

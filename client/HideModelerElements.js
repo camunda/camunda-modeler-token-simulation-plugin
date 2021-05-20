@@ -1,11 +1,14 @@
-'use strict';
+import {
+  classes as domClasses,
+  query as domQuery
+} from 'min-dom';
 
-var domClasses = require('min-dom').classes,
-    domQuery = require('min-dom').query;
+import {
+  TOGGLE_MODE_EVENT
+} from 'bpmn-js-token-simulation/lib/util/EventHelper';
 
-var TOGGLE_MODE_EVENT = require('bpmn-js-token-simulation/lib/util/EventHelper').TOGGLE_MODE_EVENT;
 
-function HideModelerElements(eventBus, toggleMode) {
+export default function HideModelerElements(eventBus, toggleMode) {
   var css = '.properties.hidden { display: none; } .tabs .tab.hidden { display: none; }',
       head = document.head,
       style = document.createElement('style');
@@ -36,6 +39,7 @@ function HideModelerElements(eventBus, toggleMode) {
   });
 }
 
-HideModelerElements.$inject = [ 'eventBus', 'toggleMode' ];
-
-module.exports = HideModelerElements;
+HideModelerElements.$inject = [
+  'eventBus',
+  'toggleMode'
+];
