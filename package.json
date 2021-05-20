@@ -21,13 +21,10 @@
   "author": "Philipp Fromme",
   "license": "MIT",
   "devDependencies": {
-    "babel-core": "^6.26.3",
-    "babel-loader": "^7.1.5",
-    "babel-preset-env": "^1.7.0",
     "copy-webpack-plugin": "^6.4.0",
     "npm-run-all": "^4.1.5",
-    "webpack": "^4.44.2",
-    "webpack-cli": "^3.3.12"
+    "webpack": "^5.37.1",
+    "webpack-cli": "^4.7.0"
   },
   "dependencies": {
     "bpmn-js-token-simulation": "^0.11.1",
