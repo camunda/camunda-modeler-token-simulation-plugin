@@ -18,17 +18,17 @@ function HideModelerElements(eventBus, toggleMode) {
 
   eventBus.on('saveXML.start', 5000, function() {
     // disable simulation before saving
-    if (toggleMode.simulationModeActive) {
+    if (toggleMode.active) {
       toggleMode.toggleMode();
     }
   });
 
   eventBus.on(TOGGLE_MODE_EVENT, function(context) {
-    var simulationModeActive = context.simulationModeActive;
+    var active = context.active;
 
     var propertiesPanel = domQuery('.properties');
 
-    if (simulationModeActive) {
+    if (active) {
       domClasses(propertiesPanel).add('hidden');
     } else {
       domClasses(propertiesPanel).remove('hidden');
