@@ -12,13 +12,6 @@
   --token-simulation-white: #FFFFFF;
 }
 
-html, body, #canvas {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  font-family: "Arial", sans-serif;
-}
-
 .bjs-container {
   border: solid 4px transparent;
   box-sizing: border-box;
@@ -75,8 +68,11 @@ html, body, #canvas {
 }
 
 .token .text {
-  fill: var(--token-simulation-white, #FFFFFF);
   font-family: 'Arial', sans-serif;
+}
+
+.token-count-parent {
+  white-space: nowrap;
 }
 
 .token-count {
@@ -86,13 +82,22 @@ html, body, #canvas {
   height: 25px;
   line-height: 25px;
   text-align: center;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--token-simulation-grey-darken-30, #212121);
   user-select: none;
   animation: jump 1s infinite;
   animation-timing-function: ease;
   position: relative;
   top: 0;
+  display: inline-block;
+}
+
+.token-count.inactive {
+  display: none;
+}
+
+.token-count + .token-count {
+  margin-left: -8px;
 }
 
 .token-count.waiting {
@@ -114,12 +119,15 @@ html, body, #canvas {
 .notifications .notification {
   background-color: var(--token-simulation-silver-darken-94, #EFEFEF);
   border-radius: 2px;
-  padding: 4px 8px;
+  padding: 5px 8px;
   font-size: 16px;
   color: var(--token-simulation-silver-darken-94, #EFEFEF);
   user-select: none;
   margin-top: 4px;
   min-width: 300px;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
 }
 
 .notifications .notification.info {
@@ -137,14 +145,32 @@ html, body, #canvas {
   color: var(--token-simulation-white, #FFFFFF);
 }
 
-.notifications .notification .icon {
-  display: inline-flex;
-  justify-content: center;
-  margin-right: 8px;
-  min-width: 20px;
+.notifications .notification > * {
+  flex: initial;
 }
 
-.notifications .notification .icon [class^="bpmn-icon-"]:before, [class*=" bpmn-icon-"]:before {
+.notifications .notification > :not(:last-child) {
+  margin-right: 6px;
+}
+
+.notifications .notification > .icon {
+  min-width: 20px;
+  text-align: center;
+}
+
+.notifications .notification > .text {
+  flex: 1;
+}
+
+.notifications .notification > .scope {
+  font-family: monospace;
+  font-size: .8em;
+  padding: 2px 3px;
+  border-radius: 3px;
+  cursor: default;
+}
+
+.notifications .notification > .icon [class^="bpmn-icon-"]:before, [class*=" bpmn-icon-"]:before {
   margin: 0;
 }
 
@@ -278,11 +304,9 @@ html, body, #canvas {
   overflow: hidden;
 }
 
-
 .token-simulation-log.hidden {
   display: none;
 }
-
 
 .token-simulation-log .header {
   background-color: var(--token-simulation-green-base-44, #10D070);
@@ -316,82 +340,108 @@ html, body, #canvas {
   padding: 10px;
 }
 
-.token-simulation-log .content .entry {
+.token-simulation-log .entry {
   font-size: 16px;
   margin: 0 0 6px 0;
   padding: 6px;
   background: var(--token-simulation-white, #FFFFFF);
   border-radius: 2px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
 }
 
-.token-simulation-log .content .entry.success {
+.token-simulation-log .entry.inactive {
+  opacity: .5;
+}
+
+.token-simulation-log .entry.success {
   background-color: var(--token-simulation-green-base-44, #10D070);
   color: var(--token-simulation-white, #FFFFFF);
 }
 
-.token-simulation-log .content .entry.success .date,
-.token-simulation-log .content .entry.warning .date {
+.token-simulation-log .entry.success .date,
+.token-simulation-log .entry.warning .date {
  color: var(--token-simulation-silver-darken-94, #EFEFEF);
 }
 
-.token-simulation-log .content .entry.warning {
+.token-simulation-log .entry.warning {
   background-color: var(--token-simulation-red-base-62, #FF3D3D);
   color: var(--token-simulation-white, #FFFFFF);
 }
 
-.token-simulation-log .content .entry:last-child {
+.token-simulation-log .entry:last-child {
   margin: 0;
 }
 
-.token-simulation-log .content .entry .date {
-  display: inline-block;
+.token-simulation-log .entry > * {
+  flex: initial;
+}
+
+.token-simulation-log .entry > :not(:last-child) {
   margin-right: 6px;
+}
+
+.token-simulation-log .entry > .date {
   min-width: 120px;
   color: var(--token-simulation-grey-base-40, #666666);
 }
 
-.token-simulation-log .content .entry .icon {
-  display: inline-block;
-  margin-right: 6px;
+.token-simulation-log .entry > .icon {
   min-width: 20px;
   text-align: center;
 }
 
-.token-simulation-log .content .entry.placeholder.hidden {
+.token-simulation-log .entry > .scope {
+  font-family: monospace;
+  font-size: .8em;
+  padding: 2px 3px;
+  border-radius: 3px;
+  cursor: default;
+}
+
+.token-simulation-log .entry > .text {
+  flex: 1;
+}
+
+.token-simulation-log .entry.placeholder.hidden {
   display: none;
 }
 
-.process-instances {
+.token-simulation-scopes {
   position: absolute;
-  top: 20px;
+  top: 22px;
   left: 190px;
   display: flex;
   flex-direction: row;
 }
 
-.process-instances.hidden {
+.token-simulation-scopes.hidden {
   display: none;
 }
 
-.process-instances .process-instance {
+.token-simulation-scopes .scope {
   border-radius: 100%;
-  width: 30px;
-  height: 30px;
-  font-size: 16px;
-  line-height: 30px;
+  width: 25px;
+  height: 25px;
+  font-size: 14px;
+  line-height: 25px;
   text-align: center;
   background-color: var(--token-simulation-silver-darken-94, #EFEFEF);
   margin-right: 10px;
   cursor: pointer;
 }
 
-.process-instances .process-instance.active {
-  background-color: var(--token-simulation-green-base-44, #10D070);
-  color: var(--token-simulation-white, #FFFFFF);
+.token-simulation-scopes .scope.inactive:hover {
+  opacity: 1
+}
+
+.token-simulation-scopes .scope.inactive {
+  opacity: .25;
 }
 
 .djs-container.highlight {
-  background-color: var(--token-simulation-silver-darken-94, #EFEFEF);
+  background-color: var(--token-simulation-silver-base-97, #F8F8F8);
 }
 
 .set-animation-speed {
