@@ -14,7 +14,9 @@
 3. Simulate tokens in a regular BPMN tab
 
 ### Installing on macOS
+
 Open a Terminal window and run the following commands:
+
 1. `cd ~/Library/Application Support/camunda-modeler`
 2. `mkdir -p resources/plugins`
 3. `cd resources/plugins`
