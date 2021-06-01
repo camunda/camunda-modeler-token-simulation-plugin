@@ -34,6 +34,17 @@ This plug-in is compatible with Camunda Modeler `v2.2+`.
 * [Plugins documentation](https://github.com/camunda/camunda-modeler/tree/master/docs/plugins)
 * [Plugin starter project](https://github.com/camunda/camunda-modeler-plugin-example)
 
+## Sample Video
+
+https://user-images.githubusercontent.com/1748499/120363930-fa391180-c30c-11eb-9ea9-de1fec6665c1.mp4
+
+
+https://user-images.githubusercontent.com/1748499/120363961-ff965c00-c30c-11eb-97b6-b432fa4fe79d.mp4
+
+
+https://user-images.githubusercontent.com/1748499/120363990-07560080-c30d-11eb-9c3a-8cac447f09a0.mp4
+
+
 ## Licence
 
 MIT
