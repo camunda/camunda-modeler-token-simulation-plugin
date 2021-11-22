@@ -6,6 +6,11 @@ All notable changes to the [bpmn-js-token-simulation-plugin](https://github.com/
 
 ___Note:__ Yet to be released changes appear here._
 
+## 0.13.1
+
+* `FIX`: correct join after parallel gateway with destroyed scopes
+* `DEPS`: bump to `bpmn-js-token-simulation@0.21.2`
+
 ## 0.13.0
 
 _Uses [`bpmn-js-token-simulation@0.12+`](https://github.com/bpmn-io/bpmn-js-token-simulation/blob/master/CHANGELOG.md#0120) under the hood which is a major rework of the original token simulation tool._
