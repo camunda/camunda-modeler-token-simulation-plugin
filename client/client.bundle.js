@@ -701,10 +701,10 @@ function ColoredScopes(eventBus) {
 
   function getColors(scope) {
     const {
-      initiator
+      element
     } = scope;
 
-    if (initiator && initiator.type === 'bpmn:MessageFlow') {
+    if (element && element.type === 'bpmn:MessageFlow') {
       return {
         primary: '#999',
         auxiliary: '#FFF'
@@ -4210,10 +4210,11 @@ function Simulator(injector, eventBus) {
 
     const {
       element,
-      parentScope
+      parentScope,
+      initiator
     } = context;
 
-    const scope = context.scope || createScope(element, parentScope, element);
+    const scope = context.scope || createScope(element, parentScope, initiator && initiator.element);
 
     queue(scope, function() {
 
@@ -4541,12 +4542,33 @@ function ActivityBehavior(simulator, scopeBehavior) {
 
 ActivityBehavior.prototype.signal = function(context) {
 
-  this._triggerMessages(context);
+  const {
+    initiator,
+    element
+  } = context;
 
-  this._simulator.exit({
-    ...context,
-    signal: true
-  });
+  const initiatingFlow = initiator && initiator.element;
+
+  // if signaled by a message flow,
+  // check for the next message flows to either
+  // trigger or wait for; this implements intuitive,
+  // as-you-would expect message flow execution in modeling
+  // direction (left-to-right).
+  if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow)(initiatingFlow)) {
+
+    const referencePoint = last(initiatingFlow.waypoints);
+
+    const messageContexts = this._getMessageContexts(element, referencePoint);
+
+    // trigger messages that are pending send
+    const allProcessed = this._triggerMessages(context, messageContexts);
+
+    if (!allProcessed) {
+      return;
+    }
+  }
+
+  this._simulator.exit(context);
 };
 
 ActivityBehavior.prototype.enter = function(context) {
@@ -4559,13 +4581,18 @@ ActivityBehavior.prototype.enter = function(context) {
     wait
   } = this._simulator.getConfig(element);
 
-  const waiting = element.incoming.find(_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow);
+  const messageContexts = this._getMessageContexts(element);
 
-  if (wait || waiting) {
+  if (wait || messageContexts[0] && messageContexts[0].incoming) {
     return;
   }
 
-  this._triggerMessages(context);
+  // trigger messages that are pending send
+  const allProcessed = this._triggerMessages(context, messageContexts);
+
+  if (!allProcessed) {
+    return;
+  }
 
   this._simulator.exit(context);
 };
@@ -4600,25 +4627,60 @@ ActivityBehavior.prototype.exit = function(context) {
   }
 };
 
+ActivityBehavior.prototype._getMessageContexts = function(element, after=null) {
 
-ActivityBehavior.prototype._triggerMessages = function(context) {
+  const filterAfter = after ? ctx => ctx.referencePoint.x > after.x : () => true;
+  const sortByReference = (a, b) => a.referencePoint.x - b.referencePoint.x;
 
-  const {
-    element
-  } = context;
+  return [
+    ...element.incoming.filter(_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow).map(flow => ({
+      incoming: flow,
+      referencePoint: last(flow.waypoints)
+    })),
+    ...element.outgoing.filter(_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow).map(flow => ({
+      outgoing: flow,
+      referencePoint: first(flow.waypoints)
+    }))
+  ].sort(sortByReference).filter(filterAfter);
+};
 
-  for (const outgoing of element.outgoing) {
+/**
+ * @param {any} context
+ * @param {any[]} messageContexts
+ *
+ * @return {boolean} true if all message contexts got satisfied, i.e. messages sent
+ */
+ActivityBehavior.prototype._triggerMessages = function(context, messageContexts) {
 
-    if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow)(outgoing)) {
-      this._simulator.signal({
-        element: outgoing
-      });
+  let i = 0;
+
+  for (; i < messageContexts.length; i++) {
+    let { outgoing } = messageContexts[i];
+
+    if (!outgoing) {
+      break;
     }
+
+    this._simulator.signal({
+      element: outgoing
+    });
   }
 
+  return !(i - messageContexts.length);
 };
 
 ActivityBehavior.$inject = [ 'simulator', 'scopeBehavior' ];
+
+
+// helpers //////////////////
+
+function first(arr) {
+  return arr && arr[0];
+}
+
+function last(arr) {
+  return arr && arr[arr.length - 1];
+}
 
 /***/ }),
 
@@ -5232,10 +5294,17 @@ MessageFlowBehavior.prototype.signal = function(context) {
 
 MessageFlowBehavior.prototype.exit = function(context) {
   const {
-    element
+    element,
+    scope
   } = context;
 
   const target = element.target;
+
+  // skip cosmetic flows that model generic,
+  // undirected communication
+  if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(target, 'bpmn:Participant')) {
+    return;
+  }
 
   // (a) scope waiting at element will be signaled
   const eventSource = target.incoming.find(
@@ -5249,12 +5318,20 @@ MessageFlowBehavior.prototype.exit = function(context) {
   if (waitingScope) {
     this._simulator.signal({
       element: target,
-      scope: waitingScope
+      scope: waitingScope,
+      initiator: {
+        element,
+        scope
+      }
     });
   } else if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(target, 'bpmn:StartEvent')) {
     this._simulator.signal({
       startEvent: target,
-      element: target.parent
+      element: target.parent,
+      initiator: {
+        element,
+        scope
+      }
     });
   } else {
 
