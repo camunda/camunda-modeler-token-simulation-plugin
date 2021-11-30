@@ -6,6 +6,13 @@ All notable changes to the [bpmn-js-token-simulation-plugin](https://github.com/
 
 ___Note:__ Yet to be released changes appear here._
 
+## 0.14.0
+
+* `FEAT`: execute message flows in interaction direction
+* `FEAT`: support bi-directional message flows ([#42](https://github.com/bpmn-io/bpmn-js-token-simulation-plugin/issues/42))
+* `FIX`: do not signal participant on un-directed message receive
+* `DEPS`: bump to `bpmn-js-token-simulation@0.22.0`
+
 ## 0.13.1
 
 * `FIX`: correct join after parallel gateway with destroyed scopes
