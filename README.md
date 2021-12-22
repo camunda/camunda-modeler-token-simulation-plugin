@@ -9,7 +9,7 @@
 
 ## How to use
 
-1. Download and copy this repository into the `plugins` directory of the Camunda Modeler
+1. Download and copy this repository into the `plugins` directory of the Camunda Modeler. Directory should look like plugins/plugin/
 2. Start the Camunda Modeler
 3. Simulate tokens in a regular BPMN tab
 
