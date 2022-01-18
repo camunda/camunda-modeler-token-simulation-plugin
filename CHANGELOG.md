@@ -5,6 +5,9 @@ All notable changes to the [bpmn-js-token-simulation-plugin](https://github.com/
 ## Unreleased
 
 ___Note:__ Yet to be released changes appear here._
+
+## 0.15.0
+
 * `DEPS`: bump to `bpmn-js-token-simulation@0.24.0`
 * `DEPS`: bump to `bpmn-js@8.9.0`
 * `DEPS`: bump to `camunda-modeler-plugin-helpers@3.1.0`
