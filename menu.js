@@ -7,7 +7,7 @@ module.exports = function(electronApp, menuState) {
     enabled: function() {
 
       // only enabled for BPMN diagrams
-      return menuState.bpmn && menuState.inactiveInput;
+      return menuState.bpmn && menuState.platform == 'platform' && menuState.inactiveInput;
     },
     action: function() {
       electronApp.emit('menu:action', 'toggleTokenSimulation');
@@ -18,7 +18,7 @@ module.exports = function(electronApp, menuState) {
     enabled: function() {
 
       // only enabled for BPMN diagrams
-      return menuState.bpmn && menuState.inactiveInput;
+      return menuState.bpmn && menuState.platform == 'platform' && menuState.inactiveInput;
     },
     action: function() {
       electronApp.emit('menu:action', 'togglePauseTokenSimulation');
@@ -29,7 +29,7 @@ module.exports = function(electronApp, menuState) {
     enabled: function() {
 
       // only enabled for BPMN diagrams
-      return menuState.bpmn && menuState.inactiveInput;
+      return menuState.bpmn && menuState.platform == 'platform' && menuState.inactiveInput;
     },
     action: function() {
       electronApp.emit('menu:action', 'resetTokenSimulation');
