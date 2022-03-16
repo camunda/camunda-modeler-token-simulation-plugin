@@ -1,7 +1,7 @@
 # Token Simulation for the Camunda Modeler
 
 [![Build Status](https://github.com/bpmn-io/bpmn-js-token-simulation-plugin/workflows/CI/badge.svg)](https://github.com/bpmn-io/bpmn-js-token-simulation-plugin/actions?query=workflow%3ACI)
-[![Compatible with Camunda Modeler version 2.2](https://img.shields.io/badge/Camunda%20Modeler-2.2+-blue.svg)](https://github.com/camunda/camunda-modeler)
+[![Compatible with Camunda Modeler version 5](https://img.shields.io/badge/Modeler_Version-5.0.0+-blue.svg)](#) [![Plugin Type](https://img.shields.io/badge/Plugin_Type-BPMN-green.svg)](#)
 
 [bpmn-js-token-simulation](https://github.com/bpmn-io/bpmn-js-token-simulation) as a plugin for the [Camunda Modeler](https://camunda.org/bpmn/tool/).
 
@@ -26,7 +26,11 @@ Restart Camunda Modeler.
 
 ## Compatibility Notice
 
-This plug-in is compatible with Camunda Modeler `v2.2+`.
+
+| Plugin Version | Compatible With Camunda Modeler |
+|-|-|
+| 0.8.0 - 0.15.0 | 2.2 - 4.x |
+| 0.16.0+ | 5.0.0+ |
 
 ## Additional Resources
 
