@@ -68,9 +68,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Animation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var tiny_svg__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! tiny-svg */ "./node_modules/tiny-svg/dist/index.esm.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
 
@@ -123,32 +123,24 @@ const TOKEN_SIZE = 20;
 function Animation(canvas, eventBus, scopeFilter) {
   this._eventBus = eventBus;
   this._scopeFilter = scopeFilter;
+  this._canvas = canvas;
 
   this._animations = new Set();
   this._speed = 1;
 
-  eventBus.on('import.done', () => {
-    const viewport = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.viewport', canvas._svg);
-
-    this.group = (0,tiny_svg__WEBPACK_IMPORTED_MODULE_1__.appendTo)(
-      (0,tiny_svg__WEBPACK_IMPORTED_MODULE_1__.create)('<g class="animation-tokens" />'),
-      viewport
-    );
-  });
-
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.RESET_SIMULATION_EVENT, () => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.RESET_SIMULATION_EVENT, () => {
     this.clearAnimations();
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.PAUSE_SIMULATION_EVENT, () => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.PAUSE_SIMULATION_EVENT, () => {
     this.pause();
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.PLAY_SIMULATION_EVENT, () => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.PLAY_SIMULATION_EVENT, () => {
     this.play();
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.SCOPE_FILTER_CHANGED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_FILTER_CHANGED_EVENT, event => {
 
     this.each(animation => {
       if (this._scopeFilter.isShown(animation.scope)) {
@@ -159,7 +151,7 @@ function Animation(canvas, eventBus, scopeFilter) {
     });
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.SCOPE_DESTROYED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_DESTROYED_EVENT, event => {
     const {
       scope
     } = event;
@@ -184,12 +176,14 @@ Animation.prototype.each = function(fn) {
   this._animations.forEach(fn);
 };
 
-Animation.prototype.createAnimation = function(connection, scope, done=noop) {
-  if (!this.group) {
+Animation.prototype.createAnimation = function(connection, scope, done = noop) {
+  const group = this._getGroup(scope);
+
+  if (!group) {
     return;
   }
 
-  const tokenGfx = this._createTokenGfx(scope);
+  const tokenGfx = this._createTokenGfx(group, scope);
 
   const animation = new TokenAnimation(tokenGfx, connection.waypoints, () => {
     this._animations.delete(animation);
@@ -208,7 +202,7 @@ Animation.prototype.createAnimation = function(connection, scope, done=noop) {
 
   this._animations.add(animation);
 
-  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.ANIMATION_CREATED_EVENT, {
+  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.ANIMATION_CREATED_EVENT, {
     animation
   });
 
@@ -222,7 +216,7 @@ Animation.prototype.setAnimationSpeed = function(speed) {
 
   this.each(animation => animation.setSpeed(speed));
 
-  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.ANIMATION_SPEED_CHANGED_EVENT, {
+  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.ANIMATION_SPEED_CHANGED_EVENT, {
     speed
   });
 };
@@ -239,10 +233,10 @@ Animation.prototype.clearAnimations = function(scope) {
   });
 };
 
-Animation.prototype._createTokenGfx = function(scope) {
+Animation.prototype._createTokenGfx = function(group, scope) {
   const parent = (0,tiny_svg__WEBPACK_IMPORTED_MODULE_1__.create)(this._getTokenSVG(scope).trim());
 
-  return (0,tiny_svg__WEBPACK_IMPORTED_MODULE_1__.appendTo)(parent, this.group);
+  return (0,tiny_svg__WEBPACK_IMPORTED_MODULE_1__.appendTo)(parent, group);
 };
 
 Animation.prototype._getTokenSVG = function(scope) {
@@ -253,22 +247,51 @@ Animation.prototype._getTokenSVG = function(scope) {
   };
 
   return `
-    <g class="token">
+    <g class="bts-token">
       <circle
-        class="circle"
+        class="bts-circle"
         r="${TOKEN_SIZE / 2}"
         cx="${TOKEN_SIZE / 2}"
         cy="${TOKEN_SIZE / 2}"
         fill="${ colors.primary }"
       />
       <text
-        class="text"
+        class="bts-text"
         transform="translate(10, 14)"
         text-anchor="middle"
         fill="${ colors.auxiliary }"
       >1</text>
     </g>
   `;
+};
+
+Animation.prototype._getGroup = function(scope) {
+
+  var canvas = this._canvas;
+
+  var layer, root;
+
+  // bpmn-js@9 compatibility:
+  // show animation tokens on plane layers
+  if ('findRoot' in canvas) {
+    root = canvas.findRoot(scope.element);
+    layer = canvas._findPlaneForRoot(root).layer;
+  } else {
+    layer = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.query)('.viewport', canvas._svg);
+  }
+
+  var group = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.query)('.bts-animation-tokens', layer);
+
+  if (!group) {
+    group = (0,tiny_svg__WEBPACK_IMPORTED_MODULE_1__.create)('<g class="bts-animation-tokens" />');
+
+    (0,tiny_svg__WEBPACK_IMPORTED_MODULE_1__.appendTo)(
+      group,
+      layer
+    );
+  }
+
+  return group;
 };
 
 Animation.$inject = [
@@ -697,7 +720,7 @@ function ColoredScopes(eventBus) {
     var r = parseInt(hexcolor.substr(0,2),16);
     var g = parseInt(hexcolor.substr(2,2),16);
     var b = parseInt(hexcolor.substr(4,2),16);
-    var yiq = ((r*299)+(g*587)+(b*114))/1000;
+    var yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
     return yiq;
   }
 
@@ -778,18 +801,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ ContextPads),
 /* harmony export */   "isAncestor": () => (/* binding */ isAncestor)
 /* harmony export */ });
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
-/* harmony import */ var _handler_BoundaryEventHandler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./handler/BoundaryEventHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/BoundaryEventHandler.js");
+/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js");
-/* harmony import */ var _handler_EventBasedGatewayHandler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./handler/EventBasedGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/EventBasedGatewayHandler.js");
-/* harmony import */ var _handler_ContinueHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handler/ContinueHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ContinueHandler.js");
-/* harmony import */ var _handler_StartEventHandler__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./handler/StartEventHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/StartEventHandler.js");
-/* harmony import */ var _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./handler/PauseHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js");
-
-
-
+/* harmony import */ var _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handler/PauseHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js");
+/* harmony import */ var _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./handler/TriggerHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js");
 
 
 
@@ -825,19 +842,15 @@ function ContextPads(
   this._handlers = [];
 
   this.registerHandler('bpmn:ExclusiveGateway', _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__.default);
-  this.registerHandler('bpmn:IntermediateCatchEvent', _handler_ContinueHandler__WEBPACK_IMPORTED_MODULE_1__.default);
-  this.registerHandler('bpmn:Activity', _handler_ContinueHandler__WEBPACK_IMPORTED_MODULE_1__.default);
 
-  this.registerHandler('bpmn:EventBasedGateway', _handler_EventBasedGatewayHandler__WEBPACK_IMPORTED_MODULE_2__.default);
+  this.registerHandler('bpmn:Activity', _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_1__.default);
 
-  this.registerHandler('bpmn:Activity', _handler_BoundaryEventHandler__WEBPACK_IMPORTED_MODULE_3__.default);
+  this.registerHandler('bpmn:StartEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__.default);
+  this.registerHandler('bpmn:IntermediateCatchEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__.default);
+  this.registerHandler('bpmn:BoundaryEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__.default);
+  this.registerHandler('bpmn:Activity', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__.default);
 
-  this.registerHandler('bpmn:Process', _handler_StartEventHandler__WEBPACK_IMPORTED_MODULE_4__.default);
-  this.registerHandler('bpmn:SubProcess', _handler_StartEventHandler__WEBPACK_IMPORTED_MODULE_4__.default);
-  this.registerHandler('bpmn:Participant', _handler_StartEventHandler__WEBPACK_IMPORTED_MODULE_4__.default);
-  this.registerHandler('bpmn:Activity', _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_5__.default);
-
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_6__.TOGGLE_MODE_EVENT, LOW_PRIORITY, context => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.TOGGLE_MODE_EVENT, LOW_PRIORITY, context => {
     const active = context.active;
 
     if (active) {
@@ -847,14 +860,14 @@ function ContextPads(
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_6__.RESET_SIMULATION_EVENT, LOW_PRIORITY, () => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.RESET_SIMULATION_EVENT, LOW_PRIORITY, () => {
     this.closeContextPads();
     this.openContextPads();
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_6__.SCOPE_FILTER_CHANGED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_FILTER_CHANGED_EVENT, event => {
 
-    const showElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_7__.queryAll)(
+    const showElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.queryAll)(
       '.djs-overlay-ts-context-menu [data-scope-ids]',
       overlays._overlayRoot
     );
@@ -865,11 +878,10 @@ function ContextPads(
 
       const shown = scopeIds.some(id => scopeFilter.isShown(id));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_7__.classes)(element).toggle('hidden', !shown);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(element).toggle('hidden', !shown);
     }
 
-
-    const hideElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_7__.queryAll)(
+    const hideElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.queryAll)(
       '.djs-overlay-ts-context-menu [data-hide-scope-ids]',
       overlays._overlayRoot
     );
@@ -880,11 +892,11 @@ function ContextPads(
 
       const shown = scopeIds.some(id => scopeFilter.isShown(id));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_7__.classes)(element).toggle('hidden', shown);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(element).toggle('hidden', shown);
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_6__.ELEMENT_CHANGED_EVENT, LOW_PRIORITY, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.ELEMENT_CHANGED_EVENT, LOW_PRIORITY, event => {
     const {
       element
     } = event;
@@ -912,7 +924,7 @@ ContextPads.prototype.getHandlers = function(element) {
 
   return (
     this._handlers.filter(
-      ({ type }) => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_8__.is)(element, type)
+      ({ type }) => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_5__.is)(element, type)
     ).map(
       ({ handler }) => handler
     )
@@ -1008,8 +1020,8 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
 
     const {
       element,
-      scopes: _scopes,
-      hideScopes: _hideScopes,
+      contexts: _contexts,
+      hideContexts: _hideContexts,
       action: _action,
       html: _html
     } = contextPad;
@@ -1021,26 +1033,26 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
       o => o.hash === hash
     );
 
-    const html = existingOverlay && existingOverlay.html || (0,min_dom__WEBPACK_IMPORTED_MODULE_7__.domify)(_html);
+    const html = existingOverlay && existingOverlay.html || (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.domify)(_html);
 
-    if (_scopes) {
-      const scopes = _scopes();
+    if (_contexts) {
+      const contexts = _contexts();
 
-      html.dataset.scopeIds = scopes.map(s => s.id).join(',');
+      html.dataset.scopeIds = contexts.map(c => c.scope.id).join(',');
 
-      const shownScopes = scopes.filter(s => this._scopeFilter.isShown(s));
+      const shownScopes = contexts.filter(c => this._scopeFilter.isShown(c.scope));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_7__.classes)(html).toggle('hidden', shownScopes.length === 0);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(html).toggle('hidden', shownScopes.length === 0);
     }
 
-    if (_hideScopes) {
-      const scopes = _hideScopes();
+    if (_hideContexts) {
+      const contexts = _hideContexts();
 
-      html.dataset.hideScopeIds = scopes.map(s => s.id).join(',');
+      html.dataset.hideScopeIds = contexts.map(c => c.scope.id).join(',');
 
-      const shownScopes = scopes.filter(s => this._scopeFilter.isShown(s));
+      const shownScopes = contexts.filter(c => this._scopeFilter.isShown(c.scope));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_7__.classes)(html).toggle('hidden', shownScopes.length > 0);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(html).toggle('hidden', shownScopes.length > 0);
     }
 
     if (existingOverlay) {
@@ -1051,14 +1063,14 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
 
     if (_action) {
 
-      min_dom__WEBPACK_IMPORTED_MODULE_7__.event.bind(html, 'click', event => {
+      min_dom__WEBPACK_IMPORTED_MODULE_4__.event.bind(html, 'click', event => {
         event.preventDefault();
 
-        const scopes = _scopes
-          ? _scopes().filter(s => this._scopeFilter.isShown(s))
+        const contexts = _contexts
+          ? _contexts().filter(c => this._scopeFilter.isShown(c.scope))
           : null;
 
-        _action(scopes);
+        _action(contexts);
       });
     }
 
@@ -1118,222 +1130,6 @@ function isAncestor(ancestor, descendant) {
 
 /***/ }),
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/BoundaryEventHandler.js":
-/*!*********************************************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/BoundaryEventHandler.js ***!
-  \*********************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ BoundaryEventHandler)
-/* harmony export */ });
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
-
-
-
-function BoundaryEventHandler(simulator) {
-  this._simulator = simulator;
-}
-
-BoundaryEventHandler.prototype.createContextPads = function(element) {
-  return element.attachers.map(
-    attacher => this.createBoundaryContextPad(attacher)
-  );
-};
-
-BoundaryEventHandler.prototype.createBoundaryContextPad = function(element) {
-
-  const scopes = () => {
-    return this._findScopes({
-      element: element.host
-    });
-  };
-
-  const html = `
-    <div class="context-pad" title="Trigger Event">
-      ${(0,_icons__WEBPACK_IMPORTED_MODULE_0__.PlayIcon)()}
-    </div>
-  `;
-
-  // TODO(nikku): do not show on compenstation boundary
-
-  const action = (scopes) => {
-
-    return this._simulator.signal({
-      element: element,
-      parentScope: scopes[0].parent
-    });
-  };
-
-  return {
-    action,
-    element,
-    html,
-    scopes
-  };
-};
-
-BoundaryEventHandler.prototype._findScopes = function(options) {
-  return this._simulator.findScopes(options);
-};
-
-BoundaryEventHandler.$inject = [
-  'simulator'
-];
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ContinueHandler.js":
-/*!****************************************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ContinueHandler.js ***!
-  \****************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ ContinueHandler)
-/* harmony export */ });
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
-
-
-
-function ContinueHandler(simulator) {
-  this._simulator = simulator;
-}
-
-ContinueHandler.prototype.createContextPads = function(element) {
-
-  const scopes = () => this._findScopes(scope => {
-    return (
-      !scope.destroyed &&
-      scope.element === element &&
-      !scope.children.length
-    );
-  });
-
-  const html = `
-    <div class="context-pad" title="Trigger Event">
-      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.PlayIcon)() }
-    </div>
-  `;
-
-  const action = (scopes) => {
-    this._simulator.signal({
-      element,
-      scope: scopes[0]
-    });
-  };
-
-  return [
-    {
-      action,
-      element,
-      html,
-      scopes
-    }
-  ];
-};
-
-ContinueHandler.prototype._findScopes = function(options) {
-  return this._simulator.findScopes(options);
-};
-
-ContinueHandler.$inject = [
-  'simulator'
-];
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/EventBasedGatewayHandler.js":
-/*!*************************************************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/EventBasedGatewayHandler.js ***!
-  \*************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ EventBasedGatewayHandler)
-/* harmony export */ });
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
-
-
-
-
-
-function EventBasedGatewayHandler(simulator) {
-  this._simulator = simulator;
-}
-
-EventBasedGatewayHandler.prototype.createContextPads = function(element) {
-  const catchEvents = (
-    element.outgoing.filter(
-      outgoing => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(outgoing, 'bpmn:SequenceFlow')
-    ).map(
-      outgoing => outgoing.target
-    ).filter(
-      element => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:IntermediateCatchEvent') || (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask')
-    )
-  );
-
-  return catchEvents.map(
-    element => this.createCatchEventPad(element)
-  );
-};
-
-EventBasedGatewayHandler.prototype.createCatchEventPad = function(element) {
-
-  const scopeElement = element.incoming.map(
-    connection => connection.source
-  ).find(
-    element => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:EventBasedGateway')
-  );
-
-  if (!scopeElement) {
-    return;
-  }
-
-  const scopes = () => {
-    return this._findScopes({
-      element: scopeElement
-    });
-  };
-
-  const html = `
-    <div class="context-pad" title="Trigger Event">
-      ${(0,_icons__WEBPACK_IMPORTED_MODULE_1__.PlayIcon)()}
-    </div>
-  `;
-
-  const action = (scopes) => {
-    this._simulator.signal({
-      element: element,
-      scope: scopes[0]
-    });
-  };
-
-  return {
-    action,
-    element,
-    html,
-    scopes
-  };
-};
-
-EventBasedGatewayHandler.prototype._findScopes = function(options) {
-  return this._simulator.findScopes(options);
-};
-
-EventBasedGatewayHandler.$inject = [
-  'simulator'
-];
-
-/***/ }),
-
 /***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js":
 /*!************************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js ***!
@@ -1367,7 +1163,7 @@ ExclusiveGatewayHandler.prototype.createContextPads = function(element) {
   }
 
   const html = `
-    <div class="context-pad" title="Set Sequence Flow">
+    <div class="bts-context-pad" title="Set Sequence Flow">
       ${(0,_icons__WEBPACK_IMPORTED_MODULE_1__.ForkIcon)()}
     </div>
   `;
@@ -1402,7 +1198,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ PauseHandler)
 /* harmony export */ });
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+
+
+
 
 
 
@@ -1412,6 +1213,14 @@ function PauseHandler(simulator) {
 
 PauseHandler.prototype.createContextPads = function(element) {
 
+  if (
+    (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask') || (
+      (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:SubProcess') && (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(element).triggeredByEvent
+    )
+  ) {
+    return [];
+  }
+
   return [
     this.createPauseContextPad(element)
   ];
@@ -1419,28 +1228,27 @@ PauseHandler.prototype.createContextPads = function(element) {
 
 PauseHandler.prototype.createPauseContextPad = function(element) {
 
-  const scopes = () => this._findScopes({
+  const contexts = () => this._findSubscriptions({
     element
-  }).filter(scope => !scope.children.length);
+  });
 
   const wait = this._isPaused(element);
 
   const html = `
-    <div class="context-pad ${ wait ? '' : 'show-hover' }" title="${ wait ? 'Remove' : 'Add' } pause point">
-      ${ (wait ? _icons__WEBPACK_IMPORTED_MODULE_0__.RemovePauseIcon : _icons__WEBPACK_IMPORTED_MODULE_0__.PauseIcon)('show-hover') }
-      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.PauseIcon)('hide-hover') }
+    <div class="bts-context-pad ${ wait ? '' : 'show-hover' }" title="${ wait ? 'Remove' : 'Add' } pause point">
+      ${ (wait ? _icons__WEBPACK_IMPORTED_MODULE_2__.RemovePauseIcon : _icons__WEBPACK_IMPORTED_MODULE_2__.PauseIcon)('show-hover') }
+      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.PauseIcon)('hide-hover') }
     </div>
   `;
 
   const action = () => {
-
     this._togglePaused(element);
   };
 
   return {
     action,
     element,
-    hideScopes: scopes,
+    hideContexts: contexts,
     html
   };
 };
@@ -1460,8 +1268,8 @@ PauseHandler.prototype._togglePaused = function(element) {
   this._simulator.waitAtElement(element, wait);
 };
 
-PauseHandler.prototype._findScopes = function(options) {
-  return this._simulator.findScopes(options);
+PauseHandler.prototype._findSubscriptions = function(options) {
+  return this._simulator.findSubscriptions(options);
 };
 
 PauseHandler.$inject = [
@@ -1470,70 +1278,59 @@ PauseHandler.$inject = [
 
 /***/ }),
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/StartEventHandler.js":
-/*!******************************************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/StartEventHandler.js ***!
-  \******************************************************************************************************/
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js":
+/*!***************************************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js ***!
+  \***************************************************************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ StartEventHandler)
+/* harmony export */   "default": () => (/* binding */ TriggerHandler)
 /* harmony export */ });
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
 
-
-
-function StartEventHandler(simulator) {
+function TriggerHandler(simulator) {
   this._simulator = simulator;
 }
 
-StartEventHandler.prototype.createContextPads = function(element) {
+TriggerHandler.$inject = [
+  'simulator'
+];
 
-  const startEvents = findStartEvents(element);
-
-  const pads = startEvents.map(
-    startEvent => this.createStartEventContextPad(startEvent, element)
-  );
-
-  return pads;
+TriggerHandler.prototype.createContextPads = function(element) {
+  return [
+    this.createTriggerContextPad(element)
+  ];
 };
 
-StartEventHandler.prototype.createStartEventContextPad = function(element, parent) {
+TriggerHandler.prototype.createTriggerContextPad = function(element) {
 
-  const parentElement = element.parent;
-
-  let scopes;
-
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(parentElement, 'bpmn:SubProcess')) {
-
-    if (!isEventSubProcess(parentElement)) {
-      return;
-    }
-
-    scopes = () => this._findScopes({
-      element: parentElement.parent
+  const contexts = () => {
+    return this._findSubscriptions({
+      element
     });
-  }
+  };
 
   const html = `
-    <div class="context-pad">
-      ${(0,_icons__WEBPACK_IMPORTED_MODULE_1__.PlayIcon)()}
+    <div class="bts-context-pad" title="Trigger Event">
+      ${(0,_icons__WEBPACK_IMPORTED_MODULE_0__.PlayIcon)()}
     </div>
   `;
 
-  const action = (scopes) => {
-    const parentScope = scopes && scopes[0];
+  const action = (subscriptions) => {
 
-    this._simulator.signal({
-      element: parentElement,
-      startEvent: element,
-      parentScope
+    const {
+      event,
+      scope
+    } = subscriptions[0];
+
+    return this._simulator.trigger({
+      event,
+      scope
     });
   };
 
@@ -1541,48 +1338,13 @@ StartEventHandler.prototype.createStartEventContextPad = function(element, paren
     action,
     element,
     html,
-    scopes
+    contexts
   };
 };
 
-StartEventHandler.prototype._findScopes = function(options) {
-  return this._simulator.findScopes(options);
+TriggerHandler.prototype._findSubscriptions = function(options) {
+  return this._simulator.findSubscriptions(options);
 };
-
-StartEventHandler.$inject = [
-  'simulator'
-];
-
-
-// helpers //////////////
-
-function findStartEvents(processElement) {
-
-  const startEvents = processElement.businessObject.triggeredByEvent
-    ? []
-    : processElement.children.filter(isStartEvent);
-
-  const eventSubProcesses = processElement.children.filter(isEventSubProcess);
-
-  return eventSubProcesses.reduce((startEvents, subProcessElement) => {
-
-    for (const subProcessChild of subProcessElement.children) {
-      if (isStartEvent(subProcessChild)) {
-        startEvents.push(subProcessChild);
-      }
-    }
-
-    return startEvents;
-  }, startEvents);
-}
-
-function isEventSubProcess(element) {
-  return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__.getBusinessObject)(element).triggeredByEvent;
-}
-
-function isStartEvent(element) {
-  return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:StartEvent');
-}
 
 /***/ }),
 
@@ -1873,6 +1635,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementColors)
 /* harmony export */ });
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+
+
+
 function ElementColors(elementRegistry, graphicsFactory) {
   this._elementRegistry = elementRegistry;
   this._graphicsFactory = graphicsFactory;
@@ -1885,7 +1651,7 @@ ElementColors.$inject = [
 
 ElementColors.prototype.get = function(element) {
 
-  const di = getDi(element);
+  const di = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getDi)(element);
 
   if (!di) {
     return undefined;
@@ -1912,7 +1678,7 @@ ElementColors.prototype.set = function(element, colors) {
     stroke
   } = colors;
 
-  const di = getDi(element);
+  const di = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getDi)(element);
 
   if (!di) {
     return;
@@ -1939,10 +1705,6 @@ ElementColors.prototype._forceRedraw = function(element) {
 
 
 // helpers /////////////////
-
-function getDi(element) {
-  return element.businessObject && element.businessObject.di;
-}
 
 function isLabel(element) {
   return 'labelTarget' in element;
@@ -2023,9 +1785,9 @@ ElementNotifications.prototype.addElementNotification = function(element, option
     : '';
 
   const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
-    <div class="element-notification ${ type || '' }" ${colorMarkup}>
+    <div class="bts-element-notification ${ type || '' }" ${colorMarkup}>
       ${ icon || '' }
-      <span class="text">${ text }</span>
+      <span class="bts-text">${ text }</span>
     </div>
   `);
 
@@ -2541,7 +2303,7 @@ function Log(
   this._init();
 
   eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.SCOPE_FILTER_CHANGED_EVENT, event => {
-    const allElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.queryAll)('.entry[data-scope-id]', this._container);
+    const allElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.queryAll)('.bts-entry[data-scope-id]', this._container);
 
     for (const element of allElements) {
       const scopeId = element.dataset.scopeId;
@@ -2556,15 +2318,10 @@ function Log(
     } = event;
 
     const {
-      destroyContext,
       element: scopeElement
     } = scope;
 
-    const {
-      reason
-    } = destroyContext;
-
-    const isCompletion = reason === 'complete';
+    const completed = scope.completed;
 
     const processScopes = [
       'bpmn:Process',
@@ -2581,12 +2338,12 @@ function Log(
     const text = `${
       isSubProcess ? (getElementName(scopeElement) || 'SubProcess') : 'Process'
     } ${
-      isCompletion ? 'finished' : 'canceled'
+      completed ? 'finished' : 'canceled'
     }`;
 
     this.log({
       text,
-      icon: isCompletion ? (0,_icons__WEBPACK_IMPORTED_MODULE_0__.CheckCircleIcon)() : (0,_icons__WEBPACK_IMPORTED_MODULE_0__.TimesCircleIcon)(),
+      icon: completed ? (0,_icons__WEBPACK_IMPORTED_MODULE_0__.CheckCircleIcon)() : (0,_icons__WEBPACK_IMPORTED_MODULE_0__.TimesCircleIcon)(),
       scope
     });
   });
@@ -2747,22 +2504,22 @@ function Log(
 
 Log.prototype._init = function() {
   this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.domify)(`
-    <div class="token-simulation-log hidden">
-      <div class="header">
-        ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)('log-icon') }
-        <button class="close">
+    <div class="bts-log hidden">
+      <div class="bts-header">
+        ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)('bts-log-icon') }
+        <button class="bts-close">
           ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.TimesIcon)() }
         </button>
       </div>
-      <div class="content">
-        <p class="entry placeholder">No Entries</p>
+      <div class="bts-content">
+        <p class="bts-entry placeholder">No Entries</p>
       </div>
     </div>
   `);
 
-  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.placeholder', this._container);
+  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.bts-placeholder', this._container);
 
-  this._content = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.content', this._container);
+  this._content = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.bts-content', this._container);
 
   min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(this._content, 'wheel', event => {
     event.stopPropagation();
@@ -2772,13 +2529,13 @@ Log.prototype._init = function() {
     event.stopPropagation();
   });
 
-  this._close = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.close', this._container);
+  this._close = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.bts-close', this._container);
 
   min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(this._close, 'click', () => {
     (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this._container).add('hidden');
   });
 
-  this._icon = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.log-icon', this._container);
+  this._icon = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.bts-log-icon', this._container);
 
   min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(this._icon, 'click', () => {
     (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this._container).add('hidden');
@@ -2787,7 +2544,7 @@ Log.prototype._init = function() {
   this._canvas.getContainer().appendChild(this._container);
 
   this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.domify)(`
-    <div class="entry" title="Show Simulation Log">
+    <div class="bts-entry" title="Show Simulation Log">
       ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)() }
     </div>
   `);
@@ -2833,23 +2590,23 @@ Log.prototype.log = function(options) {
   const colorMarkup = colors ? `style="background: ${colors.primary}; color: ${colors.auxiliary}"` : '';
 
   const logEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.domify)(`
-    <p class="entry ${ type } ${
+    <p class="bts-entry ${ type } ${
       scope && this._scopeFilter.isShown(scope) ? '' : 'inactive'
     }" ${
       scope ? `data-scope-id="${scope.id}"` : ''
     }>
-      <span class="date">${ dateString }</span>
-      <span class="icon">${iconMarkup}</span>
-      <span class="text">${text}</span>
+      <span class="bts-date">${ dateString }</span>
+      <span class="bts-icon">${iconMarkup}</span>
+      <span class="bts-text">${text}</span>
       ${
         scope
-          ? `<span class="scope" data-scope-id="${scope.id}" ${colorMarkup}>${scope.id}</span>`
+          ? `<span class="bts-scope" data-scope-id="${scope.id}" ${colorMarkup}>${scope.id}</span>`
           : ''
       }
     </p>
   `);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_3__.delegate.bind(logEntry, '.scope[data-scope-id]', 'click', event => {
+  min_dom__WEBPACK_IMPORTED_MODULE_3__.delegate.bind(logEntry, '.bts-scope[data-scope-id]', 'click', event => {
     this._scopeFilter.toggle(scope);
   });
 
@@ -2863,7 +2620,7 @@ Log.prototype.clear = function() {
     this._content.removeChild(this._content.firstChild);
   }
 
-  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.domify)('<p class="entry placeholder">No Entries</p>');
+  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.domify)('<p class="bts-entry placeholder">No Entries</p>');
 
   this._content.appendChild(this._placeholder);
 };
@@ -2953,7 +2710,7 @@ function Notifications(eventBus, canvas, scopeFilter) {
 }
 
 Notifications.prototype._init = function() {
-  this.container = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.domify)('<div class="notifications"></div>');
+  this.container = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.domify)('<div class="bts-notifications"></div>');
 
   this._canvas.getContainer().appendChild(this.container);
 };
@@ -2981,10 +2738,10 @@ Notifications.prototype.showNotification = function(options) {
   const colorMarkup = colors ? `style="color: ${colors.auxiliary}; background: ${colors.primary}"` : '';
 
   const notification = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.domify)(`
-    <div class="notification ${type}">
-      <span class="icon">${iconMarkup}</span>
-      <span class="text">${text}</span>
-      ${ scope ? `<span class="scope" ${colorMarkup}>${scope.id}</span>` : '' }
+    <div class="bts-notification ${type}">
+      <span class="bts-icon">${iconMarkup}</span>
+      <span class="bts-text">${text}</span>
+      ${ scope ? `<span class="bts-scope" ${colorMarkup}>${scope.id}</span>` : '' }
     </div>
   `);
 
@@ -3079,7 +2836,7 @@ function Palette(eventBus, canvas) {
 }
 
 Palette.prototype._init = function() {
-  this.container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)('<div class="token-simulation-palette hidden"></div>');
+  this.container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)('<div class="bts-palette hidden"></div>');
 
   this._canvas.getContainer().appendChild(this.container);
 };
@@ -3191,7 +2948,7 @@ function PauseSimulation(
 
 PauseSimulation.prototype._init = function() {
   this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.domify)(`
-    <div class="entry disabled" title="Play/Pause Simulation">
+    <div class="bts-entry disabled" title="Play/Pause Simulation">
       ${ PLAY_MARKUP }
     </div>
   `);
@@ -3436,7 +3193,7 @@ function ResetSimulation(eventBus, tokenSimulationPalette, notifications) {
 
 ResetSimulation.prototype._init = function() {
   this._paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
-    <div class="entry disabled" title="Reset Simulation">
+    <div class="bts-entry disabled" title="Reset Simulation">
       ${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.ResetIcon)() }
     </div>
   `);
@@ -3678,12 +3435,12 @@ SetAnimationSpeed.prototype.getToggleSpeed = function(element) {
 
 SetAnimationSpeed.prototype._init = function(animationSpeed) {
   this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
-    <div class="set-animation-speed hidden">
+    <div class="bts-set-animation-speed hidden">
       ${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.TachometerIcon)() }
-      <div class="animation-speed-buttons">
+      <div class="bts-animation-speed-buttons">
         ${
           SPEEDS.map(([ label, speed ], idx) => `
-            <button title="Set animation speed = ${ label }" data-speed="${ speed }" class="animation-speed-button ${speed === animationSpeed ? 'active' : ''}">
+            <button title="Set animation speed = ${ label }" data-speed="${ speed }" class="bts-animation-speed-button ${speed === animationSpeed ? 'active' : ''}">
               ${
                 Array.from({ length: idx + 1 }).map(
                   () => (0,_icons__WEBPACK_IMPORTED_MODULE_2__.AngleRightIcon)()
@@ -3829,7 +3586,7 @@ function ShowScopes(
 }
 
 ShowScopes.prototype._init = function() {
-  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)('<div class="token-simulation-scopes hidden"></div>');
+  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)('<div class="bts-scopes hidden"></div>');
 
   this._canvas.getContainer().appendChild(this._container);
 };
@@ -3855,7 +3612,7 @@ ShowScopes.prototype.addScope = function(scope) {
   const colorMarkup = colors ? `style="color: ${colors.auxiliary}; background: ${colors.primary}"` : '';
 
   const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
-    <div data-scope-id="${scope.id}" class="scope"
+    <div data-scope-id="${scope.id}" class="bts-scope"
          title="View Process Instance ${scope.id}" ${colorMarkup}>
       ${scope.getTokens()}
     </div>
@@ -4022,16 +3779,11 @@ function SimulationState(
     } = event;
 
     const {
-      destroyContext,
+      destroyInitiator,
       element: scopeElement
     } = scope;
 
-    const {
-      element,
-      reason
-    } = destroyContext;
-
-    if (reason !== 'complete') {
+    if (!scope.completed || !destroyInitiator) {
       return;
     }
 
@@ -4044,7 +3796,7 @@ function SimulationState(
       return;
     }
 
-    elementNotifications.addElementNotification(element, {
+    elementNotifications.addElementNotification(destroyInitiator.element, {
       type: 'success',
       icon: (0,_icons__WEBPACK_IMPORTED_MODULE_1__.CheckCircleIcon)(),
       text: 'Finished',
@@ -4225,8 +3977,8 @@ function ToggleMode(
 
 ToggleMode.prototype._init = function() {
   this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.domify)(`
-    <div class="toggle-mode">
-      Token Simulation <span class="toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.ToggleOffIcon)() }</span>
+    <div class="bts-toggle-mode">
+      Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.ToggleOffIcon)() }</span>
     </div>
   `);
 
@@ -4242,12 +3994,12 @@ ToggleMode.prototype.toggleMode = function(active = !this._active) {
   }
 
   if (active) {
-    this._container.innerHTML = `Token Simulation <span class="toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.ToggleOnIcon)() }</span>`;
+    this._container.innerHTML = `Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.ToggleOnIcon)() }</span>`;
 
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._canvasParent).add('simulation');
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._palette).add('hidden');
   } else {
-    this._container.innerHTML = `Token Simulation <span class="toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.ToggleOffIcon)() }</span>`;
+    this._container.innerHTML = `Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.ToggleOffIcon)() }</span>`;
 
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._canvasParent).remove('simulation');
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._palette).remove('hidden');
@@ -4352,7 +4104,7 @@ function TokenCount(
 
   eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_FILTER_CHANGED_EVENT, event => {
 
-    const allElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.queryAll)('.token-count[data-scope-id]', overlays._overlayRoot);
+    const allElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.queryAll)('.bts-token-count[data-scope-id]', overlays._overlayRoot);
 
     for (const element of allElements) {
       const scopeId = element.dataset.scopeId;
@@ -4388,7 +4140,7 @@ TokenCount.prototype.addTokenCount = function(element, scopes) {
   }).join('');
 
   const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
-    <div class="token-count-parent">
+    <div class="bts-token-count-parent">
       ${tokenMarkup}
     </div>
   `);
@@ -4427,7 +4179,7 @@ TokenCount.prototype._getTokenHTML = function(element, scope) {
   const colors = scope.colors || this._getDefaultColors();
 
   return `
-    <div data-scope-id="${scope.id}" class="token-count waiting ${this._scopeFilter.isShown(scope) ? '' : 'inactive' }"
+    <div data-scope-id="${scope.id}" class="bts-token-count waiting ${this._scopeFilter.isShown(scope) ? '' : 'inactive' }"
          style="color: ${colors.auxiliary}; background: ${ colors.primary }">
       ${scope.getTokensByElement(element)}
     </div>
@@ -4600,6 +4352,456 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/Scope.js":
+/*!**********************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/Scope.js ***!
+  \**********************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ Scope)
+/* harmony export */ });
+/* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
+/* harmony import */ var _ScopeStates__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ScopeStates */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeStates.js");
+
+
+
+
+/**
+ * A representation of anything runnable in token simulation land.
+ */
+class Scope {
+
+  /**
+   * @param {string} id
+   * @param {Element} element
+   * @param {Scope} parent
+   * @param {Scope} initiator
+   *
+   * @constructor
+   */
+  constructor(id, element, parent = null, initiator = null) {
+    this.id = id;
+    this.element = element;
+    this.parent = parent;
+    this.initiator = initiator;
+
+    this.subscriptions = new Set();
+
+    this.children = [];
+    this.state = _ScopeStates__WEBPACK_IMPORTED_MODULE_0__.ScopeStates.ACTIVATED;
+  }
+
+  /**
+   * @return {boolean}
+   */
+  get running() {
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.RUNNING);
+  }
+
+  /**
+   * @return {boolean}
+   */
+  get destroyed() {
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.DESTROYED);
+  }
+
+  /**
+   * @return {boolean}
+   */
+  get completed() {
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.COMPLETED);
+  }
+
+  /**
+   * @return {boolean}
+   */
+  get canceled() {
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.CANCELED);
+  }
+
+  /**
+   * @return {boolean}
+   */
+  get failed() {
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.FAILED);
+  }
+
+  /**
+   * @param {number} phase
+   * @return {boolean}
+   */
+  hasTrait(trait) {
+    return this.state.hasTrait(trait);
+  }
+
+  /**
+   * Start the scope
+   *
+   * @return {Scope}
+   */
+  start() {
+    this.state = this.state.start();
+
+    return this;
+  }
+
+  /**
+   * Make this scope compensable.
+   *
+   * @return {Scope}
+   */
+  compensable() {
+    this.state = this.state.compensable();
+
+    return this;
+  }
+
+  /**
+   * @param {Scope} initiator
+   *
+   * @return {Scope}
+   */
+  fail(initiator) {
+    if (!this.failed) {
+      this.state = this.state.fail();
+
+      this.failInitiator = initiator;
+    }
+
+    return this;
+  }
+
+  cancel(initiator) {
+
+    if (!this.canceled) {
+      this.state = this.state.cancel();
+
+      this.cancelInitiator = initiator;
+    }
+
+    return this;
+  }
+
+  /**
+   * @param {Scope} initiator
+   *
+   * @return {Scope}
+   */
+  terminate(initiator) {
+    this.state = this.state.terminate();
+
+    this.terminateInitiator = initiator;
+
+    return this;
+  }
+
+  /**
+   * @return {Scope}
+   */
+  complete() {
+    this.state = this.state.complete();
+
+    return this;
+  }
+
+  /**
+   * Destroy the scope
+   *
+   * @param {Scope} initiator
+   *
+   * @return {Scope}
+   */
+  destroy(initiator) {
+    this.state = this.state.destroy();
+
+    this.destroyInitiator = initiator;
+
+    return this;
+  }
+
+  /**
+   * @return {number}
+   */
+  getTokens() {
+    return this.children.filter(c => !c.destroyed).length;
+  }
+
+  /**
+   * @param {Element} element
+   *
+   * @return {number}
+   */
+  getTokensByElement(element) {
+    return this.children.filter(c => !c.destroyed && c.element === element).length;
+  }
+
+}
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeStates.js":
+/*!****************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeStates.js ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "ScopeState": () => (/* binding */ ScopeState),
+/* harmony export */   "ScopeStates": () => (/* binding */ ScopeStates)
+/* harmony export */ });
+/* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
+
+
+const SELF = {};
+
+function illegalTransition(state, target) {
+  throw new Error(`illegal transition: ${state.name} -> ${target}`);
+}
+
+function orSelf(state, self) {
+  if (state === SELF) {
+    return self;
+  }
+
+  return state;
+}
+
+/**
+ * A representation of a scopes state with name, traits, and supported
+ * transitions to other states.
+ */
+class ScopeState {
+
+  /**
+   * @param {string} name
+   * @param {number} traits
+   * @param {object} [transitions]
+   * @param {ScopeState} [transitions.start]
+   * @param {ScopeState} [transitions.cancel]
+   * @param {ScopeState} [transitions.complete]
+   * @param {ScopeState} [transitions.destroy]
+   * @param {ScopeState} [transitions.fail]
+   * @param {ScopeState} [transitions.terminate]
+   * @param {ScopeState} [transitions.compensable]
+   */
+  constructor(name, traits, {
+    start,
+    cancel,
+    complete,
+    destroy,
+    fail,
+    terminate,
+    compensable
+  } = {}) {
+    this.name = name;
+
+    /**
+     * A bit-wise encoded set of traits
+     * characterizing the scope.
+     *
+     * @type {number}
+     */
+    this.traits = traits;
+
+    this._start = orSelf(start, this);
+    this._compensable = orSelf(compensable, this);
+    this._cancel = orSelf(cancel, this);
+    this._complete = orSelf(complete, this);
+    this._destroy = orSelf(destroy, this);
+    this._fail = orSelf(fail, this);
+    this._terminate = orSelf(terminate, this);
+  }
+
+  /**
+   * @param {number} trait
+   * @return {boolean}
+   */
+  hasTrait(trait) {
+    return (this.traits & trait) !== 0;
+  }
+
+  /**
+   * @return {ScopeState}
+   */
+  complete() {
+    return this._complete || illegalTransition(this, 'complete');
+  }
+
+  /**
+   * @return {ScopeState}
+   */
+  destroy() {
+    return this._destroy || illegalTransition(this, 'destroy');
+  }
+
+  /**
+   * @return {ScopeState}
+   */
+  cancel() {
+    return this._cancel || illegalTransition(this, 'cancel');
+  }
+
+  /**
+   * @return {ScopeState}
+   */
+  fail() {
+    return this._fail || illegalTransition(this, 'fail');
+  }
+
+  /**
+   * @return {ScopeState}
+   */
+  terminate() {
+    return this._terminate || illegalTransition(this, 'terminate');
+  }
+
+  /**
+   * @return {ScopeState}
+   */
+  compensable() {
+    return this._compensable || illegalTransition(this, 'compensable');
+  }
+
+  /**
+   * @return {ScopeState}
+   */
+  start() {
+    return this._start || illegalTransition(this, 'start');
+  }
+}
+
+const FAILED = new ScopeState('failed', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.DESTROYED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.FAILED);
+
+const TERMINATED = new ScopeState('terminated', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.DESTROYED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.TERMINATED);
+
+const COMPLETED = new ScopeState('completed', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.DESTROYED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED);
+
+const TERMINATING = new ScopeState('terminating', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.TERMINATED, {
+  destroy: TERMINATED
+});
+
+const CANCELING = new ScopeState('canceling', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.FAILED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.CANCELED, {
+  destroy: FAILED,
+  complete: SELF,
+  terminate: TERMINATING
+});
+
+const COMPLETING = new ScopeState('completing', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED, {
+  destroy: COMPLETED,
+  cancel: CANCELING,
+  terminate: TERMINATING
+});
+
+const FAILING = new ScopeState('failing', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.FAILED, {
+  cancel: CANCELING,
+  complete: COMPLETING,
+  destroy: FAILED,
+  terminate: TERMINATING
+});
+
+const COMPENSABLE_FAILING = new ScopeState('compensable:failing', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.FAILED, {
+  complete: SELF,
+  terminate: TERMINATING,
+  destroy: FAILED
+});
+
+const COMPENSABLE_COMPLETED = new ScopeState('compensable:completed', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED, {
+  cancel: CANCELING,
+  fail: COMPENSABLE_FAILING,
+  destroy: COMPLETED,
+  compensable: SELF
+});
+
+const COMPENSABLE_COMPLETING = new ScopeState('compensable:completing', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED, {
+  destroy: COMPENSABLE_COMPLETED,
+  terminate: TERMINATING,
+  compensable: SELF
+});
+
+const COMPENSABLE_RUNNING = new ScopeState('compensable:running', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.RUNNING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPENSABLE, {
+  cancel: CANCELING,
+  complete: COMPENSABLE_COMPLETING,
+  compensable: SELF,
+  destroy: COMPENSABLE_COMPLETED,
+  fail: FAILING,
+  terminate: TERMINATING
+});
+
+const RUNNING = new ScopeState('running', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.RUNNING, {
+  cancel: CANCELING,
+  complete: COMPLETING,
+  compensable: COMPENSABLE_RUNNING,
+  destroy: TERMINATED,
+  fail: FAILING,
+  terminate: TERMINATING
+});
+
+const ACTIVATED = new ScopeState('activated', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ACTIVATED, {
+  start: RUNNING,
+  destroy: TERMINATED
+});
+
+const ScopeStates = Object.freeze({
+  ACTIVATED,
+  RUNNING,
+  CANCELING,
+  COMPLETING,
+  COMPLETED,
+  FAILING,
+  FAILED,
+  TERMINATING,
+  TERMINATED,
+});
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js":
+/*!****************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js ***!
+  \****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "ScopeTraits": () => (/* binding */ ScopeTraits)
+/* harmony export */ });
+const ACTIVATED = 1;
+const RUNNING = 1 << 1;
+const ENDING = 1 << 2;
+const ENDED = 1 << 3;
+const DESTROYED = 1 << 4;
+const FAILED = 1 << 5;
+const TERMINATED = 1 << 6;
+const CANCELED = 1 << 7;
+const COMPLETED = 1 << 8;
+const COMPENSABLE = 1 << 9;
+
+const ACTIVE = ACTIVATED | RUNNING | ENDING;
+const NOT_DEAD = ACTIVATED | ENDED;
+
+const ScopeTraits = Object.freeze({
+  ACTIVATED,
+  RUNNING,
+  ENDING,
+  ENDED,
+  DESTROYED,
+  FAILED,
+  TERMINATED,
+  CANCELED,
+  COMPLETED,
+  COMPENSABLE,
+  ACTIVE,
+  NOT_DEAD
+});
+
+/***/ }),
+
 /***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/Simulator.js":
 /*!**************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/Simulator.js ***!
@@ -4612,26 +4814,41 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Simulator)
 /* harmony export */ });
 /* harmony import */ var ids__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ids */ "./node_modules/ids/dist/index.esm.js");
+/* harmony import */ var _Scope__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Scope */ "./node_modules/bpmn-js-token-simulation/lib/simulator/Scope.js");
+/* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
+/* harmony import */ var _util_SetUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./util/SetUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js");
+/* harmony import */ var _util_EventsUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./util/EventsUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
 
 
 
-function Simulator(injector, eventBus) {
 
-  const ids = new ids__WEBPACK_IMPORTED_MODULE_0__.default([ 32, 36 ]);
+
+
+
+
+
+
+
+
+function Simulator(injector, eventBus, elementRegistry) {
+
+  const ids = injector.get('scopeIds', false) || new ids__WEBPACK_IMPORTED_MODULE_0__.default([ 32, 36 ]);
 
   // element configuration
   const configuration = {};
 
   const behaviors = {};
 
-  const scopes = [];
-
   const noopBehavior = new NoopBehavior();
-
-  const jobs = [];
 
   const changedElements = new Set();
 
+  const jobs = [];
+
+  const scopes = new Set();
+  const subscriptions = new Set();
 
   on('tick', function() {
     for (const element of changedElements) {
@@ -4678,12 +4895,20 @@ function Simulator(injector, eventBus) {
     const {
       element,
       parentScope,
-      initiator
+      initiator = null
     } = context;
 
-    const scope = context.scope || createScope(element, parentScope, initiator && initiator.element);
+    const scope = context.scope || initializeScope({
+      element,
+      parent: parentScope,
+      initiator
+    });
 
     queue(scope, function() {
+
+      if (!scope.running) {
+        scope.start();
+      }
 
       trace('signal', {
         ...context,
@@ -4707,16 +4932,27 @@ function Simulator(injector, eventBus) {
 
     const {
       element,
-      scope: parentScope
+      scope: parentScope,
+      initiator = parentScope
     } = context;
 
-    const scope = createScope(element, parentScope, element);
+    const scope = initializeScope({
+      element,
+      parent: parentScope,
+      initiator
+    });
 
     queue(scope, function() {
+
+      if (!scope.running) {
+        scope.start();
+      }
+
       trace('enter', context);
 
       getBehavior(element).enter({
         ...context,
+        initiator,
         scope
       });
 
@@ -4731,57 +4967,285 @@ function Simulator(injector, eventBus) {
     const {
       element,
       scope,
-      initiator = {
-        element,
-        scope
-      }
+      initiator = scope
     } = context;
 
     queue(scope, function() {
 
       trace('exit', context);
 
-      getBehavior(element).exit(context);
-
-      destroyScope(scope, {
-        ...initiator,
-        reason: 'complete'
+      getBehavior(element).exit({
+        ...context,
+        initiator
       });
+
+      if (scope.running) {
+        scope.complete();
+      }
+
+      destroyScope(scope, initiator);
 
       scope.parent && scopeChanged(scope.parent);
     });
   }
 
-  function createScope(element, parentScope=null, initiator=null) {
+  function trigger(context) {
+    const {
+      event: _event,
+      initiator,
+      scope
+    } = context;
 
-    trace('createScope', {
+    // behavior depends on available event subscriptions
+    //
+    // interrupt (one-off, clear all events)
+    //   => keep interrupting boundary event sub-scriptions of same type, if available
+    //
+    // continue (one-off signal)
+    //
+    // non-interrupting (as many as needed)
+
+    const event = getEvent(_event);
+
+    const subscriptions = scope.subscriptions;
+
+    const matchingSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(
+      subscriptions, subscription => (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_2__.eventsMatch)(event, subscription.event)
+    );
+
+    const nonInterrupting = matchingSubscriptions.filter(
+      subscription => !subscription.event.interrupting
+    );
+
+    const interrupting = matchingSubscriptions.filter(
+      subscription => subscription.event.interrupting
+    );
+
+    if (!interrupting.length) {
+      return nonInterrupting.map(
+        subscription => subscription.triggerFn(initiator)
+      ).flat();
+    }
+
+    const interrupt = interrupting.find(subscription => !subscription.event.boundary) || interrupting[0];
+
+    const remainingSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(
+      subscriptions,
+      subscription => subscription.event.persistent || isRethrow(subscription.event, interrupt.event)
+    );
+
+    subscriptions.forEach(subscription => {
+      if (!remainingSubscriptions.includes(subscription)) {
+        subscription.remove();
+      }
+    });
+
+    return [ interrupt.triggerFn(initiator) ].flat().filter(s => s);
+  }
+
+  function subscribe(scope, event, triggerFn) {
+
+    event = getEvent(event);
+
+    const element = event.element;
+
+    const subscription = {
+      scope,
+      event,
+      element,
+      triggerFn,
+      remove() {
+        unsubscribe(subscription);
+      }
+    };
+
+    subscriptions.add(subscription);
+
+    scope.subscriptions.add(subscription);
+
+    if (element) {
+      elementChanged(element);
+    }
+
+    return subscription;
+  }
+
+  function unsubscribe(subscription) {
+    const {
+      scope,
+      event
+    } = subscription;
+
+    subscriptions.delete(subscription);
+
+    scope.subscriptions.delete(subscription);
+
+    if (event.element) {
+      elementChanged(event.element);
+    }
+  }
+
+  function createInternalRef(element) {
+    if (
+      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:StartEvent') ||
+      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:IntermediateCatchEvent') ||
+      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ReceiveTask')
+    ) {
+      return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.getBusinessObject)(element).name || element.id;
+    }
+
+    return null;
+  }
+
+  function getEvent(element) {
+
+    // do not double-return element
+    if (!element.businessObject) {
+      return element;
+    }
+
+    const interrupting = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isInterrupting)(element);
+    const boundary = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isBoundaryEvent)(element);
+
+    // we do create an internal reference for
+    // catch-like events to ensure these can
+    // be triggered via the UI exclusively
+    const iref = createInternalRef(element);
+
+    const baseEvent = {
+      element,
+      interrupting,
+      boundary,
+      ...(iref ? { iref } : {})
+    };
+
+    const eventDefinition = (element.businessObject.eventDefinitions || {})[0];
+
+    if (!eventDefinition) {
+
+      return {
+        ...baseEvent,
+        type: isImplicitMessageCatch(element) ? 'message' : 'none'
+      };
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:LinkEventDefinition')) {
+      return {
+        ...baseEvent,
+        type: 'link',
+        name: eventDefinition.name
+      };
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:SignalEventDefinition')) {
+      return {
+        ...baseEvent,
+        type: 'signal',
+        ref: eventDefinition.signalRef
+      };
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:TimerEventDefinition')) {
+      return {
+        ...baseEvent,
+        type: 'timer'
+      };
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:ConditionalEventDefinition')) {
+      return {
+        ...baseEvent,
+        type: 'condition',
+      };
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:EscalationEventDefinition')) {
+      return {
+        ...baseEvent,
+        type: 'escalation',
+        ref: eventDefinition.escalationRef
+      };
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:CancelEventDefinition')) {
+      return {
+        ...baseEvent,
+        type: 'cancel'
+      };
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:ErrorEventDefinition')) {
+      return {
+        ...baseEvent,
+        type: 'error',
+        ref: eventDefinition.errorRef
+      };
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:MessageEventDefinition')) {
+      return {
+        ...baseEvent,
+        type: 'message',
+        ref: eventDefinition.messageRef
+      };
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:CompensateEventDefinition')) {
+
+      let ref = eventDefinition.activityRef && elementRegistry.get(eventDefinition.activityRef.id);
+
+      if (!ref) {
+
+        // start event in event sub-process compensates
+        // parent process (or participant)
+        if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isStartEvent)(element) && (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isEventSubProcess)(element.parent)) {
+          ref = element.parent.parent;
+        } else
+
+        // boundary event compensates activity it is attached to
+        if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isBoundaryEvent)(element)) {
+          ref = element.host;
+        }
+
+        // parent is cancel scope
+        else {
+          ref = element.parent;
+        }
+      }
+
+      return {
+        ...baseEvent,
+        type: 'compensate',
+        ref,
+        persistent: true
+      };
+    }
+
+    throw new Error('unknown event definition', eventDefinition);
+  }
+
+  function createScope(context, emitEvent = true) {
+
+    const {
+      element,
+      parent: parentScope,
+      initiator
+    } = context;
+
+    emitEvent && trace('createScope', {
       element,
       scope: parentScope
     });
 
-    const scope = {
-      id: ids.next(),
-      element,
-      children: [],
-      interrupted: false,
-      destroyed: false,
-      initiator,
-      parent: parentScope,
-      getTokens() {
-        return this.children.filter(c => !c.destroyed).length;
-      },
-      getTokensByElement(element) {
-        return this.children.filter(c => !c.destroyed && c.element === element).length;
-      }
-    };
+    const scope = new _Scope__WEBPACK_IMPORTED_MODULE_5__.default(ids.next(), element, parentScope, initiator);
 
     if (parentScope) {
       parentScope.children.push(scope);
     }
 
-    scopes.push(scope);
+    scopes.add(scope);
 
-    emit('createScope', {
+    emitEvent && emit('createScope', {
       scope
     });
 
@@ -4794,6 +5258,37 @@ function Simulator(injector, eventBus) {
     return scope;
   }
 
+  function subscriptionFilter(filter) {
+
+    if (typeof filter === 'function') {
+      return filter;
+    }
+
+    const {
+      event: _event,
+      element,
+      scope
+    } = filter;
+
+    const elements = filter.elements || (element && [ element ]);
+    const event = _event && getEvent(_event);
+
+    return (
+      (subscription) =>
+        (!event || (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_2__.eventsMatch)(event, subscription.event)) &&
+        (!elements || elements.includes(subscription.element)) &&
+        (!scope || scope === subscription.scope)
+    );
+  }
+
+  function scopeSubscriptionFilter(event) {
+    const matchesSubscription = event === 'function' ? event : subscriptionFilter(event);
+
+    return (
+      scope => Array.from(scope.subscriptions).some(matchesSubscription)
+    );
+  }
+
   function scopeFilter(filter) {
 
     if (typeof filter === 'function') {
@@ -4804,71 +5299,87 @@ function Simulator(injector, eventBus) {
       element,
       waitsOnElement,
       parent,
-      destroyed = false
+      trait = _ScopeTraits__WEBPACK_IMPORTED_MODULE_6__.ScopeTraits.RUNNING,
+      subscribedTo
     } = filter;
+
+    const isSubscribed = subscribedTo ? scopeSubscriptionFilter(subscribedTo) : () => true;
 
     return (
       scope =>
         (!element || scope.element === element) &&
         (!parent || scope.parent === parent) &&
         (!waitsOnElement || scope.getTokensByElement(waitsOnElement) > 0) &&
-        (destroyed === !!scope.destroyed)
+        scope.hasTrait(trait) &&
+        isSubscribed(scope)
     );
   }
 
+  function findSubscriptions(filter) {
+    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(subscriptions, subscriptionFilter(filter));
+  }
+
+  function findSubscription(filter) {
+    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.findSet)(subscriptions, subscriptionFilter(filter));
+  }
+
   function findScopes(filter) {
-    return scopes.filter(scopeFilter(filter));
+    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(scopes, scopeFilter(filter));
   }
 
   function findScope(filter) {
-    return scopes.find(scopeFilter(filter));
+    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.findSet)(scopes, scopeFilter(filter));
   }
 
-  const noneContext = Object.freeze({
-    element: null,
-    scope: null,
-    reason: 'cancel'
-  });
-
-  function destroyScope(scope, context=noneContext) {
+  function destroyScope(scope, initiator = null) {
 
     if (scope.destroyed) {
       return;
     }
 
-    [ 'element', 'scope', 'reason' ].forEach(property => {
-      if (!(property in context)) {
-        throw new Error(`no <context.${property}> provided`);
-      }
-    });
+    scope.destroy(initiator);
 
-    for (const childScope of scope.children) {
-      if (!childScope.destroyed) {
-        destroyScope(childScope, {
-          ...context,
-          reason: 'cancel'
-        });
+    // remove outdated subscriptions
+    for (const subscription of scope.subscriptions) {
+      const trait = subscription.event.traits || _ScopeTraits__WEBPACK_IMPORTED_MODULE_6__.ScopeTraits.ACTIVE;
+
+      if (!scope.hasTrait(trait)) {
+        unsubscribe(subscription);
       }
     }
 
-    trace('destroyScope', {
-      element: scope.element,
-      scope
-    });
+    // depending on taken transition scope many not actually
+    // be destroyed but in an inactive / completed state
+    //
+    // only perform additional destructive operations in case we're
+    // actually DEAD.
+    if (scope.destroyed) {
 
-    scope.destroyContext = context;
+      // destroy child scopes
+      for (const childScope of scope.children) {
+        if (!childScope.destroyed) {
+          destroyScope(childScope, initiator);
+        }
+      }
 
-    scope.destroyed = true;
+      trace('destroyScope', {
+        element: scope.element,
+        scope
+      });
+
+      // remove dead scope
+      scopes.delete(scope);
+
+      emit('destroyScope', {
+        scope
+      });
+    }
 
     elementChanged(scope.element);
 
     if (scope.parent) {
       elementChanged(scope.parent.element);
     }
-
-    emit('destroyScope', {
-      scope
-    });
   }
 
   function trace(action, context) {
@@ -4895,7 +5406,7 @@ function Simulator(injector, eventBus) {
     });
   }
 
-  function emit(event, payload={}) {
+  function emit(event, payload = {}) {
     return eventBus.fire(`tokenSimulation.simulator.${event}`, payload);
   }
 
@@ -4919,11 +5430,133 @@ function Simulator(injector, eventBus) {
     elementChanged(element);
   }
 
+  function initializeRootScopes() {
+
+    const rootScopes = [];
+
+    elementRegistry.forEach(element => {
+
+      if (!(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isAny)(element, [ 'bpmn:Process', 'bpmn:Participant' ])) {
+        return;
+      }
+
+      const scope = createScope({
+        element
+      }, false);
+
+      rootScopes.push(scope);
+
+      const startEvents = element.children.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isStartEvent);
+
+      for (const startEvent of startEvents) {
+
+        const event = {
+          ...getEvent(startEvent),
+          interrupting: false
+        };
+
+        // start events can always be triggered
+        subscribe(scope, event, initiator => signal({
+          element,
+          startEvent,
+          initiator
+        }));
+      }
+    });
+
+    return rootScopes;
+  }
+
+  function initializeScope(context) {
+
+    const {
+      element
+    } = context;
+
+    const scope = createScope(context);
+
+    const {
+      children = [],
+      attachers = []
+    } = element;
+
+    for (const childElement of children) {
+
+      // event sub-process start events
+      if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isEventSubProcess)(childElement)) {
+        const startEvents = childElement.children.filter(
+          element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isStartEvent)(element) && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isCompensationEvent)(element)
+        );
+
+        for (const startEvent of startEvents) {
+          subscribe(scope, startEvent, initiator => {
+
+            return signal({
+              element: childElement,
+              parentScope: scope,
+              startEvent,
+              initiator
+            });
+          });
+        }
+      }
+    }
+
+    for (const attacher of attachers) {
+
+      // boundary events
+      if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isBoundaryEvent)(attacher) && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isCompensationEvent)(attacher)) {
+
+        subscribe(scope, attacher, initiator => {
+          return signal({
+            element: attacher,
+            parentScope: scope.parent,
+            hostScope: scope,
+            initiator
+          });
+        });
+      }
+    }
+
+    return scope;
+  }
+
   function getConfig(element) {
     return configuration[element.id || element] || {};
   }
 
-  function waitAtElement(element, wait=true) {
+  function waitForScopes(scope, scopes) {
+
+    if (!scopes.length) {
+      return;
+    }
+
+    const event = {
+      type: 'all-completed',
+      persistent: false
+    };
+
+    const remainingScopes = new Set(scopes);
+
+    const destroyListener = (destroyEvent) => {
+      remainingScopes.delete(destroyEvent.scope);
+
+      if (remainingScopes.size === 0) {
+        off('destroyScope', destroyListener);
+
+        trigger({
+          scope,
+          event
+        });
+      }
+    };
+
+    on('destroyScope', destroyListener);
+
+    return event;
+  }
+
+  function waitAtElement(element, wait = true) {
     setConfig(element, {
       wait
     });
@@ -4934,7 +5567,9 @@ function Simulator(injector, eventBus) {
       destroyScope(scope);
     }
 
-    scopes.length = 0;
+    for (const rootScope of initializeRootScopes()) {
+      scopes.add(rootScope);
+    }
 
     // TODO(nikku): clear configuration?
 
@@ -4942,32 +5577,52 @@ function Simulator(injector, eventBus) {
     emit('reset');
   }
 
-  this.waitAtElement = waitAtElement;
-
+  // utilties
   this.createScope = createScope;
   this.destroyScope = destroyScope;
 
+  // inspection
   this.findScope = findScope;
   this.findScopes = findScopes;
+
+  this.findSubscription = findSubscription;
+  this.findSubscriptions = findSubscriptions;
+
+  // configuration
+  this.waitAtElement = waitAtElement;
+
+  this.waitForScopes = waitForScopes;
 
   this.setConfig = setConfig;
   this.getConfig = getConfig;
 
+  // driving simulation forward
   this.signal = signal;
   this.enter = enter;
   this.exit = exit;
 
+  // BPMN event subscriptions and triggers
+  this.subscribe = subscribe;
+  this.trigger = trigger;
+
+  // life-cycle
   this.reset = reset;
 
+  // emitter
   this.on = on;
   this.off = off;
 
+  // extension
   this.registerBehavior = function(element, behavior) {
     behaviors[element] = behavior;
   };
 }
 
-Simulator.$inject = [ 'injector', 'eventBus' ];
+Simulator.$inject = [
+  'injector',
+  'eventBus',
+  'elementRegistry'
+];
 
 
 // helpers /////////////////
@@ -4988,6 +5643,17 @@ function NoopBehavior() {
 
 }
 
+function isRethrow(event, interrupt) {
+  return (
+    event.type === interrupt.type &&
+    event.boundary && !interrupt.boundary
+  );
+}
+
+function isImplicitMessageCatch(element) {
+  return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ReceiveTask') || element.incoming.some(element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:MessageFlow'));
+}
+
 /***/ }),
 
 /***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ActivityBehavior.js":
@@ -5001,13 +5667,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ActivityBehavior)
 /* harmony export */ });
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
 
 
 
-function ActivityBehavior(simulator, scopeBehavior) {
+function ActivityBehavior(
+    simulator,
+    scopeBehavior,
+    transactionBehavior
+) {
   this._simulator = simulator;
   this._scopeBehavior = scopeBehavior;
+  this._transactionBehavior = transactionBehavior;
 
   const elements = [
     'bpmn:BusinessRuleTask',
@@ -5025,32 +5696,19 @@ function ActivityBehavior(simulator, scopeBehavior) {
   }
 }
 
+ActivityBehavior.$inject = [
+  'simulator',
+  'scopeBehavior',
+  'transactionBehavior'
+];
+
 ActivityBehavior.prototype.signal = function(context) {
 
-  const {
-    initiator,
-    element
-  } = context;
+  // trigger messages that are pending send
+  const event = this._triggerMessages(context);
 
-  const initiatingFlow = initiator && initiator.element;
-
-  // if signaled by a message flow,
-  // check for the next message flows to either
-  // trigger or wait for; this implements intuitive,
-  // as-you-would expect message flow execution in modeling
-  // direction (left-to-right).
-  if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow)(initiatingFlow)) {
-
-    const referencePoint = last(initiatingFlow.waypoints);
-
-    const messageContexts = this._getMessageContexts(element, referencePoint);
-
-    // trigger messages that are pending send
-    const allProcessed = this._triggerMessages(context, messageContexts);
-
-    if (!allProcessed) {
-      return;
-    }
+  if (event) {
+    return this.signalOnEvent(context, event);
   }
 
   this._simulator.exit(context);
@@ -5062,19 +5720,17 @@ ActivityBehavior.prototype.enter = function(context) {
     element
   } = context;
 
-  const wait = this._waitsAtElement(element);
+  const continueEvent = this.waitAtElement(element);
 
-  const messageContexts = this._getMessageContexts(element);
-
-  if (wait || messageContexts[0] && messageContexts[0].incoming) {
-    return;
+  if (continueEvent) {
+    return this.signalOnEvent(context, continueEvent);
   }
 
   // trigger messages that are pending send
-  const allProcessed = this._triggerMessages(context, messageContexts);
+  const event = this._triggerMessages(context);
 
-  if (!allProcessed) {
-    return;
+  if (event) {
+    return this.signalOnEvent(context, event);
   }
 
   this._simulator.exit(context);
@@ -5087,56 +5743,89 @@ ActivityBehavior.prototype.exit = function(context) {
     scope
   } = context;
 
-  if (scope.interrupted) {
-    return;
-  }
+  const parentScope = scope.parent;
 
   // TODO(nikku): if a outgoing flow is conditional,
   //              task has exclusive gateway semantics,
   //              else, task has parallel gateway semantics
 
-  const parentScope = scope.parent;
+  const complete = !scope.failed;
 
-  let sequenceFlowTaken = false;
-
-  for (const outgoingFlow of element.outgoing) {
-
-    if (!(0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isSequenceFlow)(outgoingFlow)) {
-      continue;
-    }
-
-    this._simulator.enter({
-      element: outgoingFlow,
-      scope: parentScope
-    });
-
-    sequenceFlowTaken = true;
+  // compensation is registered AFTER successful completion
+  // of normal scope activities (non event sub-processes).
+  //
+  // we must register it now, not earlier
+  if (complete && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isEventSubProcess)(element)) {
+    this._transactionBehavior.registerCompensation(scope);
   }
+
+  // if exception flow is active,
+  // do not activate any outgoing flows
+  const activatedFlows = complete
+    ? element.outgoing.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isSequenceFlow)
+    : [];
+
+  activatedFlows.forEach(
+    element => this._simulator.enter({
+      element,
+      scope: parentScope
+    })
+  );
 
   // element has token sink semantics
-  if (!sequenceFlowTaken) {
-    this._scopeBehavior.tryExit(scope.parent, {
-      element,
-      scope
-    });
+  if (activatedFlows.length === 0) {
+    this._scopeBehavior.tryExit(parentScope, scope);
   }
 };
 
-ActivityBehavior.prototype._waitsAtElement = function(element) {
-  return this._simulator.getConfig(element).wait;
+ActivityBehavior.prototype.signalOnEvent = function(context, event) {
+
+  const {
+    scope,
+    element
+  } = context;
+
+  const subscription = this._simulator.subscribe(scope, event, initiator => {
+
+    subscription.remove();
+
+    return this._simulator.signal({
+      scope,
+      element,
+      initiator
+    });
+  });
 };
 
-ActivityBehavior.prototype._getMessageContexts = function(element, after=null) {
+/**
+ * Returns an event to subscribe to if wait on element is configured.
+ *
+ * @param {Element} element
+ *
+ * @return {Object|null} event
+ */
+ActivityBehavior.prototype.waitAtElement = function(element) {
+  const wait = this._simulator.getConfig(element).wait;
+
+  return wait && {
+    element,
+    type: 'continue',
+    interrupting: false,
+    boundary: false
+  };
+};
+
+ActivityBehavior.prototype._getMessageContexts = function(element, after = null) {
 
   const filterAfter = after ? ctx => ctx.referencePoint.x > after.x : () => true;
   const sortByReference = (a, b) => a.referencePoint.x - b.referencePoint.x;
 
   return [
-    ...element.incoming.filter(_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow).map(flow => ({
+    ...element.incoming.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow).map(flow => ({
       incoming: flow,
       referencePoint: last(flow.waypoints)
     })),
-    ...element.outgoing.filter(_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow).map(flow => ({
+    ...element.outgoing.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow).map(flow => ({
       outgoing: flow,
       referencePoint: first(flow.waypoints)
     }))
@@ -5145,19 +5834,67 @@ ActivityBehavior.prototype._getMessageContexts = function(element, after=null) {
 
 /**
  * @param {any} context
- * @param {any[]} messageContexts
  *
- * @return {boolean} true if all message contexts got satisfied, i.e. messages sent
+ * @return {Object} event to subscribe to proceed
  */
-ActivityBehavior.prototype._triggerMessages = function(context, messageContexts) {
+ActivityBehavior.prototype._triggerMessages = function(context) {
 
-  let i = 0;
+  // check for the next message flows to either
+  // trigger or wait for; this implements intuitive,
+  // as-you-would expect message flow execution in modeling
+  // direction (left-to-right).
 
-  for (; i < messageContexts.length; i++) {
-    let { outgoing } = messageContexts[i];
+  const {
+    element,
+    initiator,
+    scope
+  } = context;
 
-    if (!outgoing) {
-      break;
+  let messageContexts = scope.messageContexts;
+
+  if (!messageContexts) {
+    messageContexts = scope.messageContexts = this._getMessageContexts(element);
+  }
+
+  const initiatingFlow = initiator && initiator.element;
+
+  if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow)(initiatingFlow)) {
+
+    // ignore out of bounds messages received;
+    // user may manually advance and force send all outgoing
+    // messages
+    if (scope.expectedIncoming !== initiatingFlow) {
+      console.debug('Simulator :: ActivityBehavior :: ignoring out-of-bounds message');
+
+      return;
+    }
+  }
+
+  while (messageContexts.length) {
+    const {
+      incoming,
+      outgoing
+    } = messageContexts.shift();
+
+    if (incoming) {
+
+      // force sending of all remaining messages,
+      // as the user triggered the task manually (for demonstration
+      // purposes
+      if (!initiator) {
+        continue;
+      }
+
+      // remember expected incoming for future use
+      scope.expectedIncoming = incoming;
+
+      return {
+        element,
+        type: 'message',
+        name: incoming.id,
+        interrupting: false,
+        boundary: false
+      };
     }
 
     this._simulator.signal({
@@ -5165,10 +5902,7 @@ ActivityBehavior.prototype._triggerMessages = function(context, messageContexts)
     });
   }
 
-  return !(i - messageContexts.length);
 };
-
-ActivityBehavior.$inject = [ 'simulator', 'scopeBehavior' ];
 
 
 // helpers //////////////////
@@ -5194,7 +5928,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ BoundaryEventBehavior)
 /* harmony export */ });
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
 
@@ -5214,34 +5948,34 @@ BoundaryEventBehavior.prototype.signal = function(context) {
 
   const {
     element,
-    scope
+    scope,
+    hostScope = this._simulator.findScope({
+      parent: scope.parent,
+      element: element.host
+    })
   } = context;
 
-  const scopeElement = element.host;
+  if (!hostScope) {
+    throw new Error('host scope not found');
+  }
 
-  const cancelActivity = (0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).cancelActivity;
+  const cancelActivity = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).cancelActivity;
 
   if (cancelActivity) {
+    this._scopeBehavior.interrupt(hostScope, scope);
 
-    const cancelScope = this._simulator.findScope({
-      parent: scope.parent,
-      element: scopeElement
-    });
+    // activities are pending completion before actual exit
+    const event = this._scopeBehavior.tryExit(hostScope, scope);
 
-    if (!cancelScope) {
-      throw new Error('cancel scope not found');
+    if (event) {
+      const subscription = this._simulator.subscribe(hostScope, event, initiator => {
+        subscription.remove();
+
+        return this._simulator.exit(context);
+      });
+
+      return;
     }
-
-    const initiator = {
-      element,
-      scope
-    };
-
-    this._scopeBehavior.interrupt(cancelScope, initiator);
-
-    // attempt child scope exit
-    // may fail if interrupting activities are still running
-    this._scopeBehavior.tryExit(cancelScope, initiator);
   }
 
   this._simulator.exit(context);
@@ -5270,73 +6004,39 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ EndEventBehavior)
 /* harmony export */ });
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ModelUtil.js");
-
-
-
 function EndEventBehavior(
     simulator,
-    eventBehaviors,
-    scopeBehavior) {
+    scopeBehavior,
+    intermediateThrowEventBehavior) {
 
-  this._simulator = simulator;
-  this._eventBehaviors = eventBehaviors;
+  this._intermediateThrowEventBehavior = intermediateThrowEventBehavior;
   this._scopeBehavior = scopeBehavior;
 
   simulator.registerBehavior('bpmn:EndEvent', this);
 }
 
+EndEventBehavior.$inject = [
+  'simulator',
+  'scopeBehavior',
+  'intermediateThrowEventBehavior'
+];
+
 EndEventBehavior.prototype.enter = function(context) {
+  this._intermediateThrowEventBehavior.enter(context);
+};
 
-  const {
-    element
-  } = context;
-
-  const eventBehavior = this._eventBehaviors.get(element);
-
-  if (eventBehavior) {
-    eventBehavior(context);
-  }
-
-  for (const outgoing of element.outgoing) {
-    if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isMessageFlow)(outgoing)) {
-      this._simulator.signal({
-        element: outgoing
-      });
-    }
-  }
-
-  this._simulator.exit(context);
+EndEventBehavior.prototype.signal = function(context) {
+  this._intermediateThrowEventBehavior.signal(context);
 };
 
 EndEventBehavior.prototype.exit = function(context) {
 
   const {
-    element,
     scope
   } = context;
 
-  const initiator = {
-    element,
-    scope
-  };
-
-  const {
-    parent: parentScope
-  } = scope;
-
-  if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isTerminate)(element)) {
-    this._scopeBehavior.terminate(parentScope, initiator);
-  }
-
-  this._scopeBehavior.tryExit(parentScope, initiator);
+  this._scopeBehavior.tryExit(scope.parent, scope);
 };
-
-EndEventBehavior.$inject = [
-  'simulator',
-  'eventBehaviors',
-  'scopeBehavior'
-];
 
 /***/ }),
 
@@ -5351,20 +6051,64 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ EventBasedGatewayBehavior)
 /* harmony export */ });
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+
+
+
 function EventBasedGatewayBehavior(simulator) {
   this._simulator = simulator;
 
   simulator.registerBehavior('bpmn:EventBasedGateway', this);
 }
 
-EventBasedGatewayBehavior.prototype.enter = function(context) {
-
-  // literally do nothing, catch event behavior will unstuck us
-};
-
 EventBasedGatewayBehavior.$inject = [
   'simulator'
 ];
+
+EventBasedGatewayBehavior.prototype.enter = function(context) {
+
+  const {
+    element,
+    scope
+  } = context;
+
+  const parentScope = scope.parent;
+
+  const triggerElements = getTriggers(element);
+
+  // create subscriptions for outgoing event triggers
+  // do nothing else beyond that
+  const subscriptions = triggerElements.map(
+    triggerElement => this._simulator.subscribe(parentScope, triggerElement, initiator => {
+
+      // cancel all subscriptions
+      subscriptions.forEach(subscription => subscription.remove());
+
+      // destroy this scope
+      this._simulator.destroyScope(scope, initiator);
+
+      // signal triggered event
+      return this._simulator.signal({
+        element: triggerElement,
+        parentScope,
+        initiator
+      });
+    })
+  );
+
+};
+
+
+// helpers ////////////////
+
+function getTriggers(element) {
+  return element.outgoing.map(
+    outgoing => outgoing.target
+  ).filter(activity => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isAny)(activity, [
+    'bpmn:IntermediateCatchEvent',
+    'bpmn:ReceiveTask'
+  ]));
+}
 
 /***/ }),
 
@@ -5379,18 +6123,32 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ EventBehaviors)
 /* harmony export */ });
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+
+
+
+
 
 
 
 function EventBehaviors(
     simulator,
-    elementRegistry) {
+    elementRegistry,
+    scopeBehavior) {
 
   this._simulator = simulator;
   this._elementRegistry = elementRegistry;
+  this._scopeBehavior = scopeBehavior;
 }
+
+EventBehaviors.$inject = [
+  'simulator',
+  'elementRegistry',
+  'scopeBehavior'
+];
+
 
 EventBehaviors.prototype.get = function(element) {
 
@@ -5402,245 +6160,176 @@ EventBehaviors.prototype.get = function(element) {
         scope
       } = context;
 
-      const {
-        parent: parentScope
-      } = scope;
+      const link = getLinkDefinition(element);
 
-      const eventDefinition = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(element, 'bpmn:LinkEventDefinition');
-      const name = eventDefinition.get('name');
+      const parentScope = scope.parent;
+      const parentElement = parentScope.element;
 
-      // HINT: links work only within the same process
+      const linkTargets = parentElement.children.filter(element =>
+        (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isLinkCatch)(element) &&
+        getLinkDefinition(element).name === link.name
+      );
 
-      const triggerElements = this._elementRegistry.filter(e => {
-        return (
-          e.parent === element.parent &&
-          (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(e, 'bpmn:CatchEvent') &&
-          (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.isTypedEvent)(e, 'bpmn:LinkEventDefinition') &&
-          (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(e, 'bpmn:LinkEventDefinition').get('name') === name
-        );
-      });
-
-      for (const triggerElement of triggerElements) {
-        this._simulator.enter({
-          element: triggerElement,
-          scope: parentScope
+      for (const linkTarget of linkTargets) {
+        this._simulator.signal({
+          element: linkTarget,
+          parentScope,
+          initiator: scope
         });
       }
     },
 
     'bpmn:SignalEventDefinition': (context) => {
 
-      const {
-        element
-      } = context;
-
       // HINT: signals work only within the whole diagram,
       //       triggers start events, boundary events and
       //       intermediate catch events
-
-      const eventDefinition = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(element, 'bpmn:SignalEventDefinition');
-      const signal = eventDefinition.get('signalRef');
-
-      const triggerElements = this._elementRegistry.filter(e => {
-        return (
-          (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(e, 'bpmn:CatchEvent') &&
-          (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.isTypedEvent)(e, 'bpmn:SignalEventDefinition') &&
-          (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(e, 'bpmn:SignalEventDefinition').get('signalRef') === signal
-        );
-      });
-
-      // trigger signal events for found elements
-      const triggers = triggerElements.map(triggerElement => {
-
-        // signal the following elements
-        //
-        //   * start events outside of sub-processes
-        //   * start events in event sub-processes with active parent scope
-        //   * intermediate events with active scope
-        //   * boundary events with active scope waiting in host
-        //
-        if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(triggerElement, 'bpmn:StartEvent')) {
-
-          const triggerParent = triggerElement.parent;
-
-          const startEvent = triggerElement;
-
-          if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(triggerParent, 'bpmn:SubProcess')) {
-
-            // trigger event sub-processes only
-            if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(triggerParent).triggeredByEvent) {
-              const parentScopes = this._simulator.findScopes({
-                element: triggerParent.parent
-              });
-
-              // only trigger if parent scope exists
-              return parentScopes.map(parentScope => () => this._simulator.signal({
-                element: triggerParent,
-                startEvent,
-                parentScope
-              }));
-            }
-          } else {
-            return () => this._simulator.signal({
-              element: triggerElement.parent,
-              startEvent
-            });
-          }
-        }
-
-        if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(triggerElement, 'bpmn:IntermediateCatchEvent')) {
-
-          // (a) scope waiting at element will be signaled
-          const eventSource = triggerElement.incoming.find(
-            incoming => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(incoming.source, 'bpmn:EventBasedGateway')
-          );
-
-          const scopes = this._simulator.findScopes({
-            element: eventSource && eventSource.source || triggerElement
-          });
-
-          return scopes.map(scope => () => this._simulator.signal({
-            element: triggerElement,
-            scope
-          }));
-        }
-
-        if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(triggerElement, 'bpmn:BoundaryEvent')) {
-          const scopes = this._simulator.findScopes({
-            element: triggerElement.host
-          });
-
-          return scopes.map(scope => () => this._simulator.signal({
-            element: triggerElement,
-            parentScope: scope.parent
-          }));
-        }
-
-        // nothing to trigger
-        return [];
-      }).flat();
-
-      for (const trigger of triggers) {
-        if (trigger) {
-          trigger();
-        }
-      }
-
-    },
-
-    'bpmn:EscalationEventDefinition': (context) => {
 
       const {
         element,
         scope
       } = context;
+
+      const subscriptions = this._simulator.findSubscriptions({
+        event: element
+      });
+
+      const signaledScopes = new Set();
+
+      for (const subscription of subscriptions) {
+
+        const signaledScope = subscription.scope;
+
+        if (signaledScopes.has(signaledScope)) {
+          continue;
+        }
+
+        signaledScopes.add(signaledScope);
+
+        this._simulator.trigger({
+          event: element,
+          scope: signaledScope,
+          initiator: scope
+        });
+      }
+    },
+
+    'bpmn:EscalationEventDefinition': (context) => {
 
       // HINT: escalations are propagated up the scope
       //       chain and caught by the first matching boundary event
       //       or event sub-process
 
-      const eventDefinition = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(element, 'bpmn:EscalationEventDefinition');
-      const escalation = eventDefinition.get('escalationRef');
+      const {
+        element,
+        scope
+      } = context;
 
-      let triggerElement, parentScope = scope.parent;
-
-      do {
-
-        // find event sub-process catching in scope
-        triggerElement = parentScope.element.children.find(e => {
-          return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(e, 'bpmn:SubProcess') && e.children.find(e => {
-            return (
-              (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(e, 'bpmn:CatchEvent') &&
-              (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.isTypedEvent)(e, 'bpmn:EscalationEventDefinition') &&
-              (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(e, 'bpmn:EscalationEventDefinition').get('escalationRef') === escalation
-            );
-          });
-        }) || parentScope.element.attachers.find(e => {
-          return (
-            (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(e, 'bpmn:CatchEvent') &&
-            (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.isTypedEvent)(e, 'bpmn:EscalationEventDefinition') &&
-            (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(e, 'bpmn:EscalationEventDefinition').get('escalationRef') === escalation
-          );
-        });
-
-      } while (!triggerElement && (parentScope = parentScope.parent));
-
-      if (!triggerElement) {
-        return;
-      }
-
-      if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(triggerElement, 'bpmn:BoundaryEvent')) {
-        parentScope = parentScope.parent;
-      }
-
-      this._simulator.signal({
-        element: triggerElement,
-        parentScope
+      const scopes = this._simulator.findScopes({
+        subscribedTo: {
+          event: element
+        },
+        trait: _ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.ACTIVE
       });
+
+      let triggerScope = scope;
+
+      while ((triggerScope = triggerScope.parent)) {
+
+        if (scopes.includes(triggerScope)) {
+          this._simulator.trigger({
+            event: element,
+            scope: triggerScope,
+            initiator: scope
+          });
+
+          break;
+        }
+      }
+
     },
 
     'bpmn:ErrorEventDefinition': (context) => {
+
+      // HINT: errors are handled in current scope only (does not bubble)
 
       const {
         element,
         scope
       } = context;
 
-      // HINT: errors are handled in current scope only (do not bubble)
-
-      const eventDefinition = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(element, 'bpmn:ErrorEventDefinition');
-      const error = eventDefinition.get('errorRef');
-
-      let parentScope = scope.parent;
-
-      // find catching event sub-process or boundary event
-      const triggerElement = parentScope.element.children.find(e => {
-        return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(e, 'bpmn:SubProcess') && e.children.find(e => {
-          return (
-            (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(e, 'bpmn:StartEvent') &&
-            (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.isTypedEvent)(e, 'bpmn:ErrorEventDefinition') &&
-            (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(e, 'bpmn:ErrorEventDefinition').get('errorRef') === error
-          );
-        });
-      }) || parentScope.element.attachers.find(e => {
-        return (
-          (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(e, 'bpmn:CatchEvent') &&
-          (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.isTypedEvent)(e, 'bpmn:ErrorEventDefinition') &&
-          (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(e, 'bpmn:ErrorEventDefinition').get('errorRef') === error
-        );
+      // TODO(nikku): ensure error always interrupts, also if no error
+      //              catch is present
+      this._simulator.trigger({
+        event: element,
+        initiator: scope,
+        scope: findSubscriptionScope(scope)
       });
+    },
+    'bpmn:TerminateEventDefinition': (context) => {
+      const {
+        scope
+      } = context;
 
-      if (!triggerElement) {
-        return;
-      }
+      this._scopeBehavior.terminate(scope.parent, scope);
+    },
 
-      if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(triggerElement, 'bpmn:BoundaryEvent')) {
-        parentScope = parentScope.parent;
-      }
+    'bpmn:CancelEventDefinition': (context) => {
 
-      // TODO(nikku): trigger same behavior if error boundary is signaled
+      // HINT: cancels the surrounding transaction scope (does not bubble)
 
-      // TODO(nikku): error has interrupt semantics;
-      // clear all active scopes
+      const {
+        scope,
+        element
+      } = context;
 
-      this._simulator.signal({
-        element: triggerElement,
-        parentScope
+      this._simulator.trigger({
+        event: element,
+        initiator: scope,
+        scope: findSubscriptionScope(scope)
       });
+    },
+
+    'bpmn:CompensateEventDefinition': (context) => {
+
+      const {
+        scope,
+        element
+      } = context;
+
+      return this._simulator.waitForScopes(
+        scope,
+        this._simulator.trigger({
+          event: element,
+          scope: findSubscriptionScope(scope)
+        })
+      );
     }
   };
 
   const entry = Object.entries(behaviors).find(
-    entry => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.isTypedEvent)(element, entry[0])
+    entry => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__.isTypedEvent)(element, entry[0])
   );
 
   return entry && entry[1];
 };
 
-EventBehaviors.$inject = [
-  'simulator',
-  'elementRegistry'
-];
+
+// helpers ///////////////
+
+function getLinkDefinition(element) {
+  return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__.getEventDefinition)(element, 'bpmn:LinkEventDefinition');
+}
+
+function findSubscriptionScope(scope) {
+
+  // the scope is the first non event sub-process
+  while ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isEventSubProcess)(scope.parent.element)) {
+    scope = scope.parent;
+  }
+
+  return scope.parent;
+}
 
 /***/ }),
 
@@ -5655,7 +6344,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ExclusiveGatewayBehavior)
 /* harmony export */ });
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
 
 
 
@@ -5679,7 +6368,7 @@ ExclusiveGatewayBehavior.prototype.exit = function(context) {
   // depends on UI to properly configure activeOutgoing for
   // each exclusive gateway
 
-  const outgoings = (0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.filterSequenceFlows)(element.outgoing);
+  const outgoings = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.filterSequenceFlows)(element.outgoing);
 
   if (outgoings.length === 1) {
     return this._simulator.enter({
@@ -5719,7 +6408,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ IntermediateCatchEventBehavior)
 /* harmony export */ });
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
 
@@ -5734,8 +6423,23 @@ function IntermediateCatchEventBehavior(
   simulator.registerBehavior('bpmn:ReceiveTask', this);
 }
 
+IntermediateCatchEventBehavior.$inject = [
+  'simulator',
+  'activityBehavior'
+];
+
 IntermediateCatchEventBehavior.prototype.signal = function(context) {
-  this._simulator.exit(context);
+
+  const {
+    element
+  } = context;
+
+  // for receive tasks adapt standard message handling
+  if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask')) {
+    return this._activityBehavior.signal(context);
+  }
+
+  return this._simulator.exit(context);
 };
 
 IntermediateCatchEventBehavior.prototype.enter = function(context) {
@@ -5743,19 +6447,23 @@ IntermediateCatchEventBehavior.prototype.enter = function(context) {
     element
   } = context;
 
-  if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isLink)(element)) {
-    this._simulator.exit(context);
+  // for receive tasks, try to adapt standard activity message handling
+  if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask')) {
+    const event = this._activityBehavior._triggerMessages(context);
+
+    if (event) {
+      return this._activityBehavior.signalOnEvent(context, event);
+    }
   }
+
+  // adapt special wait semantics; user must manually
+  // trigger to indicate message received
+  return this._activityBehavior.signalOnEvent(context, element);
 };
 
 IntermediateCatchEventBehavior.prototype.exit = function(context) {
   this._activityBehavior.exit(context);
 };
-
-IntermediateCatchEventBehavior.$inject = [
-  'simulator',
-  'activityBehavior'
-];
 
 /***/ }),
 
@@ -5790,10 +6498,18 @@ IntermediateThrowEventBehavior.prototype.enter = function(context) {
   const eventBehavior = this._eventBehaviors.get(element);
 
   if (eventBehavior) {
-    eventBehavior(context);
+    const event = eventBehavior(context);
+
+    if (event) {
+      return this._activityBehavior.signalOnEvent(context, event);
+    }
   }
 
   this._activityBehavior.enter(context);
+};
+
+IntermediateThrowEventBehavior.prototype.signal = function(context) {
+  this._activityBehavior.signal(context);
 };
 
 IntermediateThrowEventBehavior.prototype.exit = function(context) {
@@ -5819,7 +6535,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ MessageFlowBehavior)
 /* harmony export */ });
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
 
 
 
@@ -5829,6 +6545,8 @@ function MessageFlowBehavior(simulator) {
   simulator.registerBehavior('bpmn:MessageFlow', this);
 }
 
+MessageFlowBehavior.$inject = [ 'simulator' ];
+
 MessageFlowBehavior.prototype.signal = function(context) {
   this._simulator.exit(context);
 };
@@ -5836,115 +6554,33 @@ MessageFlowBehavior.prototype.signal = function(context) {
 MessageFlowBehavior.prototype.exit = function(context) {
   const {
     element,
-    scope
+    scope: initiator
   } = context;
 
   const target = element.target;
 
-  // skip cosmetic flows that model generic,
-  // undirected communication
-  if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(target, 'bpmn:Participant')) {
-    return;
-  }
+  // the event triggered is either the message event
+  // represented by the target message start or catch event _or_
+  // an event that uses { name: messageFlow.id } as an identifier
+  const event = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isCatchEvent)(target) ? target : {
+    type: 'message',
+    element,
+    name: element.id
+  };
 
-  // (a) scope waiting at element will be signaled
-  const eventSource = target.incoming.find(
-    incoming => (0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(incoming.source, 'bpmn:EventBasedGateway')
-  );
-
-  const waitingScope = this._simulator.findScope({
-    element: eventSource && eventSource.source || target
+  const subscription = this._simulator.findSubscription({
+    event,
+    elements: [ target, target.parent ]
   });
 
-  if (waitingScope) {
-    this._simulator.signal({
-      element: target,
-      scope: waitingScope,
-      initiator: {
-        element,
-        scope
-      }
+  if (subscription) {
+    this._simulator.trigger({
+      event,
+      initiator,
+      scope: subscription.scope
     });
-  } else if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(target, 'bpmn:StartEvent')) {
-    this._simulator.signal({
-      startEvent: target,
-      element: target.parent,
-      initiator: {
-        element,
-        scope
-      }
-    });
-  } else {
-
-    // (b) scope active with element => log message received at element
-    const targetScope = this._simulator.findScope({
-      element: target.parent
-    });
-
-    if (targetScope) {
-
-      // TODO(nikku): log message received
-    } else {
-
-      // (c) no scope at target => message is just discarted
-    }
   }
 };
-
-MessageFlowBehavior.$inject = [ 'simulator' ];
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ModelUtil.js":
-/*!************************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ModelUtil.js ***!
-  \************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "is": () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is),
-/* harmony export */   "getBusinessObject": () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject),
-/* harmony export */   "filterSequenceFlows": () => (/* binding */ filterSequenceFlows),
-/* harmony export */   "isMessageFlow": () => (/* binding */ isMessageFlow),
-/* harmony export */   "isSequenceFlow": () => (/* binding */ isSequenceFlow),
-/* harmony export */   "isTerminate": () => (/* binding */ isTerminate),
-/* harmony export */   "isLink": () => (/* binding */ isLink),
-/* harmony export */   "isEventSubProcess": () => (/* binding */ isEventSubProcess)
-/* harmony export */ });
-/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-
-
-
-
-function filterSequenceFlows(flows) {
-  return flows.filter(f => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(f, 'bpmn:SequenceFlow'));
-}
-
-function isMessageFlow(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:MessageFlow');
-}
-
-function isSequenceFlow(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:SequenceFlow');
-}
-
-function isTerminate(element) {
-  return ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).eventDefinitions || []).find(definition => {
-    return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(definition, 'bpmn:TerminateEventDefinition');
-  });
-}
-
-function isLink(element) {
-  return ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).eventDefinitions || []).find(definition => {
-    return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(definition, 'bpmn:LinkEventDefinition');
-  });
-}
-
-function isEventSubProcess(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).triggeredByEvent;
-}
 
 /***/ }),
 
@@ -5959,7 +6595,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ParallelGatewayBehavior)
 /* harmony export */ });
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
 
 
 
@@ -5980,24 +6616,25 @@ ParallelGatewayBehavior.prototype.enter = function(context) {
     element
   } = context;
 
-  const sequenceFlows = (0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.filterSequenceFlows)(element.incoming);
+  const sequenceFlows = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.filterSequenceFlows)(element.incoming);
 
   const {
     parent: parentScope
   } = scope;
 
-  const elementScopes = parentScope.children.filter(c => !c.destroyed && c.element === element);
+  const elementScopes = this._simulator.findScopes({
+    parent: parentScope,
+    element: element
+  });
 
   if (elementScopes.length === sequenceFlows.length) {
 
     for (const childScope of elementScopes) {
 
       if (childScope !== scope) {
-        this._simulator.destroyScope(childScope, {
-          scope,
-          element,
-          reason: 'join'
-        });
+
+        // complete joining child scope
+        this._simulator.destroyScope(childScope.complete(), scope);
       }
     }
 
@@ -6027,10 +6664,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ProcessBehavior)
 /* harmony export */ });
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-
-
-
 function ProcessBehavior(
     simulator,
     scopeBehavior) {
@@ -6045,8 +6678,7 @@ function ProcessBehavior(
 ProcessBehavior.prototype.signal = function(context) {
 
   const {
-    element,
-    startEvent = findProcessStart(element),
+    startEvent,
     scope
   } = context;
 
@@ -6078,13 +6710,6 @@ ProcessBehavior.$inject = [
   'scopeBehavior'
 ];
 
-
-// helpers //////////////////
-
-function findProcessStart(element) {
-  return element.children.find(child => (0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(child, 'bpmn:StartEvent'));
-}
-
 /***/ }),
 
 /***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ScopeBehavior.js":
@@ -6098,103 +6723,79 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ScopeBehavior)
 /* harmony export */ });
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ModelUtil.js");
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+const PRE_EXIT_EVENT = {
+  type: 'pre-exit',
+  persistent: true,
+  interrupting: true,
+  boundary: false
+};
 
+const EXIT_EVENT = {
+  type: 'exit',
+  interrupting: true,
+  boundary: false,
+  persistent: true
+};
 
 
 function ScopeBehavior(simulator) {
   this._simulator = simulator;
 }
 
-ScopeBehavior.prototype.isFinished = function(scope, excludeScope=null) {
-  return scope.children.every(c => c === excludeScope || c.destroyed);
+ScopeBehavior.$inject = [
+  'simulator'
+];
+
+/**
+ * Is the given scope finished?
+ *
+ * @param {Scope}  scope
+ * @param {Scope|Function} [excludeScope=null]
+ *
+ * @return {boolean}
+ */
+ScopeBehavior.prototype.isFinished = function(scope, excludeScope = null) {
+
+  excludeScope = matchScope(excludeScope);
+
+  return scope.children.every(c => c.destroyed || c.completed || excludeScope(c));
 };
 
-ScopeBehavior.prototype.destroyChildren = function(scope, initiator) {
+/**
+ * Destroy all scope children.
+ *
+ * @param {Scope} scope
+ * @param {Scope} initiator
+ * @param {Scope|Function} [excludeScope=null]
+ */
+ScopeBehavior.prototype.destroyChildren = function(scope, initiator, excludeScope = null) {
 
-  for (const childScope of scope.children) {
+  excludeScope = matchScope(excludeScope);
 
-    if (childScope.destroyed) {
-      continue;
-    }
-
-    this._simulator.destroyScope(childScope, {
-      reason: 'cancel',
-      ...initiator
-    });
-  }
-};
-
-ScopeBehavior.prototype.enter = function(context) {
-
-  const {
-    element,
-    scope,
-    parentScope
-  } = context;
-
-  const {
-    parent: parentElement
-  } = element;
-
-  // trigger event sub-process
-  if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isEventSubProcess)(parentElement)) {
-
-    if (!parentScope) {
-      throw new Error('missing <parentScope>');
-    }
-
-    // if we're interrupting, clear all non-interrupting
-    // child scopes, remove all tokens and re-add tokens
-    // to all interrupting child scopes
-    if (isInterrupting(element)) {
-      parentScope.interrupting = true;
-
-      this.interrupt(parentScope.parent, {
-        element,
-        scope
-      });
-    }
-  }
+  scope.children.filter(c => !c.destroyed && !excludeScope(c)).map(c => {
+    this._simulator.destroyScope(c, initiator);
+  });
 };
 
 ScopeBehavior.prototype.terminate = function(scope, initiator) {
 
-  // mark as interrupted
-  scope.interrupted = true;
+  // kill all child scopes
+  this.destroyChildren(scope, initiator);
 
-  // kill all but initiating child scopes
-  for (const childScope of scope.children) {
+  // mark as terminated
+  scope.terminate(initiator);
 
-    if (childScope.destroyed || childScope === initiator.scope) {
-      continue;
-    }
-
-    this._simulator.destroyScope(childScope, {
-      reason: 'cancel',
-      ...initiator
-    });
-  }
+  // exit immediately
+  this.tryExit(scope, initiator);
 };
 
 ScopeBehavior.prototype.interrupt = function(scope, initiator) {
 
-  // mark as interrupted
-  scope.interrupted = true;
+  // kill children but initiator
+  this.destroyChildren(scope, initiator, initiator);
 
-  // kill non-interrupting child scopes
-  for (const childScope of scope.children) {
-
-    if (childScope.destroyed || childScope.interrupting) {
-      continue;
-    }
-
-    this._simulator.destroyScope(childScope, {
-      reason: 'cancel',
-      ...initiator
-    });
-  }
+  // mark as failed
+  scope.fail(initiator);
 };
 
 ScopeBehavior.prototype.tryExit = function(scope, initiator) {
@@ -6203,12 +6804,41 @@ ScopeBehavior.prototype.tryExit = function(scope, initiator) {
   }
 
   if (!initiator) {
-    throw new Error('missing <initiator>');
+    initiator = scope;
   }
 
-  if (!this.isFinished(scope, initiator.scope)) {
-    return;
+  if (!this.isFinished(scope, initiator)) {
+    return EXIT_EVENT;
   }
+
+  const preExitSubscriptions = this._simulator.findSubscriptions({
+    event: PRE_EXIT_EVENT,
+    scope
+  });
+
+  for (const subscription of preExitSubscriptions) {
+
+    const {
+      event,
+      scope
+    } = subscription;
+
+    const scopes = this._simulator.trigger({
+      event,
+      scope,
+      initiator
+    });
+
+    if (scopes.length) {
+      return EXIT_EVENT;
+    }
+  }
+
+  this._simulator.trigger({
+    event: EXIT_EVENT,
+    scope,
+    initiator
+  });
 
   this.exit({
     scope,
@@ -6234,15 +6864,34 @@ ScopeBehavior.prototype.exit = function(context) {
   });
 };
 
-ScopeBehavior.$inject = [
-  'simulator'
-];
+ScopeBehavior.prototype.preExit = function(scope, triggerFn) {
+  const subscription = this._simulator.subscribe(scope, PRE_EXIT_EVENT, (initiator) => {
+
+    subscription.remove();
+
+    return triggerFn(initiator);
+  });
+
+  return subscription;
+};
 
 
 // helpers ////////////////
 
-function isInterrupting(element) {
-  return (0,_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(element).isInterrupting;
+/**
+ * Create a scope matcher.
+ *
+ * @param {Scope|Function} fnOrScope
+ *
+ * @return { (Scope) => boolean }
+ */
+function matchScope(fnOrScope) {
+
+  if (typeof fnOrScope === 'function') {
+    return fnOrScope;
+  }
+
+  return (scope) => scope === fnOrScope;
 }
 
 /***/ }),
@@ -6304,28 +6953,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 function StartEventBehavior(
     simulator,
-    activityBehavior,
-    scopeBehavior) {
+    activityBehavior) {
 
   this._simulator = simulator;
   this._activityBehavior = activityBehavior;
-  this._scopeBehavior = scopeBehavior;
 
   simulator.registerBehavior('bpmn:StartEvent', this);
 }
 
 StartEventBehavior.prototype.signal = function(context) {
-
-  const {
-    parentScope
-  } = context;
-
-  if (!parentScope) {
-    throw new Error('missing <parentScope>');
-  }
-
-  this._scopeBehavior.enter(context);
-
   this._simulator.exit(context);
 };
 
@@ -6335,8 +6971,7 @@ StartEventBehavior.prototype.exit = function(context) {
 
 StartEventBehavior.$inject = [
   'simulator',
-  'activityBehavior',
-  'scopeBehavior'
+  'activityBehavior'
 ];
 
 /***/ }),
@@ -6352,39 +6987,39 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ SubProcessBehavior)
 /* harmony export */ });
-/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
 
 function SubProcessBehavior(
     simulator,
     activityBehavior,
-    scopeBehavior) {
+    scopeBehavior,
+    transactionBehavior,
+    elementRegistry) {
 
   this._simulator = simulator;
   this._activityBehavior = activityBehavior;
   this._scopeBehavior = scopeBehavior;
+  this._transactionBehavior = transactionBehavior;
+  this._elementRegistry = elementRegistry;
 
   simulator.registerBehavior('bpmn:SubProcess', this);
   simulator.registerBehavior('bpmn:Transaction', this);
   simulator.registerBehavior('bpmn:AdHocSubProcess', this);
 }
 
+SubProcessBehavior.$inject = [
+  'simulator',
+  'activityBehavior',
+  'scopeBehavior',
+  'transactionBehavior',
+  'elementRegistry'
+];
+
 SubProcessBehavior.prototype.signal = function(context) {
-  const {
-    element,
-    startEvent = findSubProcessStart(element),
-    scope
-  } = context;
-
-  if (!startEvent) {
-    throw new Error('missing <startEvent>');
-  }
-
-  this._simulator.signal({
-    element: startEvent,
-    parentScope: scope
-  });
+  this._start(context);
 };
 
 SubProcessBehavior.prototype.enter = function(context) {
@@ -6393,49 +7028,449 @@ SubProcessBehavior.prototype.enter = function(context) {
     element
   } = context;
 
-  var wait = this._waitsAtElement(element);
+  const continueEvent = this._activityBehavior.waitAtElement(element);
 
-  if (wait) {
-    return;
+  if (continueEvent) {
+    return this._activityBehavior.signalOnEvent(context, continueEvent);
   }
 
-  this.signal(context);
+  this._start(context);
 };
 
 SubProcessBehavior.prototype.exit = function(context) {
+
+  const {
+    scope
+  } = context;
+
+  const parentScope = scope.parent;
+
+  // successful completion of the fail initiator (event sub-process)
+  // recovers the parent, so that the normal flow is being executed
+  if (parentScope.failInitiator === scope) {
+    parentScope.complete();
+  }
+
+  this._activityBehavior.exit(context);
+};
+
+SubProcessBehavior.prototype._start = function(context) {
+  const {
+    element,
+    startEvent,
+    scope
+  } = context;
+
+  const targetScope = scope.parent;
+
+  if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isEventSubProcess)(element)) {
+
+    if (!startEvent) {
+      throw new Error('missing <startEvent>: required for event sub-process');
+    }
+  } else {
+    if (startEvent) {
+      throw new Error('unexpected <startEvent>: not allowed for sub-process');
+    }
+  }
+
+  if (targetScope.destroyed) {
+    throw new Error(`target scope <${targetScope.id}> destroyed`);
+  }
+
+  if (isTransaction(element)) {
+    this._transactionBehavior.setup(context);
+  }
+
+  if (startEvent && (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isInterrupting)(startEvent)) {
+    this._scopeBehavior.interrupt(targetScope, scope);
+  }
+
+  const startEvents = startEvent ? [ startEvent ] : this._findStarts(element);
+
+  for (const element of startEvents) {
+    this._simulator.signal({
+      element,
+      parentScope: scope,
+      initiator: scope
+    });
+  }
+};
+
+SubProcessBehavior.prototype._findStarts = function(element) {
+
+  // ensure bpmn-js@9 compatibility
+  //
+  // sub-process may be collapsed, in this case operate on the plane
+  element = this._elementRegistry.get(element.id + '_plane') || element;
+
+  return element.children.filter(child => {
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isLabel)(child)) {
+      return false;
+    }
+
+    const incoming = child.incoming.find(c => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(c, 'bpmn:SequenceFlow'));
+
+    if (incoming) {
+      return false;
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isCompensationActivity)(child)) {
+      return false;
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isEventSubProcess)(child)) {
+      return false;
+    }
+
+    return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isAny)(child, [
+      'bpmn:Activity',
+      'bpmn:StartEvent',
+      'bpmn:EndEvent'
+    ]);
+  });
+};
+
+function isTransaction(element) {
+  return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:Transaction');
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/TransactionBehavior.js":
+/*!**********************************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/TransactionBehavior.js ***!
+  \**********************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ TransactionBehavior)
+/* harmony export */ });
+/* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _util_EventsUtil__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/EventsUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js");
+/* harmony import */ var _util_SetUtil__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../util/SetUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js");
+
+
+
+
+
+
+
+
+
+const CANCEL_EVENT = {
+  type: 'cancel',
+  interrupting: true,
+  boundary: false,
+  persistent: true
+};
+
+
+function TransactionBehavior(simulator, scopeBehavior) {
+  this._simulator = simulator;
+  this._scopeBehavior = scopeBehavior;
+}
+
+TransactionBehavior.$inject = [
+  'simulator',
+  'scopeBehavior'
+];
+
+TransactionBehavior.prototype.setup = function(context) {
+
+  const {
+    scope
+  } = context;
+
+  const cancelSubscription = this._simulator.subscribe(scope, CANCEL_EVENT, (initiator) => {
+
+    cancelSubscription.remove();
+
+    return this.cancel({
+      scope,
+      initiator
+    });
+  });
+
+  const compensateEvent = {
+    type: 'compensate',
+    ref: scope.element,
+    persistent: true,
+    traits: _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.NOT_DEAD
+  };
+
+  const compensateSubscription = this._simulator.subscribe(scope, compensateEvent, (initiator) => {
+
+    // need to trigger ordinary
+    // transaction cancelation
+    if (!scope.canceled) {
+      return this._simulator.trigger({
+        event: CANCEL_EVENT,
+        scope
+      });
+    }
+
+    compensateSubscription.remove();
+
+    return this.compensate({
+      scope,
+      element: scope.element,
+      initiator
+    });
+  });
+};
+
+TransactionBehavior.prototype.cancel = function(context) {
 
   const {
     scope,
     initiator
   } = context;
 
-  this._activityBehavior.exit(context);
+  // bail out on double cancel
+  if (scope.destroyed) {
+    return;
+  }
 
-  const {
-    parent: scopeParent
-  } = scope;
+  // mark scope as canceled
+  scope.cancel(initiator);
 
-  this._scopeBehavior.tryExit(scopeParent, {
-    ...initiator,
+  // trigger compensation on element
+  this._simulator.trigger({
+    event: {
+      type: 'compensate',
+      ref: scope.element
+    },
+    initiator,
     scope
+  });
+
+  // re-trigger cancel (to trigger boundary cancel events)
+  return this._simulator.trigger({
+    scope,
+    initiator,
+    event: CANCEL_EVENT
   });
 };
 
-SubProcessBehavior.prototype._waitsAtElement = function(element) {
-  return this._simulator.getConfig(element).wait;
+TransactionBehavior.prototype.registerCompensation = function(scope) {
+
+  const {
+    element
+  } = scope;
+
+  // check for compensation triggers
+  //
+  // * embedded compensation event sub-processes
+  // * compensation boundary events
+
+  const compensateStartEvents = element.children.filter(
+    _util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isEventSubProcess
+  ).map(
+    element => element.children.find(
+      element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isStartEvent)(element) && (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isCompensationEvent)(element)
+    )
+  ).filter(s => s);
+
+  const compensateBoundaryEvents = element.attachers.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isCompensationEvent);
+
+  if (!compensateStartEvents.length && !compensateBoundaryEvents.length) {
+    return;
+  }
+
+  // always register on parent scope
+  const transactionScope = this.findTransactionScope(scope.parent);
+
+  // sub processes may enter a <compensable> state
+  // in that state they are kept alive on exit
+  // until the parent gets destroyed; as long as they are kept alive
+  // compensation can happen on them
+  //
+  if (!(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(transactionScope.element, 'bpmn:Transaction')) {
+    this.makeCompensable(transactionScope);
+  }
+
+  for (const startEvent of compensateStartEvents) {
+
+    const compensationEvent = {
+      element: startEvent,
+      type: 'compensate',
+      persistent: true,
+      interrupting: true,
+      ref: element,
+      traits: _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.NOT_DEAD
+    };
+
+    const compensateEventSub = startEvent.parent;
+
+    const subscription = this._simulator.subscribe(scope, compensationEvent, initiator => {
+
+      subscription.remove();
+
+      return this._simulator.signal({
+        initiator,
+        element: compensateEventSub,
+        startEvent,
+        parentScope: scope
+      });
+    });
+  }
+
+  for (const boundaryEvent of compensateBoundaryEvents) {
+
+    const compensationEvent = {
+      element: boundaryEvent,
+      type: 'compensate',
+      persistent: true,
+      ref: element,
+      traits: _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.NOT_DEAD
+    };
+
+    const compensateActivity = boundaryEvent.outgoing.map(
+      outgoing => outgoing.target
+    ).find(
+      _util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isCompensationActivity
+    );
+
+    if (!compensateActivity) {
+      continue;
+    }
+
+    const subscription = this._simulator.subscribe(transactionScope, compensationEvent, initiator => {
+
+      subscription.remove();
+
+      // enter compensate activity like normal task
+      return this._simulator.enter({
+        initiator,
+        element: compensateActivity,
+        scope: transactionScope
+      });
+    });
+  }
 };
 
-SubProcessBehavior.$inject = [
-  'simulator',
-  'activityBehavior',
-  'scopeBehavior'
-];
+TransactionBehavior.prototype.makeCompensable = function(scope) {
+
+  if (scope.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPENSABLE) || !scope.parent) {
+    return;
+  }
+
+  const compensateEvent = {
+    type: 'compensate',
+    ref: scope.element,
+    interrupting: true,
+    persistent: true,
+    traits: _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.NOT_DEAD
+  };
+
+  scope.compensable();
+
+  const scopeSub = this._simulator.subscribe(scope, compensateEvent, (initiator) => {
+
+    scopeSub.remove();
+
+    scope.fail(initiator);
+
+    this.compensate({
+      scope,
+      element: scope.element,
+      initiator
+    });
+
+    this._scopeBehavior.tryExit(scope, initiator);
+
+    return scope;
+  });
+
+  const parentScope = scope.parent;
+
+  if (!parentScope) {
+    return;
+  }
+
+  const parentSub = this._simulator.subscribe(parentScope, compensateEvent, initiator => {
+
+    parentSub.remove();
+
+    return this._simulator.trigger({
+      scope,
+      event: compensateEvent,
+      initiator
+    });
+
+  });
+
+  this.makeCompensable(parentScope);
+};
 
 
-// helpers //////////////////
+TransactionBehavior.prototype.findTransactionScope = function(scope) {
 
-function findSubProcessStart(element) {
-  return element.children.find(child => (0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(child, 'bpmn:StartEvent'));
+  let parentScope = scope;
+
+  while (parentScope) {
+    const element = parentScope.element;
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:SubProcess') && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isEventSubProcess)(element)) {
+      return parentScope;
+    }
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isAny)(element, [
+      'bpmn:Transaction',
+      'bpmn:Process',
+      'bpmn:Participant'
+    ])) {
+      return parentScope;
+    }
+
+    parentScope = parentScope.parent;
+  }
+
+  throw noTransactionContext(scope);
+};
+
+TransactionBehavior.prototype.compensate = function(context) {
+
+  const {
+    scope,
+    element
+  } = context;
+
+  // compensate all
+  const compensateSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_3__.filterSet)(
+    scope.subscriptions,
+    subscription => (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_4__.eventsMatch)({ type: 'compensate' }, subscription.event)
+  );
+
+  const localSubscriptions = compensateSubscriptions.filter(subscription => subscription.event.ref === element);
+
+  const otherSubscriptions = compensateSubscriptions.filter(subscription => subscription.event.ref !== element);
+
+  for (const subscription of localSubscriptions) {
+    this._scopeBehavior.preExit(scope, initiator => {
+      return this._simulator.trigger(subscription);
+    });
+  }
+
+  for (const subscription of otherSubscriptions.reverse()) {
+    this._scopeBehavior.preExit(scope, initiator => {
+      return this._simulator.trigger(subscription);
+    });
+  }
+};
+
+
+// helpers ///////////////
+
+function noTransactionContext(scope) {
+  throw new Error(`no transaction context for <${scope.id}>`);
 }
 
 /***/ }),
@@ -6461,11 +7496,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _EventBasedGatewayBehavior__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./EventBasedGatewayBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBasedGatewayBehavior.js");
 /* harmony import */ var _ActivityBehavior__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ActivityBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ActivityBehavior.js");
 /* harmony import */ var _SubProcessBehavior__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./SubProcessBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SubProcessBehavior.js");
+/* harmony import */ var _TransactionBehavior__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./TransactionBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/TransactionBehavior.js");
 /* harmony import */ var _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./SequenceFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SequenceFlowBehavior.js");
 /* harmony import */ var _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./MessageFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/MessageFlowBehavior.js");
 /* harmony import */ var _EventBehaviors__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./EventBehaviors */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBehaviors.js");
 /* harmony import */ var _ScopeBehavior__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ScopeBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ScopeBehavior.js");
 /* harmony import */ var _ProcessBehavior__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./ProcessBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ProcessBehavior.js");
+
 
 
 
@@ -6517,7 +7554,8 @@ __webpack_require__.r(__webpack_exports__);
   messageFlowBehavior: [ 'type', _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_11__.default ],
   eventBehaviors: [ 'type', _EventBehaviors__WEBPACK_IMPORTED_MODULE_12__.default ],
   scopeBehavior: [ 'type', _ScopeBehavior__WEBPACK_IMPORTED_MODULE_13__.default ],
-  processBehavior: [ 'type', _ProcessBehavior__WEBPACK_IMPORTED_MODULE_14__.default ]
+  processBehavior: [ 'type', _ProcessBehavior__WEBPACK_IMPORTED_MODULE_14__.default ],
+  transactionBehavior: [ 'type', _TransactionBehavior__WEBPACK_IMPORTED_MODULE_15__.default ]
 });
 
 /***/ }),
@@ -6546,19 +7584,176 @@ const HIGH_PRIORITY = 5000;
   ],
   __init__: [
     [ 'eventBus', 'simulator', function(eventBus, simulator) {
-      eventBus.on('tokenSimulation.toggleMode', HIGH_PRIORITY, event => {
-        if (!event.active) {
-          simulator.reset();
-        }
-      });
-
-      eventBus.on('tokenSimulation.resetSimulation', HIGH_PRIORITY, event => {
+      eventBus.on([
+        'tokenSimulation.toggleMode',
+        'tokenSimulation.resetSimulation'
+      ], HIGH_PRIORITY, event => {
         simulator.reset();
       });
     } ]
   ],
   simulator: [ 'type', _Simulator__WEBPACK_IMPORTED_MODULE_1__.default ]
 });
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js":
+/*!********************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js ***!
+  \********************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "eventsMatch": () => (/* binding */ eventsMatch)
+/* harmony export */ });
+function eventsMatch(a, b) {
+  return [ 'type', 'name', 'ref', 'iref' ].every(attr => !(attr in a) || a[attr] === b[attr]);
+}
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js":
+/*!*******************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js ***!
+  \*******************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "is": () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is),
+/* harmony export */   "getBusinessObject": () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject),
+/* harmony export */   "filterSequenceFlows": () => (/* binding */ filterSequenceFlows),
+/* harmony export */   "isMessageFlow": () => (/* binding */ isMessageFlow),
+/* harmony export */   "isSequenceFlow": () => (/* binding */ isSequenceFlow),
+/* harmony export */   "isMessageCatch": () => (/* binding */ isMessageCatch),
+/* harmony export */   "isLinkCatch": () => (/* binding */ isLinkCatch),
+/* harmony export */   "isCompensationEvent": () => (/* binding */ isCompensationEvent),
+/* harmony export */   "isCompensationActivity": () => (/* binding */ isCompensationActivity),
+/* harmony export */   "isCatchEvent": () => (/* binding */ isCatchEvent),
+/* harmony export */   "isBoundaryEvent": () => (/* binding */ isBoundaryEvent),
+/* harmony export */   "isStartEvent": () => (/* binding */ isStartEvent),
+/* harmony export */   "isLabel": () => (/* binding */ isLabel),
+/* harmony export */   "isEventSubProcess": () => (/* binding */ isEventSubProcess),
+/* harmony export */   "isInterrupting": () => (/* binding */ isInterrupting),
+/* harmony export */   "isAny": () => (/* binding */ isAny),
+/* harmony export */   "isTypedEvent": () => (/* binding */ isTypedEvent)
+/* harmony export */ });
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
+
+
+
+
+
+
+
+function filterSequenceFlows(flows) {
+  return flows.filter(f => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(f, 'bpmn:SequenceFlow'));
+}
+
+function isMessageFlow(element) {
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:MessageFlow');
+}
+
+function isSequenceFlow(element) {
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:SequenceFlow');
+}
+
+function isMessageCatch(element) {
+  return isCatchEvent(element) && isTypedEvent(element, 'bpmn:MessageEventDefinition');
+}
+
+function isLinkCatch(element) {
+  return isCatchEvent(element) && isTypedEvent(element, 'bpmn:LinkEventDefinition');
+}
+
+function isCompensationEvent(element) {
+  return isCatchEvent(element) && isTypedEvent(element, 'bpmn:CompensateEventDefinition');
+}
+
+function isCompensationActivity(element) {
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:Activity') && element.businessObject.isForCompensation;
+}
+
+function isCatchEvent(element) {
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:CatchEvent') && !isLabel(element);
+}
+
+function isBoundaryEvent(element) {
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:BoundaryEvent') && !isLabel(element);
+}
+
+function isStartEvent(element) {
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:StartEvent') && !isLabel(element);
+}
+
+function isLabel(element) {
+  return !!element.labelTarget;
+}
+
+function isEventSubProcess(element) {
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).triggeredByEvent;
+}
+
+function isInterrupting(element) {
+  return (
+    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:StartEvent') && (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).isInterrupting
+  ) || (
+    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:BoundaryEvent') && (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).cancelActivity
+  );
+}
+
+function isAny(element, types) {
+  return types.some(type => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, type));
+}
+
+function isTypedEvent(event, eventDefinitionType) {
+  return (0,min_dash__WEBPACK_IMPORTED_MODULE_1__.some)((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(event).eventDefinitions, definition => {
+    return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(definition, eventDefinitionType);
+  });
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js":
+/*!*****************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js ***!
+  \*****************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "filterSet": () => (/* binding */ filterSet),
+/* harmony export */   "findSet": () => (/* binding */ findSet)
+/* harmony export */ });
+function filterSet(set, matchFn) {
+
+  const matched = [];
+
+  for (const el of set) {
+    if (matchFn(el)) {
+      matched.push(el);
+    }
+  }
+
+  return matched;
+}
+
+function findSet(set, matchFn) {
+
+  for (const el of set) {
+    if (matchFn(el)) {
+      return el;
+    }
+  }
+
+  return null;
+}
 
 /***/ }),
 
@@ -6661,8 +7856,14 @@ const TRACE_EVENT = 'tokenSimulation.simulator.trace';
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "is": () => (/* binding */ is),
-/* harmony export */   "getBusinessObject": () => (/* binding */ getBusinessObject)
+/* harmony export */   "isAny": () => (/* binding */ isAny),
+/* harmony export */   "getBusinessObject": () => (/* binding */ getBusinessObject),
+/* harmony export */   "getDi": () => (/* binding */ getDi)
 /* harmony export */ });
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
+
+
+
 /**
  * Is an element of the given BPMN type?
  *
@@ -6679,6 +7880,20 @@ function is(element, type) {
 
 
 /**
+ * Return true if element has any of the given types.
+ *
+ * @param {djs.model.Base} element
+ * @param {Array<string>} types
+ *
+ * @return {boolean}
+ */
+function isAny(element, types) {
+  return (0,min_dash__WEBPACK_IMPORTED_MODULE_0__.some)(types, function(t) {
+    return is(element, t);
+  });
+}
+
+/**
  * Return the business object for a given element.
  *
  * @param  {djs.model.Base|ModdleElement} element
@@ -6687,6 +7902,17 @@ function is(element, type) {
  */
 function getBusinessObject(element) {
   return (element && element.businessObject) || element;
+}
+
+/**
+ * Return the di object for a given element.
+ *
+ * @param  {djs.model.Base} element
+ *
+ * @return {ModdleElement}
+ */
+function getDi(element) {
+  return element && element.di;
 }
 
 /***/ }),
@@ -6701,8 +7927,15 @@ function getBusinessObject(element) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "registerClientPlugin": () => (/* binding */ registerClientPlugin),
+/* harmony export */   "registerClientExtension": () => (/* binding */ registerClientExtension),
 /* harmony export */   "registerBpmnJSPlugin": () => (/* binding */ registerBpmnJSPlugin),
+/* harmony export */   "registerPlatformBpmnJSPlugin": () => (/* binding */ registerPlatformBpmnJSPlugin),
+/* harmony export */   "registerCloudBpmnJSPlugin": () => (/* binding */ registerCloudBpmnJSPlugin),
 /* harmony export */   "registerBpmnJSModdleExtension": () => (/* binding */ registerBpmnJSModdleExtension),
+/* harmony export */   "registerPlatformBpmnJSModdleExtension": () => (/* binding */ registerPlatformBpmnJSModdleExtension),
+/* harmony export */   "registerCloudBpmnJSModdleExtension": () => (/* binding */ registerCloudBpmnJSModdleExtension),
+/* harmony export */   "registerDmnJSModdleExtension": () => (/* binding */ registerDmnJSModdleExtension),
+/* harmony export */   "registerDmnJSPlugin": () => (/* binding */ registerDmnJSPlugin),
 /* harmony export */   "getModelerDirectory": () => (/* binding */ getModelerDirectory),
 /* harmony export */   "getPluginsDirectory": () => (/* binding */ getPluginsDirectory)
 /* harmony export */ });
@@ -6731,6 +7964,21 @@ function registerClientPlugin(plugin, type) {
 }
 
 /**
+ * Validate and register a client plugin.
+ *
+ * @param {import('react').ComponentType} extension
+ *
+ * @example
+ *
+ * import MyExtensionComponent from './MyExtensionComponent';
+ *
+ * registerClientExtension(MyExtensionComponent);
+ */
+function registerClientExtension(component) {
+  registerClientPlugin(component, 'client');
+}
+
+/**
  * Validate and register a bpmn-js plugin.
  *
  * @param {Object} module
@@ -6750,6 +7998,50 @@ function registerClientPlugin(plugin, type) {
  */
 function registerBpmnJSPlugin(module) {
   registerClientPlugin(module, 'bpmn.modeler.additionalModules');
+}
+
+/**
+ * Validate and register a platform specific bpmn-js plugin.
+ *
+ * @param {Object} module
+ *
+ * @example
+ *
+ * import {
+ *   registerPlatformBpmnJSPlugin
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * const BpmnJSModule = {
+ *   __init__: [ 'myService' ],
+ *   myService: [ 'type', ... ]
+ * };
+ *
+ * registerPlatformBpmnJSPlugin(BpmnJSModule);
+ */
+function registerPlatformBpmnJSPlugin(module) {
+  registerClientPlugin(module, 'bpmn.platform.modeler.additionalModules');
+}
+
+/**
+ * Validate and register a cloud specific bpmn-js plugin.
+ *
+ * @param {Object} module
+ *
+ * @example
+ *
+ * import {
+ *   registerCloudBpmnJSPlugin
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * const BpmnJSModule = {
+ *   __init__: [ 'myService' ],
+ *   myService: [ 'type', ... ]
+ * };
+ *
+ * registerCloudBpmnJSPlugin(BpmnJSModule);
+ */
+function registerCloudBpmnJSPlugin(module) {
+  registerClientPlugin(module, 'bpmn.cloud.modeler.additionalModules');
 }
 
 /**
@@ -6774,6 +8066,106 @@ function registerBpmnJSPlugin(module) {
  */
 function registerBpmnJSModdleExtension(descriptor) {
   registerClientPlugin(descriptor, 'bpmn.modeler.moddleExtension');
+}
+
+/**
+ * Validate and register a platform specific bpmn-moddle extension plugin.
+ *
+ * @param {Object} descriptor
+ *
+ * @example
+ * import {
+ *   registerPlatformBpmnJSModdleExtension
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * var moddleDescriptor = {
+ *   name: 'my descriptor',
+ *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
+ *   prefix: 'mydesc',
+ *
+ *   ...
+ * };
+ *
+ * registerPlatformBpmnJSModdleExtension(moddleDescriptor);
+ */
+function registerPlatformBpmnJSModdleExtension(descriptor) {
+  registerClientPlugin(descriptor, 'bpmn.platform.modeler.moddleExtension');
+}
+
+/**
+ * Validate and register a cloud specific bpmn-moddle extension plugin.
+ *
+ * @param {Object} descriptor
+ *
+ * @example
+ * import {
+ *   registerCloudBpmnJSModdleExtension
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * var moddleDescriptor = {
+ *   name: 'my descriptor',
+ *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
+ *   prefix: 'mydesc',
+ *
+ *   ...
+ * };
+ *
+ * registerCloudBpmnJSModdleExtension(moddleDescriptor);
+ */
+function registerCloudBpmnJSModdleExtension(descriptor) {
+  registerClientPlugin(descriptor, 'bpmn.cloud.modeler.moddleExtension');
+}
+
+/**
+ * Validate and register a dmn-moddle extension plugin.
+ *
+ * @param {Object} descriptor
+ *
+ * @example
+ * import {
+ *   registerDmnJSModdleExtension
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * var moddleDescriptor = {
+ *   name: 'my descriptor',
+ *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
+ *   prefix: 'mydesc',
+ *
+ *   ...
+ * };
+ *
+ * registerDmnJSModdleExtension(moddleDescriptor);
+ */
+function registerDmnJSModdleExtension(descriptor) {
+  registerClientPlugin(descriptor, 'dmn.modeler.moddleExtension');
+}
+
+/**
+ * Validate and register a dmn-js plugin.
+ *
+ * @param {Object} module
+ *
+ * @example
+ *
+ * import {
+ *   registerDmnJSPlugin
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * const DmnJSModule = {
+ *   __init__: [ 'myService' ],
+ *   myService: [ 'type', ... ]
+ * };
+ *
+ * registerDmnJSPlugin(DmnJSModule, [ 'drd', 'literalExpression' ]);
+ * registerDmnJSPlugin(DmnJSModule, 'drd')
+ */
+function registerDmnJSPlugin(module, components) {
+
+  if (!Array.isArray(components)) {
+    components = [ components ]
+  }
+
+  components.forEach(c => registerClientPlugin(module, `dmn.modeler.${c}.additionalModules`)); 
 }
 
 /**
@@ -7560,7 +8952,7 @@ function sortBy(collection, extractor) {
  *
  * const matcher = matchPattern({ id: 1 });
  *
- * var element = find(elements, matcher);
+ * let element = find(elements, matcher);
  *
  * @param  {Object} pattern
  *
@@ -7596,8 +8988,11 @@ function toNum(arg) {
 }
 
 /**
- * Debounce fn, calling it only once if
- * the given time elapsed between calls.
+ * Debounce fn, calling it only once if the given time
+ * elapsed between calls.
+ *
+ * Lodash-style the function exposes methods to `#clear`
+ * and `#flush` to control internal behavior.
  *
  * @param  {Function} fn
  * @param  {Number} timeout
@@ -7610,23 +9005,39 @@ function debounce(fn, timeout) {
   var lastThis;
   var lastNow;
 
-  function fire() {
+  function fire(force) {
     var now = Date.now();
-    var scheduledDiff = lastNow + timeout - now;
+    var scheduledDiff = force ? 0 : lastNow + timeout - now;
 
     if (scheduledDiff > 0) {
       return schedule(scheduledDiff);
     }
 
     fn.apply(lastThis, lastArgs);
-    timer = lastNow = lastArgs = lastThis = undefined;
+    clear();
   }
 
   function schedule(timeout) {
     timer = setTimeout(fire, timeout);
   }
 
-  return function () {
+  function clear() {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    timer = lastNow = lastArgs = lastThis = undefined;
+  }
+
+  function flush() {
+    if (timer) {
+      fire(true);
+    }
+
+    clear();
+  }
+
+  function callback() {
     lastNow = Date.now();
 
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -7639,7 +9050,11 @@ function debounce(fn, timeout) {
     if (!timer) {
       schedule(timeout);
     }
-  };
+  }
+
+  callback.flush = flush;
+  callback.cancel = clear;
+  return callback;
 }
 /**
  * Throttle fn, calling at most once
@@ -7676,6 +9091,22 @@ function throttle(fn, interval) {
 
 function bind(fn, target) {
   return fn.bind(target);
+}
+
+function _typeof(obj) {
+  "@babel/helpers - typeof";
+
+  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
+    _typeof = function (obj) {
+      return typeof obj;
+    };
+  } else {
+    _typeof = function (obj) {
+      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+    };
+  }
+
+  return _typeof(obj);
 }
 
 function _extends() {
@@ -7725,6 +9156,14 @@ function assign(target) {
 function set(target, path, value) {
   var currentTarget = target;
   forEach(path, function (key, idx) {
+    if (typeof key !== 'number' && typeof key !== 'string') {
+      throw new Error('illegal key type: ' + _typeof(key) + '. Key should be of type number or string.');
+    }
+
+    if (key === 'constructor') {
+      throw new Error('illegal key: constructor');
+    }
+
     if (key === '__proto__') {
       throw new Error('illegal key: __proto__');
     }
