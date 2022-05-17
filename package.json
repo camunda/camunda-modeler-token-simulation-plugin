@@ -1,7 +1,7 @@
 {
-  "name": "bpmn-js-token-simulation-plugin",
+  "name": "camunda-modeler-token-simulation-plugin",
   "version": "0.16.0",
-  "description": "bpmn-js Token Simulation plug-in for the Camunda Modeler",
+  "description": "BPMN Token Simulation for the Camunda Modeler",
   "main": "index.js",
   "scripts": {
     "all": "run-s bundle",
@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bpmn-io/bpmn-js-token-simulation-plugin"
+    "url": "https://github.com/camunda/camunda-modeler-token-simulation-plugin"
   },
   "keywords": [
     "camunda",
