@@ -68,7 +68,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Animation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var tiny_svg__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! tiny-svg */ "./node_modules/tiny-svg/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
@@ -487,21 +487,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ AnimatedMessageFlowBehavior)
 /* harmony export */ });
-/* harmony import */ var _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../simulator/behaviors/MessageFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/MessageFlowBehavior.js");
-/* harmony import */ var inherits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
-/* harmony import */ var inherits__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(inherits__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../simulator/behaviors/MessageFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/MessageFlowBehavior.js");
+/* harmony import */ var inherits_browser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! inherits-browser */ "./node_modules/inherits-browser/dist/index.es.js");
 
 
 
 
 
 function AnimatedMessageFlowBehavior(injector, animation) {
-  injector.invoke(_simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_1__.default, this);
+  injector.invoke(_simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default, this);
 
   this._animation = animation;
 }
 
-inherits__WEBPACK_IMPORTED_MODULE_0___default()(AnimatedMessageFlowBehavior, _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_1__.default);
+(0,inherits_browser__WEBPACK_IMPORTED_MODULE_1__.default)(AnimatedMessageFlowBehavior, _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default);
 
 AnimatedMessageFlowBehavior.$inject = [
   'injector',
@@ -516,7 +515,7 @@ AnimatedMessageFlowBehavior.prototype.signal = function(context) {
   } = context;
 
   this._animation.animate(element, scope, () => {
-    _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_1__.default.prototype.signal.call(this, context);
+    _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default.prototype.signal.call(this, context);
   });
 };
 
@@ -534,21 +533,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ AnimatedSequenceFlowBehavior)
 /* harmony export */ });
-/* harmony import */ var _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../simulator/behaviors/SequenceFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SequenceFlowBehavior.js");
-/* harmony import */ var inherits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! inherits */ "./node_modules/inherits/inherits_browser.js");
-/* harmony import */ var inherits__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(inherits__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../simulator/behaviors/SequenceFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SequenceFlowBehavior.js");
+/* harmony import */ var inherits_browser__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! inherits-browser */ "./node_modules/inherits-browser/dist/index.es.js");
 
 
 
 
 
 function AnimatedSequenceFlowBehavior(injector, animation) {
-  injector.invoke(_simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_1__.default, this);
+  injector.invoke(_simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default, this);
 
   this._animation = animation;
 }
 
-inherits__WEBPACK_IMPORTED_MODULE_0___default()(AnimatedSequenceFlowBehavior, _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_1__.default);
+(0,inherits_browser__WEBPACK_IMPORTED_MODULE_1__.default)(AnimatedSequenceFlowBehavior, _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default);
 
 AnimatedSequenceFlowBehavior.$inject = [
   'injector',
@@ -563,7 +561,7 @@ AnimatedSequenceFlowBehavior.prototype.enter = function(context) {
   } = context;
 
   this._animation.animate(element, scope, () => {
-    _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_1__.default.prototype.enter.call(this, context);
+    _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default.prototype.enter.call(this, context);
   });
 };
 
@@ -803,7 +801,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js");
 /* harmony import */ var _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handler/PauseHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js");
 /* harmony import */ var _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./handler/TriggerHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js");
@@ -1555,6 +1553,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ EditorActions)
 /* harmony export */ });
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+
+
 function EditorActions(
     eventBus,
     toggleMode,
@@ -1563,6 +1564,8 @@ function EditorActions(
     editorActions,
     injector
 ) {
+  var active = false;
+
   editorActions.register({
     toggleTokenSimulation: function() {
       toggleMode.toggleMode();
@@ -1571,13 +1574,13 @@ function EditorActions(
 
   editorActions.register({
     togglePauseTokenSimulation: function() {
-      pauseSimulation.toggle();
+      active && pauseSimulation.toggle();
     }
   });
 
   editorActions.register({
     resetTokenSimulation: function() {
-      resetSimulation.resetSimulation();
+      active && resetSimulation.resetSimulation();
     }
   });
 
@@ -1587,6 +1590,10 @@ function EditorActions(
     toggleTokenSimulationLog: function() {
       log.toggle();
     }
+  });
+
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, (event) => {
+    active = event.active;
   });
 }
 
@@ -1743,7 +1750,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementNotifications)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -1843,7 +1850,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementSupport)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
@@ -2264,7 +2271,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Log)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var diagram_js_lib_util_EscapeUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! diagram-js/lib/util/EscapeUtil */ "./node_modules/diagram-js/lib/util/EscapeUtil.js");
@@ -2497,16 +2504,16 @@ function Log(
     _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.RESET_SIMULATION_EVENT
   ], event => {
     this.clear();
-
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this._container).add('hidden');
+    this.toggle(false);
   });
 }
 
 Log.prototype._init = function() {
   this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.domify)(`
-    <div class="bts-log hidden">
+    <div class="bts-log hidden djs-scrollable">
       <div class="bts-header">
         ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)('bts-log-icon') }
+        Simulation Log
         <button class="bts-close">
           ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.TimesIcon)() }
         </button>
@@ -2521,10 +2528,6 @@ Log.prototype._init = function() {
 
   this._content = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.bts-content', this._container);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(this._content, 'wheel', event => {
-    event.stopPropagation();
-  });
-
   min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(this._content, 'mousedown', event => {
     event.stopPropagation();
   });
@@ -2532,34 +2535,40 @@ Log.prototype._init = function() {
   this._close = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.bts-close', this._container);
 
   min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(this._close, 'click', () => {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this._container).add('hidden');
+    this.toggle(false);
   });
 
   this._icon = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.query)('.bts-log-icon', this._container);
 
   min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(this._icon, 'click', () => {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this._container).add('hidden');
+    this.toggle();
   });
 
   this._canvas.getContainer().appendChild(this._container);
 
   this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.domify)(`
-    <div class="bts-entry" title="Show Simulation Log">
+    <div class="bts-entry" title="Toggle Simulation Log">
       ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)() }
     </div>
   `);
 
   min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(this.paletteEntry, 'click', () => {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this._container).remove('hidden');
+    this.toggle();
   });
 
   this._tokenSimulationPalette.addEntry(this.paletteEntry, 3);
 };
 
-Log.prototype.toggle = function() {
+Log.prototype.isShown = function() {
   const container = this._container;
 
-  if ((0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(container).has('hidden')) {
+  return !(0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(container).has('hidden');
+};
+
+Log.prototype.toggle = function(shown = !this.isShown()) {
+  const container = this._container;
+
+  if (shown) {
     (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(container).remove('hidden');
   } else {
     (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(container).add('hidden');
@@ -2575,13 +2584,13 @@ Log.prototype.log = function(options) {
     scope
   } = options;
 
+  const content = this._content;
+
   (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this._placeholder).add('hidden');
 
-  const date = new Date();
-
-  const dateString = date.toLocaleTimeString() + ':' + date.getUTCMilliseconds();
-
-  this._notifications.showNotification(options);
+  if (!this.isShown()) {
+    this._notifications.showNotification(options);
+  }
 
   const iconMarkup = icon.startsWith('<') ? icon : `<i class="${icon}"></i>`;
 
@@ -2595,9 +2604,8 @@ Log.prototype.log = function(options) {
     }" ${
       scope ? `data-scope-id="${scope.id}"` : ''
     }>
-      <span class="bts-date">${ dateString }</span>
       <span class="bts-icon">${iconMarkup}</span>
-      <span class="bts-text">${text}</span>
+      <span class="bts-text" title="${ text }">${text}</span>
       ${
         scope
           ? `<span class="bts-scope" data-scope-id="${scope.id}" ${colorMarkup}>${scope.id}</span>`
@@ -2610,9 +2618,15 @@ Log.prototype.log = function(options) {
     this._scopeFilter.toggle(scope);
   });
 
-  this._content.appendChild(logEntry);
+  // determine if the container should scroll,
+  // because it is currently scrolled to the very bottom
+  const shouldScroll = Math.abs(content.clientHeight + content.scrollTop - content.scrollHeight) < 2;
 
-  this._content.scrollTop = this._content.scrollHeight;
+  content.appendChild(logEntry);
+
+  if (shouldScroll) {
+    content.scrollTop = content.scrollHeight;
+  }
 };
 
 Log.prototype.clear = function() {
@@ -2679,7 +2693,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Notifications)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -2740,7 +2754,7 @@ Notifications.prototype.showNotification = function(options) {
   const notification = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.domify)(`
     <div class="bts-notification ${type}">
       <span class="bts-icon">${iconMarkup}</span>
-      <span class="bts-text">${text}</span>
+      <span class="bts-text" title="${ text }">${text}</span>
       ${ scope ? `<span class="bts-scope" ${colorMarkup}>${scope.id}</span>` : '' }
     </div>
   `);
@@ -2808,7 +2822,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Palette)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -2896,7 +2910,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ PauseSimulation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -3161,7 +3175,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ResetSimulation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -3391,7 +3405,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ SetAnimationSpeed)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -3517,7 +3531,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ShowScopes)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -3935,7 +3949,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ToggleMode)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -4061,7 +4075,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ TokenCount)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
@@ -5685,7 +5699,6 @@ function ActivityBehavior(
     'bpmn:CallActivity',
     'bpmn:ManualTask',
     'bpmn:ScriptTask',
-    'bpmn:SendTask',
     'bpmn:ServiceTask',
     'bpmn:Task',
     'bpmn:UserTask'
@@ -6408,10 +6421,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ IntermediateCatchEventBehavior)
 /* harmony export */ });
-/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-
-
-
 function IntermediateCatchEventBehavior(
     simulator,
     activityBehavior) {
@@ -6429,16 +6438,6 @@ IntermediateCatchEventBehavior.$inject = [
 ];
 
 IntermediateCatchEventBehavior.prototype.signal = function(context) {
-
-  const {
-    element
-  } = context;
-
-  // for receive tasks adapt standard message handling
-  if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask')) {
-    return this._activityBehavior.signal(context);
-  }
-
   return this._simulator.exit(context);
 };
 
@@ -6446,15 +6445,6 @@ IntermediateCatchEventBehavior.prototype.enter = function(context) {
   const {
     element
   } = context;
-
-  // for receive tasks, try to adapt standard activity message handling
-  if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask')) {
-    const event = this._activityBehavior._triggerMessages(context);
-
-    if (event) {
-      return this._activityBehavior.signalOnEvent(context, event);
-    }
-  }
 
   // adapt special wait semantics; user must manually
   // trigger to indicate message received
@@ -6488,6 +6478,7 @@ function IntermediateThrowEventBehavior(
   this._eventBehaviors = eventBehaviors;
 
   simulator.registerBehavior('bpmn:IntermediateThrowEvent', this);
+  simulator.registerBehavior('bpmn:SendTask', this);
 }
 
 IntermediateThrowEventBehavior.prototype.enter = function(context) {
@@ -7642,7 +7633,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "isTypedEvent": () => (/* binding */ isTypedEvent)
 /* harmony export */ });
 /* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.esm.js");
 
 
 
@@ -7679,7 +7670,10 @@ function isCompensationActivity(element) {
 }
 
 function isCatchEvent(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:CatchEvent') && !isLabel(element);
+  return (
+    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:CatchEvent') ||
+    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask')
+  ) && !isLabel(element);
 }
 
 function isBoundaryEvent(element) {
@@ -7771,7 +7765,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "isTypedEvent": () => (/* binding */ isTypedEvent),
 /* harmony export */   "getBusinessObject": () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)
 /* harmony export */ });
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.esm.js");
 /* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
@@ -7842,6 +7836,1398 @@ const SCOPE_CREATE_EVENT = 'tokenSimulation.simulator.createScope';
 const SCOPE_FILTER_CHANGED_EVENT = 'tokenSimulation.scopeFilterChanged';
 const TRACE_EVENT = 'tokenSimulation.simulator.trace';
 
+
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.esm.js":
+/*!***************************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.esm.js ***!
+  \***************************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "assign": () => (/* binding */ assign),
+/* harmony export */   "bind": () => (/* binding */ bind),
+/* harmony export */   "debounce": () => (/* binding */ debounce),
+/* harmony export */   "ensureArray": () => (/* binding */ ensureArray),
+/* harmony export */   "every": () => (/* binding */ every),
+/* harmony export */   "filter": () => (/* binding */ filter),
+/* harmony export */   "find": () => (/* binding */ find),
+/* harmony export */   "findIndex": () => (/* binding */ findIndex),
+/* harmony export */   "flatten": () => (/* binding */ flatten),
+/* harmony export */   "forEach": () => (/* binding */ forEach),
+/* harmony export */   "get": () => (/* binding */ get),
+/* harmony export */   "groupBy": () => (/* binding */ groupBy),
+/* harmony export */   "has": () => (/* binding */ has),
+/* harmony export */   "isArray": () => (/* binding */ isArray),
+/* harmony export */   "isDefined": () => (/* binding */ isDefined),
+/* harmony export */   "isFunction": () => (/* binding */ isFunction),
+/* harmony export */   "isNil": () => (/* binding */ isNil),
+/* harmony export */   "isNumber": () => (/* binding */ isNumber),
+/* harmony export */   "isObject": () => (/* binding */ isObject),
+/* harmony export */   "isString": () => (/* binding */ isString),
+/* harmony export */   "isUndefined": () => (/* binding */ isUndefined),
+/* harmony export */   "keys": () => (/* binding */ keys),
+/* harmony export */   "map": () => (/* binding */ map),
+/* harmony export */   "matchPattern": () => (/* binding */ matchPattern),
+/* harmony export */   "merge": () => (/* binding */ merge),
+/* harmony export */   "omit": () => (/* binding */ omit),
+/* harmony export */   "pick": () => (/* binding */ pick),
+/* harmony export */   "reduce": () => (/* binding */ reduce),
+/* harmony export */   "set": () => (/* binding */ set),
+/* harmony export */   "size": () => (/* binding */ size),
+/* harmony export */   "some": () => (/* binding */ some),
+/* harmony export */   "sortBy": () => (/* binding */ sortBy),
+/* harmony export */   "throttle": () => (/* binding */ throttle),
+/* harmony export */   "unionBy": () => (/* binding */ unionBy),
+/* harmony export */   "uniqueBy": () => (/* binding */ uniqueBy),
+/* harmony export */   "values": () => (/* binding */ values),
+/* harmony export */   "without": () => (/* binding */ without)
+/* harmony export */ });
+/**
+ * Flatten array, one level deep.
+ *
+ * @param {Array<?>} arr
+ *
+ * @return {Array<?>}
+ */
+function flatten(arr) {
+  return Array.prototype.concat.apply([], arr);
+}
+
+const nativeToString = Object.prototype.toString;
+const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
+
+function isUndefined(obj) {
+  return obj === undefined;
+}
+
+function isDefined(obj) {
+  return obj !== undefined;
+}
+
+function isNil(obj) {
+  return obj == null;
+}
+
+function isArray(obj) {
+  return nativeToString.call(obj) === '[object Array]';
+}
+
+function isObject(obj) {
+  return nativeToString.call(obj) === '[object Object]';
+}
+
+function isNumber(obj) {
+  return nativeToString.call(obj) === '[object Number]';
+}
+
+function isFunction(obj) {
+  const tag = nativeToString.call(obj);
+
+  return (
+    tag === '[object Function]' ||
+    tag === '[object AsyncFunction]' ||
+    tag === '[object GeneratorFunction]' ||
+    tag === '[object AsyncGeneratorFunction]' ||
+    tag === '[object Proxy]'
+  );
+}
+
+function isString(obj) {
+  return nativeToString.call(obj) === '[object String]';
+}
+
+
+/**
+ * Ensure collection is an array.
+ *
+ * @param {Object} obj
+ */
+function ensureArray(obj) {
+
+  if (isArray(obj)) {
+    return;
+  }
+
+  throw new Error('must supply array');
+}
+
+/**
+ * Return true, if target owns a property with the given key.
+ *
+ * @param {Object} target
+ * @param {String} key
+ *
+ * @return {Boolean}
+ */
+function has(target, key) {
+  return nativeHasOwnProperty.call(target, key);
+}
+
+/**
+ * Find element in collection.
+ *
+ * @param  {Array|Object} collection
+ * @param  {Function|Object} matcher
+ *
+ * @return {Object}
+ */
+function find(collection, matcher) {
+
+  matcher = toMatcher(matcher);
+
+  let match;
+
+  forEach(collection, function(val, key) {
+    if (matcher(val, key)) {
+      match = val;
+
+      return false;
+    }
+  });
+
+  return match;
+
+}
+
+
+/**
+ * Find element index in collection.
+ *
+ * @param  {Array|Object} collection
+ * @param  {Function} matcher
+ *
+ * @return {Object}
+ */
+function findIndex(collection, matcher) {
+
+  matcher = toMatcher(matcher);
+
+  let idx = isArray(collection) ? -1 : undefined;
+
+  forEach(collection, function(val, key) {
+    if (matcher(val, key)) {
+      idx = key;
+
+      return false;
+    }
+  });
+
+  return idx;
+}
+
+
+/**
+ * Find element in collection.
+ *
+ * @param  {Array|Object} collection
+ * @param  {Function} matcher
+ *
+ * @return {Array} result
+ */
+function filter(collection, matcher) {
+
+  let result = [];
+
+  forEach(collection, function(val, key) {
+    if (matcher(val, key)) {
+      result.push(val);
+    }
+  });
+
+  return result;
+}
+
+
+/**
+ * Iterate over collection; returning something
+ * (non-undefined) will stop iteration.
+ *
+ * @param  {Array|Object} collection
+ * @param  {Function} iterator
+ *
+ * @return {Object} return result that stopped the iteration
+ */
+function forEach(collection, iterator) {
+
+  let val,
+      result;
+
+  if (isUndefined(collection)) {
+    return;
+  }
+
+  const convertKey = isArray(collection) ? toNum : identity;
+
+  for (let key in collection) {
+
+    if (has(collection, key)) {
+      val = collection[key];
+
+      result = iterator(val, convertKey(key));
+
+      if (result === false) {
+        return val;
+      }
+    }
+  }
+}
+
+/**
+ * Return collection without element.
+ *
+ * @param  {Array} arr
+ * @param  {Function} matcher
+ *
+ * @return {Array}
+ */
+function without(arr, matcher) {
+
+  if (isUndefined(arr)) {
+    return [];
+  }
+
+  ensureArray(arr);
+
+  matcher = toMatcher(matcher);
+
+  return arr.filter(function(el, idx) {
+    return !matcher(el, idx);
+  });
+
+}
+
+
+/**
+ * Reduce collection, returning a single result.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} iterator
+ * @param  {Any} result
+ *
+ * @return {Any} result returned from last iterator
+ */
+function reduce(collection, iterator, result) {
+
+  forEach(collection, function(value, idx) {
+    result = iterator(result, value, idx);
+  });
+
+  return result;
+}
+
+
+/**
+ * Return true if every element in the collection
+ * matches the criteria.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} matcher
+ *
+ * @return {Boolean}
+ */
+function every(collection, matcher) {
+
+  return !!reduce(collection, function(matches, val, key) {
+    return matches && matcher(val, key);
+  }, true);
+}
+
+
+/**
+ * Return true if some elements in the collection
+ * match the criteria.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} matcher
+ *
+ * @return {Boolean}
+ */
+function some(collection, matcher) {
+
+  return !!find(collection, matcher);
+}
+
+
+/**
+ * Transform a collection into another collection
+ * by piping each member through the given fn.
+ *
+ * @param  {Object|Array}   collection
+ * @param  {Function} fn
+ *
+ * @return {Array} transformed collection
+ */
+function map(collection, fn) {
+
+  let result = [];
+
+  forEach(collection, function(val, key) {
+    result.push(fn(val, key));
+  });
+
+  return result;
+}
+
+
+/**
+ * Get the collections keys.
+ *
+ * @param  {Object|Array} collection
+ *
+ * @return {Array}
+ */
+function keys(collection) {
+  return collection && Object.keys(collection) || [];
+}
+
+
+/**
+ * Shorthand for `keys(o).length`.
+ *
+ * @param  {Object|Array} collection
+ *
+ * @return {Number}
+ */
+function size(collection) {
+  return keys(collection).length;
+}
+
+
+/**
+ * Get the values in the collection.
+ *
+ * @param  {Object|Array} collection
+ *
+ * @return {Array}
+ */
+function values(collection) {
+  return map(collection, (val) => val);
+}
+
+
+/**
+ * Group collection members by attribute.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} extractor
+ *
+ * @return {Object} map with { attrValue => [ a, b, c ] }
+ */
+function groupBy(collection, extractor, grouped = {}) {
+
+  extractor = toExtractor(extractor);
+
+  forEach(collection, function(val) {
+    let discriminator = extractor(val) || '_';
+
+    let group = grouped[discriminator];
+
+    if (!group) {
+      group = grouped[discriminator] = [];
+    }
+
+    group.push(val);
+  });
+
+  return grouped;
+}
+
+
+function uniqueBy(extractor, ...collections) {
+
+  extractor = toExtractor(extractor);
+
+  let grouped = {};
+
+  forEach(collections, (c) => groupBy(c, extractor, grouped));
+
+  let result = map(grouped, function(val, key) {
+    return val[0];
+  });
+
+  return result;
+}
+
+
+const unionBy = uniqueBy;
+
+
+
+/**
+ * Sort collection by criteria.
+ *
+ * @param  {Object|Array} collection
+ * @param  {String|Function} extractor
+ *
+ * @return {Array}
+ */
+function sortBy(collection, extractor) {
+
+  extractor = toExtractor(extractor);
+
+  let sorted = [];
+
+  forEach(collection, function(value, key) {
+    let disc = extractor(value, key);
+
+    let entry = {
+      d: disc,
+      v: value
+    };
+
+    for (var idx = 0; idx < sorted.length; idx++) {
+      let { d } = sorted[idx];
+
+      if (disc < d) {
+        sorted.splice(idx, 0, entry);
+        return;
+      }
+    }
+
+    // not inserted, append (!)
+    sorted.push(entry);
+  });
+
+  return map(sorted, (e) => e.v);
+}
+
+
+/**
+ * Create an object pattern matcher.
+ *
+ * @example
+ *
+ * const matcher = matchPattern({ id: 1 });
+ *
+ * let element = find(elements, matcher);
+ *
+ * @param  {Object} pattern
+ *
+ * @return {Function} matcherFn
+ */
+function matchPattern(pattern) {
+
+  return function(el) {
+
+    return every(pattern, function(val, key) {
+      return el[key] === val;
+    });
+
+  };
+}
+
+
+function toExtractor(extractor) {
+  return isFunction(extractor) ? extractor : (e) => {
+    return e[extractor];
+  };
+}
+
+
+function toMatcher(matcher) {
+  return isFunction(matcher) ? matcher : (e) => {
+    return e === matcher;
+  };
+}
+
+
+function identity(arg) {
+  return arg;
+}
+
+function toNum(arg) {
+  return Number(arg);
+}
+
+/**
+ * Debounce fn, calling it only once if the given time
+ * elapsed between calls.
+ *
+ * Lodash-style the function exposes methods to `#clear`
+ * and `#flush` to control internal behavior.
+ *
+ * @param  {Function} fn
+ * @param  {Number} timeout
+ *
+ * @return {Function} debounced function
+ */
+function debounce(fn, timeout) {
+
+  let timer;
+
+  let lastArgs;
+  let lastThis;
+
+  let lastNow;
+
+  function fire(force) {
+
+    let now = Date.now();
+
+    let scheduledDiff = force ? 0 : (lastNow + timeout) - now;
+
+    if (scheduledDiff > 0) {
+      return schedule(scheduledDiff);
+    }
+
+    fn.apply(lastThis, lastArgs);
+
+    clear();
+  }
+
+  function schedule(timeout) {
+    timer = setTimeout(fire, timeout);
+  }
+
+  function clear() {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    timer = lastNow = lastArgs = lastThis = undefined;
+  }
+
+  function flush() {
+    if (timer) {
+      fire(true);
+    }
+
+    clear();
+  }
+
+  function callback(...args) {
+    lastNow = Date.now();
+
+    lastArgs = args;
+    lastThis = this;
+
+    // ensure an execution is scheduled
+    if (!timer) {
+      schedule(timeout);
+    }
+  }
+
+  callback.flush = flush;
+  callback.cancel = clear;
+
+  return callback;
+}
+
+/**
+ * Throttle fn, calling at most once
+ * in the given interval.
+ *
+ * @param  {Function} fn
+ * @param  {Number} interval
+ *
+ * @return {Function} throttled function
+ */
+function throttle(fn, interval) {
+  let throttling = false;
+
+  return function(...args) {
+
+    if (throttling) {
+      return;
+    }
+
+    fn(...args);
+    throttling = true;
+
+    setTimeout(() => {
+      throttling = false;
+    }, interval);
+  };
+}
+
+/**
+ * Bind function against target <this>.
+ *
+ * @param  {Function} fn
+ * @param  {Object}   target
+ *
+ * @return {Function} bound function
+ */
+function bind(fn, target) {
+  return fn.bind(target);
+}
+
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign(target, ...others) {
+  return Object.assign(target, ...others);
+}
+
+/**
+ * Sets a nested property of a given object to the specified value.
+ *
+ * This mutates the object and returns it.
+ *
+ * @param {Object} target The target of the set operation.
+ * @param {(string|number)[]} path The path to the nested value.
+ * @param {any} value The value to set.
+ */
+function set(target, path, value) {
+
+  let currentTarget = target;
+
+  forEach(path, function(key, idx) {
+
+    if (typeof key !== 'number' && typeof key !== 'string') {
+      throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
+    }
+
+    if (key === 'constructor') {
+      throw new Error('illegal key: constructor');
+    }
+
+    if (key === '__proto__') {
+      throw new Error('illegal key: __proto__');
+    }
+
+    let nextKey = path[idx + 1];
+    let nextTarget = currentTarget[key];
+
+    if (isDefined(nextKey) && isNil(nextTarget)) {
+      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
+    }
+
+    if (isUndefined(nextKey)) {
+      if (isUndefined(value)) {
+        delete currentTarget[key];
+      } else {
+        currentTarget[key] = value;
+      }
+    } else {
+      currentTarget = nextTarget;
+    }
+  });
+
+  return target;
+}
+
+
+/**
+ * Gets a nested property of a given object.
+ *
+ * @param {Object} target The target of the get operation.
+ * @param {(string|number)[]} path The path to the nested value.
+ * @param {any} [defaultValue] The value to return if no value exists.
+ */
+function get(target, path, defaultValue) {
+
+  let currentTarget = target;
+
+  forEach(path, function(key) {
+
+    // accessing nil property yields <undefined>
+    if (isNil(currentTarget)) {
+      currentTarget = undefined;
+
+      return false;
+    }
+
+    currentTarget = currentTarget[key];
+  });
+
+  return isUndefined(currentTarget) ? defaultValue : currentTarget;
+}
+
+/**
+ * Pick given properties from the target object.
+ *
+ * @param {Object} target
+ * @param {Array} properties
+ *
+ * @return {Object} target
+ */
+function pick(target, properties) {
+
+  let result = {};
+
+  let obj = Object(target);
+
+  forEach(properties, function(prop) {
+
+    if (prop in obj) {
+      result[prop] = target[prop];
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Pick all target properties, excluding the given ones.
+ *
+ * @param {Object} target
+ * @param {Array} properties
+ *
+ * @return {Object} target
+ */
+function omit(target, properties) {
+
+  let result = {};
+
+  let obj = Object(target);
+
+  forEach(obj, function(prop, key) {
+
+    if (properties.indexOf(key) === -1) {
+      result[key] = prop;
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Recursively merge `...sources` into given target.
+ *
+ * Does support merging objects; does not support merging arrays.
+ *
+ * @param {Object} target
+ * @param {...Object} sources
+ *
+ * @return {Object} the target
+ */
+function merge(target, ...sources) {
+
+  if (!sources.length) {
+    return target;
+  }
+
+  forEach(sources, function(source) {
+
+    // skip non-obj sources, i.e. null
+    if (!source || !isObject(source)) {
+      return;
+    }
+
+    forEach(source, function(sourceVal, key) {
+
+      if (key === '__proto__') {
+        return;
+      }
+
+      let targetVal = target[key];
+
+      if (isObject(sourceVal)) {
+
+        if (!isObject(targetVal)) {
+
+          // override target[key] with object
+          targetVal = {};
+        }
+
+        target[key] = merge(targetVal, sourceVal);
+      } else {
+        target[key] = sourceVal;
+      }
+
+    });
+  });
+
+  return target;
+}
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js":
+/*!**************************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js ***!
+  \**************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "assignStyle": () => (/* binding */ assign),
+/* harmony export */   "attr": () => (/* binding */ attr),
+/* harmony export */   "classes": () => (/* binding */ classes),
+/* harmony export */   "clear": () => (/* binding */ clear),
+/* harmony export */   "closest": () => (/* binding */ closest),
+/* harmony export */   "delegate": () => (/* binding */ delegate),
+/* harmony export */   "domify": () => (/* binding */ domify$1),
+/* harmony export */   "event": () => (/* binding */ event),
+/* harmony export */   "matches": () => (/* binding */ matches),
+/* harmony export */   "query": () => (/* binding */ query),
+/* harmony export */   "queryAll": () => (/* binding */ all),
+/* harmony export */   "remove": () => (/* binding */ remove)
+/* harmony export */ });
+function _mergeNamespaces(n, m) {
+  m.forEach(function (e) {
+    e && typeof e !== 'string' && !Array.isArray(e) && Object.keys(e).forEach(function (k) {
+      if (k !== 'default' && !(k in n)) {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () { return e[k]; }
+        });
+      }
+    });
+  });
+  return Object.freeze(n);
+}
+
+/**
+ * Flatten array, one level deep.
+ *
+ * @param {Array<?>} arr
+ *
+ * @return {Array<?>}
+ */
+
+const nativeToString = Object.prototype.toString;
+const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
+
+function isUndefined(obj) {
+  return obj === undefined;
+}
+
+function isArray(obj) {
+  return nativeToString.call(obj) === '[object Array]';
+}
+
+/**
+ * Return true, if target owns a property with the given key.
+ *
+ * @param {Object} target
+ * @param {String} key
+ *
+ * @return {Boolean}
+ */
+function has(target, key) {
+  return nativeHasOwnProperty.call(target, key);
+}
+
+
+/**
+ * Iterate over collection; returning something
+ * (non-undefined) will stop iteration.
+ *
+ * @param  {Array|Object} collection
+ * @param  {Function} iterator
+ *
+ * @return {Object} return result that stopped the iteration
+ */
+function forEach(collection, iterator) {
+
+  let val,
+      result;
+
+  if (isUndefined(collection)) {
+    return;
+  }
+
+  const convertKey = isArray(collection) ? toNum : identity;
+
+  for (let key in collection) {
+
+    if (has(collection, key)) {
+      val = collection[key];
+
+      result = iterator(val, convertKey(key));
+
+      if (result === false) {
+        return val;
+      }
+    }
+  }
+}
+
+
+function identity(arg) {
+  return arg;
+}
+
+function toNum(arg) {
+  return Number(arg);
+}
+
+/**
+ * Assigns style attributes in a style-src compliant way.
+ *
+ * @param {Element} element
+ * @param {...Object} styleSources
+ *
+ * @return {Element} the element
+ */
+function assign(element, ...styleSources) {
+  const target = element.style;
+
+  forEach(styleSources, function(style) {
+    if (!style) {
+      return;
+    }
+
+    forEach(style, function(value, key) {
+      target[key] = value;
+    });
+  });
+
+  return element;
+}
+
+/**
+ * Set attribute `name` to `val`, or get attr `name`.
+ *
+ * @param {Element} el
+ * @param {String} name
+ * @param {String} [val]
+ * @api public
+ */
+function attr(el, name, val) {
+
+  // get
+  if (arguments.length == 2) {
+    return el.getAttribute(name);
+  }
+
+  // remove
+  if (val === null) {
+    return el.removeAttribute(name);
+  }
+
+  // set
+  el.setAttribute(name, val);
+
+  return el;
+}
+
+/**
+ * Taken from https://github.com/component/classes
+ *
+ * Without the component bits.
+ */
+
+/**
+ * toString reference.
+ */
+
+const toString = Object.prototype.toString;
+
+/**
+ * Wrap `el` in a `ClassList`.
+ *
+ * @param {Element} el
+ * @return {ClassList}
+ * @api public
+ */
+
+function classes(el) {
+  return new ClassList(el);
+}
+
+/**
+ * Initialize a new ClassList for `el`.
+ *
+ * @param {Element} el
+ * @api private
+ */
+
+function ClassList(el) {
+  if (!el || !el.nodeType) {
+    throw new Error('A DOM element reference is required');
+  }
+  this.el = el;
+  this.list = el.classList;
+}
+
+/**
+ * Add class `name` if not already present.
+ *
+ * @param {String} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.add = function(name) {
+  this.list.add(name);
+  return this;
+};
+
+/**
+ * Remove class `name` when present, or
+ * pass a regular expression to remove
+ * any which match.
+ *
+ * @param {String|RegExp} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.remove = function(name) {
+  if ('[object RegExp]' == toString.call(name)) {
+    return this.removeMatching(name);
+  }
+
+  this.list.remove(name);
+  return this;
+};
+
+/**
+ * Remove all classes matching `re`.
+ *
+ * @param {RegExp} re
+ * @return {ClassList}
+ * @api private
+ */
+
+ClassList.prototype.removeMatching = function(re) {
+  const arr = this.array();
+  for (let i = 0; i < arr.length; i++) {
+    if (re.test(arr[i])) {
+      this.remove(arr[i]);
+    }
+  }
+  return this;
+};
+
+/**
+ * Toggle class `name`, can force state via `force`.
+ *
+ * For browsers that support classList, but do not support `force` yet,
+ * the mistake will be detected and corrected.
+ *
+ * @param {String} name
+ * @param {Boolean} force
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.toggle = function(name, force) {
+  if ('undefined' !== typeof force) {
+    if (force !== this.list.toggle(name, force)) {
+      this.list.toggle(name); // toggle again to correct
+    }
+  } else {
+    this.list.toggle(name);
+  }
+  return this;
+};
+
+/**
+ * Return an array of classes.
+ *
+ * @return {Array}
+ * @api public
+ */
+
+ClassList.prototype.array = function() {
+  return Array.from(this.list);
+};
+
+/**
+ * Check if class `name` is present.
+ *
+ * @param {String} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.has =
+ClassList.prototype.contains = function(name) {
+  return this.list.contains(name);
+};
+
+/**
+ * Remove all children from the given element.
+ */
+function clear(el) {
+
+  var c;
+
+  while (el.childNodes.length) {
+    c = el.childNodes[0];
+    el.removeChild(c);
+  }
+
+  return el;
+}
+
+/**
+ * @param { HTMLElement } element
+ * @param { String } selector
+ *
+ * @return { boolean }
+ */
+function matches(element, selector) {
+  return element && typeof element.matches === 'function' && element.matches(selector);
+}
+
+/**
+ * Closest
+ *
+ * @param {Element} el
+ * @param {String} selector
+ * @param {Boolean} checkYourSelf (optional)
+ */
+function closest(element, selector, checkYourSelf) {
+  var currentElem = checkYourSelf ? element : element.parentNode;
+
+  while (currentElem && currentElem.nodeType !== document.DOCUMENT_NODE &&
+      currentElem.nodeType !== document.DOCUMENT_FRAGMENT_NODE) {
+
+    if (matches(currentElem, selector)) {
+      return currentElem;
+    }
+
+    currentElem = currentElem.parentNode;
+  }
+
+  return matches(currentElem, selector) ? currentElem : null;
+}
+
+var componentEvent = {};
+
+var bind$1 = window.addEventListener ? 'addEventListener' : 'attachEvent',
+    unbind$1 = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
+    prefix = bind$1 !== 'addEventListener' ? 'on' : '';
+
+/**
+ * Bind `el` event `type` to `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+var bind_1 = componentEvent.bind = function(el, type, fn, capture){
+  el[bind$1](prefix + type, fn, capture || false);
+  return fn;
+};
+
+/**
+ * Unbind `el` event `type`'s callback `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+var unbind_1 = componentEvent.unbind = function(el, type, fn, capture){
+  el[unbind$1](prefix + type, fn, capture || false);
+  return fn;
+};
+
+var event = /*#__PURE__*/_mergeNamespaces({
+  __proto__: null,
+  bind: bind_1,
+  unbind: unbind_1,
+  'default': componentEvent
+}, [componentEvent]);
+
+/**
+ * Module dependencies.
+ */
+
+/**
+ * Delegate event `type` to `selector`
+ * and invoke `fn(e)`. A callback function
+ * is returned which may be passed to `.unbind()`.
+ *
+ * @param {Element} el
+ * @param {String} selector
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
+ */
+
+// Some events don't bubble, so we want to bind to the capture phase instead
+// when delegating.
+var forceCaptureEvents = [ 'focus', 'blur' ];
+
+function bind(el, selector, type, fn, capture) {
+  if (forceCaptureEvents.indexOf(type) !== -1) {
+    capture = true;
+  }
+
+  return event.bind(el, type, function(e) {
+    var target = e.target || e.srcElement;
+    e.delegateTarget = closest(target, selector, true);
+    if (e.delegateTarget) {
+      fn.call(el, e);
+    }
+  }, capture);
+}
+
+/**
+ * Unbind event `type`'s callback `fn`.
+ *
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @api public
+ */
+function unbind(el, type, fn, capture) {
+  if (forceCaptureEvents.indexOf(type) !== -1) {
+    capture = true;
+  }
+
+  return event.unbind(el, type, fn, capture);
+}
+
+var delegate = {
+  bind,
+  unbind
+};
+
+/**
+ * Expose `parse`.
+ */
+
+var domify = parse;
+
+/**
+ * Tests for browser support.
+ */
+
+var innerHTMLBug = false;
+var bugTestDiv;
+if (typeof document !== 'undefined') {
+  bugTestDiv = document.createElement('div');
+  // Setup
+  bugTestDiv.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
+  // Make sure that link elements get serialized correctly by innerHTML
+  // This requires a wrapper element in IE
+  innerHTMLBug = !bugTestDiv.getElementsByTagName('link').length;
+  bugTestDiv = undefined;
+}
+
+/**
+ * Wrap map from jquery.
+ */
+
+var map = {
+  legend: [1, '<fieldset>', '</fieldset>'],
+  tr: [2, '<table><tbody>', '</tbody></table>'],
+  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
+  // for script/link/style tags to work in IE6-8, you have to wrap
+  // in a div with a non-whitespace character in front, ha!
+  _default: innerHTMLBug ? [1, 'X<div>', '</div>'] : [0, '', '']
+};
+
+map.td =
+map.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
+
+map.option =
+map.optgroup = [1, '<select multiple="multiple">', '</select>'];
+
+map.thead =
+map.tbody =
+map.colgroup =
+map.caption =
+map.tfoot = [1, '<table>', '</table>'];
+
+map.polyline =
+map.ellipse =
+map.polygon =
+map.circle =
+map.text =
+map.line =
+map.path =
+map.rect =
+map.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'];
+
+/**
+ * Parse `html` and return a DOM Node instance, which could be a TextNode,
+ * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
+ * instance, depending on the contents of the `html` string.
+ *
+ * @param {String} html - HTML string to "domify"
+ * @param {Document} doc - The `document` instance to create the Node for
+ * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
+ * @api private
+ */
+
+function parse(html, doc) {
+  if ('string' != typeof html) throw new TypeError('String expected');
+
+  // default to the global `document` object
+  if (!doc) doc = document;
+
+  // tag name
+  var m = /<([\w:]+)/.exec(html);
+  if (!m) return doc.createTextNode(html);
+
+  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
+
+  var tag = m[1];
+
+  // body support
+  if (tag == 'body') {
+    var el = doc.createElement('html');
+    el.innerHTML = html;
+    return el.removeChild(el.lastChild);
+  }
+
+  // wrap map
+  var wrap = Object.prototype.hasOwnProperty.call(map, tag) ? map[tag] : map._default;
+  var depth = wrap[0];
+  var prefix = wrap[1];
+  var suffix = wrap[2];
+  var el = doc.createElement('div');
+  el.innerHTML = prefix + html + suffix;
+  while (depth--) el = el.lastChild;
+
+  // one element
+  if (el.firstChild == el.lastChild) {
+    return el.removeChild(el.firstChild);
+  }
+
+  // several elements
+  var fragment = doc.createDocumentFragment();
+  while (el.firstChild) {
+    fragment.appendChild(el.removeChild(el.firstChild));
+  }
+
+  return fragment;
+}
+
+var domify$1 = domify;
+
+function query(selector, el) {
+  el = el || document;
+
+  return el.querySelector(selector);
+}
+
+function all(selector, el) {
+  el = el || document;
+
+  return el.querySelectorAll(selector);
+}
+
+function remove(el) {
+  el.parentNode && el.parentNode.removeChild(el);
+}
+
+
+//# sourceMappingURL=index.esm.js.map
 
 
 /***/ }),
@@ -8517,39 +9903,19 @@ Ids.prototype.clear = function () {
 
 /***/ }),
 
-/***/ "./node_modules/inherits/inherits_browser.js":
-/*!***************************************************!*\
-  !*** ./node_modules/inherits/inherits_browser.js ***!
-  \***************************************************/
-/***/ ((module) => {
+/***/ "./node_modules/inherits-browser/dist/index.es.js":
+/*!********************************************************!*\
+  !*** ./node_modules/inherits-browser/dist/index.es.js ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
-if (typeof Object.create === 'function') {
-  // implementation from standard node.js 'util' module
-  module.exports = function inherits(ctor, superCtor) {
-    if (superCtor) {
-      ctor.super_ = superCtor
-      ctor.prototype = Object.create(superCtor.prototype, {
-        constructor: {
-          value: ctor,
-          enumerable: false,
-          writable: true,
-          configurable: true
-        }
-      })
-    }
-  };
-} else {
-  // old school shim for old browsers
-  module.exports = function inherits(ctor, superCtor) {
-    if (superCtor) {
-      ctor.super_ = superCtor
-      var TempCtor = function () {}
-      TempCtor.prototype = superCtor.prototype
-      ctor.prototype = new TempCtor()
-      ctor.prototype.constructor = ctor
-    }
-  }
-}
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ e)
+/* harmony export */ });
+function e(e,t){t&&(e.super_=t,e.prototype=Object.create(t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}))}
+//# sourceMappingURL=index.es.js.map
 
 
 /***/ }),

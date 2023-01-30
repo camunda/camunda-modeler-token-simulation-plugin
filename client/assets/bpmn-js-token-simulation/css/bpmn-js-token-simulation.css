@@ -51,7 +51,6 @@
 }
 
 .bts-context-pad:not(.disabled):hover {
-  width: 40px;
   background-color: var(--token-simulation-green-base-44, #10D070);
   opacity: 1;
   color: var(--token-simulation-white, #FFFFFF);
@@ -136,6 +135,7 @@
   user-select: none;
   margin-top: 4px;
   min-width: 300px;
+  max-width: 400px;
   display: flex;
   justify-content: center;
   align-items: stretch;
@@ -171,6 +171,9 @@
 
 .bts-notifications .bts-notification > .bts-text {
   flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .bts-notifications .bts-notification > .bts-scope {
@@ -294,7 +297,6 @@
 }
 
 .bts-palette .bts-entry:not(.disabled):hover {
-  width: 40px;
   color: var(--token-simulation-white, #FFFFFF);
   background-color: var(--token-simulation-green-base-44, #10D070);
 }
@@ -311,10 +313,10 @@
 
 .bts-log {
   position: absolute;
-  top: 128px;
-  bottom: 20px;
-  left: 20px;
+  top: 30%;
   right: 20px;
+  bottom: 50px;
+  width: 300px;
   background-color: var(--token-simulation-silver-darken-94, #EFEFEF);
   border-radius: 2px;
   z-index: 10000;
@@ -354,7 +356,24 @@
   overflow-y: auto;
   box-sizing: border-box;
   flex: 1;
-  padding: 10px;
+  margin: 7px 3px 7px 12px;
+  padding: 5px 9px 5px 0;
+}
+
+.bts-log *::-webkit-scrollbar {
+  width: 6px;
+}
+
+.bts-log *::-webkit-scrollbar-thumb {
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+.bts-log *::-webkit-scrollbar-track {
+  box-shadow: none;
+  background: transparent;
+  margin: 0;
+  padding: 5px;
 }
 
 .bts-log .bts-entry {
@@ -377,11 +396,6 @@
   color: var(--token-simulation-white, #FFFFFF);
 }
 
-.bts-log .bts-date,
-.bts-log .bts-date {
- color: var(--token-simulation-silver-darken-94, #EFEFEF);
-}
-
 .bts-log .bts-entry.warning {
   background-color: var(--token-simulation-red-base-62, #FF3D3D);
   color: var(--token-simulation-white, #FFFFFF);
@@ -399,11 +413,6 @@
   margin-right: 6px;
 }
 
-.bts-log .bts-entry > .bts-date {
-  min-width: 120px;
-  color: var(--token-simulation-grey-base-40, #666666);
-}
-
 .bts-log .bts-entry > .bts-icon {
   min-width: 20px;
   text-align: center;
@@ -419,6 +428,9 @@
 
 .bts-log .bts-entry > .bts-text {
   flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .bts-log .bts-entry.placeholder.hidden {
