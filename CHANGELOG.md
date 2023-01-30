@@ -8,6 +8,7 @@ ___Note:__ Yet to be released changes appear here._
 
 ## 0.16.0
 
+* `FEAT`: reworked the simulation log ([bpmn-io/bpmn-js-token-simulation#123](https://github.com/bpmn-io/bpmn-js-token-simulation/pull/123))
 * `FIX`: don't activate token simulation when pressing `R` ([#60](https://github.com/camunda/camunda-modeler-token-simulation-plugin/issues/60))
 * `CHORE`: rename project to `camunda-modeler-token-simulation-plugin` ([#47](https://github.com/camunda/camunda-modeler-token-simulation-plugin/issues/47))
 * `DEPS`: bump to `bpmn-js-token-simulation@0.30.1`
