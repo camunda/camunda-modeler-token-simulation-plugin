@@ -68,7 +68,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Animation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var tiny_svg__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! tiny-svg */ "./node_modules/tiny-svg/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
@@ -495,12 +495,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function AnimatedMessageFlowBehavior(injector, animation) {
-  injector.invoke(_simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default, this);
+  injector.invoke(_simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"], this);
 
   this._animation = animation;
 }
 
-(0,inherits_browser__WEBPACK_IMPORTED_MODULE_1__.default)(AnimatedMessageFlowBehavior, _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default);
+(0,inherits_browser__WEBPACK_IMPORTED_MODULE_1__["default"])(AnimatedMessageFlowBehavior, _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 AnimatedMessageFlowBehavior.$inject = [
   'injector',
@@ -515,7 +515,7 @@ AnimatedMessageFlowBehavior.prototype.signal = function(context) {
   } = context;
 
   this._animation.animate(element, scope, () => {
-    _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default.prototype.signal.call(this, context);
+    _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"].prototype.signal.call(this, context);
   });
 };
 
@@ -541,12 +541,12 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function AnimatedSequenceFlowBehavior(injector, animation) {
-  injector.invoke(_simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default, this);
+  injector.invoke(_simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"], this);
 
   this._animation = animation;
 }
 
-(0,inherits_browser__WEBPACK_IMPORTED_MODULE_1__.default)(AnimatedSequenceFlowBehavior, _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default);
+(0,inherits_browser__WEBPACK_IMPORTED_MODULE_1__["default"])(AnimatedSequenceFlowBehavior, _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 AnimatedSequenceFlowBehavior.$inject = [
   'injector',
@@ -561,7 +561,7 @@ AnimatedSequenceFlowBehavior.prototype.enter = function(context) {
   } = context;
 
   this._animation.animate(element, scope, () => {
-    _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default.prototype.enter.call(this, context);
+    _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"].prototype.enter.call(this, context);
   });
 };
 
@@ -584,8 +584,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  sequenceFlowBehavior: [ 'type', _AnimatedSequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__.default ],
-  messageFlowBehavior: [ 'type', _AnimatedMessageFlowBehavior__WEBPACK_IMPORTED_MODULE_1__.default ]
+  sequenceFlowBehavior: [ 'type', _AnimatedSequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"] ],
+  messageFlowBehavior: [ 'type', _AnimatedMessageFlowBehavior__WEBPACK_IMPORTED_MODULE_1__["default"] ]
 });
 
 /***/ }),
@@ -613,11 +613,11 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _simulator__WEBPACK_IMPORTED_MODULE_0__.default,
-    _behaviors__WEBPACK_IMPORTED_MODULE_1__.default,
-    _features_scope_filter__WEBPACK_IMPORTED_MODULE_2__.default
+    _simulator__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _behaviors__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _features_scope_filter__WEBPACK_IMPORTED_MODULE_2__["default"]
   ],
-  animation: [ 'type', _Animation__WEBPACK_IMPORTED_MODULE_3__.default ]
+  animation: [ 'type', _Animation__WEBPACK_IMPORTED_MODULE_3__["default"] ]
 });
 
 /***/ }),
@@ -646,7 +646,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _features_token_count__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./features/token-count */ "./node_modules/bpmn-js-token-simulation/lib/features/token-count/index.js");
 /* harmony import */ var _features_set_animation_speed__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./features/set-animation-speed */ "./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/index.js");
 /* harmony import */ var _features_exclusive_gateway_settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./features/exclusive-gateway-settings */ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/index.js");
-/* harmony import */ var _features_preserve_element_colors__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./features/preserve-element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/index.js");
+/* harmony import */ var _features_neutral_element_colors__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./features/neutral-element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/index.js");
 /* harmony import */ var _features_palette__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./features/palette */ "./node_modules/bpmn-js-token-simulation/lib/features/palette/index.js");
 
 
@@ -667,21 +667,21 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _simulator__WEBPACK_IMPORTED_MODULE_0__.default,
-    _animation__WEBPACK_IMPORTED_MODULE_1__.default,
-    _features_colored_scopes__WEBPACK_IMPORTED_MODULE_2__.default,
-    _features_context_pads__WEBPACK_IMPORTED_MODULE_3__.default,
-    _features_simulation_state__WEBPACK_IMPORTED_MODULE_4__.default,
-    _features_show_scopes__WEBPACK_IMPORTED_MODULE_5__.default,
-    _features_log__WEBPACK_IMPORTED_MODULE_6__.default,
-    _features_element_support__WEBPACK_IMPORTED_MODULE_7__.default,
-    _features_pause_simulation__WEBPACK_IMPORTED_MODULE_8__.default,
-    _features_reset_simulation__WEBPACK_IMPORTED_MODULE_9__.default,
-    _features_token_count__WEBPACK_IMPORTED_MODULE_10__.default,
-    _features_set_animation_speed__WEBPACK_IMPORTED_MODULE_11__.default,
-    _features_exclusive_gateway_settings__WEBPACK_IMPORTED_MODULE_12__.default,
-    _features_preserve_element_colors__WEBPACK_IMPORTED_MODULE_13__.default,
-    _features_palette__WEBPACK_IMPORTED_MODULE_14__.default
+    _simulator__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _animation__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _features_colored_scopes__WEBPACK_IMPORTED_MODULE_2__["default"],
+    _features_context_pads__WEBPACK_IMPORTED_MODULE_3__["default"],
+    _features_simulation_state__WEBPACK_IMPORTED_MODULE_4__["default"],
+    _features_show_scopes__WEBPACK_IMPORTED_MODULE_5__["default"],
+    _features_log__WEBPACK_IMPORTED_MODULE_6__["default"],
+    _features_element_support__WEBPACK_IMPORTED_MODULE_7__["default"],
+    _features_pause_simulation__WEBPACK_IMPORTED_MODULE_8__["default"],
+    _features_reset_simulation__WEBPACK_IMPORTED_MODULE_9__["default"],
+    _features_token_count__WEBPACK_IMPORTED_MODULE_10__["default"],
+    _features_set_animation_speed__WEBPACK_IMPORTED_MODULE_11__["default"],
+    _features_exclusive_gateway_settings__WEBPACK_IMPORTED_MODULE_12__["default"],
+    _features_neutral_element_colors__WEBPACK_IMPORTED_MODULE_13__["default"],
+    _features_palette__WEBPACK_IMPORTED_MODULE_14__["default"]
   ]
 });
 
@@ -782,7 +782,7 @@ __webpack_require__.r(__webpack_exports__);
   __init__: [
     'coloredScopes'
   ],
-  coloredScopes: [ 'type', _ColoredScopes__WEBPACK_IMPORTED_MODULE_0__.default ]
+  coloredScopes: [ 'type', _ColoredScopes__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -797,11 +797,11 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ContextPads),
-/* harmony export */   "isAncestor": () => (/* binding */ isAncestor)
+/* harmony export */   isAncestor: () => (/* binding */ isAncestor)
 /* harmony export */ });
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js");
 /* harmony import */ var _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handler/PauseHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js");
 /* harmony import */ var _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./handler/TriggerHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js");
@@ -839,14 +839,14 @@ function ContextPads(
 
   this._handlers = [];
 
-  this.registerHandler('bpmn:ExclusiveGateway', _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__.default);
+  this.registerHandler('bpmn:ExclusiveGateway', _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__["default"]);
 
-  this.registerHandler('bpmn:Activity', _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_1__.default);
+  this.registerHandler('bpmn:Activity', _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_1__["default"]);
 
-  this.registerHandler('bpmn:StartEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__.default);
-  this.registerHandler('bpmn:IntermediateCatchEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__.default);
-  this.registerHandler('bpmn:BoundaryEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__.default);
-  this.registerHandler('bpmn:Activity', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__.default);
+  this.registerHandler('bpmn:StartEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
+  this.registerHandler('bpmn:IntermediateCatchEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
+  this.registerHandler('bpmn:BoundaryEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
+  this.registerHandler('bpmn:Activity', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
 
   eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.TOGGLE_MODE_EVENT, LOW_PRIORITY, context => {
     const active = context.active;
@@ -1365,12 +1365,12 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _scope_filter__WEBPACK_IMPORTED_MODULE_0__.default
+    _scope_filter__WEBPACK_IMPORTED_MODULE_0__["default"]
   ],
   __init__: [
     'contextPads'
   ],
-  contextPads: [ 'type', _ContextPads__WEBPACK_IMPORTED_MODULE_1__.default ]
+  contextPads: [ 'type', _ContextPads__WEBPACK_IMPORTED_MODULE_1__["default"] ]
 });
 
 /***/ }),
@@ -1537,7 +1537,7 @@ __webpack_require__.r(__webpack_exports__);
   __init__: [
     'disableModeling'
   ],
-  disableModeling: [ 'type', _DisableModeling__WEBPACK_IMPORTED_MODULE_0__.default ]
+  disableModeling: [ 'type', _DisableModeling__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -1626,7 +1626,7 @@ __webpack_require__.r(__webpack_exports__);
   __init__: [
     'tokenSimulationEditorActions'
   ],
-  tokenSimulationEditorActions: [ 'type', _EditorActions__WEBPACK_IMPORTED_MODULE_0__.default ]
+  tokenSimulationEditorActions: [ 'type', _EditorActions__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -1642,23 +1642,109 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementColors)
 /* harmony export */ });
-/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
 
-function ElementColors(elementRegistry, graphicsFactory) {
+
+const VERY_HIGH_PRIORITY = 50000;
+
+/**
+ * @typedef Colors
+ * @prop {string} fill
+ * @prop {string} stroke
+ */
+
+/**
+ * @typedef CustomColors
+ * @prop {string} fill
+ * @prop {string} stroke
+ * @prop {number} priority
+ */
+
+function ElementColors(elementRegistry, eventBus, graphicsFactory) {
   this._elementRegistry = elementRegistry;
+  this._eventBus = eventBus;
   this._graphicsFactory = graphicsFactory;
+
+  this._originalColors = {};
+  this._customColors = {};
+
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, VERY_HIGH_PRIORITY, event => {
+    const active = event.active;
+
+    if (active) {
+      this._saveOriginalColors();
+    } else {
+      this._applyOriginalColors();
+
+      this._originalColors = {};
+      this._customColors = {};
+    }
+  });
+
+  eventBus.on('saveXML.start', VERY_HIGH_PRIORITY, () => {
+    this._applyOriginalColors();
+
+    eventBus.once('saveXML.done', () => this._applyCustomColors());
+  });
 }
 
 ElementColors.$inject = [
   'elementRegistry',
+  'eventBus',
   'graphicsFactory'
 ];
 
-ElementColors.prototype.get = function(element) {
+/**
+ * Add colors to an element. Element will be redrawn with highest priority
+ * colors.
+ *
+ * @param {Object} element
+ * @param {string} id
+ * @param {Colors} colors
+ * @param {number} [priority=1000]
+ */
+ElementColors.prototype.add = function(element, id, colors, priority = 1000) {
+  let elementColors = this._customColors[ element.id ];
 
-  const di = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getDi)(element);
+  if (!elementColors) {
+    elementColors = this._customColors[ element.id ] = {};
+  }
+
+  elementColors[ id ] = {
+    ...colors,
+    priority
+  };
+
+  this._applyHighestPriorityColor(element);
+};
+
+
+/**
+ * Remove colors from an element. Element will be redrawn with highest priority
+ * colors.
+ *
+ * @param {Object} element
+ * @param {string} id
+ */
+ElementColors.prototype.remove = function(element, id) {
+  const elementColors = this._customColors[ element.id ];
+
+  if (elementColors) {
+    delete elementColors[ id ];
+
+    if (!Object.keys(elementColors)) {
+      delete this._customColors[ element.id ];
+    }
+  }
+
+  this._applyHighestPriorityColor(element);
+};
+
+ElementColors.prototype._get = function(element) {
+  const di = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getDi)(element);
 
   if (!di) {
     return undefined;
@@ -1670,7 +1756,7 @@ ElementColors.prototype.get = function(element) {
     return {
       stroke: di.label && di.label.get('color')
     };
-  } else {
+  } else if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isAny)(di, [ 'bpmndi:BPMNEdge', 'bpmndi:BPMNShape' ])) {
     return {
       fill: di.get('background-color'),
       stroke: di.get('border-color')
@@ -1678,14 +1764,13 @@ ElementColors.prototype.get = function(element) {
   }
 };
 
-ElementColors.prototype.set = function(element, colors) {
-
+ElementColors.prototype._set = function(element, colors = {}) {
   const {
     fill,
     stroke
   } = colors;
 
-  const di = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getDi)(element);
+  const di = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getDi)(element);
 
   if (!di) {
     return;
@@ -1695,7 +1780,7 @@ ElementColors.prototype.set = function(element, colors) {
   // BPMN-in-Color specification
   if (isLabel(element)) {
     di.label && di.label.set('color', stroke);
-  } else {
+  } else if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isAny)(di, [ 'bpmndi:BPMNEdge', 'bpmndi:BPMNShape' ])) {
     di.set('background-color', fill);
     di.set('border-color', stroke);
   }
@@ -1703,8 +1788,49 @@ ElementColors.prototype.set = function(element, colors) {
   this._forceRedraw(element);
 };
 
+ElementColors.prototype._saveOriginalColors = function() {
+  this._originalColors = {};
+
+  this._elementRegistry.forEach(element => {
+    this._originalColors[ element.id ] = this._get(element);
+  });
+};
+
+ElementColors.prototype._applyOriginalColors = function() {
+  this._elementRegistry.forEach(element => {
+    const colors = this._originalColors[ element.id ];
+
+    if (colors) {
+      this._set(element, colors);
+    }
+  });
+};
+
+ElementColors.prototype._applyCustomColors = function() {
+  this._elementRegistry.forEach(element => {
+    const elementColors = this._customColors[ element.id ];
+
+    if (elementColors) {
+      this._set(element, getColorsWithHighestPriority(elementColors));
+    }
+  });
+};
+
+ElementColors.prototype._applyHighestPriorityColor = function(element) {
+  const elementColors = this._customColors[ element.id ];
+
+  if (!elementColors) {
+    this._set(element, this._originalColors[ element.id ]);
+
+    return;
+  }
+
+  this._set(element, getColorsWithHighestPriority(elementColors));
+};
+
 ElementColors.prototype._forceRedraw = function(element) {
   const gfx = this._elementRegistry.getGraphics(element);
+
   const type = element.waypoints ? 'connection' : 'shape';
 
   this._graphicsFactory.update(type, element, gfx);
@@ -1715,6 +1841,31 @@ ElementColors.prototype._forceRedraw = function(element) {
 
 function isLabel(element) {
   return 'labelTarget' in element;
+}
+
+/**
+ * Get colors with highest priority.
+ *
+ * @param {Map<string, CustomColors>|undefined} colors
+ *
+ * @returns {Colors|undefined}
+ */
+function getColorsWithHighestPriority(colors = {}) {
+  const colorsWithHighestPriority = Object.values(colors).reduce((colorsWithHighestPriority, colors) => {
+    const { priority = 1000 } = colors;
+
+    if (!colorsWithHighestPriority || priority > colorsWithHighestPriority.priority) {
+      return colors;
+    }
+
+    return colorsWithHighestPriority;
+  }, undefined);
+
+  if (colorsWithHighestPriority) {
+    const { priority, ...fillAndStroke } = colorsWithHighestPriority;
+
+    return fillAndStroke;
+  }
 }
 
 /***/ }),
@@ -1734,7 +1885,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  elementColors: [ 'type', _ElementColors__WEBPACK_IMPORTED_MODULE_0__.default ]
+  elementColors: [ 'type', _ElementColors__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -1750,7 +1901,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementNotifications)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -1834,7 +1985,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  elementNotifications: [ 'type', _ElementNotifications__WEBPACK_IMPORTED_MODULE_0__.default ]
+  elementNotifications: [ 'type', _ElementNotifications__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -1850,7 +2001,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementSupport)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
@@ -1972,11 +2123,11 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _element_notifications__WEBPACK_IMPORTED_MODULE_0__.default,
-    _notifications__WEBPACK_IMPORTED_MODULE_1__.default
+    _element_notifications__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _notifications__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   __init__: [ 'elementSupport' ],
-  elementSupport: [ 'type', _ElementSupport__WEBPACK_IMPORTED_MODULE_2__.default ]
+  elementSupport: [ 'type', _ElementSupport__WEBPACK_IMPORTED_MODULE_2__["default"] ]
 });
 
 
@@ -2018,6 +2169,10 @@ function getNext(gateway, sequenceFlow) {
 function isSequenceFlow(connection) {
   return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(connection, 'bpmn:SequenceFlow');
 }
+
+const ID = 'exclusive-gateway-settings';
+
+const HIGH_PRIORITY = 2000;
 
 
 function ExclusiveGatewaySettings(
@@ -2098,9 +2253,9 @@ ExclusiveGatewaySettings.prototype.setSequenceFlow = function(gateway) {
     const style = outgoing === newActiveOutgoing ? SELECTED_COLOR : NOT_SELECTED_COLOR;
     const stroke = this._simulationStyles.get(style);
 
-    this._elementColors.set(outgoing, {
+    this._elementColors.add(outgoing, ID, {
       stroke
-    });
+    }, HIGH_PRIORITY);
   });
 };
 
@@ -2134,10 +2289,10 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _element_colors__WEBPACK_IMPORTED_MODULE_0__.default,
-    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__.default
+    _element_colors__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
-  exclusiveGatewaySettings: [ 'type', _ExclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_2__.default ]
+  exclusiveGatewaySettings: [ 'type', _ExclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_2__["default"] ]
 });
 
 /***/ }),
@@ -2255,7 +2410,7 @@ __webpack_require__.r(__webpack_exports__);
   __init__: [
     'tokenSimulationKeyboardBindings'
   ],
-  tokenSimulationKeyboardBindings: [ 'type', _KeyboardBindings__WEBPACK_IMPORTED_MODULE_0__.default ]
+  tokenSimulationKeyboardBindings: [ 'type', _KeyboardBindings__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -2271,7 +2426,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Log)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var diagram_js_lib_util_EscapeUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! diagram-js/lib/util/EscapeUtil */ "./node_modules/diagram-js/lib/util/EscapeUtil.js");
@@ -2671,13 +2826,87 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _notifications__WEBPACK_IMPORTED_MODULE_0__.default,
-    _scope_filter__WEBPACK_IMPORTED_MODULE_1__.default
+    _notifications__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _scope_filter__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   __init__: [
     'log'
   ],
-  log: [ 'type', _Log__WEBPACK_IMPORTED_MODULE_2__.default ]
+  log: [ 'type', _Log__WEBPACK_IMPORTED_MODULE_2__["default"] ]
+});
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/NeutralElementColors.js":
+/*!***********************************************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/NeutralElementColors.js ***!
+  \***********************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ NeutralElementColors)
+/* harmony export */ });
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+
+
+const ID = 'neutral-element-colors';
+
+function NeutralElementColors(
+    eventBus, elementRegistry, elementColors) {
+
+  this._elementRegistry = elementRegistry;
+  this._elementColors = elementColors;
+
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, event => {
+    const { active } = event;
+
+    if (active) {
+      this._setNeutralColors();
+    }
+  });
+}
+
+NeutralElementColors.prototype._setNeutralColors = function() {
+  this._elementRegistry.forEach(element => {
+    this._elementColors.add(element, ID, {
+      stroke: '#212121',
+      fill: '#fff'
+    });
+  });
+};
+
+NeutralElementColors.$inject = [
+  'eventBus',
+  'elementRegistry',
+  'elementColors'
+];
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/index.js":
+/*!********************************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/index.js ***!
+  \********************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _NeutralElementColors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NeutralElementColors */ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/NeutralElementColors.js");
+/* harmony import */ var _element_colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js");
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  __depends__: [ _element_colors__WEBPACK_IMPORTED_MODULE_0__["default"] ],
+  __init__: [
+    'neutralElementColors'
+  ],
+  neutralElementColors: [ 'type', _NeutralElementColors__WEBPACK_IMPORTED_MODULE_1__["default"] ]
 });
 
 /***/ }),
@@ -2693,7 +2922,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Notifications)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -2804,9 +3033,9 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _scope_filter__WEBPACK_IMPORTED_MODULE_0__.default
+    _scope_filter__WEBPACK_IMPORTED_MODULE_0__["default"]
   ],
-  notifications: [ 'type', _Notifications__WEBPACK_IMPORTED_MODULE_1__.default ]
+  notifications: [ 'type', _Notifications__WEBPACK_IMPORTED_MODULE_1__["default"] ]
 });
 
 /***/ }),
@@ -2822,7 +3051,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Palette)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -2894,7 +3123,7 @@ __webpack_require__.r(__webpack_exports__);
   __init__: [
     'tokenSimulationPalette'
   ],
-  tokenSimulationPalette: [ 'type', _Palette__WEBPACK_IMPORTED_MODULE_0__.default ]
+  tokenSimulationPalette: [ 'type', _Palette__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -2910,7 +3139,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ PauseSimulation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -3060,106 +3289,12 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _notifications__WEBPACK_IMPORTED_MODULE_0__.default
+    _notifications__WEBPACK_IMPORTED_MODULE_0__["default"]
   ],
   __init__: [
     'pauseSimulation'
   ],
-  pauseSimulation: [ 'type', _PauseSimulation__WEBPACK_IMPORTED_MODULE_1__.default ]
-});
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/PreserveElementColors.js":
-/*!*************************************************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/PreserveElementColors.js ***!
-  \*************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ PreserveElementColors)
-/* harmony export */ });
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-
-
-const VERY_HIGH_PRIORITY = 50000;
-
-
-function PreserveElementColors(
-    eventBus, elementRegistry, elementColors) {
-
-  this._elementRegistry = elementRegistry;
-  this._elementColors = elementColors;
-
-  this._colorCache = {};
-
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, VERY_HIGH_PRIORITY, event => {
-    const active = event.active;
-
-    if (active) {
-      this.preserveColors();
-    } else {
-      this.resetColors();
-    }
-  });
-}
-
-PreserveElementColors.prototype.preserveColors = function() {
-  this._elementRegistry.forEach(element => {
-    this._colorCache[element.id] = this._elementColors.get(element);
-
-    this._elementColors.set(element, {
-      stroke: '#000',
-      fill: '#fff'
-    });
-  });
-};
-
-PreserveElementColors.prototype.resetColors = function() {
-  this._elementRegistry.forEach(element => {
-
-    const cachedColors = this._colorCache[element.id];
-
-    if (cachedColors) {
-      this._elementColors.set(element, cachedColors);
-    }
-  });
-
-  this._colorCache = {};
-};
-
-PreserveElementColors.$inject = [
-  'eventBus',
-  'elementRegistry',
-  'elementColors'
-];
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/index.js":
-/*!*********************************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/index.js ***!
-  \*********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var _PreserveElementColors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PreserveElementColors */ "./node_modules/bpmn-js-token-simulation/lib/features/preserve-element-colors/PreserveElementColors.js");
-/* harmony import */ var _element_colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js");
-
-
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  __depends__: [ _element_colors__WEBPACK_IMPORTED_MODULE_0__.default ],
-  __init__: [
-    'preserveElementColors'
-  ],
-  preserveElementColors: [ 'type', _PreserveElementColors__WEBPACK_IMPORTED_MODULE_1__.default ]
+  pauseSimulation: [ 'type', _PauseSimulation__WEBPACK_IMPORTED_MODULE_1__["default"] ]
 });
 
 /***/ }),
@@ -3175,7 +3310,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ResetSimulation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -3257,12 +3392,12 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _notifications__WEBPACK_IMPORTED_MODULE_0__.default
+    _notifications__WEBPACK_IMPORTED_MODULE_0__["default"]
   ],
   __init__: [
     'resetSimulation'
   ],
-  resetSimulation: [ 'type', _ResetSimulation__WEBPACK_IMPORTED_MODULE_1__.default ]
+  resetSimulation: [ 'type', _ResetSimulation__WEBPACK_IMPORTED_MODULE_1__["default"] ]
 });
 
 /***/ }),
@@ -3389,7 +3524,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  scopeFilter: [ 'type', _ScopeFilter__WEBPACK_IMPORTED_MODULE_0__.default ]
+  scopeFilter: [ 'type', _ScopeFilter__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -3405,7 +3540,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ SetAnimationSpeed)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -3515,7 +3650,7 @@ __webpack_require__.r(__webpack_exports__);
   __init__: [
     'setAnimationSpeed'
   ],
-  setAnimationSpeed: [ 'type', _SetAnimationSpeed__WEBPACK_IMPORTED_MODULE_0__.default ]
+  setAnimationSpeed: [ 'type', _SetAnimationSpeed__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -3531,7 +3666,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ShowScopes)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -3539,6 +3674,10 @@ __webpack_require__.r(__webpack_exports__);
 
 const FILL_COLOR = '--token-simulation-silver-base-97';
 const STROKE_COLOR = '--token-simulation-green-base-44';
+
+const ID = 'show-scopes';
+
+const VERY_HIGH_PRIORITY = 3000;
 
 
 function ShowScopes(
@@ -3683,12 +3822,9 @@ ShowScopes.prototype.highlightScope = function(element) {
 
   this.unhighlightScope();
 
-  this._highlight = {
-    element,
-    colors: this._elementColors.get(element)
-  };
+  this._highlight = element;
 
-  this._elementColors.set(element, this._getHighlightColors());
+  this._elementColors.add(element, ID, this._getHighlightColors(), VERY_HIGH_PRIORITY);
 
   if (!element.parent) {
     (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(this._canvas.getContainer()).add('highlight');
@@ -3701,12 +3837,9 @@ ShowScopes.prototype.unhighlightScope = function() {
     return;
   }
 
-  const {
-    element,
-    colors
-  } = this._highlight;
+  const element = this._highlight;
 
-  this._elementColors.set(element, colors);
+  this._elementColors.remove(element, ID);
 
   if (!element.parent) {
     (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(this._canvas.getContainer()).remove('highlight');
@@ -3753,13 +3886,13 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _scope_filter__WEBPACK_IMPORTED_MODULE_0__.default,
-    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__.default
+    _scope_filter__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   __init__: [
     'showScopes'
   ],
-  showScopes: [ 'type', _ShowScopes__WEBPACK_IMPORTED_MODULE_2__.default ]
+  showScopes: [ 'type', _ShowScopes__WEBPACK_IMPORTED_MODULE_2__["default"] ]
 });
 
 /***/ }),
@@ -3848,13 +3981,13 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _element_notifications__WEBPACK_IMPORTED_MODULE_0__.default,
-    _notifications__WEBPACK_IMPORTED_MODULE_1__.default
+    _element_notifications__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _notifications__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   __init__: [
     'simulationState'
   ],
-  simulationState: [ 'type', _SimulationState__WEBPACK_IMPORTED_MODULE_2__.default ]
+  simulationState: [ 'type', _SimulationState__WEBPACK_IMPORTED_MODULE_2__["default"] ]
 });
 
 /***/ }),
@@ -3933,7 +4066,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  simulationStyles: [ 'type', _SimulationStyles__WEBPACK_IMPORTED_MODULE_0__.default ]
+  simulationStyles: [ 'type', _SimulationStyles__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -3949,7 +4082,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ToggleMode)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -4059,7 +4192,7 @@ __webpack_require__.r(__webpack_exports__);
   __init__: [
     'toggleMode'
   ],
-  toggleMode: [ 'type', _ToggleMode__WEBPACK_IMPORTED_MODULE_0__.default ]
+  toggleMode: [ 'type', _ToggleMode__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 /***/ }),
@@ -4075,7 +4208,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ TokenCount)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
@@ -4238,13 +4371,13 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _scope_filter__WEBPACK_IMPORTED_MODULE_0__.default,
-    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__.default
+    _scope_filter__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   __init__: [
     'tokenCount'
   ],
-  tokenCount: [ 'type', _TokenCount__WEBPACK_IMPORTED_MODULE_2__.default ]
+  tokenCount: [ 'type', _TokenCount__WEBPACK_IMPORTED_MODULE_2__["default"] ]
 });
 
 /***/ }),
@@ -4258,21 +4391,21 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "AngleRightIcon": () => (/* binding */ AngleRightIcon),
-/* harmony export */   "CheckCircleIcon": () => (/* binding */ CheckCircleIcon),
-/* harmony export */   "ExclamationTriangleIcon": () => (/* binding */ ExclamationTriangleIcon),
-/* harmony export */   "ForkIcon": () => (/* binding */ ForkIcon),
-/* harmony export */   "InfoIcon": () => (/* binding */ InfoIcon),
-/* harmony export */   "LogIcon": () => (/* binding */ LogIcon),
-/* harmony export */   "PauseIcon": () => (/* binding */ PauseIcon),
-/* harmony export */   "PlayIcon": () => (/* binding */ PlayIcon),
-/* harmony export */   "RemovePauseIcon": () => (/* binding */ RemovePauseIcon),
-/* harmony export */   "ResetIcon": () => (/* binding */ ResetIcon),
-/* harmony export */   "TachometerIcon": () => (/* binding */ TachometerIcon),
-/* harmony export */   "TimesCircleIcon": () => (/* binding */ TimesCircleIcon),
-/* harmony export */   "TimesIcon": () => (/* binding */ TimesIcon),
-/* harmony export */   "ToggleOffIcon": () => (/* binding */ ToggleOffIcon),
-/* harmony export */   "ToggleOnIcon": () => (/* binding */ ToggleOnIcon)
+/* harmony export */   AngleRightIcon: () => (/* binding */ AngleRightIcon),
+/* harmony export */   CheckCircleIcon: () => (/* binding */ CheckCircleIcon),
+/* harmony export */   ExclamationTriangleIcon: () => (/* binding */ ExclamationTriangleIcon),
+/* harmony export */   ForkIcon: () => (/* binding */ ForkIcon),
+/* harmony export */   InfoIcon: () => (/* binding */ InfoIcon),
+/* harmony export */   LogIcon: () => (/* binding */ LogIcon),
+/* harmony export */   PauseIcon: () => (/* binding */ PauseIcon),
+/* harmony export */   PlayIcon: () => (/* binding */ PlayIcon),
+/* harmony export */   RemovePauseIcon: () => (/* binding */ RemovePauseIcon),
+/* harmony export */   ResetIcon: () => (/* binding */ ResetIcon),
+/* harmony export */   TachometerIcon: () => (/* binding */ TachometerIcon),
+/* harmony export */   TimesCircleIcon: () => (/* binding */ TimesCircleIcon),
+/* harmony export */   TimesIcon: () => (/* binding */ TimesIcon),
+/* harmony export */   ToggleOffIcon: () => (/* binding */ ToggleOffIcon),
+/* harmony export */   ToggleOnIcon: () => (/* binding */ ToggleOnIcon)
 /* harmony export */ });
 var LogSVG = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 448 512\"><!-- Font Awesome Free 5.15.4 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) --><path fill=\"currentColor\" d=\"M12.83 352h262.34A12.82 12.82 0 0 0 288 339.17v-38.34A12.82 12.82 0 0 0 275.17 288H12.83A12.82 12.82 0 0 0 0 300.83v38.34A12.82 12.82 0 0 0 12.83 352zm0-256h262.34A12.82 12.82 0 0 0 288 83.17V44.83A12.82 12.82 0 0 0 275.17 32H12.83A12.82 12.82 0 0 0 0 44.83v38.34A12.82 12.82 0 0 0 12.83 96zM432 160H16a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16zm0 256H16a16 16 0 0 0-16 16v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16v-32a16 16 0 0 0-16-16z\"/></svg>";
 
@@ -4356,11 +4489,11 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _base__WEBPACK_IMPORTED_MODULE_0__.default,
-    _features_disable_modeling__WEBPACK_IMPORTED_MODULE_1__.default,
-    _features_toggle_mode_modeler__WEBPACK_IMPORTED_MODULE_2__.default,
-    _features_editor_actions__WEBPACK_IMPORTED_MODULE_3__.default,
-    _features_keyboard_bindings__WEBPACK_IMPORTED_MODULE_4__.default
+    _base__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _features_disable_modeling__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _features_toggle_mode_modeler__WEBPACK_IMPORTED_MODULE_2__["default"],
+    _features_editor_actions__WEBPACK_IMPORTED_MODULE_3__["default"],
+    _features_keyboard_bindings__WEBPACK_IMPORTED_MODULE_4__["default"]
   ]
 });
 
@@ -4565,8 +4698,8 @@ class Scope {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "ScopeState": () => (/* binding */ ScopeState),
-/* harmony export */   "ScopeStates": () => (/* binding */ ScopeStates)
+/* harmony export */   ScopeState: () => (/* binding */ ScopeState),
+/* harmony export */   ScopeStates: () => (/* binding */ ScopeStates)
 /* harmony export */ });
 /* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
 
@@ -4783,7 +4916,7 @@ const ScopeStates = Object.freeze({
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "ScopeTraits": () => (/* binding */ ScopeTraits)
+/* harmony export */   ScopeTraits: () => (/* binding */ ScopeTraits)
 /* harmony export */ });
 const ACTIVATED = 1;
 const RUNNING = 1 << 1;
@@ -4848,7 +4981,7 @@ __webpack_require__.r(__webpack_exports__);
 
 function Simulator(injector, eventBus, elementRegistry) {
 
-  const ids = injector.get('scopeIds', false) || new ids__WEBPACK_IMPORTED_MODULE_0__.default([ 32, 36 ]);
+  const ids = injector.get('scopeIds', false) || new ids__WEBPACK_IMPORTED_MODULE_0__["default"]([ 32, 36 ]);
 
   // element configuration
   const configuration = {};
@@ -5103,7 +5236,8 @@ function Simulator(injector, eventBus, elementRegistry) {
     if (
       (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:StartEvent') ||
       (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:IntermediateCatchEvent') ||
-      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ReceiveTask')
+      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ReceiveTask') ||
+      isSpecialBoundaryEvent(element)
     ) {
       return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.getBusinessObject)(element).name || element.id;
     }
@@ -5133,7 +5267,7 @@ function Simulator(injector, eventBus, elementRegistry) {
       ...(iref ? { iref } : {})
     };
 
-    const eventDefinition = (element.businessObject.eventDefinitions || {})[0];
+    const eventDefinition = getEventDefinitions(element)[0];
 
     if (!eventDefinition) {
 
@@ -5251,7 +5385,7 @@ function Simulator(injector, eventBus, elementRegistry) {
       scope: parentScope
     });
 
-    const scope = new _Scope__WEBPACK_IMPORTED_MODULE_5__.default(ids.next(), element, parentScope, initiator);
+    const scope = new _Scope__WEBPACK_IMPORTED_MODULE_5__["default"](ids.next(), element, parentScope, initiator);
 
     if (parentScope) {
       parentScope.children.push(scope);
@@ -5667,6 +5801,23 @@ function isRethrow(event, interrupt) {
 function isImplicitMessageCatch(element) {
   return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ReceiveTask') || element.incoming.some(element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:MessageFlow'));
 }
+
+function isSpecialBoundaryEvent(element) {
+  if (!(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isBoundaryEvent)(element)) {
+    return false;
+  }
+
+  const eventDefinitions = getEventDefinitions(element);
+
+  return !eventDefinitions[0] || (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isAny)(eventDefinitions[0], [
+    'bpmn:ConditionalEventDefinition', 'bpmn:TimerEventDefinition'
+  ]);
+}
+
+function getEventDefinitions(element) {
+  return element.businessObject.get('eventDefinitions') || [];
+}
+
 
 /***/ }),
 
@@ -6361,7 +6512,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function ExclusiveGatewayBehavior(simulator) {
+function ExclusiveGatewayBehavior(simulator, scopeBehavior) {
+  this._scopeBehavior = scopeBehavior;
   this._simulator = simulator;
 
   simulator.registerBehavior('bpmn:ExclusiveGateway', this);
@@ -6397,7 +6549,7 @@ ExclusiveGatewayBehavior.prototype.exit = function(context) {
   const outgoing = outgoings.find(o => o === activeOutgoing);
 
   if (!outgoing) {
-    throw new Error('no outgoing configured');
+    return this._scopeBehavior.tryExit(scope.parent, scope);
   }
 
   return this._simulator.enter({
@@ -6406,7 +6558,10 @@ ExclusiveGatewayBehavior.prototype.exit = function(context) {
   });
 };
 
-ExclusiveGatewayBehavior.$inject = [ 'simulator' ];
+ExclusiveGatewayBehavior.$inject = [
+  'simulator',
+  'scopeBehavior'
+];
 
 /***/ }),
 
@@ -7531,22 +7686,22 @@ __webpack_require__.r(__webpack_exports__);
     'messageFlowBehavior',
     'processBehavior'
   ],
-  startEventBehavior: [ 'type', _StartEventBehavior__WEBPACK_IMPORTED_MODULE_0__.default ],
-  endEventBehavior: [ 'type', _EndEventBehavior__WEBPACK_IMPORTED_MODULE_1__.default ],
-  boundaryEventBehavior: [ 'type', _BoundaryEventBehavior__WEBPACK_IMPORTED_MODULE_2__.default ],
-  intermediateCatchEventBehavior: [ 'type', _IntermediateCatchEventBehavior__WEBPACK_IMPORTED_MODULE_3__.default ],
-  intermediateThrowEventBehavior: [ 'type', _IntermediateThrowEventBehavior__WEBPACK_IMPORTED_MODULE_4__.default ],
-  exclusiveGatewayBehavior: [ 'type', _ExclusiveGatewayBehavior__WEBPACK_IMPORTED_MODULE_5__.default ],
-  parallelGatewayBehavior: [ 'type', _ParallelGatewayBehavior__WEBPACK_IMPORTED_MODULE_6__.default ],
-  eventBasedGatewayBehavior: [ 'type', _EventBasedGatewayBehavior__WEBPACK_IMPORTED_MODULE_7__.default ],
-  activityBehavior: [ 'type', _ActivityBehavior__WEBPACK_IMPORTED_MODULE_8__.default ],
-  subProcessBehavior: [ 'type', _SubProcessBehavior__WEBPACK_IMPORTED_MODULE_9__.default ],
-  sequenceFlowBehavior: [ 'type', _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_10__.default ],
-  messageFlowBehavior: [ 'type', _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_11__.default ],
-  eventBehaviors: [ 'type', _EventBehaviors__WEBPACK_IMPORTED_MODULE_12__.default ],
-  scopeBehavior: [ 'type', _ScopeBehavior__WEBPACK_IMPORTED_MODULE_13__.default ],
-  processBehavior: [ 'type', _ProcessBehavior__WEBPACK_IMPORTED_MODULE_14__.default ],
-  transactionBehavior: [ 'type', _TransactionBehavior__WEBPACK_IMPORTED_MODULE_15__.default ]
+  startEventBehavior: [ 'type', _StartEventBehavior__WEBPACK_IMPORTED_MODULE_0__["default"] ],
+  endEventBehavior: [ 'type', _EndEventBehavior__WEBPACK_IMPORTED_MODULE_1__["default"] ],
+  boundaryEventBehavior: [ 'type', _BoundaryEventBehavior__WEBPACK_IMPORTED_MODULE_2__["default"] ],
+  intermediateCatchEventBehavior: [ 'type', _IntermediateCatchEventBehavior__WEBPACK_IMPORTED_MODULE_3__["default"] ],
+  intermediateThrowEventBehavior: [ 'type', _IntermediateThrowEventBehavior__WEBPACK_IMPORTED_MODULE_4__["default"] ],
+  exclusiveGatewayBehavior: [ 'type', _ExclusiveGatewayBehavior__WEBPACK_IMPORTED_MODULE_5__["default"] ],
+  parallelGatewayBehavior: [ 'type', _ParallelGatewayBehavior__WEBPACK_IMPORTED_MODULE_6__["default"] ],
+  eventBasedGatewayBehavior: [ 'type', _EventBasedGatewayBehavior__WEBPACK_IMPORTED_MODULE_7__["default"] ],
+  activityBehavior: [ 'type', _ActivityBehavior__WEBPACK_IMPORTED_MODULE_8__["default"] ],
+  subProcessBehavior: [ 'type', _SubProcessBehavior__WEBPACK_IMPORTED_MODULE_9__["default"] ],
+  sequenceFlowBehavior: [ 'type', _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_10__["default"] ],
+  messageFlowBehavior: [ 'type', _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_11__["default"] ],
+  eventBehaviors: [ 'type', _EventBehaviors__WEBPACK_IMPORTED_MODULE_12__["default"] ],
+  scopeBehavior: [ 'type', _ScopeBehavior__WEBPACK_IMPORTED_MODULE_13__["default"] ],
+  processBehavior: [ 'type', _ProcessBehavior__WEBPACK_IMPORTED_MODULE_14__["default"] ],
+  transactionBehavior: [ 'type', _TransactionBehavior__WEBPACK_IMPORTED_MODULE_15__["default"] ]
 });
 
 /***/ }),
@@ -7571,7 +7726,7 @@ const HIGH_PRIORITY = 5000;
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _behaviors__WEBPACK_IMPORTED_MODULE_0__.default
+    _behaviors__WEBPACK_IMPORTED_MODULE_0__["default"]
   ],
   __init__: [
     [ 'eventBus', 'simulator', function(eventBus, simulator) {
@@ -7583,7 +7738,7 @@ const HIGH_PRIORITY = 5000;
       });
     } ]
   ],
-  simulator: [ 'type', _Simulator__WEBPACK_IMPORTED_MODULE_1__.default ]
+  simulator: [ 'type', _Simulator__WEBPACK_IMPORTED_MODULE_1__["default"] ]
 });
 
 /***/ }),
@@ -7597,7 +7752,7 @@ const HIGH_PRIORITY = 5000;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "eventsMatch": () => (/* binding */ eventsMatch)
+/* harmony export */   eventsMatch: () => (/* binding */ eventsMatch)
 /* harmony export */ });
 function eventsMatch(a, b) {
   return [ 'type', 'name', 'ref', 'iref' ].every(attr => !(attr in a) || a[attr] === b[attr]);
@@ -7614,26 +7769,26 @@ function eventsMatch(a, b) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "is": () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is),
-/* harmony export */   "getBusinessObject": () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject),
-/* harmony export */   "filterSequenceFlows": () => (/* binding */ filterSequenceFlows),
-/* harmony export */   "isMessageFlow": () => (/* binding */ isMessageFlow),
-/* harmony export */   "isSequenceFlow": () => (/* binding */ isSequenceFlow),
-/* harmony export */   "isMessageCatch": () => (/* binding */ isMessageCatch),
-/* harmony export */   "isLinkCatch": () => (/* binding */ isLinkCatch),
-/* harmony export */   "isCompensationEvent": () => (/* binding */ isCompensationEvent),
-/* harmony export */   "isCompensationActivity": () => (/* binding */ isCompensationActivity),
-/* harmony export */   "isCatchEvent": () => (/* binding */ isCatchEvent),
-/* harmony export */   "isBoundaryEvent": () => (/* binding */ isBoundaryEvent),
-/* harmony export */   "isStartEvent": () => (/* binding */ isStartEvent),
-/* harmony export */   "isLabel": () => (/* binding */ isLabel),
-/* harmony export */   "isEventSubProcess": () => (/* binding */ isEventSubProcess),
-/* harmony export */   "isInterrupting": () => (/* binding */ isInterrupting),
-/* harmony export */   "isAny": () => (/* binding */ isAny),
-/* harmony export */   "isTypedEvent": () => (/* binding */ isTypedEvent)
+/* harmony export */   filterSequenceFlows: () => (/* binding */ filterSequenceFlows),
+/* harmony export */   getBusinessObject: () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject),
+/* harmony export */   is: () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is),
+/* harmony export */   isAny: () => (/* binding */ isAny),
+/* harmony export */   isBoundaryEvent: () => (/* binding */ isBoundaryEvent),
+/* harmony export */   isCatchEvent: () => (/* binding */ isCatchEvent),
+/* harmony export */   isCompensationActivity: () => (/* binding */ isCompensationActivity),
+/* harmony export */   isCompensationEvent: () => (/* binding */ isCompensationEvent),
+/* harmony export */   isEventSubProcess: () => (/* binding */ isEventSubProcess),
+/* harmony export */   isInterrupting: () => (/* binding */ isInterrupting),
+/* harmony export */   isLabel: () => (/* binding */ isLabel),
+/* harmony export */   isLinkCatch: () => (/* binding */ isLinkCatch),
+/* harmony export */   isMessageCatch: () => (/* binding */ isMessageCatch),
+/* harmony export */   isMessageFlow: () => (/* binding */ isMessageFlow),
+/* harmony export */   isSequenceFlow: () => (/* binding */ isSequenceFlow),
+/* harmony export */   isStartEvent: () => (/* binding */ isStartEvent),
+/* harmony export */   isTypedEvent: () => (/* binding */ isTypedEvent)
 /* harmony export */ });
 /* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.esm.js");
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
 
 
 
@@ -7722,8 +7877,8 @@ function isTypedEvent(event, eventDefinitionType) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "filterSet": () => (/* binding */ filterSet),
-/* harmony export */   "findSet": () => (/* binding */ findSet)
+/* harmony export */   filterSet: () => (/* binding */ filterSet),
+/* harmony export */   findSet: () => (/* binding */ findSet)
 /* harmony export */ });
 function filterSet(set, matchFn) {
 
@@ -7760,12 +7915,12 @@ function findSet(set, matchFn) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "is": () => (/* binding */ is),
-/* harmony export */   "getEventDefinition": () => (/* binding */ getEventDefinition),
-/* harmony export */   "isTypedEvent": () => (/* binding */ isTypedEvent),
-/* harmony export */   "getBusinessObject": () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)
+/* harmony export */   getBusinessObject: () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject),
+/* harmony export */   getEventDefinition: () => (/* binding */ getEventDefinition),
+/* harmony export */   is: () => (/* binding */ is),
+/* harmony export */   isTypedEvent: () => (/* binding */ isTypedEvent)
 /* harmony export */ });
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.esm.js");
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
 /* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
@@ -7810,18 +7965,18 @@ function isTypedEvent(event, eventDefinitionType) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "TOGGLE_MODE_EVENT": () => (/* binding */ TOGGLE_MODE_EVENT),
-/* harmony export */   "PLAY_SIMULATION_EVENT": () => (/* binding */ PLAY_SIMULATION_EVENT),
-/* harmony export */   "PAUSE_SIMULATION_EVENT": () => (/* binding */ PAUSE_SIMULATION_EVENT),
-/* harmony export */   "RESET_SIMULATION_EVENT": () => (/* binding */ RESET_SIMULATION_EVENT),
-/* harmony export */   "ANIMATION_CREATED_EVENT": () => (/* binding */ ANIMATION_CREATED_EVENT),
-/* harmony export */   "ANIMATION_SPEED_CHANGED_EVENT": () => (/* binding */ ANIMATION_SPEED_CHANGED_EVENT),
-/* harmony export */   "ELEMENT_CHANGED_EVENT": () => (/* binding */ ELEMENT_CHANGED_EVENT),
-/* harmony export */   "SCOPE_DESTROYED_EVENT": () => (/* binding */ SCOPE_DESTROYED_EVENT),
-/* harmony export */   "SCOPE_CHANGED_EVENT": () => (/* binding */ SCOPE_CHANGED_EVENT),
-/* harmony export */   "SCOPE_CREATE_EVENT": () => (/* binding */ SCOPE_CREATE_EVENT),
-/* harmony export */   "SCOPE_FILTER_CHANGED_EVENT": () => (/* binding */ SCOPE_FILTER_CHANGED_EVENT),
-/* harmony export */   "TRACE_EVENT": () => (/* binding */ TRACE_EVENT)
+/* harmony export */   ANIMATION_CREATED_EVENT: () => (/* binding */ ANIMATION_CREATED_EVENT),
+/* harmony export */   ANIMATION_SPEED_CHANGED_EVENT: () => (/* binding */ ANIMATION_SPEED_CHANGED_EVENT),
+/* harmony export */   ELEMENT_CHANGED_EVENT: () => (/* binding */ ELEMENT_CHANGED_EVENT),
+/* harmony export */   PAUSE_SIMULATION_EVENT: () => (/* binding */ PAUSE_SIMULATION_EVENT),
+/* harmony export */   PLAY_SIMULATION_EVENT: () => (/* binding */ PLAY_SIMULATION_EVENT),
+/* harmony export */   RESET_SIMULATION_EVENT: () => (/* binding */ RESET_SIMULATION_EVENT),
+/* harmony export */   SCOPE_CHANGED_EVENT: () => (/* binding */ SCOPE_CHANGED_EVENT),
+/* harmony export */   SCOPE_CREATE_EVENT: () => (/* binding */ SCOPE_CREATE_EVENT),
+/* harmony export */   SCOPE_DESTROYED_EVENT: () => (/* binding */ SCOPE_DESTROYED_EVENT),
+/* harmony export */   SCOPE_FILTER_CHANGED_EVENT: () => (/* binding */ SCOPE_FILTER_CHANGED_EVENT),
+/* harmony export */   TOGGLE_MODE_EVENT: () => (/* binding */ TOGGLE_MODE_EVENT),
+/* harmony export */   TRACE_EVENT: () => (/* binding */ TRACE_EVENT)
 /* harmony export */ });
 const TOGGLE_MODE_EVENT = 'tokenSimulation.toggleMode';
 const PLAY_SIMULATION_EVENT = 'tokenSimulation.playSimulation';
@@ -7840,834 +7995,611 @@ const TRACE_EVENT = 'tokenSimulation.simulator.trace';
 
 /***/ }),
 
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.esm.js":
-/*!***************************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.esm.js ***!
-  \***************************************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "assign": () => (/* binding */ assign),
-/* harmony export */   "bind": () => (/* binding */ bind),
-/* harmony export */   "debounce": () => (/* binding */ debounce),
-/* harmony export */   "ensureArray": () => (/* binding */ ensureArray),
-/* harmony export */   "every": () => (/* binding */ every),
-/* harmony export */   "filter": () => (/* binding */ filter),
-/* harmony export */   "find": () => (/* binding */ find),
-/* harmony export */   "findIndex": () => (/* binding */ findIndex),
-/* harmony export */   "flatten": () => (/* binding */ flatten),
-/* harmony export */   "forEach": () => (/* binding */ forEach),
-/* harmony export */   "get": () => (/* binding */ get),
-/* harmony export */   "groupBy": () => (/* binding */ groupBy),
-/* harmony export */   "has": () => (/* binding */ has),
-/* harmony export */   "isArray": () => (/* binding */ isArray),
-/* harmony export */   "isDefined": () => (/* binding */ isDefined),
-/* harmony export */   "isFunction": () => (/* binding */ isFunction),
-/* harmony export */   "isNil": () => (/* binding */ isNil),
-/* harmony export */   "isNumber": () => (/* binding */ isNumber),
-/* harmony export */   "isObject": () => (/* binding */ isObject),
-/* harmony export */   "isString": () => (/* binding */ isString),
-/* harmony export */   "isUndefined": () => (/* binding */ isUndefined),
-/* harmony export */   "keys": () => (/* binding */ keys),
-/* harmony export */   "map": () => (/* binding */ map),
-/* harmony export */   "matchPattern": () => (/* binding */ matchPattern),
-/* harmony export */   "merge": () => (/* binding */ merge),
-/* harmony export */   "omit": () => (/* binding */ omit),
-/* harmony export */   "pick": () => (/* binding */ pick),
-/* harmony export */   "reduce": () => (/* binding */ reduce),
-/* harmony export */   "set": () => (/* binding */ set),
-/* harmony export */   "size": () => (/* binding */ size),
-/* harmony export */   "some": () => (/* binding */ some),
-/* harmony export */   "sortBy": () => (/* binding */ sortBy),
-/* harmony export */   "throttle": () => (/* binding */ throttle),
-/* harmony export */   "unionBy": () => (/* binding */ unionBy),
-/* harmony export */   "uniqueBy": () => (/* binding */ uniqueBy),
-/* harmony export */   "values": () => (/* binding */ values),
-/* harmony export */   "without": () => (/* binding */ without)
-/* harmony export */ });
-/**
- * Flatten array, one level deep.
- *
- * @param {Array<?>} arr
- *
- * @return {Array<?>}
- */
-function flatten(arr) {
-  return Array.prototype.concat.apply([], arr);
-}
-
-const nativeToString = Object.prototype.toString;
-const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
-
-function isUndefined(obj) {
-  return obj === undefined;
-}
-
-function isDefined(obj) {
-  return obj !== undefined;
-}
-
-function isNil(obj) {
-  return obj == null;
-}
-
-function isArray(obj) {
-  return nativeToString.call(obj) === '[object Array]';
-}
-
-function isObject(obj) {
-  return nativeToString.call(obj) === '[object Object]';
-}
-
-function isNumber(obj) {
-  return nativeToString.call(obj) === '[object Number]';
-}
-
-function isFunction(obj) {
-  const tag = nativeToString.call(obj);
-
-  return (
-    tag === '[object Function]' ||
-    tag === '[object AsyncFunction]' ||
-    tag === '[object GeneratorFunction]' ||
-    tag === '[object AsyncGeneratorFunction]' ||
-    tag === '[object Proxy]'
-  );
-}
-
-function isString(obj) {
-  return nativeToString.call(obj) === '[object String]';
-}
-
-
-/**
- * Ensure collection is an array.
- *
- * @param {Object} obj
- */
-function ensureArray(obj) {
-
-  if (isArray(obj)) {
-    return;
-  }
-
-  throw new Error('must supply array');
-}
-
-/**
- * Return true, if target owns a property with the given key.
- *
- * @param {Object} target
- * @param {String} key
- *
- * @return {Boolean}
- */
-function has(target, key) {
-  return nativeHasOwnProperty.call(target, key);
-}
-
-/**
- * Find element in collection.
- *
- * @param  {Array|Object} collection
- * @param  {Function|Object} matcher
- *
- * @return {Object}
- */
-function find(collection, matcher) {
-
-  matcher = toMatcher(matcher);
-
-  let match;
-
-  forEach(collection, function(val, key) {
-    if (matcher(val, key)) {
-      match = val;
-
-      return false;
-    }
-  });
-
-  return match;
-
-}
-
-
-/**
- * Find element index in collection.
- *
- * @param  {Array|Object} collection
- * @param  {Function} matcher
- *
- * @return {Object}
- */
-function findIndex(collection, matcher) {
-
-  matcher = toMatcher(matcher);
-
-  let idx = isArray(collection) ? -1 : undefined;
-
-  forEach(collection, function(val, key) {
-    if (matcher(val, key)) {
-      idx = key;
-
-      return false;
-    }
-  });
-
-  return idx;
-}
-
-
-/**
- * Find element in collection.
- *
- * @param  {Array|Object} collection
- * @param  {Function} matcher
- *
- * @return {Array} result
- */
-function filter(collection, matcher) {
-
-  let result = [];
-
-  forEach(collection, function(val, key) {
-    if (matcher(val, key)) {
-      result.push(val);
-    }
-  });
-
-  return result;
-}
-
-
-/**
- * Iterate over collection; returning something
- * (non-undefined) will stop iteration.
- *
- * @param  {Array|Object} collection
- * @param  {Function} iterator
- *
- * @return {Object} return result that stopped the iteration
- */
-function forEach(collection, iterator) {
-
-  let val,
-      result;
-
-  if (isUndefined(collection)) {
-    return;
-  }
-
-  const convertKey = isArray(collection) ? toNum : identity;
-
-  for (let key in collection) {
-
-    if (has(collection, key)) {
-      val = collection[key];
-
-      result = iterator(val, convertKey(key));
-
-      if (result === false) {
-        return val;
-      }
-    }
-  }
-}
-
-/**
- * Return collection without element.
- *
- * @param  {Array} arr
- * @param  {Function} matcher
- *
- * @return {Array}
- */
-function without(arr, matcher) {
-
-  if (isUndefined(arr)) {
-    return [];
-  }
-
-  ensureArray(arr);
-
-  matcher = toMatcher(matcher);
-
-  return arr.filter(function(el, idx) {
-    return !matcher(el, idx);
-  });
-
-}
-
-
-/**
- * Reduce collection, returning a single result.
- *
- * @param  {Object|Array} collection
- * @param  {Function} iterator
- * @param  {Any} result
- *
- * @return {Any} result returned from last iterator
- */
-function reduce(collection, iterator, result) {
-
-  forEach(collection, function(value, idx) {
-    result = iterator(result, value, idx);
-  });
-
-  return result;
-}
-
-
-/**
- * Return true if every element in the collection
- * matches the criteria.
- *
- * @param  {Object|Array} collection
- * @param  {Function} matcher
- *
- * @return {Boolean}
- */
-function every(collection, matcher) {
-
-  return !!reduce(collection, function(matches, val, key) {
-    return matches && matcher(val, key);
-  }, true);
-}
-
-
-/**
- * Return true if some elements in the collection
- * match the criteria.
- *
- * @param  {Object|Array} collection
- * @param  {Function} matcher
- *
- * @return {Boolean}
- */
-function some(collection, matcher) {
-
-  return !!find(collection, matcher);
-}
-
-
-/**
- * Transform a collection into another collection
- * by piping each member through the given fn.
- *
- * @param  {Object|Array}   collection
- * @param  {Function} fn
- *
- * @return {Array} transformed collection
- */
-function map(collection, fn) {
-
-  let result = [];
-
-  forEach(collection, function(val, key) {
-    result.push(fn(val, key));
-  });
-
-  return result;
-}
-
-
-/**
- * Get the collections keys.
- *
- * @param  {Object|Array} collection
- *
- * @return {Array}
- */
-function keys(collection) {
-  return collection && Object.keys(collection) || [];
-}
-
-
-/**
- * Shorthand for `keys(o).length`.
- *
- * @param  {Object|Array} collection
- *
- * @return {Number}
- */
-function size(collection) {
-  return keys(collection).length;
-}
-
-
-/**
- * Get the values in the collection.
- *
- * @param  {Object|Array} collection
- *
- * @return {Array}
- */
-function values(collection) {
-  return map(collection, (val) => val);
-}
-
-
-/**
- * Group collection members by attribute.
- *
- * @param  {Object|Array} collection
- * @param  {Function} extractor
- *
- * @return {Object} map with { attrValue => [ a, b, c ] }
- */
-function groupBy(collection, extractor, grouped = {}) {
-
-  extractor = toExtractor(extractor);
-
-  forEach(collection, function(val) {
-    let discriminator = extractor(val) || '_';
-
-    let group = grouped[discriminator];
-
-    if (!group) {
-      group = grouped[discriminator] = [];
-    }
-
-    group.push(val);
-  });
-
-  return grouped;
-}
-
-
-function uniqueBy(extractor, ...collections) {
-
-  extractor = toExtractor(extractor);
-
-  let grouped = {};
-
-  forEach(collections, (c) => groupBy(c, extractor, grouped));
-
-  let result = map(grouped, function(val, key) {
-    return val[0];
-  });
-
-  return result;
-}
-
-
-const unionBy = uniqueBy;
-
-
-
-/**
- * Sort collection by criteria.
- *
- * @param  {Object|Array} collection
- * @param  {String|Function} extractor
- *
- * @return {Array}
- */
-function sortBy(collection, extractor) {
-
-  extractor = toExtractor(extractor);
-
-  let sorted = [];
-
-  forEach(collection, function(value, key) {
-    let disc = extractor(value, key);
-
-    let entry = {
-      d: disc,
-      v: value
-    };
-
-    for (var idx = 0; idx < sorted.length; idx++) {
-      let { d } = sorted[idx];
-
-      if (disc < d) {
-        sorted.splice(idx, 0, entry);
-        return;
-      }
-    }
-
-    // not inserted, append (!)
-    sorted.push(entry);
-  });
-
-  return map(sorted, (e) => e.v);
-}
-
-
-/**
- * Create an object pattern matcher.
- *
- * @example
- *
- * const matcher = matchPattern({ id: 1 });
- *
- * let element = find(elements, matcher);
- *
- * @param  {Object} pattern
- *
- * @return {Function} matcherFn
- */
-function matchPattern(pattern) {
-
-  return function(el) {
-
-    return every(pattern, function(val, key) {
-      return el[key] === val;
-    });
-
-  };
-}
-
-
-function toExtractor(extractor) {
-  return isFunction(extractor) ? extractor : (e) => {
-    return e[extractor];
-  };
-}
-
-
-function toMatcher(matcher) {
-  return isFunction(matcher) ? matcher : (e) => {
-    return e === matcher;
-  };
-}
-
-
-function identity(arg) {
-  return arg;
-}
-
-function toNum(arg) {
-  return Number(arg);
-}
-
-/**
- * Debounce fn, calling it only once if the given time
- * elapsed between calls.
- *
- * Lodash-style the function exposes methods to `#clear`
- * and `#flush` to control internal behavior.
- *
- * @param  {Function} fn
- * @param  {Number} timeout
- *
- * @return {Function} debounced function
- */
-function debounce(fn, timeout) {
-
-  let timer;
-
-  let lastArgs;
-  let lastThis;
-
-  let lastNow;
-
-  function fire(force) {
-
-    let now = Date.now();
-
-    let scheduledDiff = force ? 0 : (lastNow + timeout) - now;
-
-    if (scheduledDiff > 0) {
-      return schedule(scheduledDiff);
-    }
-
-    fn.apply(lastThis, lastArgs);
-
-    clear();
-  }
-
-  function schedule(timeout) {
-    timer = setTimeout(fire, timeout);
-  }
-
-  function clear() {
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    timer = lastNow = lastArgs = lastThis = undefined;
-  }
-
-  function flush() {
-    if (timer) {
-      fire(true);
-    }
-
-    clear();
-  }
-
-  function callback(...args) {
-    lastNow = Date.now();
-
-    lastArgs = args;
-    lastThis = this;
-
-    // ensure an execution is scheduled
-    if (!timer) {
-      schedule(timeout);
-    }
-  }
-
-  callback.flush = flush;
-  callback.cancel = clear;
-
-  return callback;
-}
-
-/**
- * Throttle fn, calling at most once
- * in the given interval.
- *
- * @param  {Function} fn
- * @param  {Number} interval
- *
- * @return {Function} throttled function
- */
-function throttle(fn, interval) {
-  let throttling = false;
-
-  return function(...args) {
-
-    if (throttling) {
-      return;
-    }
-
-    fn(...args);
-    throttling = true;
-
-    setTimeout(() => {
-      throttling = false;
-    }, interval);
-  };
-}
-
-/**
- * Bind function against target <this>.
- *
- * @param  {Function} fn
- * @param  {Object}   target
- *
- * @return {Function} bound function
- */
-function bind(fn, target) {
-  return fn.bind(target);
-}
-
-/**
- * Convenience wrapper for `Object.assign`.
- *
- * @param {Object} target
- * @param {...Object} others
- *
- * @return {Object} the target
- */
-function assign(target, ...others) {
-  return Object.assign(target, ...others);
-}
-
-/**
- * Sets a nested property of a given object to the specified value.
- *
- * This mutates the object and returns it.
- *
- * @param {Object} target The target of the set operation.
- * @param {(string|number)[]} path The path to the nested value.
- * @param {any} value The value to set.
- */
-function set(target, path, value) {
-
-  let currentTarget = target;
-
-  forEach(path, function(key, idx) {
-
-    if (typeof key !== 'number' && typeof key !== 'string') {
-      throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
-    }
-
-    if (key === 'constructor') {
-      throw new Error('illegal key: constructor');
-    }
-
-    if (key === '__proto__') {
-      throw new Error('illegal key: __proto__');
-    }
-
-    let nextKey = path[idx + 1];
-    let nextTarget = currentTarget[key];
-
-    if (isDefined(nextKey) && isNil(nextTarget)) {
-      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
-    }
-
-    if (isUndefined(nextKey)) {
-      if (isUndefined(value)) {
-        delete currentTarget[key];
-      } else {
-        currentTarget[key] = value;
-      }
-    } else {
-      currentTarget = nextTarget;
-    }
-  });
-
-  return target;
-}
-
-
-/**
- * Gets a nested property of a given object.
- *
- * @param {Object} target The target of the get operation.
- * @param {(string|number)[]} path The path to the nested value.
- * @param {any} [defaultValue] The value to return if no value exists.
- */
-function get(target, path, defaultValue) {
-
-  let currentTarget = target;
-
-  forEach(path, function(key) {
-
-    // accessing nil property yields <undefined>
-    if (isNil(currentTarget)) {
-      currentTarget = undefined;
-
-      return false;
-    }
-
-    currentTarget = currentTarget[key];
-  });
-
-  return isUndefined(currentTarget) ? defaultValue : currentTarget;
-}
-
-/**
- * Pick given properties from the target object.
- *
- * @param {Object} target
- * @param {Array} properties
- *
- * @return {Object} target
- */
-function pick(target, properties) {
-
-  let result = {};
-
-  let obj = Object(target);
-
-  forEach(properties, function(prop) {
-
-    if (prop in obj) {
-      result[prop] = target[prop];
-    }
-  });
-
-  return result;
-}
-
-/**
- * Pick all target properties, excluding the given ones.
- *
- * @param {Object} target
- * @param {Array} properties
- *
- * @return {Object} target
- */
-function omit(target, properties) {
-
-  let result = {};
-
-  let obj = Object(target);
-
-  forEach(obj, function(prop, key) {
-
-    if (properties.indexOf(key) === -1) {
-      result[key] = prop;
-    }
-  });
-
-  return result;
-}
-
-/**
- * Recursively merge `...sources` into given target.
- *
- * Does support merging objects; does not support merging arrays.
- *
- * @param {Object} target
- * @param {...Object} sources
- *
- * @return {Object} the target
- */
-function merge(target, ...sources) {
-
-  if (!sources.length) {
-    return target;
-  }
-
-  forEach(sources, function(source) {
-
-    // skip non-obj sources, i.e. null
-    if (!source || !isObject(source)) {
-      return;
-    }
-
-    forEach(source, function(sourceVal, key) {
-
-      if (key === '__proto__') {
-        return;
-      }
-
-      let targetVal = target[key];
-
-      if (isObject(sourceVal)) {
-
-        if (!isObject(targetVal)) {
-
-          // override target[key] with object
-          targetVal = {};
-        }
-
-        target[key] = merge(targetVal, sourceVal);
-      } else {
-        target[key] = sourceVal;
-      }
-
-    });
-  });
-
-  return target;
-}
-
-
-
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js":
-/*!**************************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.esm.js ***!
-  \**************************************************************************************/
+/***/ "./node_modules/bpmn-js/lib/util/ModelUtil.js":
+/*!****************************************************!*\
+  !*** ./node_modules/bpmn-js/lib/util/ModelUtil.js ***!
+  \****************************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "assignStyle": () => (/* binding */ assign),
-/* harmony export */   "attr": () => (/* binding */ attr),
-/* harmony export */   "classes": () => (/* binding */ classes),
-/* harmony export */   "clear": () => (/* binding */ clear),
-/* harmony export */   "closest": () => (/* binding */ closest),
-/* harmony export */   "delegate": () => (/* binding */ delegate),
-/* harmony export */   "domify": () => (/* binding */ domify$1),
-/* harmony export */   "event": () => (/* binding */ event),
-/* harmony export */   "matches": () => (/* binding */ matches),
-/* harmony export */   "query": () => (/* binding */ query),
-/* harmony export */   "queryAll": () => (/* binding */ all),
-/* harmony export */   "remove": () => (/* binding */ remove)
+/* harmony export */   getBusinessObject: () => (/* binding */ getBusinessObject),
+/* harmony export */   getDi: () => (/* binding */ getDi),
+/* harmony export */   is: () => (/* binding */ is),
+/* harmony export */   isAny: () => (/* binding */ isAny)
+/* harmony export */ });
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
+
+
+/**
+ * @typedef { import('../model/Types').Element } Element
+ * @typedef { import('../model/Types').ModdleElement } ModdleElement
+ */
+
+/**
+ * Is an element of the given BPMN type?
+ *
+ * @param  {Element|ModdleElement} element
+ * @param  {string} type
+ *
+ * @return {boolean}
+ */
+function is(element, type) {
+  var bo = getBusinessObject(element);
+
+  return bo && (typeof bo.$instanceOf === 'function') && bo.$instanceOf(type);
+}
+
+
+/**
+ * Return true if element has any of the given types.
+ *
+ * @param {Element|ModdleElement} element
+ * @param {string[]} types
+ *
+ * @return {boolean}
+ */
+function isAny(element, types) {
+  return (0,min_dash__WEBPACK_IMPORTED_MODULE_0__.some)(types, function(t) {
+    return is(element, t);
+  });
+}
+
+/**
+ * Return the business object for a given element.
+ *
+ * @param {Element|ModdleElement} element
+ *
+ * @return {ModdleElement}
+ */
+function getBusinessObject(element) {
+  return (element && element.businessObject) || element;
+}
+
+/**
+ * Return the di object for a given element.
+ *
+ * @param {Element} element
+ *
+ * @return {ModdleElement}
+ */
+function getDi(element) {
+  return element && element.di;
+}
+
+/***/ }),
+
+/***/ "./node_modules/camunda-modeler-plugin-helpers/index.js":
+/*!**************************************************************!*\
+  !*** ./node_modules/camunda-modeler-plugin-helpers/index.js ***!
+  \**************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   getModelerDirectory: () => (/* binding */ getModelerDirectory),
+/* harmony export */   getPluginsDirectory: () => (/* binding */ getPluginsDirectory),
+/* harmony export */   registerBpmnJSModdleExtension: () => (/* binding */ registerBpmnJSModdleExtension),
+/* harmony export */   registerBpmnJSPlugin: () => (/* binding */ registerBpmnJSPlugin),
+/* harmony export */   registerClientExtension: () => (/* binding */ registerClientExtension),
+/* harmony export */   registerClientPlugin: () => (/* binding */ registerClientPlugin),
+/* harmony export */   registerCloudBpmnJSModdleExtension: () => (/* binding */ registerCloudBpmnJSModdleExtension),
+/* harmony export */   registerCloudBpmnJSPlugin: () => (/* binding */ registerCloudBpmnJSPlugin),
+/* harmony export */   registerDmnJSModdleExtension: () => (/* binding */ registerDmnJSModdleExtension),
+/* harmony export */   registerDmnJSPlugin: () => (/* binding */ registerDmnJSPlugin),
+/* harmony export */   registerPlatformBpmnJSModdleExtension: () => (/* binding */ registerPlatformBpmnJSModdleExtension),
+/* harmony export */   registerPlatformBpmnJSPlugin: () => (/* binding */ registerPlatformBpmnJSPlugin)
+/* harmony export */ });
+/**
+ * Validate and register a client plugin.
+ *
+ * @param {Object} plugin
+ * @param {String} type
+ */
+function registerClientPlugin(plugin, type) {
+  var plugins = window.plugins || [];
+  window.plugins = plugins;
+
+  if (!plugin) {
+    throw new Error('plugin not specified');
+  }
+
+  if (!type) {
+    throw new Error('type not specified');
+  }
+
+  plugins.push({
+    plugin: plugin,
+    type: type
+  });
+}
+
+/**
+ * Validate and register a client plugin.
+ *
+ * @param {import('react').ComponentType} extension
+ *
+ * @example
+ *
+ * import MyExtensionComponent from './MyExtensionComponent';
+ *
+ * registerClientExtension(MyExtensionComponent);
+ */
+function registerClientExtension(component) {
+  registerClientPlugin(component, 'client');
+}
+
+/**
+ * Validate and register a bpmn-js plugin.
+ *
+ * @param {Object} module
+ *
+ * @example
+ *
+ * import {
+ *   registerBpmnJSPlugin
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * const BpmnJSModule = {
+ *   __init__: [ 'myService' ],
+ *   myService: [ 'type', ... ]
+ * };
+ *
+ * registerBpmnJSPlugin(BpmnJSModule);
+ */
+function registerBpmnJSPlugin(module) {
+  registerClientPlugin(module, 'bpmn.modeler.additionalModules');
+}
+
+/**
+ * Validate and register a platform specific bpmn-js plugin.
+ *
+ * @param {Object} module
+ *
+ * @example
+ *
+ * import {
+ *   registerPlatformBpmnJSPlugin
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * const BpmnJSModule = {
+ *   __init__: [ 'myService' ],
+ *   myService: [ 'type', ... ]
+ * };
+ *
+ * registerPlatformBpmnJSPlugin(BpmnJSModule);
+ */
+function registerPlatformBpmnJSPlugin(module) {
+  registerClientPlugin(module, 'bpmn.platform.modeler.additionalModules');
+}
+
+/**
+ * Validate and register a cloud specific bpmn-js plugin.
+ *
+ * @param {Object} module
+ *
+ * @example
+ *
+ * import {
+ *   registerCloudBpmnJSPlugin
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * const BpmnJSModule = {
+ *   __init__: [ 'myService' ],
+ *   myService: [ 'type', ... ]
+ * };
+ *
+ * registerCloudBpmnJSPlugin(BpmnJSModule);
+ */
+function registerCloudBpmnJSPlugin(module) {
+  registerClientPlugin(module, 'bpmn.cloud.modeler.additionalModules');
+}
+
+/**
+ * Validate and register a bpmn-moddle extension plugin.
+ *
+ * @param {Object} descriptor
+ *
+ * @example
+ * import {
+ *   registerBpmnJSModdleExtension
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * var moddleDescriptor = {
+ *   name: 'my descriptor',
+ *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
+ *   prefix: 'mydesc',
+ *
+ *   ...
+ * };
+ *
+ * registerBpmnJSModdleExtension(moddleDescriptor);
+ */
+function registerBpmnJSModdleExtension(descriptor) {
+  registerClientPlugin(descriptor, 'bpmn.modeler.moddleExtension');
+}
+
+/**
+ * Validate and register a platform specific bpmn-moddle extension plugin.
+ *
+ * @param {Object} descriptor
+ *
+ * @example
+ * import {
+ *   registerPlatformBpmnJSModdleExtension
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * var moddleDescriptor = {
+ *   name: 'my descriptor',
+ *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
+ *   prefix: 'mydesc',
+ *
+ *   ...
+ * };
+ *
+ * registerPlatformBpmnJSModdleExtension(moddleDescriptor);
+ */
+function registerPlatformBpmnJSModdleExtension(descriptor) {
+  registerClientPlugin(descriptor, 'bpmn.platform.modeler.moddleExtension');
+}
+
+/**
+ * Validate and register a cloud specific bpmn-moddle extension plugin.
+ *
+ * @param {Object} descriptor
+ *
+ * @example
+ * import {
+ *   registerCloudBpmnJSModdleExtension
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * var moddleDescriptor = {
+ *   name: 'my descriptor',
+ *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
+ *   prefix: 'mydesc',
+ *
+ *   ...
+ * };
+ *
+ * registerCloudBpmnJSModdleExtension(moddleDescriptor);
+ */
+function registerCloudBpmnJSModdleExtension(descriptor) {
+  registerClientPlugin(descriptor, 'bpmn.cloud.modeler.moddleExtension');
+}
+
+/**
+ * Validate and register a dmn-moddle extension plugin.
+ *
+ * @param {Object} descriptor
+ *
+ * @example
+ * import {
+ *   registerDmnJSModdleExtension
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * var moddleDescriptor = {
+ *   name: 'my descriptor',
+ *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
+ *   prefix: 'mydesc',
+ *
+ *   ...
+ * };
+ *
+ * registerDmnJSModdleExtension(moddleDescriptor);
+ */
+function registerDmnJSModdleExtension(descriptor) {
+  registerClientPlugin(descriptor, 'dmn.modeler.moddleExtension');
+}
+
+/**
+ * Validate and register a dmn-js plugin.
+ *
+ * @param {Object} module
+ *
+ * @example
+ *
+ * import {
+ *   registerDmnJSPlugin
+ * } from 'camunda-modeler-plugin-helpers';
+ *
+ * const DmnJSModule = {
+ *   __init__: [ 'myService' ],
+ *   myService: [ 'type', ... ]
+ * };
+ *
+ * registerDmnJSPlugin(DmnJSModule, [ 'drd', 'literalExpression' ]);
+ * registerDmnJSPlugin(DmnJSModule, 'drd')
+ */
+function registerDmnJSPlugin(module, components) {
+
+  if (!Array.isArray(components)) {
+    components = [ components ]
+  }
+
+  components.forEach(c => registerClientPlugin(module, `dmn.modeler.${c}.additionalModules`)); 
+}
+
+/**
+ * Return the modeler directory, as a string.
+ *
+ * @deprecated Will be removed in future Camunda Modeler versions without replacement.
+ *
+ * @return {String}
+ */
+function getModelerDirectory() {
+  return window.getModelerDirectory();
+}
+
+/**
+ * Return the modeler plugin directory, as a string.
+ *
+ * @deprecated Will be removed in future Camunda Modeler versions without replacement.
+ *
+ * @return {String}
+ */
+function getPluginsDirectory() {
+  return window.getPluginsDirectory();
+}
+
+/***/ }),
+
+/***/ "./node_modules/diagram-js/lib/util/EscapeUtil.js":
+/*!********************************************************!*\
+  !*** ./node_modules/diagram-js/lib/util/EscapeUtil.js ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   escapeCSS: () => (/* binding */ escapeCSS),
+/* harmony export */   escapeHTML: () => (/* binding */ escapeHTML)
+/* harmony export */ });
+/**
+ * @param {string} str
+ *
+ * @return {string}
+ */
+function escapeCSS(str) {
+  return CSS.escape(str);
+}
+
+var HTML_ESCAPE_MAP = {
+  '&': '&amp;',
+  '<': '&lt;',
+  '>': '&gt;',
+  '"': '&quot;',
+  '\'': '&#39;'
+};
+
+/**
+ * @param {string} str
+ *
+ * @return {string}
+ */
+function escapeHTML(str) {
+  str = '' + str;
+
+  return str && str.replace(/[&<>"']/g, function(match) {
+    return HTML_ESCAPE_MAP[match];
+  });
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/ids/dist/index.esm.js":
+/*!********************************************!*\
+  !*** ./node_modules/ids/dist/index.esm.js ***!
+  \********************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+function createCommonjsModule(fn, module) {
+	return module = { exports: {} }, fn(module, module.exports), module.exports;
+}
+
+var hat_1 = createCommonjsModule(function (module) {
+var hat = module.exports = function (bits, base) {
+    if (!base) base = 16;
+    if (bits === undefined) bits = 128;
+    if (bits <= 0) return '0';
+    
+    var digits = Math.log(Math.pow(2, bits)) / Math.log(base);
+    for (var i = 2; digits === Infinity; i *= 2) {
+        digits = Math.log(Math.pow(2, bits / i)) / Math.log(base) * i;
+    }
+    
+    var rem = digits - Math.floor(digits);
+    
+    var res = '';
+    
+    for (var i = 0; i < Math.floor(digits); i++) {
+        var x = Math.floor(Math.random() * base).toString(base);
+        res = x + res;
+    }
+    
+    if (rem) {
+        var b = Math.pow(base, rem);
+        var x = Math.floor(Math.random() * b).toString(base);
+        res = x + res;
+    }
+    
+    var parsed = parseInt(res, base);
+    if (parsed !== Infinity && parsed >= Math.pow(2, bits)) {
+        return hat(bits, base)
+    }
+    else return res;
+};
+
+hat.rack = function (bits, base, expandBy) {
+    var fn = function (data) {
+        var iters = 0;
+        do {
+            if (iters ++ > 10) {
+                if (expandBy) bits += expandBy;
+                else throw new Error('too many ID collisions, use more bits')
+            }
+            
+            var id = hat(bits, base);
+        } while (Object.hasOwnProperty.call(hats, id));
+        
+        hats[id] = data;
+        return id;
+    };
+    var hats = fn.hats = {};
+    
+    fn.get = function (id) {
+        return fn.hats[id];
+    };
+    
+    fn.set = function (id, value) {
+        fn.hats[id] = value;
+        return fn;
+    };
+    
+    fn.bits = bits || 128;
+    fn.base = base || 16;
+    return fn;
+};
+});
+
+/**
+ * Create a new id generator / cache instance.
+ *
+ * You may optionally provide a seed that is used internally.
+ *
+ * @param {Seed} seed
+ */
+function Ids(seed) {
+  if (!(this instanceof Ids)) {
+    return new Ids(seed);
+  }
+  seed = seed || [128, 36, 1];
+  this._seed = seed.length ? hat_1.rack(seed[0], seed[1], seed[2]) : seed;
+}
+
+/**
+ * Generate a next id.
+ *
+ * @param {Object} [element] element to bind the id to
+ *
+ * @return {String} id
+ */
+Ids.prototype.next = function (element) {
+  return this._seed(element || true);
+};
+
+/**
+ * Generate a next id with a given prefix.
+ *
+ * @param {Object} [element] element to bind the id to
+ *
+ * @return {String} id
+ */
+Ids.prototype.nextPrefixed = function (prefix, element) {
+  var id;
+  do {
+    id = prefix + this.next(true);
+  } while (this.assigned(id));
+
+  // claim {prefix}{random}
+  this.claim(id, element);
+
+  // return
+  return id;
+};
+
+/**
+ * Manually claim an existing id.
+ *
+ * @param {String} id
+ * @param {String} [element] element the id is claimed by
+ */
+Ids.prototype.claim = function (id, element) {
+  this._seed.set(id, element || true);
+};
+
+/**
+ * Returns true if the given id has already been assigned.
+ *
+ * @param  {String} id
+ * @return {Boolean}
+ */
+Ids.prototype.assigned = function (id) {
+  return this._seed.get(id) || false;
+};
+
+/**
+ * Unclaim an id.
+ *
+ * @param  {String} id the id to unclaim
+ */
+Ids.prototype.unclaim = function (id) {
+  delete this._seed.hats[id];
+};
+
+/**
+ * Clear all claimed ids.
+ */
+Ids.prototype.clear = function () {
+  var hats = this._seed.hats,
+    id;
+  for (id in hats) {
+    this.unclaim(id);
+  }
+};
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Ids);
+//# sourceMappingURL=index.esm.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/inherits-browser/dist/index.es.js":
+/*!********************************************************!*\
+  !*** ./node_modules/inherits-browser/dist/index.es.js ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ e)
+/* harmony export */ });
+function e(e,t){t&&(e.super_=t,e.prototype=Object.create(t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}))}
+//# sourceMappingURL=index.es.js.map
+
+
+/***/ }),
+
+/***/ "./node_modules/min-dom/dist/index.esm.js":
+/*!************************************************!*\
+  !*** ./node_modules/min-dom/dist/index.esm.js ***!
+  \************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   assignStyle: () => (/* binding */ assign),
+/* harmony export */   attr: () => (/* binding */ attr),
+/* harmony export */   classes: () => (/* binding */ classes),
+/* harmony export */   clear: () => (/* binding */ clear),
+/* harmony export */   closest: () => (/* binding */ closest),
+/* harmony export */   delegate: () => (/* binding */ delegate),
+/* harmony export */   domify: () => (/* binding */ domify$1),
+/* harmony export */   event: () => (/* binding */ event),
+/* harmony export */   matches: () => (/* binding */ matches),
+/* harmony export */   query: () => (/* binding */ query),
+/* harmony export */   queryAll: () => (/* binding */ all),
+/* harmony export */   remove: () => (/* binding */ remove)
 /* harmony export */ });
 function _mergeNamespaces(n, m) {
   m.forEach(function (e) {
@@ -8995,9 +8927,13 @@ function closest(element, selector, checkYourSelf) {
 
 var componentEvent = {};
 
-var bind$1 = window.addEventListener ? 'addEventListener' : 'attachEvent',
-    unbind$1 = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
-    prefix = bind$1 !== 'addEventListener' ? 'on' : '';
+var bind$1, unbind$1, prefix;
+
+function detect () {
+  bind$1 = window.addEventListener ? 'addEventListener' : 'attachEvent';
+  unbind$1 = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
+  prefix = bind$1 !== 'addEventListener' ? 'on' : '';
+}
 
 /**
  * Bind `el` event `type` to `fn`.
@@ -9011,6 +8947,7 @@ var bind$1 = window.addEventListener ? 'addEventListener' : 'attachEvent',
  */
 
 var bind_1 = componentEvent.bind = function(el, type, fn, capture){
+  if (!bind$1) detect();
   el[bind$1](prefix + type, fn, capture || false);
   return fn;
 };
@@ -9027,6 +8964,7 @@ var bind_1 = componentEvent.bind = function(el, type, fn, capture){
  */
 
 var unbind_1 = componentEvent.unbind = function(el, type, fn, capture){
+  if (!unbind$1) detect();
   el[unbind$1](prefix + type, fn, capture || false);
   return fn;
 };
@@ -9228,1978 +9166,6 @@ function remove(el) {
 
 
 //# sourceMappingURL=index.esm.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js/lib/util/ModelUtil.js":
-/*!****************************************************!*\
-  !*** ./node_modules/bpmn-js/lib/util/ModelUtil.js ***!
-  \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "is": () => (/* binding */ is),
-/* harmony export */   "isAny": () => (/* binding */ isAny),
-/* harmony export */   "getBusinessObject": () => (/* binding */ getBusinessObject),
-/* harmony export */   "getDi": () => (/* binding */ getDi)
-/* harmony export */ });
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
-
-
-
-/**
- * Is an element of the given BPMN type?
- *
- * @param  {djs.model.Base|ModdleElement} element
- * @param  {string} type
- *
- * @return {boolean}
- */
-function is(element, type) {
-  var bo = getBusinessObject(element);
-
-  return bo && (typeof bo.$instanceOf === 'function') && bo.$instanceOf(type);
-}
-
-
-/**
- * Return true if element has any of the given types.
- *
- * @param {djs.model.Base} element
- * @param {Array<string>} types
- *
- * @return {boolean}
- */
-function isAny(element, types) {
-  return (0,min_dash__WEBPACK_IMPORTED_MODULE_0__.some)(types, function(t) {
-    return is(element, t);
-  });
-}
-
-/**
- * Return the business object for a given element.
- *
- * @param  {djs.model.Base|ModdleElement} element
- *
- * @return {ModdleElement}
- */
-function getBusinessObject(element) {
-  return (element && element.businessObject) || element;
-}
-
-/**
- * Return the di object for a given element.
- *
- * @param  {djs.model.Base} element
- *
- * @return {ModdleElement}
- */
-function getDi(element) {
-  return element && element.di;
-}
-
-/***/ }),
-
-/***/ "./node_modules/camunda-modeler-plugin-helpers/index.js":
-/*!**************************************************************!*\
-  !*** ./node_modules/camunda-modeler-plugin-helpers/index.js ***!
-  \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "registerClientPlugin": () => (/* binding */ registerClientPlugin),
-/* harmony export */   "registerClientExtension": () => (/* binding */ registerClientExtension),
-/* harmony export */   "registerBpmnJSPlugin": () => (/* binding */ registerBpmnJSPlugin),
-/* harmony export */   "registerPlatformBpmnJSPlugin": () => (/* binding */ registerPlatformBpmnJSPlugin),
-/* harmony export */   "registerCloudBpmnJSPlugin": () => (/* binding */ registerCloudBpmnJSPlugin),
-/* harmony export */   "registerBpmnJSModdleExtension": () => (/* binding */ registerBpmnJSModdleExtension),
-/* harmony export */   "registerPlatformBpmnJSModdleExtension": () => (/* binding */ registerPlatformBpmnJSModdleExtension),
-/* harmony export */   "registerCloudBpmnJSModdleExtension": () => (/* binding */ registerCloudBpmnJSModdleExtension),
-/* harmony export */   "registerDmnJSModdleExtension": () => (/* binding */ registerDmnJSModdleExtension),
-/* harmony export */   "registerDmnJSPlugin": () => (/* binding */ registerDmnJSPlugin),
-/* harmony export */   "getModelerDirectory": () => (/* binding */ getModelerDirectory),
-/* harmony export */   "getPluginsDirectory": () => (/* binding */ getPluginsDirectory)
-/* harmony export */ });
-/**
- * Validate and register a client plugin.
- *
- * @param {Object} plugin
- * @param {String} type
- */
-function registerClientPlugin(plugin, type) {
-  var plugins = window.plugins || [];
-  window.plugins = plugins;
-
-  if (!plugin) {
-    throw new Error('plugin not specified');
-  }
-
-  if (!type) {
-    throw new Error('type not specified');
-  }
-
-  plugins.push({
-    plugin: plugin,
-    type: type
-  });
-}
-
-/**
- * Validate and register a client plugin.
- *
- * @param {import('react').ComponentType} extension
- *
- * @example
- *
- * import MyExtensionComponent from './MyExtensionComponent';
- *
- * registerClientExtension(MyExtensionComponent);
- */
-function registerClientExtension(component) {
-  registerClientPlugin(component, 'client');
-}
-
-/**
- * Validate and register a bpmn-js plugin.
- *
- * @param {Object} module
- *
- * @example
- *
- * import {
- *   registerBpmnJSPlugin
- * } from 'camunda-modeler-plugin-helpers';
- *
- * const BpmnJSModule = {
- *   __init__: [ 'myService' ],
- *   myService: [ 'type', ... ]
- * };
- *
- * registerBpmnJSPlugin(BpmnJSModule);
- */
-function registerBpmnJSPlugin(module) {
-  registerClientPlugin(module, 'bpmn.modeler.additionalModules');
-}
-
-/**
- * Validate and register a platform specific bpmn-js plugin.
- *
- * @param {Object} module
- *
- * @example
- *
- * import {
- *   registerPlatformBpmnJSPlugin
- * } from 'camunda-modeler-plugin-helpers';
- *
- * const BpmnJSModule = {
- *   __init__: [ 'myService' ],
- *   myService: [ 'type', ... ]
- * };
- *
- * registerPlatformBpmnJSPlugin(BpmnJSModule);
- */
-function registerPlatformBpmnJSPlugin(module) {
-  registerClientPlugin(module, 'bpmn.platform.modeler.additionalModules');
-}
-
-/**
- * Validate and register a cloud specific bpmn-js plugin.
- *
- * @param {Object} module
- *
- * @example
- *
- * import {
- *   registerCloudBpmnJSPlugin
- * } from 'camunda-modeler-plugin-helpers';
- *
- * const BpmnJSModule = {
- *   __init__: [ 'myService' ],
- *   myService: [ 'type', ... ]
- * };
- *
- * registerCloudBpmnJSPlugin(BpmnJSModule);
- */
-function registerCloudBpmnJSPlugin(module) {
-  registerClientPlugin(module, 'bpmn.cloud.modeler.additionalModules');
-}
-
-/**
- * Validate and register a bpmn-moddle extension plugin.
- *
- * @param {Object} descriptor
- *
- * @example
- * import {
- *   registerBpmnJSModdleExtension
- * } from 'camunda-modeler-plugin-helpers';
- *
- * var moddleDescriptor = {
- *   name: 'my descriptor',
- *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
- *   prefix: 'mydesc',
- *
- *   ...
- * };
- *
- * registerBpmnJSModdleExtension(moddleDescriptor);
- */
-function registerBpmnJSModdleExtension(descriptor) {
-  registerClientPlugin(descriptor, 'bpmn.modeler.moddleExtension');
-}
-
-/**
- * Validate and register a platform specific bpmn-moddle extension plugin.
- *
- * @param {Object} descriptor
- *
- * @example
- * import {
- *   registerPlatformBpmnJSModdleExtension
- * } from 'camunda-modeler-plugin-helpers';
- *
- * var moddleDescriptor = {
- *   name: 'my descriptor',
- *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
- *   prefix: 'mydesc',
- *
- *   ...
- * };
- *
- * registerPlatformBpmnJSModdleExtension(moddleDescriptor);
- */
-function registerPlatformBpmnJSModdleExtension(descriptor) {
-  registerClientPlugin(descriptor, 'bpmn.platform.modeler.moddleExtension');
-}
-
-/**
- * Validate and register a cloud specific bpmn-moddle extension plugin.
- *
- * @param {Object} descriptor
- *
- * @example
- * import {
- *   registerCloudBpmnJSModdleExtension
- * } from 'camunda-modeler-plugin-helpers';
- *
- * var moddleDescriptor = {
- *   name: 'my descriptor',
- *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
- *   prefix: 'mydesc',
- *
- *   ...
- * };
- *
- * registerCloudBpmnJSModdleExtension(moddleDescriptor);
- */
-function registerCloudBpmnJSModdleExtension(descriptor) {
-  registerClientPlugin(descriptor, 'bpmn.cloud.modeler.moddleExtension');
-}
-
-/**
- * Validate and register a dmn-moddle extension plugin.
- *
- * @param {Object} descriptor
- *
- * @example
- * import {
- *   registerDmnJSModdleExtension
- * } from 'camunda-modeler-plugin-helpers';
- *
- * var moddleDescriptor = {
- *   name: 'my descriptor',
- *   uri: 'http://example.my.company.localhost/schema/my-descriptor/1.0',
- *   prefix: 'mydesc',
- *
- *   ...
- * };
- *
- * registerDmnJSModdleExtension(moddleDescriptor);
- */
-function registerDmnJSModdleExtension(descriptor) {
-  registerClientPlugin(descriptor, 'dmn.modeler.moddleExtension');
-}
-
-/**
- * Validate and register a dmn-js plugin.
- *
- * @param {Object} module
- *
- * @example
- *
- * import {
- *   registerDmnJSPlugin
- * } from 'camunda-modeler-plugin-helpers';
- *
- * const DmnJSModule = {
- *   __init__: [ 'myService' ],
- *   myService: [ 'type', ... ]
- * };
- *
- * registerDmnJSPlugin(DmnJSModule, [ 'drd', 'literalExpression' ]);
- * registerDmnJSPlugin(DmnJSModule, 'drd')
- */
-function registerDmnJSPlugin(module, components) {
-
-  if (!Array.isArray(components)) {
-    components = [ components ]
-  }
-
-  components.forEach(c => registerClientPlugin(module, `dmn.modeler.${c}.additionalModules`)); 
-}
-
-/**
- * Return the modeler directory, as a string.
- *
- * @deprecated Will be removed in future Camunda Modeler versions without replacement.
- *
- * @return {String}
- */
-function getModelerDirectory() {
-  return window.getModelerDirectory();
-}
-
-/**
- * Return the modeler plugin directory, as a string.
- *
- * @deprecated Will be removed in future Camunda Modeler versions without replacement.
- *
- * @return {String}
- */
-function getPluginsDirectory() {
-  return window.getPluginsDirectory();
-}
-
-/***/ }),
-
-/***/ "./node_modules/css.escape/css.escape.js":
-/*!***********************************************!*\
-  !*** ./node_modules/css.escape/css.escape.js ***!
-  \***********************************************/
-/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
-
-/*! https://mths.be/cssescape v1.5.1 by @mathias | MIT license */
-;(function(root, factory) {
-	// https://github.com/umdjs/umd/blob/master/returnExports.js
-	if (true) {
-		// For Node.js.
-		module.exports = factory(root);
-	} else {}
-}(typeof __webpack_require__.g != 'undefined' ? __webpack_require__.g : this, function(root) {
-
-	if (root.CSS && root.CSS.escape) {
-		return root.CSS.escape;
-	}
-
-	// https://drafts.csswg.org/cssom/#serialize-an-identifier
-	var cssEscape = function(value) {
-		if (arguments.length == 0) {
-			throw new TypeError('`CSS.escape` requires an argument.');
-		}
-		var string = String(value);
-		var length = string.length;
-		var index = -1;
-		var codeUnit;
-		var result = '';
-		var firstCodeUnit = string.charCodeAt(0);
-		while (++index < length) {
-			codeUnit = string.charCodeAt(index);
-			// Note: there’s no need to special-case astral symbols, surrogate
-			// pairs, or lone surrogates.
-
-			// If the character is NULL (U+0000), then the REPLACEMENT CHARACTER
-			// (U+FFFD).
-			if (codeUnit == 0x0000) {
-				result += '\uFFFD';
-				continue;
-			}
-
-			if (
-				// If the character is in the range [\1-\1F] (U+0001 to U+001F) or is
-				// U+007F, […]
-				(codeUnit >= 0x0001 && codeUnit <= 0x001F) || codeUnit == 0x007F ||
-				// If the character is the first character and is in the range [0-9]
-				// (U+0030 to U+0039), […]
-				(index == 0 && codeUnit >= 0x0030 && codeUnit <= 0x0039) ||
-				// If the character is the second character and is in the range [0-9]
-				// (U+0030 to U+0039) and the first character is a `-` (U+002D), […]
-				(
-					index == 1 &&
-					codeUnit >= 0x0030 && codeUnit <= 0x0039 &&
-					firstCodeUnit == 0x002D
-				)
-			) {
-				// https://drafts.csswg.org/cssom/#escape-a-character-as-code-point
-				result += '\\' + codeUnit.toString(16) + ' ';
-				continue;
-			}
-
-			if (
-				// If the character is the first character and is a `-` (U+002D), and
-				// there is no second character, […]
-				index == 0 &&
-				length == 1 &&
-				codeUnit == 0x002D
-			) {
-				result += '\\' + string.charAt(index);
-				continue;
-			}
-
-			// If the character is not handled by one of the above rules and is
-			// greater than or equal to U+0080, is `-` (U+002D) or `_` (U+005F), or
-			// is in one of the ranges [0-9] (U+0030 to U+0039), [A-Z] (U+0041 to
-			// U+005A), or [a-z] (U+0061 to U+007A), […]
-			if (
-				codeUnit >= 0x0080 ||
-				codeUnit == 0x002D ||
-				codeUnit == 0x005F ||
-				codeUnit >= 0x0030 && codeUnit <= 0x0039 ||
-				codeUnit >= 0x0041 && codeUnit <= 0x005A ||
-				codeUnit >= 0x0061 && codeUnit <= 0x007A
-			) {
-				// the character itself
-				result += string.charAt(index);
-				continue;
-			}
-
-			// Otherwise, the escaped character.
-			// https://drafts.csswg.org/cssom/#escape-a-character
-			result += '\\' + string.charAt(index);
-
-		}
-		return result;
-	};
-
-	if (!root.CSS) {
-		root.CSS = {};
-	}
-
-	root.CSS.escape = cssEscape;
-	return cssEscape;
-
-}));
-
-
-/***/ }),
-
-/***/ "./node_modules/diagram-js/lib/util/EscapeUtil.js":
-/*!********************************************************!*\
-  !*** ./node_modules/diagram-js/lib/util/EscapeUtil.js ***!
-  \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "escapeCSS": () => (/* reexport default from dynamic */ css_escape__WEBPACK_IMPORTED_MODULE_0___default.a),
-/* harmony export */   "escapeHTML": () => (/* binding */ escapeHTML)
-/* harmony export */ });
-/* harmony import */ var css_escape__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! css.escape */ "./node_modules/css.escape/css.escape.js");
-/* harmony import */ var css_escape__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(css_escape__WEBPACK_IMPORTED_MODULE_0__);
-
-
-var HTML_ESCAPE_MAP = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  '\'': '&#39;'
-};
-
-function escapeHTML(str) {
-  str = '' + str;
-
-  return str && str.replace(/[&<>"']/g, function(match) {
-    return HTML_ESCAPE_MAP[match];
-  });
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/ids/dist/index.esm.js":
-/*!********************************************!*\
-  !*** ./node_modules/ids/dist/index.esm.js ***!
-  \********************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-function createCommonjsModule(fn, module) {
-	return module = { exports: {} }, fn(module, module.exports), module.exports;
-}
-
-var hat_1 = createCommonjsModule(function (module) {
-var hat = module.exports = function (bits, base) {
-    if (!base) base = 16;
-    if (bits === undefined) bits = 128;
-    if (bits <= 0) return '0';
-    
-    var digits = Math.log(Math.pow(2, bits)) / Math.log(base);
-    for (var i = 2; digits === Infinity; i *= 2) {
-        digits = Math.log(Math.pow(2, bits / i)) / Math.log(base) * i;
-    }
-    
-    var rem = digits - Math.floor(digits);
-    
-    var res = '';
-    
-    for (var i = 0; i < Math.floor(digits); i++) {
-        var x = Math.floor(Math.random() * base).toString(base);
-        res = x + res;
-    }
-    
-    if (rem) {
-        var b = Math.pow(base, rem);
-        var x = Math.floor(Math.random() * b).toString(base);
-        res = x + res;
-    }
-    
-    var parsed = parseInt(res, base);
-    if (parsed !== Infinity && parsed >= Math.pow(2, bits)) {
-        return hat(bits, base)
-    }
-    else return res;
-};
-
-hat.rack = function (bits, base, expandBy) {
-    var fn = function (data) {
-        var iters = 0;
-        do {
-            if (iters ++ > 10) {
-                if (expandBy) bits += expandBy;
-                else throw new Error('too many ID collisions, use more bits')
-            }
-            
-            var id = hat(bits, base);
-        } while (Object.hasOwnProperty.call(hats, id));
-        
-        hats[id] = data;
-        return id;
-    };
-    var hats = fn.hats = {};
-    
-    fn.get = function (id) {
-        return fn.hats[id];
-    };
-    
-    fn.set = function (id, value) {
-        fn.hats[id] = value;
-        return fn;
-    };
-    
-    fn.bits = bits || 128;
-    fn.base = base || 16;
-    return fn;
-};
-});
-
-/**
- * Create a new id generator / cache instance.
- *
- * You may optionally provide a seed that is used internally.
- *
- * @param {Seed} seed
- */
-
-function Ids(seed) {
-  if (!(this instanceof Ids)) {
-    return new Ids(seed);
-  }
-
-  seed = seed || [128, 36, 1];
-  this._seed = seed.length ? hat_1.rack(seed[0], seed[1], seed[2]) : seed;
-}
-/**
- * Generate a next id.
- *
- * @param {Object} [element] element to bind the id to
- *
- * @return {String} id
- */
-
-Ids.prototype.next = function (element) {
-  return this._seed(element || true);
-};
-/**
- * Generate a next id with a given prefix.
- *
- * @param {Object} [element] element to bind the id to
- *
- * @return {String} id
- */
-
-
-Ids.prototype.nextPrefixed = function (prefix, element) {
-  var id;
-
-  do {
-    id = prefix + this.next(true);
-  } while (this.assigned(id)); // claim {prefix}{random}
-
-
-  this.claim(id, element); // return
-
-  return id;
-};
-/**
- * Manually claim an existing id.
- *
- * @param {String} id
- * @param {String} [element] element the id is claimed by
- */
-
-
-Ids.prototype.claim = function (id, element) {
-  this._seed.set(id, element || true);
-};
-/**
- * Returns true if the given id has already been assigned.
- *
- * @param  {String} id
- * @return {Boolean}
- */
-
-
-Ids.prototype.assigned = function (id) {
-  return this._seed.get(id) || false;
-};
-/**
- * Unclaim an id.
- *
- * @param  {String} id the id to unclaim
- */
-
-
-Ids.prototype.unclaim = function (id) {
-  delete this._seed.hats[id];
-};
-/**
- * Clear all claimed ids.
- */
-
-
-Ids.prototype.clear = function () {
-  var hats = this._seed.hats,
-      id;
-
-  for (id in hats) {
-    this.unclaim(id);
-  }
-};
-
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Ids);
-//# sourceMappingURL=index.esm.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/inherits-browser/dist/index.es.js":
-/*!********************************************************!*\
-  !*** ./node_modules/inherits-browser/dist/index.es.js ***!
-  \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (/* binding */ e)
-/* harmony export */ });
-function e(e,t){t&&(e.super_=t,e.prototype=Object.create(t.prototype,{constructor:{value:e,enumerable:!1,writable:!0,configurable:!0}}))}
-//# sourceMappingURL=index.es.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/min-dash/dist/index.esm.js":
-/*!*************************************************!*\
-  !*** ./node_modules/min-dash/dist/index.esm.js ***!
-  \*************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "assign": () => (/* binding */ assign),
-/* harmony export */   "bind": () => (/* binding */ bind),
-/* harmony export */   "debounce": () => (/* binding */ debounce),
-/* harmony export */   "ensureArray": () => (/* binding */ ensureArray),
-/* harmony export */   "every": () => (/* binding */ every),
-/* harmony export */   "filter": () => (/* binding */ filter),
-/* harmony export */   "find": () => (/* binding */ find),
-/* harmony export */   "findIndex": () => (/* binding */ findIndex),
-/* harmony export */   "flatten": () => (/* binding */ flatten),
-/* harmony export */   "forEach": () => (/* binding */ forEach),
-/* harmony export */   "get": () => (/* binding */ get),
-/* harmony export */   "groupBy": () => (/* binding */ groupBy),
-/* harmony export */   "has": () => (/* binding */ has),
-/* harmony export */   "isArray": () => (/* binding */ isArray),
-/* harmony export */   "isDefined": () => (/* binding */ isDefined),
-/* harmony export */   "isFunction": () => (/* binding */ isFunction),
-/* harmony export */   "isNil": () => (/* binding */ isNil),
-/* harmony export */   "isNumber": () => (/* binding */ isNumber),
-/* harmony export */   "isObject": () => (/* binding */ isObject),
-/* harmony export */   "isString": () => (/* binding */ isString),
-/* harmony export */   "isUndefined": () => (/* binding */ isUndefined),
-/* harmony export */   "keys": () => (/* binding */ keys),
-/* harmony export */   "map": () => (/* binding */ map),
-/* harmony export */   "matchPattern": () => (/* binding */ matchPattern),
-/* harmony export */   "merge": () => (/* binding */ merge),
-/* harmony export */   "omit": () => (/* binding */ omit),
-/* harmony export */   "pick": () => (/* binding */ pick),
-/* harmony export */   "reduce": () => (/* binding */ reduce),
-/* harmony export */   "set": () => (/* binding */ set),
-/* harmony export */   "size": () => (/* binding */ size),
-/* harmony export */   "some": () => (/* binding */ some),
-/* harmony export */   "sortBy": () => (/* binding */ sortBy),
-/* harmony export */   "throttle": () => (/* binding */ throttle),
-/* harmony export */   "unionBy": () => (/* binding */ unionBy),
-/* harmony export */   "uniqueBy": () => (/* binding */ uniqueBy),
-/* harmony export */   "values": () => (/* binding */ values),
-/* harmony export */   "without": () => (/* binding */ without)
-/* harmony export */ });
-/**
- * Flatten array, one level deep.
- *
- * @param {Array<?>} arr
- *
- * @return {Array<?>}
- */
-function flatten(arr) {
-  return Array.prototype.concat.apply([], arr);
-}
-
-var nativeToString = Object.prototype.toString;
-var nativeHasOwnProperty = Object.prototype.hasOwnProperty;
-function isUndefined(obj) {
-  return obj === undefined;
-}
-function isDefined(obj) {
-  return obj !== undefined;
-}
-function isNil(obj) {
-  return obj == null;
-}
-function isArray(obj) {
-  return nativeToString.call(obj) === '[object Array]';
-}
-function isObject(obj) {
-  return nativeToString.call(obj) === '[object Object]';
-}
-function isNumber(obj) {
-  return nativeToString.call(obj) === '[object Number]';
-}
-function isFunction(obj) {
-  var tag = nativeToString.call(obj);
-  return tag === '[object Function]' || tag === '[object AsyncFunction]' || tag === '[object GeneratorFunction]' || tag === '[object AsyncGeneratorFunction]' || tag === '[object Proxy]';
-}
-function isString(obj) {
-  return nativeToString.call(obj) === '[object String]';
-}
-/**
- * Ensure collection is an array.
- *
- * @param {Object} obj
- */
-
-function ensureArray(obj) {
-  if (isArray(obj)) {
-    return;
-  }
-
-  throw new Error('must supply array');
-}
-/**
- * Return true, if target owns a property with the given key.
- *
- * @param {Object} target
- * @param {String} key
- *
- * @return {Boolean}
- */
-
-function has(target, key) {
-  return nativeHasOwnProperty.call(target, key);
-}
-
-/**
- * Find element in collection.
- *
- * @param  {Array|Object} collection
- * @param  {Function|Object} matcher
- *
- * @return {Object}
- */
-
-function find(collection, matcher) {
-  matcher = toMatcher(matcher);
-  var match;
-  forEach(collection, function (val, key) {
-    if (matcher(val, key)) {
-      match = val;
-      return false;
-    }
-  });
-  return match;
-}
-/**
- * Find element index in collection.
- *
- * @param  {Array|Object} collection
- * @param  {Function} matcher
- *
- * @return {Object}
- */
-
-function findIndex(collection, matcher) {
-  matcher = toMatcher(matcher);
-  var idx = isArray(collection) ? -1 : undefined;
-  forEach(collection, function (val, key) {
-    if (matcher(val, key)) {
-      idx = key;
-      return false;
-    }
-  });
-  return idx;
-}
-/**
- * Find element in collection.
- *
- * @param  {Array|Object} collection
- * @param  {Function} matcher
- *
- * @return {Array} result
- */
-
-function filter(collection, matcher) {
-  var result = [];
-  forEach(collection, function (val, key) {
-    if (matcher(val, key)) {
-      result.push(val);
-    }
-  });
-  return result;
-}
-/**
- * Iterate over collection; returning something
- * (non-undefined) will stop iteration.
- *
- * @param  {Array|Object} collection
- * @param  {Function} iterator
- *
- * @return {Object} return result that stopped the iteration
- */
-
-function forEach(collection, iterator) {
-  var val, result;
-
-  if (isUndefined(collection)) {
-    return;
-  }
-
-  var convertKey = isArray(collection) ? toNum : identity;
-
-  for (var key in collection) {
-    if (has(collection, key)) {
-      val = collection[key];
-      result = iterator(val, convertKey(key));
-
-      if (result === false) {
-        return val;
-      }
-    }
-  }
-}
-/**
- * Return collection without element.
- *
- * @param  {Array} arr
- * @param  {Function} matcher
- *
- * @return {Array}
- */
-
-function without(arr, matcher) {
-  if (isUndefined(arr)) {
-    return [];
-  }
-
-  ensureArray(arr);
-  matcher = toMatcher(matcher);
-  return arr.filter(function (el, idx) {
-    return !matcher(el, idx);
-  });
-}
-/**
- * Reduce collection, returning a single result.
- *
- * @param  {Object|Array} collection
- * @param  {Function} iterator
- * @param  {Any} result
- *
- * @return {Any} result returned from last iterator
- */
-
-function reduce(collection, iterator, result) {
-  forEach(collection, function (value, idx) {
-    result = iterator(result, value, idx);
-  });
-  return result;
-}
-/**
- * Return true if every element in the collection
- * matches the criteria.
- *
- * @param  {Object|Array} collection
- * @param  {Function} matcher
- *
- * @return {Boolean}
- */
-
-function every(collection, matcher) {
-  return !!reduce(collection, function (matches, val, key) {
-    return matches && matcher(val, key);
-  }, true);
-}
-/**
- * Return true if some elements in the collection
- * match the criteria.
- *
- * @param  {Object|Array} collection
- * @param  {Function} matcher
- *
- * @return {Boolean}
- */
-
-function some(collection, matcher) {
-  return !!find(collection, matcher);
-}
-/**
- * Transform a collection into another collection
- * by piping each member through the given fn.
- *
- * @param  {Object|Array}   collection
- * @param  {Function} fn
- *
- * @return {Array} transformed collection
- */
-
-function map(collection, fn) {
-  var result = [];
-  forEach(collection, function (val, key) {
-    result.push(fn(val, key));
-  });
-  return result;
-}
-/**
- * Get the collections keys.
- *
- * @param  {Object|Array} collection
- *
- * @return {Array}
- */
-
-function keys(collection) {
-  return collection && Object.keys(collection) || [];
-}
-/**
- * Shorthand for `keys(o).length`.
- *
- * @param  {Object|Array} collection
- *
- * @return {Number}
- */
-
-function size(collection) {
-  return keys(collection).length;
-}
-/**
- * Get the values in the collection.
- *
- * @param  {Object|Array} collection
- *
- * @return {Array}
- */
-
-function values(collection) {
-  return map(collection, function (val) {
-    return val;
-  });
-}
-/**
- * Group collection members by attribute.
- *
- * @param  {Object|Array} collection
- * @param  {Function} extractor
- *
- * @return {Object} map with { attrValue => [ a, b, c ] }
- */
-
-function groupBy(collection, extractor) {
-  var grouped = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
-  extractor = toExtractor(extractor);
-  forEach(collection, function (val) {
-    var discriminator = extractor(val) || '_';
-    var group = grouped[discriminator];
-
-    if (!group) {
-      group = grouped[discriminator] = [];
-    }
-
-    group.push(val);
-  });
-  return grouped;
-}
-function uniqueBy(extractor) {
-  extractor = toExtractor(extractor);
-  var grouped = {};
-
-  for (var _len = arguments.length, collections = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    collections[_key - 1] = arguments[_key];
-  }
-
-  forEach(collections, function (c) {
-    return groupBy(c, extractor, grouped);
-  });
-  var result = map(grouped, function (val, key) {
-    return val[0];
-  });
-  return result;
-}
-var unionBy = uniqueBy;
-/**
- * Sort collection by criteria.
- *
- * @param  {Object|Array} collection
- * @param  {String|Function} extractor
- *
- * @return {Array}
- */
-
-function sortBy(collection, extractor) {
-  extractor = toExtractor(extractor);
-  var sorted = [];
-  forEach(collection, function (value, key) {
-    var disc = extractor(value, key);
-    var entry = {
-      d: disc,
-      v: value
-    };
-
-    for (var idx = 0; idx < sorted.length; idx++) {
-      var d = sorted[idx].d;
-
-      if (disc < d) {
-        sorted.splice(idx, 0, entry);
-        return;
-      }
-    } // not inserted, append (!)
-
-
-    sorted.push(entry);
-  });
-  return map(sorted, function (e) {
-    return e.v;
-  });
-}
-/**
- * Create an object pattern matcher.
- *
- * @example
- *
- * const matcher = matchPattern({ id: 1 });
- *
- * let element = find(elements, matcher);
- *
- * @param  {Object} pattern
- *
- * @return {Function} matcherFn
- */
-
-function matchPattern(pattern) {
-  return function (el) {
-    return every(pattern, function (val, key) {
-      return el[key] === val;
-    });
-  };
-}
-
-function toExtractor(extractor) {
-  return isFunction(extractor) ? extractor : function (e) {
-    return e[extractor];
-  };
-}
-
-function toMatcher(matcher) {
-  return isFunction(matcher) ? matcher : function (e) {
-    return e === matcher;
-  };
-}
-
-function identity(arg) {
-  return arg;
-}
-
-function toNum(arg) {
-  return Number(arg);
-}
-
-/**
- * Debounce fn, calling it only once if the given time
- * elapsed between calls.
- *
- * Lodash-style the function exposes methods to `#clear`
- * and `#flush` to control internal behavior.
- *
- * @param  {Function} fn
- * @param  {Number} timeout
- *
- * @return {Function} debounced function
- */
-function debounce(fn, timeout) {
-  var timer;
-  var lastArgs;
-  var lastThis;
-  var lastNow;
-
-  function fire(force) {
-    var now = Date.now();
-    var scheduledDiff = force ? 0 : lastNow + timeout - now;
-
-    if (scheduledDiff > 0) {
-      return schedule(scheduledDiff);
-    }
-
-    fn.apply(lastThis, lastArgs);
-    clear();
-  }
-
-  function schedule(timeout) {
-    timer = setTimeout(fire, timeout);
-  }
-
-  function clear() {
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    timer = lastNow = lastArgs = lastThis = undefined;
-  }
-
-  function flush() {
-    if (timer) {
-      fire(true);
-    }
-
-    clear();
-  }
-
-  function callback() {
-    lastNow = Date.now();
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    lastArgs = args;
-    lastThis = this; // ensure an execution is scheduled
-
-    if (!timer) {
-      schedule(timeout);
-    }
-  }
-
-  callback.flush = flush;
-  callback.cancel = clear;
-  return callback;
-}
-/**
- * Throttle fn, calling at most once
- * in the given interval.
- *
- * @param  {Function} fn
- * @param  {Number} interval
- *
- * @return {Function} throttled function
- */
-
-function throttle(fn, interval) {
-  var throttling = false;
-  return function () {
-    if (throttling) {
-      return;
-    }
-
-    fn.apply(void 0, arguments);
-    throttling = true;
-    setTimeout(function () {
-      throttling = false;
-    }, interval);
-  };
-}
-/**
- * Bind function against target <this>.
- *
- * @param  {Function} fn
- * @param  {Object}   target
- *
- * @return {Function} bound function
- */
-
-function bind(fn, target) {
-  return fn.bind(target);
-}
-
-function _typeof(obj) {
-  "@babel/helpers - typeof";
-
-  if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") {
-    _typeof = function (obj) {
-      return typeof obj;
-    };
-  } else {
-    _typeof = function (obj) {
-      return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-    };
-  }
-
-  return _typeof(obj);
-}
-
-function _extends() {
-  _extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  return _extends.apply(this, arguments);
-}
-
-/**
- * Convenience wrapper for `Object.assign`.
- *
- * @param {Object} target
- * @param {...Object} others
- *
- * @return {Object} the target
- */
-
-function assign(target) {
-  for (var _len = arguments.length, others = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-    others[_key - 1] = arguments[_key];
-  }
-
-  return _extends.apply(void 0, [target].concat(others));
-}
-/**
- * Sets a nested property of a given object to the specified value.
- *
- * This mutates the object and returns it.
- *
- * @param {Object} target The target of the set operation.
- * @param {(string|number)[]} path The path to the nested value.
- * @param {any} value The value to set.
- */
-
-function set(target, path, value) {
-  var currentTarget = target;
-  forEach(path, function (key, idx) {
-    if (typeof key !== 'number' && typeof key !== 'string') {
-      throw new Error('illegal key type: ' + _typeof(key) + '. Key should be of type number or string.');
-    }
-
-    if (key === 'constructor') {
-      throw new Error('illegal key: constructor');
-    }
-
-    if (key === '__proto__') {
-      throw new Error('illegal key: __proto__');
-    }
-
-    var nextKey = path[idx + 1];
-    var nextTarget = currentTarget[key];
-
-    if (isDefined(nextKey) && isNil(nextTarget)) {
-      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
-    }
-
-    if (isUndefined(nextKey)) {
-      if (isUndefined(value)) {
-        delete currentTarget[key];
-      } else {
-        currentTarget[key] = value;
-      }
-    } else {
-      currentTarget = nextTarget;
-    }
-  });
-  return target;
-}
-/**
- * Gets a nested property of a given object.
- *
- * @param {Object} target The target of the get operation.
- * @param {(string|number)[]} path The path to the nested value.
- * @param {any} [defaultValue] The value to return if no value exists.
- */
-
-function get(target, path, defaultValue) {
-  var currentTarget = target;
-  forEach(path, function (key) {
-    // accessing nil property yields <undefined>
-    if (isNil(currentTarget)) {
-      currentTarget = undefined;
-      return false;
-    }
-
-    currentTarget = currentTarget[key];
-  });
-  return isUndefined(currentTarget) ? defaultValue : currentTarget;
-}
-/**
- * Pick given properties from the target object.
- *
- * @param {Object} target
- * @param {Array} properties
- *
- * @return {Object} target
- */
-
-function pick(target, properties) {
-  var result = {};
-  var obj = Object(target);
-  forEach(properties, function (prop) {
-    if (prop in obj) {
-      result[prop] = target[prop];
-    }
-  });
-  return result;
-}
-/**
- * Pick all target properties, excluding the given ones.
- *
- * @param {Object} target
- * @param {Array} properties
- *
- * @return {Object} target
- */
-
-function omit(target, properties) {
-  var result = {};
-  var obj = Object(target);
-  forEach(obj, function (prop, key) {
-    if (properties.indexOf(key) === -1) {
-      result[key] = prop;
-    }
-  });
-  return result;
-}
-/**
- * Recursively merge `...sources` into given target.
- *
- * Does support merging objects; does not support merging arrays.
- *
- * @param {Object} target
- * @param {...Object} sources
- *
- * @return {Object} the target
- */
-
-function merge(target) {
-  for (var _len2 = arguments.length, sources = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
-    sources[_key2 - 1] = arguments[_key2];
-  }
-
-  if (!sources.length) {
-    return target;
-  }
-
-  forEach(sources, function (source) {
-    // skip non-obj sources, i.e. null
-    if (!source || !isObject(source)) {
-      return;
-    }
-
-    forEach(source, function (sourceVal, key) {
-      if (key === '__proto__') {
-        return;
-      }
-
-      var targetVal = target[key];
-
-      if (isObject(sourceVal)) {
-        if (!isObject(targetVal)) {
-          // override target[key] with object
-          targetVal = {};
-        }
-
-        target[key] = merge(targetVal, sourceVal);
-      } else {
-        target[key] = sourceVal;
-      }
-    });
-  });
-  return target;
-}
-
-
-
-
-/***/ }),
-
-/***/ "./node_modules/min-dom/dist/index.esm.js":
-/*!************************************************!*\
-  !*** ./node_modules/min-dom/dist/index.esm.js ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "attr": () => (/* binding */ attr),
-/* harmony export */   "classes": () => (/* binding */ classes),
-/* harmony export */   "clear": () => (/* binding */ clear),
-/* harmony export */   "closest": () => (/* binding */ closest),
-/* harmony export */   "delegate": () => (/* binding */ delegate),
-/* harmony export */   "domify": () => (/* binding */ domify),
-/* harmony export */   "event": () => (/* binding */ componentEvent),
-/* harmony export */   "matches": () => (/* binding */ matchesSelector),
-/* harmony export */   "query": () => (/* binding */ query),
-/* harmony export */   "queryAll": () => (/* binding */ all),
-/* harmony export */   "remove": () => (/* binding */ remove)
-/* harmony export */ });
-/**
- * Set attribute `name` to `val`, or get attr `name`.
- *
- * @param {Element} el
- * @param {String} name
- * @param {String} [val]
- * @api public
- */
-function attr(el, name, val) {
-  // get
-  if (arguments.length == 2) {
-    return el.getAttribute(name);
-  }
-
-  // remove
-  if (val === null) {
-    return el.removeAttribute(name);
-  }
-
-  // set
-  el.setAttribute(name, val);
-
-  return el;
-}
-
-var indexOf = [].indexOf;
-
-var indexof = function(arr, obj){
-  if (indexOf) return arr.indexOf(obj);
-  for (var i = 0; i < arr.length; ++i) {
-    if (arr[i] === obj) return i;
-  }
-  return -1;
-};
-
-/**
- * Taken from https://github.com/component/classes
- *
- * Without the component bits.
- */
-
-/**
- * Whitespace regexp.
- */
-
-var re = /\s+/;
-
-/**
- * toString reference.
- */
-
-var toString = Object.prototype.toString;
-
-/**
- * Wrap `el` in a `ClassList`.
- *
- * @param {Element} el
- * @return {ClassList}
- * @api public
- */
-
-function classes(el) {
-  return new ClassList(el);
-}
-
-/**
- * Initialize a new ClassList for `el`.
- *
- * @param {Element} el
- * @api private
- */
-
-function ClassList(el) {
-  if (!el || !el.nodeType) {
-    throw new Error('A DOM element reference is required');
-  }
-  this.el = el;
-  this.list = el.classList;
-}
-
-/**
- * Add class `name` if not already present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.add = function (name) {
-  // classList
-  if (this.list) {
-    this.list.add(name);
-    return this;
-  }
-
-  // fallback
-  var arr = this.array();
-  var i = indexof(arr, name);
-  if (!~i) arr.push(name);
-  this.el.className = arr.join(' ');
-  return this;
-};
-
-/**
- * Remove class `name` when present, or
- * pass a regular expression to remove
- * any which match.
- *
- * @param {String|RegExp} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.remove = function (name) {
-  if ('[object RegExp]' == toString.call(name)) {
-    return this.removeMatching(name);
-  }
-
-  // classList
-  if (this.list) {
-    this.list.remove(name);
-    return this;
-  }
-
-  // fallback
-  var arr = this.array();
-  var i = indexof(arr, name);
-  if (~i) arr.splice(i, 1);
-  this.el.className = arr.join(' ');
-  return this;
-};
-
-/**
- * Remove all classes matching `re`.
- *
- * @param {RegExp} re
- * @return {ClassList}
- * @api private
- */
-
-ClassList.prototype.removeMatching = function (re) {
-  var arr = this.array();
-  for (var i = 0; i < arr.length; i++) {
-    if (re.test(arr[i])) {
-      this.remove(arr[i]);
-    }
-  }
-  return this;
-};
-
-/**
- * Toggle class `name`, can force state via `force`.
- *
- * For browsers that support classList, but do not support `force` yet,
- * the mistake will be detected and corrected.
- *
- * @param {String} name
- * @param {Boolean} force
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.toggle = function (name, force) {
-  // classList
-  if (this.list) {
-    if ('undefined' !== typeof force) {
-      if (force !== this.list.toggle(name, force)) {
-        this.list.toggle(name); // toggle again to correct
-      }
-    } else {
-      this.list.toggle(name);
-    }
-    return this;
-  }
-
-  // fallback
-  if ('undefined' !== typeof force) {
-    if (!force) {
-      this.remove(name);
-    } else {
-      this.add(name);
-    }
-  } else {
-    if (this.has(name)) {
-      this.remove(name);
-    } else {
-      this.add(name);
-    }
-  }
-
-  return this;
-};
-
-/**
- * Return an array of classes.
- *
- * @return {Array}
- * @api public
- */
-
-ClassList.prototype.array = function () {
-  var className = this.el.getAttribute('class') || '';
-  var str = className.replace(/^\s+|\s+$/g, '');
-  var arr = str.split(re);
-  if ('' === arr[0]) arr.shift();
-  return arr;
-};
-
-/**
- * Check if class `name` is present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.has = ClassList.prototype.contains = function (name) {
-  return this.list ? this.list.contains(name) : !!~indexof(this.array(), name);
-};
-
-/**
- * Remove all children from the given element.
- */
-function clear(el) {
-
-  var c;
-
-  while (el.childNodes.length) {
-    c = el.childNodes[0];
-    el.removeChild(c);
-  }
-
-  return el;
-}
-
-var proto = typeof Element !== 'undefined' ? Element.prototype : {};
-var vendor = proto.matches
-  || proto.matchesSelector
-  || proto.webkitMatchesSelector
-  || proto.mozMatchesSelector
-  || proto.msMatchesSelector
-  || proto.oMatchesSelector;
-
-var matchesSelector = match;
-
-/**
- * Match `el` to `selector`.
- *
- * @param {Element} el
- * @param {String} selector
- * @return {Boolean}
- * @api public
- */
-
-function match(el, selector) {
-  if (!el || el.nodeType !== 1) return false;
-  if (vendor) return vendor.call(el, selector);
-  var nodes = el.parentNode.querySelectorAll(selector);
-  for (var i = 0; i < nodes.length; i++) {
-    if (nodes[i] == el) return true;
-  }
-  return false;
-}
-
-/**
- * Closest
- *
- * @param {Element} el
- * @param {String} selector
- * @param {Boolean} checkYourSelf (optional)
- */
-function closest (element, selector, checkYourSelf) {
-  var currentElem = checkYourSelf ? element : element.parentNode;
-
-  while (currentElem && currentElem.nodeType !== document.DOCUMENT_NODE && currentElem.nodeType !== document.DOCUMENT_FRAGMENT_NODE) {
-
-    if (matchesSelector(currentElem, selector)) {
-      return currentElem;
-    }
-
-    currentElem = currentElem.parentNode;
-  }
-
-  return matchesSelector(currentElem, selector) ? currentElem : null;
-}
-
-var bind = window.addEventListener ? 'addEventListener' : 'attachEvent',
-    unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent',
-    prefix = bind !== 'addEventListener' ? 'on' : '';
-
-/**
- * Bind `el` event `type` to `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-var bind_1 = function(el, type, fn, capture){
-  el[bind](prefix + type, fn, capture || false);
-  return fn;
-};
-
-/**
- * Unbind `el` event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-var unbind_1 = function(el, type, fn, capture){
-  el[unbind](prefix + type, fn, capture || false);
-  return fn;
-};
-
-var componentEvent = {
-	bind: bind_1,
-	unbind: unbind_1
-};
-
-/**
- * Module dependencies.
- */
-
-/**
- * Delegate event `type` to `selector`
- * and invoke `fn(e)`. A callback function
- * is returned which may be passed to `.unbind()`.
- *
- * @param {Element} el
- * @param {String} selector
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-// Some events don't bubble, so we want to bind to the capture phase instead
-// when delegating.
-var forceCaptureEvents = ['focus', 'blur'];
-
-function bind$1(el, selector, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return componentEvent.bind(el, type, function (e) {
-    var target = e.target || e.srcElement;
-    e.delegateTarget = closest(target, selector, true, el);
-    if (e.delegateTarget) {
-      fn.call(el, e);
-    }
-  }, capture);
-}
-
-/**
- * Unbind event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @api public
- */
-function unbind$1(el, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return componentEvent.unbind(el, type, fn, capture);
-}
-
-var delegate = {
-  bind: bind$1,
-  unbind: unbind$1
-};
-
-/**
- * Expose `parse`.
- */
-
-var domify = parse;
-
-/**
- * Tests for browser support.
- */
-
-var innerHTMLBug = false;
-var bugTestDiv;
-if (typeof document !== 'undefined') {
-  bugTestDiv = document.createElement('div');
-  // Setup
-  bugTestDiv.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
-  // Make sure that link elements get serialized correctly by innerHTML
-  // This requires a wrapper element in IE
-  innerHTMLBug = !bugTestDiv.getElementsByTagName('link').length;
-  bugTestDiv = undefined;
-}
-
-/**
- * Wrap map from jquery.
- */
-
-var map = {
-  legend: [1, '<fieldset>', '</fieldset>'],
-  tr: [2, '<table><tbody>', '</tbody></table>'],
-  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-  // for script/link/style tags to work in IE6-8, you have to wrap
-  // in a div with a non-whitespace character in front, ha!
-  _default: innerHTMLBug ? [1, 'X<div>', '</div>'] : [0, '', '']
-};
-
-map.td =
-map.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
-
-map.option =
-map.optgroup = [1, '<select multiple="multiple">', '</select>'];
-
-map.thead =
-map.tbody =
-map.colgroup =
-map.caption =
-map.tfoot = [1, '<table>', '</table>'];
-
-map.polyline =
-map.ellipse =
-map.polygon =
-map.circle =
-map.text =
-map.line =
-map.path =
-map.rect =
-map.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'];
-
-/**
- * Parse `html` and return a DOM Node instance, which could be a TextNode,
- * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
- * instance, depending on the contents of the `html` string.
- *
- * @param {String} html - HTML string to "domify"
- * @param {Document} doc - The `document` instance to create the Node for
- * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
- * @api private
- */
-
-function parse(html, doc) {
-  if ('string' != typeof html) throw new TypeError('String expected');
-
-  // default to the global `document` object
-  if (!doc) doc = document;
-
-  // tag name
-  var m = /<([\w:]+)/.exec(html);
-  if (!m) return doc.createTextNode(html);
-
-  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
-
-  var tag = m[1];
-
-  // body support
-  if (tag == 'body') {
-    var el = doc.createElement('html');
-    el.innerHTML = html;
-    return el.removeChild(el.lastChild);
-  }
-
-  // wrap map
-  var wrap = map[tag] || map._default;
-  var depth = wrap[0];
-  var prefix = wrap[1];
-  var suffix = wrap[2];
-  var el = doc.createElement('div');
-  el.innerHTML = prefix + html + suffix;
-  while (depth--) el = el.lastChild;
-
-  // one element
-  if (el.firstChild == el.lastChild) {
-    return el.removeChild(el.firstChild);
-  }
-
-  // several elements
-  var fragment = doc.createDocumentFragment();
-  while (el.firstChild) {
-    fragment.appendChild(el.removeChild(el.firstChild));
-  }
-
-  return fragment;
-}
-
-function query(selector, el) {
-  el = el || document;
-
-  return el.querySelector(selector);
-}
-
-function all(selector, el) {
-  el = el || document;
-
-  return el.querySelectorAll(selector);
-}
-
-function remove(el) {
-  el.parentNode && el.parentNode.removeChild(el);
-}
-
-
 
 
 /***/ }),
@@ -11738,34 +9704,36 @@ function remove(el) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "append": () => (/* binding */ append),
-/* harmony export */   "appendTo": () => (/* binding */ appendTo),
-/* harmony export */   "attr": () => (/* binding */ attr),
-/* harmony export */   "classes": () => (/* binding */ classes),
-/* harmony export */   "clear": () => (/* binding */ clear),
-/* harmony export */   "clone": () => (/* binding */ clone),
-/* harmony export */   "create": () => (/* binding */ create),
-/* harmony export */   "innerSVG": () => (/* binding */ innerSVG),
-/* harmony export */   "prepend": () => (/* binding */ prepend),
-/* harmony export */   "prependTo": () => (/* binding */ prependTo),
-/* harmony export */   "remove": () => (/* binding */ remove),
-/* harmony export */   "replace": () => (/* binding */ replace),
-/* harmony export */   "transform": () => (/* binding */ transform),
-/* harmony export */   "on": () => (/* binding */ on),
-/* harmony export */   "off": () => (/* binding */ off),
-/* harmony export */   "createPoint": () => (/* binding */ createPoint),
-/* harmony export */   "createMatrix": () => (/* binding */ createMatrix),
-/* harmony export */   "createTransform": () => (/* binding */ createTransform),
-/* harmony export */   "select": () => (/* binding */ select),
-/* harmony export */   "selectAll": () => (/* binding */ selectAll)
+/* harmony export */   append: () => (/* binding */ append),
+/* harmony export */   appendTo: () => (/* binding */ appendTo),
+/* harmony export */   attr: () => (/* binding */ attr),
+/* harmony export */   classes: () => (/* binding */ classes),
+/* harmony export */   clear: () => (/* binding */ clear),
+/* harmony export */   clone: () => (/* binding */ clone),
+/* harmony export */   create: () => (/* binding */ create),
+/* harmony export */   createMatrix: () => (/* binding */ createMatrix),
+/* harmony export */   createPoint: () => (/* binding */ createPoint),
+/* harmony export */   createTransform: () => (/* binding */ createTransform),
+/* harmony export */   innerSVG: () => (/* binding */ innerSVG),
+/* harmony export */   off: () => (/* binding */ off),
+/* harmony export */   on: () => (/* binding */ on),
+/* harmony export */   prepend: () => (/* binding */ prepend),
+/* harmony export */   prependTo: () => (/* binding */ prependTo),
+/* harmony export */   remove: () => (/* binding */ remove),
+/* harmony export */   replace: () => (/* binding */ replace),
+/* harmony export */   select: () => (/* binding */ select),
+/* harmony export */   selectAll: () => (/* binding */ selectAll),
+/* harmony export */   transform: () => (/* binding */ transform)
 /* harmony export */ });
 function ensureImported(element, target) {
 
   if (element.ownerDocument !== target.ownerDocument) {
     try {
+
       // may fail on webkit
       return target.ownerDocument.importNode(element, true);
     } catch (e) {
+
       // ignore
     }
   }
@@ -11891,6 +9859,7 @@ function setAttribute(node, name, value) {
   var type = CSS_PROPERTIES[hyphenated];
 
   if (type) {
+
     // append pixel unit, unless present
     if (type === LENGTH_ATTR && typeof value === 'number') {
       value = String(value) + 'px';
@@ -11936,38 +9905,24 @@ function attr(node, name, value) {
 }
 
 /**
- * Clear utility
+ * Taken from https://github.com/component/classes
+ *
+ * Without the component bits.
  */
-function index(arr, obj) {
-  if (arr.indexOf) {
-    return arr.indexOf(obj);
-  }
-
-
-  for (var i = 0; i < arr.length; ++i) {
-    if (arr[i] === obj) {
-      return i;
-    }
-  }
-
-  return -1;
-}
-
-var re = /\s+/;
-
-var toString = Object.prototype.toString;
-
-function defined(o) {
-  return typeof o !== 'undefined';
-}
 
 /**
- * Wrap `el` in a `ClassList`.
- *
- * @param {Element} el
- * @return {ClassList}
- * @api public
+ * toString reference.
  */
+
+const toString = Object.prototype.toString;
+
+/**
+  * Wrap `el` in a `ClassList`.
+  *
+  * @param {Element} el
+  * @return {ClassList}
+  * @api public
+  */
 
 function classes(el) {
   return new ClassList(el);
@@ -11982,79 +9937,48 @@ function ClassList(el) {
 }
 
 /**
- * Add class `name` if not already present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
+  * Add class `name` if not already present.
+  *
+  * @param {String} name
+  * @return {ClassList}
+  * @api public
+  */
 
 ClassList.prototype.add = function(name) {
-
-  // classList
-  if (this.list) {
-    this.list.add(name);
-    return this;
-  }
-
-  // fallback
-  var arr = this.array();
-  var i = index(arr, name);
-  if (!~i) {
-    arr.push(name);
-  }
-
-  if (defined(this.el.className.baseVal)) {
-    this.el.className.baseVal = arr.join(' ');
-  } else {
-    this.el.className = arr.join(' ');
-  }
-
+  this.list.add(name);
   return this;
 };
 
 /**
- * Remove class `name` when present, or
- * pass a regular expression to remove
- * any which match.
- *
- * @param {String|RegExp} name
- * @return {ClassList}
- * @api public
- */
+  * Remove class `name` when present, or
+  * pass a regular expression to remove
+  * any which match.
+  *
+  * @param {String|RegExp} name
+  * @return {ClassList}
+  * @api public
+  */
 
 ClassList.prototype.remove = function(name) {
-  if ('[object RegExp]' === toString.call(name)) {
+  if ('[object RegExp]' == toString.call(name)) {
     return this.removeMatching(name);
   }
 
-  // classList
-  if (this.list) {
-    this.list.remove(name);
-    return this;
-  }
-
-  // fallback
-  var arr = this.array();
-  var i = index(arr, name);
-  if (~i) {
-    arr.splice(i, 1);
-  }
-  this.el.className.baseVal = arr.join(' ');
+  this.list.remove(name);
   return this;
 };
 
 /**
- * Remove all classes matching `re`.
- *
- * @param {RegExp} re
- * @return {ClassList}
- * @api private
- */
+  * Remove all classes matching `re`.
+  *
+  * @param {RegExp} re
+  * @return {ClassList}
+  * @api private
+  */
 
 ClassList.prototype.removeMatching = function(re) {
-  var arr = this.array();
-  for (var i = 0; i < arr.length; i++) {
+  const arr = this.array();
+  for (let i = 0; i < arr.length; i++) {
     if (re.test(arr[i])) {
       this.remove(arr[i]);
     }
@@ -12063,81 +9987,51 @@ ClassList.prototype.removeMatching = function(re) {
 };
 
 /**
- * Toggle class `name`, can force state via `force`.
- *
- * For browsers that support classList, but do not support `force` yet,
- * the mistake will be detected and corrected.
- *
- * @param {String} name
- * @param {Boolean} force
- * @return {ClassList}
- * @api public
- */
+  * Toggle class `name`, can force state via `force`.
+  *
+  * For browsers that support classList, but do not support `force` yet,
+  * the mistake will be detected and corrected.
+  *
+  * @param {String} name
+  * @param {Boolean} force
+  * @return {ClassList}
+  * @api public
+  */
 
 ClassList.prototype.toggle = function(name, force) {
-  // classList
-  if (this.list) {
-    if (defined(force)) {
-      if (force !== this.list.toggle(name, force)) {
-        this.list.toggle(name); // toggle again to correct
-      }
-    } else {
-      this.list.toggle(name);
-    }
-    return this;
-  }
-
-  // fallback
-  if (defined(force)) {
-    if (!force) {
-      this.remove(name);
-    } else {
-      this.add(name);
+  if ('undefined' !== typeof force) {
+    if (force !== this.list.toggle(name, force)) {
+      this.list.toggle(name); // toggle again to correct
     }
   } else {
-    if (this.has(name)) {
-      this.remove(name);
-    } else {
-      this.add(name);
-    }
+    this.list.toggle(name);
   }
-
   return this;
 };
 
 /**
- * Return an array of classes.
- *
- * @return {Array}
- * @api public
- */
+  * Return an array of classes.
+  *
+  * @return {Array}
+  * @api public
+  */
 
 ClassList.prototype.array = function() {
-  var className = this.el.getAttribute('class') || '';
-  var str = className.replace(/^\s+|\s+$/g, '');
-  var arr = str.split(re);
-  if ('' === arr[0]) {
-    arr.shift();
-  }
-  return arr;
+  return Array.from(this.list);
 };
 
 /**
- * Check if class `name` is present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
+  * Check if class `name` is present.
+  *
+  * @param {String} name
+  * @return {ClassList}
+  * @api public
+  */
 
 ClassList.prototype.has =
-ClassList.prototype.contains = function(name) {
-  return (
-    this.list ?
-      this.list.contains(name) :
-      !! ~index(this.array(), name)
-  );
-};
+ ClassList.prototype.contains = function(name) {
+   return this.list.contains(name);
+ };
 
 function remove(element) {
   var parent = element.parentNode;
@@ -12193,6 +10087,7 @@ function parse(svg) {
       svg = SVG_START + svg.substring(4);
     }
   } else {
+
     // namespace svg
     svg = SVG_START + '>' + svg + '</svg>';
     unwrap = true;
@@ -12273,7 +10168,15 @@ function off(node, event, listener, useCapture) {
  */
 
 // fake node used to instantiate svg geometry elements
-var node = create('svg');
+var node = null;
+
+function getNode() {
+  if (node === null) {
+    node = create('svg');
+  }
+
+  return node;
+}
 
 function extend(object, props) {
   var i, k, keys = Object.keys(props);
@@ -12287,7 +10190,7 @@ function extend(object, props) {
 
 
 function createPoint(x, y) {
-  var point = node.createSVGPoint();
+  var point = getNode().createSVGPoint();
 
   switch (arguments.length) {
   case 0:
@@ -12315,7 +10218,7 @@ function createPoint(x, y) {
  * @return {SVGMatrix}
  */
 function createMatrix(a, b, c, d, e, f) {
-  var matrix = node.createSVGMatrix();
+  var matrix = getNode().createSVGMatrix();
 
   switch (arguments.length) {
   case 0:
@@ -12336,9 +10239,9 @@ function createMatrix(a, b, c, d, e, f) {
 
 function createTransform(matrix) {
   if (matrix) {
-    return node.createSVGTransformFromMatrix(matrix);
+    return getNode().createSVGTransformFromMatrix(matrix);
   } else {
-    return node.createSVGTransform();
+    return getNode().createSVGTransform();
   }
 }
 
@@ -12370,8 +10273,10 @@ function serialize(node, output) {
   var i, len, attrMap, attrNode, childNodes;
 
   switch (node.nodeType) {
+
   // TEXT
   case 3:
+
     // replace special XML characters
     output.push(escape(node.textContent, TEXT_ENTITIES));
     break;
@@ -12435,6 +10340,7 @@ function set(element, svg) {
   }
 
   if (!isFragment(parsed)) {
+
     // extract <svg> from parsed document
     parsed = parsed.documentElement;
   }
@@ -12592,6 +10498,929 @@ function transform(node, transforms) {
 
 
 
+/***/ }),
+
+/***/ "./node_modules/min-dash/dist/index.esm.js":
+/*!*************************************************!*\
+  !*** ./node_modules/min-dash/dist/index.esm.js ***!
+  \*************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   assign: () => (/* binding */ assign),
+/* harmony export */   bind: () => (/* binding */ bind),
+/* harmony export */   debounce: () => (/* binding */ debounce),
+/* harmony export */   ensureArray: () => (/* binding */ ensureArray),
+/* harmony export */   every: () => (/* binding */ every),
+/* harmony export */   filter: () => (/* binding */ filter),
+/* harmony export */   find: () => (/* binding */ find),
+/* harmony export */   findIndex: () => (/* binding */ findIndex),
+/* harmony export */   flatten: () => (/* binding */ flatten),
+/* harmony export */   forEach: () => (/* binding */ forEach),
+/* harmony export */   get: () => (/* binding */ get),
+/* harmony export */   groupBy: () => (/* binding */ groupBy),
+/* harmony export */   has: () => (/* binding */ has),
+/* harmony export */   isArray: () => (/* binding */ isArray),
+/* harmony export */   isDefined: () => (/* binding */ isDefined),
+/* harmony export */   isFunction: () => (/* binding */ isFunction),
+/* harmony export */   isNil: () => (/* binding */ isNil),
+/* harmony export */   isNumber: () => (/* binding */ isNumber),
+/* harmony export */   isObject: () => (/* binding */ isObject),
+/* harmony export */   isString: () => (/* binding */ isString),
+/* harmony export */   isUndefined: () => (/* binding */ isUndefined),
+/* harmony export */   keys: () => (/* binding */ keys),
+/* harmony export */   map: () => (/* binding */ map),
+/* harmony export */   matchPattern: () => (/* binding */ matchPattern),
+/* harmony export */   merge: () => (/* binding */ merge),
+/* harmony export */   omit: () => (/* binding */ omit),
+/* harmony export */   pick: () => (/* binding */ pick),
+/* harmony export */   reduce: () => (/* binding */ reduce),
+/* harmony export */   set: () => (/* binding */ set),
+/* harmony export */   size: () => (/* binding */ size),
+/* harmony export */   some: () => (/* binding */ some),
+/* harmony export */   sortBy: () => (/* binding */ sortBy),
+/* harmony export */   throttle: () => (/* binding */ throttle),
+/* harmony export */   unionBy: () => (/* binding */ unionBy),
+/* harmony export */   uniqueBy: () => (/* binding */ uniqueBy),
+/* harmony export */   values: () => (/* binding */ values),
+/* harmony export */   without: () => (/* binding */ without)
+/* harmony export */ });
+/**
+ * Flatten array, one level deep.
+ *
+ * @template T
+ *
+ * @param {T[][]} arr
+ *
+ * @return {T[]}
+ */
+function flatten(arr) {
+  return Array.prototype.concat.apply([], arr);
+}
+
+const nativeToString = Object.prototype.toString;
+const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
+
+function isUndefined(obj) {
+  return obj === undefined;
+}
+
+function isDefined(obj) {
+  return obj !== undefined;
+}
+
+function isNil(obj) {
+  return obj == null;
+}
+
+function isArray(obj) {
+  return nativeToString.call(obj) === '[object Array]';
+}
+
+function isObject(obj) {
+  return nativeToString.call(obj) === '[object Object]';
+}
+
+function isNumber(obj) {
+  return nativeToString.call(obj) === '[object Number]';
+}
+
+/**
+ * @param {any} obj
+ *
+ * @return {boolean}
+ */
+function isFunction(obj) {
+  const tag = nativeToString.call(obj);
+
+  return (
+    tag === '[object Function]' ||
+    tag === '[object AsyncFunction]' ||
+    tag === '[object GeneratorFunction]' ||
+    tag === '[object AsyncGeneratorFunction]' ||
+    tag === '[object Proxy]'
+  );
+}
+
+function isString(obj) {
+  return nativeToString.call(obj) === '[object String]';
+}
+
+
+/**
+ * Ensure collection is an array.
+ *
+ * @param {Object} obj
+ */
+function ensureArray(obj) {
+
+  if (isArray(obj)) {
+    return;
+  }
+
+  throw new Error('must supply array');
+}
+
+/**
+ * Return true, if target owns a property with the given key.
+ *
+ * @param {Object} target
+ * @param {String} key
+ *
+ * @return {Boolean}
+ */
+function has(target, key) {
+  return nativeHasOwnProperty.call(target, key);
+}
+
+/**
+ * @template T
+ * @typedef { (
+ *   ((e: T) => boolean) |
+ *   ((e: T, idx: number) => boolean) |
+ *   ((e: T, key: string) => boolean) |
+ *   string |
+ *   number
+ * ) } Matcher
+ */
+
+/**
+ * @template T
+ * @template U
+ *
+ * @typedef { (
+ *   ((e: T) => U) | string | number
+ * ) } Extractor
+ */
+
+
+/**
+ * @template T
+ * @typedef { (val: T, key: any) => boolean } MatchFn
+ */
+
+/**
+ * @template T
+ * @typedef { T[] } ArrayCollection
+ */
+
+/**
+ * @template T
+ * @typedef { { [key: string]: T } } StringKeyValueCollection
+ */
+
+/**
+ * @template T
+ * @typedef { { [key: number]: T } } NumberKeyValueCollection
+ */
+
+/**
+ * @template T
+ * @typedef { StringKeyValueCollection<T> | NumberKeyValueCollection<T> } KeyValueCollection
+ */
+
+/**
+ * @template T
+ * @typedef { KeyValueCollection<T> | ArrayCollection<T> } Collection
+ */
+
+/**
+ * Find element in collection.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param {Matcher<T>} matcher
+ *
+ * @return {Object}
+ */
+function find(collection, matcher) {
+
+  const matchFn = toMatcher(matcher);
+
+  let match;
+
+  forEach(collection, function(val, key) {
+    if (matchFn(val, key)) {
+      match = val;
+
+      return false;
+    }
+  });
+
+  return match;
+
+}
+
+
+/**
+ * Find element index in collection.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param {Matcher<T>} matcher
+ *
+ * @return {number}
+ */
+function findIndex(collection, matcher) {
+
+  const matchFn = toMatcher(matcher);
+
+  let idx = isArray(collection) ? -1 : undefined;
+
+  forEach(collection, function(val, key) {
+    if (matchFn(val, key)) {
+      idx = key;
+
+      return false;
+    }
+  });
+
+  return idx;
+}
+
+
+/**
+ * Filter elements in collection.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param {Matcher<T>} matcher
+ *
+ * @return {T[]} result
+ */
+function filter(collection, matcher) {
+
+  const matchFn = toMatcher(matcher);
+
+  let result = [];
+
+  forEach(collection, function(val, key) {
+    if (matchFn(val, key)) {
+      result.push(val);
+    }
+  });
+
+  return result;
+}
+
+
+/**
+ * Iterate over collection; returning something
+ * (non-undefined) will stop iteration.
+ *
+ * @template T
+ * @param {Collection<T>} collection
+ * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
+ *
+ * @return {T} return result that stopped the iteration
+ */
+function forEach(collection, iterator) {
+
+  let val,
+      result;
+
+  if (isUndefined(collection)) {
+    return;
+  }
+
+  const convertKey = isArray(collection) ? toNum : identity;
+
+  for (let key in collection) {
+
+    if (has(collection, key)) {
+      val = collection[key];
+
+      result = iterator(val, convertKey(key));
+
+      if (result === false) {
+        return val;
+      }
+    }
+  }
+}
+
+/**
+ * Return collection without element.
+ *
+ * @template T
+ * @param {ArrayCollection<T>} arr
+ * @param {Matcher<T>} matcher
+ *
+ * @return {T[]}
+ */
+function without(arr, matcher) {
+
+  if (isUndefined(arr)) {
+    return [];
+  }
+
+  ensureArray(arr);
+
+  const matchFn = toMatcher(matcher);
+
+  return arr.filter(function(el, idx) {
+    return !matchFn(el, idx);
+  });
+
+}
+
+
+/**
+ * Reduce collection, returning a single result.
+ *
+ * @template T
+ * @template V
+ *
+ * @param {Collection<T>} collection
+ * @param {(result: V, entry: T, index: any) => V} iterator
+ * @param {V} result
+ *
+ * @return {V} result returned from last iterator
+ */
+function reduce(collection, iterator, result) {
+
+  forEach(collection, function(value, idx) {
+    result = iterator(result, value, idx);
+  });
+
+  return result;
+}
+
+
+/**
+ * Return true if every element in the collection
+ * matches the criteria.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} matcher
+ *
+ * @return {Boolean}
+ */
+function every(collection, matcher) {
+
+  return !!reduce(collection, function(matches, val, key) {
+    return matches && matcher(val, key);
+  }, true);
+}
+
+
+/**
+ * Return true if some elements in the collection
+ * match the criteria.
+ *
+ * @param  {Object|Array} collection
+ * @param  {Function} matcher
+ *
+ * @return {Boolean}
+ */
+function some(collection, matcher) {
+
+  return !!find(collection, matcher);
+}
+
+
+/**
+ * Transform a collection into another collection
+ * by piping each member through the given fn.
+ *
+ * @param  {Object|Array}   collection
+ * @param  {Function} fn
+ *
+ * @return {Array} transformed collection
+ */
+function map(collection, fn) {
+
+  let result = [];
+
+  forEach(collection, function(val, key) {
+    result.push(fn(val, key));
+  });
+
+  return result;
+}
+
+
+/**
+ * Get the collections keys.
+ *
+ * @param  {Object|Array} collection
+ *
+ * @return {Array}
+ */
+function keys(collection) {
+  return collection && Object.keys(collection) || [];
+}
+
+
+/**
+ * Shorthand for `keys(o).length`.
+ *
+ * @param  {Object|Array} collection
+ *
+ * @return {Number}
+ */
+function size(collection) {
+  return keys(collection).length;
+}
+
+
+/**
+ * Get the values in the collection.
+ *
+ * @param  {Object|Array} collection
+ *
+ * @return {Array}
+ */
+function values(collection) {
+  return map(collection, (val) => val);
+}
+
+
+/**
+ * Group collection members by attribute.
+ *
+ * @param {Object|Array} collection
+ * @param {Extractor} extractor
+ *
+ * @return {Object} map with { attrValue => [ a, b, c ] }
+ */
+function groupBy(collection, extractor, grouped = {}) {
+
+  extractor = toExtractor(extractor);
+
+  forEach(collection, function(val) {
+    let discriminator = extractor(val) || '_';
+
+    let group = grouped[discriminator];
+
+    if (!group) {
+      group = grouped[discriminator] = [];
+    }
+
+    group.push(val);
+  });
+
+  return grouped;
+}
+
+
+function uniqueBy(extractor, ...collections) {
+
+  extractor = toExtractor(extractor);
+
+  let grouped = {};
+
+  forEach(collections, (c) => groupBy(c, extractor, grouped));
+
+  let result = map(grouped, function(val, key) {
+    return val[0];
+  });
+
+  return result;
+}
+
+
+const unionBy = uniqueBy;
+
+
+
+/**
+ * Sort collection by criteria.
+ *
+ * @template T
+ *
+ * @param {Collection<T>} collection
+ * @param {Extractor<T, number | string>} extractor
+ *
+ * @return {Array}
+ */
+function sortBy(collection, extractor) {
+
+  extractor = toExtractor(extractor);
+
+  let sorted = [];
+
+  forEach(collection, function(value, key) {
+    let disc = extractor(value, key);
+
+    let entry = {
+      d: disc,
+      v: value
+    };
+
+    for (var idx = 0; idx < sorted.length; idx++) {
+      let { d } = sorted[idx];
+
+      if (disc < d) {
+        sorted.splice(idx, 0, entry);
+        return;
+      }
+    }
+
+    // not inserted, append (!)
+    sorted.push(entry);
+  });
+
+  return map(sorted, (e) => e.v);
+}
+
+
+/**
+ * Create an object pattern matcher.
+ *
+ * @example
+ *
+ * ```javascript
+ * const matcher = matchPattern({ id: 1 });
+ *
+ * let element = find(elements, matcher);
+ * ```
+ *
+ * @template T
+ *
+ * @param {T} pattern
+ *
+ * @return { (el: any) =>  boolean } matcherFn
+ */
+function matchPattern(pattern) {
+
+  return function(el) {
+
+    return every(pattern, function(val, key) {
+      return el[key] === val;
+    });
+
+  };
+}
+
+
+/**
+ * @param {string | ((e: any) => any) } extractor
+ *
+ * @return { (e: any) => any }
+ */
+function toExtractor(extractor) {
+
+  /**
+   * @satisfies { (e: any) => any }
+   */
+  return isFunction(extractor) ? extractor : (e) => {
+
+    // @ts-ignore: just works
+    return e[extractor];
+  };
+}
+
+
+/**
+ * @template T
+ * @param {Matcher<T>} matcher
+ *
+ * @return {MatchFn<T>}
+ */
+function toMatcher(matcher) {
+  return isFunction(matcher) ? matcher : (e) => {
+    return e === matcher;
+  };
+}
+
+
+function identity(arg) {
+  return arg;
+}
+
+function toNum(arg) {
+  return Number(arg);
+}
+
+/* global setTimeout clearTimeout */
+
+/**
+ * @typedef { {
+ *   (...args: any[]): any;
+ *   flush: () => void;
+ *   cancel: () => void;
+ * } } DebouncedFunction
+ */
+
+/**
+ * Debounce fn, calling it only once if the given time
+ * elapsed between calls.
+ *
+ * Lodash-style the function exposes methods to `#clear`
+ * and `#flush` to control internal behavior.
+ *
+ * @param  {Function} fn
+ * @param  {Number} timeout
+ *
+ * @return {DebouncedFunction} debounced function
+ */
+function debounce(fn, timeout) {
+
+  let timer;
+
+  let lastArgs;
+  let lastThis;
+
+  let lastNow;
+
+  function fire(force) {
+
+    let now = Date.now();
+
+    let scheduledDiff = force ? 0 : (lastNow + timeout) - now;
+
+    if (scheduledDiff > 0) {
+      return schedule(scheduledDiff);
+    }
+
+    fn.apply(lastThis, lastArgs);
+
+    clear();
+  }
+
+  function schedule(timeout) {
+    timer = setTimeout(fire, timeout);
+  }
+
+  function clear() {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    timer = lastNow = lastArgs = lastThis = undefined;
+  }
+
+  function flush() {
+    if (timer) {
+      fire(true);
+    }
+
+    clear();
+  }
+
+  /**
+   * @type { DebouncedFunction }
+   */
+  function callback(...args) {
+    lastNow = Date.now();
+
+    lastArgs = args;
+    lastThis = this;
+
+    // ensure an execution is scheduled
+    if (!timer) {
+      schedule(timeout);
+    }
+  }
+
+  callback.flush = flush;
+  callback.cancel = clear;
+
+  return callback;
+}
+
+/**
+ * Throttle fn, calling at most once
+ * in the given interval.
+ *
+ * @param  {Function} fn
+ * @param  {Number} interval
+ *
+ * @return {Function} throttled function
+ */
+function throttle(fn, interval) {
+  let throttling = false;
+
+  return function(...args) {
+
+    if (throttling) {
+      return;
+    }
+
+    fn(...args);
+    throttling = true;
+
+    setTimeout(() => {
+      throttling = false;
+    }, interval);
+  };
+}
+
+/**
+ * Bind function against target <this>.
+ *
+ * @param  {Function} fn
+ * @param  {Object}   target
+ *
+ * @return {Function} bound function
+ */
+function bind(fn, target) {
+  return fn.bind(target);
+}
+
+/**
+ * Convenience wrapper for `Object.assign`.
+ *
+ * @param {Object} target
+ * @param {...Object} others
+ *
+ * @return {Object} the target
+ */
+function assign(target, ...others) {
+  return Object.assign(target, ...others);
+}
+
+/**
+ * Sets a nested property of a given object to the specified value.
+ *
+ * This mutates the object and returns it.
+ *
+ * @template T
+ *
+ * @param {T} target The target of the set operation.
+ * @param {(string|number)[]} path The path to the nested value.
+ * @param {any} value The value to set.
+ *
+ * @return {T}
+ */
+function set(target, path, value) {
+
+  let currentTarget = target;
+
+  forEach(path, function(key, idx) {
+
+    if (typeof key !== 'number' && typeof key !== 'string') {
+      throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
+    }
+
+    if (key === 'constructor') {
+      throw new Error('illegal key: constructor');
+    }
+
+    if (key === '__proto__') {
+      throw new Error('illegal key: __proto__');
+    }
+
+    let nextKey = path[idx + 1];
+    let nextTarget = currentTarget[key];
+
+    if (isDefined(nextKey) && isNil(nextTarget)) {
+      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
+    }
+
+    if (isUndefined(nextKey)) {
+      if (isUndefined(value)) {
+        delete currentTarget[key];
+      } else {
+        currentTarget[key] = value;
+      }
+    } else {
+      currentTarget = nextTarget;
+    }
+  });
+
+  return target;
+}
+
+
+/**
+ * Gets a nested property of a given object.
+ *
+ * @param {Object} target The target of the get operation.
+ * @param {(string|number)[]} path The path to the nested value.
+ * @param {any} [defaultValue] The value to return if no value exists.
+ *
+ * @return {any}
+ */
+function get(target, path, defaultValue) {
+
+  let currentTarget = target;
+
+  forEach(path, function(key) {
+
+    // accessing nil property yields <undefined>
+    if (isNil(currentTarget)) {
+      currentTarget = undefined;
+
+      return false;
+    }
+
+    currentTarget = currentTarget[key];
+  });
+
+  return isUndefined(currentTarget) ? defaultValue : currentTarget;
+}
+
+/**
+ * Pick properties from the given target.
+ *
+ * @template T
+ * @template {any[]} V
+ *
+ * @param {T} target
+ * @param {V} properties
+ *
+ * @return Pick<T, V>
+ */
+function pick(target, properties) {
+
+  let result = {};
+
+  let obj = Object(target);
+
+  forEach(properties, function(prop) {
+
+    if (prop in obj) {
+      result[prop] = target[prop];
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Pick all target properties, excluding the given ones.
+ *
+ * @template T
+ * @template {any[]} V
+ *
+ * @param {T} target
+ * @param {V} properties
+ *
+ * @return {Omit<T, V>} target
+ */
+function omit(target, properties) {
+
+  let result = {};
+
+  let obj = Object(target);
+
+  forEach(obj, function(prop, key) {
+
+    if (properties.indexOf(key) === -1) {
+      result[key] = prop;
+    }
+  });
+
+  return result;
+}
+
+/**
+ * Recursively merge `...sources` into given target.
+ *
+ * Does support merging objects; does not support merging arrays.
+ *
+ * @param {Object} target
+ * @param {...Object} sources
+ *
+ * @return {Object} the target
+ */
+function merge(target, ...sources) {
+
+  if (!sources.length) {
+    return target;
+  }
+
+  forEach(sources, function(source) {
+
+    // skip non-obj sources, i.e. null
+    if (!source || !isObject(source)) {
+      return;
+    }
+
+    forEach(source, function(sourceVal, key) {
+
+      if (key === '__proto__') {
+        return;
+      }
+
+      let targetVal = target[key];
+
+      if (isObject(sourceVal)) {
+
+        if (!isObject(targetVal)) {
+
+          // override target[key] with object
+          targetVal = {};
+        }
+
+        target[key] = merge(targetVal, sourceVal);
+      } else {
+        target[key] = sourceVal;
+      }
+
+    });
+  });
+
+  return target;
+}
+
+
+
+
 /***/ })
 
 /******/ 	});
@@ -12648,18 +11477,6 @@ function transform(node, transforms) {
 /******/ 		};
 /******/ 	})();
 /******/ 	
-/******/ 	/* webpack/runtime/global */
-/******/ 	(() => {
-/******/ 		__webpack_require__.g = (function() {
-/******/ 			if (typeof globalThis === 'object') return globalThis;
-/******/ 			try {
-/******/ 				return this || new Function('return this')();
-/******/ 			} catch (e) {
-/******/ 				if (typeof window === 'object') return window;
-/******/ 			}
-/******/ 		})();
-/******/ 	})();
-/******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
 /******/ 	(() => {
 /******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
@@ -12704,10 +11521,10 @@ __webpack_require__.r(__webpack_exports__);
 
 const TokenSimulationPluginModule = {
   __init__: [ 'hideModelerElements' ],
-  hideModelerElements: [ 'type', _HideModelerElements__WEBPACK_IMPORTED_MODULE_1__.default ]
+  hideModelerElements: [ 'type', _HideModelerElements__WEBPACK_IMPORTED_MODULE_1__["default"] ]
 };
 
-(0,camunda_modeler_plugin_helpers__WEBPACK_IMPORTED_MODULE_0__.registerBpmnJSPlugin)(bpmn_js_token_simulation__WEBPACK_IMPORTED_MODULE_2__.default);
+(0,camunda_modeler_plugin_helpers__WEBPACK_IMPORTED_MODULE_0__.registerBpmnJSPlugin)(bpmn_js_token_simulation__WEBPACK_IMPORTED_MODULE_2__["default"]);
 (0,camunda_modeler_plugin_helpers__WEBPACK_IMPORTED_MODULE_0__.registerBpmnJSPlugin)(TokenSimulationPluginModule);
 
 })();
