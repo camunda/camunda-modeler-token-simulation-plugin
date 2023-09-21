@@ -18,6 +18,9 @@
     "modeler",
     "plugin"
   ],
+  "engines": {
+    "node": ">= 16"
+  },
   "author": "Philipp Fromme",
   "license": "MIT",
   "devDependencies": {
