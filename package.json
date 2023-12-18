@@ -7,7 +7,7 @@
     "all": "run-s bundle",
     "bundle": "webpack",
     "bundle:watch": "webpack -w",
-    "prepublishOnly": "run-s bundle",
+    "prepare": "run-s bundle",
     "test": "echo 'no tests'"
   },
   "repository": {
