@@ -647,7 +647,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _features_set_animation_speed__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./features/set-animation-speed */ "./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/index.js");
 /* harmony import */ var _features_exclusive_gateway_settings__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./features/exclusive-gateway-settings */ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/index.js");
 /* harmony import */ var _features_neutral_element_colors__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./features/neutral-element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/index.js");
-/* harmony import */ var _features_palette__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./features/palette */ "./node_modules/bpmn-js-token-simulation/lib/features/palette/index.js");
+/* harmony import */ var _features_inclusive_gateway_settings__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./features/inclusive-gateway-settings */ "./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/index.js");
+/* harmony import */ var _features_palette__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./features/palette */ "./node_modules/bpmn-js-token-simulation/lib/features/palette/index.js");
+
 
 
 
@@ -681,7 +683,8 @@ __webpack_require__.r(__webpack_exports__);
     _features_set_animation_speed__WEBPACK_IMPORTED_MODULE_11__["default"],
     _features_exclusive_gateway_settings__WEBPACK_IMPORTED_MODULE_12__["default"],
     _features_neutral_element_colors__WEBPACK_IMPORTED_MODULE_13__["default"],
-    _features_palette__WEBPACK_IMPORTED_MODULE_14__["default"]
+    _features_inclusive_gateway_settings__WEBPACK_IMPORTED_MODULE_14__["default"],
+    _features_palette__WEBPACK_IMPORTED_MODULE_15__["default"]
   ]
 });
 
@@ -799,12 +802,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ ContextPads),
 /* harmony export */   isAncestor: () => (/* binding */ isAncestor)
 /* harmony export */ });
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js");
-/* harmony import */ var _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handler/PauseHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js");
-/* harmony import */ var _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./handler/TriggerHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js");
+/* harmony import */ var _handler_InclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handler/InclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/InclusiveGatewayHandler.js");
+/* harmony import */ var _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./handler/PauseHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js");
+/* harmony import */ var _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./handler/TriggerHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js");
+
 
 
 
@@ -840,15 +845,16 @@ function ContextPads(
   this._handlers = [];
 
   this.registerHandler('bpmn:ExclusiveGateway', _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__["default"]);
+  this.registerHandler('bpmn:InclusiveGateway', _handler_InclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_1__["default"]);
 
-  this.registerHandler('bpmn:Activity', _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_1__["default"]);
+  this.registerHandler('bpmn:Activity', _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
 
-  this.registerHandler('bpmn:StartEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
-  this.registerHandler('bpmn:IntermediateCatchEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
-  this.registerHandler('bpmn:BoundaryEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
-  this.registerHandler('bpmn:Activity', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
+  this.registerHandler('bpmn:StartEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
+  this.registerHandler('bpmn:IntermediateCatchEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
+  this.registerHandler('bpmn:BoundaryEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
+  this.registerHandler('bpmn:Activity', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.TOGGLE_MODE_EVENT, LOW_PRIORITY, context => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.TOGGLE_MODE_EVENT, LOW_PRIORITY, context => {
     const active = context.active;
 
     if (active) {
@@ -858,14 +864,14 @@ function ContextPads(
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.RESET_SIMULATION_EVENT, LOW_PRIORITY, () => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.RESET_SIMULATION_EVENT, LOW_PRIORITY, () => {
     this.closeContextPads();
     this.openContextPads();
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_FILTER_CHANGED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.SCOPE_FILTER_CHANGED_EVENT, event => {
 
-    const showElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.queryAll)(
+    const showElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.queryAll)(
       '.djs-overlay-ts-context-menu [data-scope-ids]',
       overlays._overlayRoot
     );
@@ -876,10 +882,10 @@ function ContextPads(
 
       const shown = scopeIds.some(id => scopeFilter.isShown(id));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(element).toggle('hidden', !shown);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(element).toggle('hidden', !shown);
     }
 
-    const hideElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.queryAll)(
+    const hideElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.queryAll)(
       '.djs-overlay-ts-context-menu [data-hide-scope-ids]',
       overlays._overlayRoot
     );
@@ -890,11 +896,11 @@ function ContextPads(
 
       const shown = scopeIds.some(id => scopeFilter.isShown(id));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(element).toggle('hidden', shown);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(element).toggle('hidden', shown);
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.ELEMENT_CHANGED_EVENT, LOW_PRIORITY, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.ELEMENT_CHANGED_EVENT, LOW_PRIORITY, event => {
     const {
       element
     } = event;
@@ -922,7 +928,7 @@ ContextPads.prototype.getHandlers = function(element) {
 
   return (
     this._handlers.filter(
-      ({ type }) => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_5__.is)(element, type)
+      ({ type }) => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_6__.is)(element, type)
     ).map(
       ({ handler }) => handler
     )
@@ -1031,7 +1037,7 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
       o => o.hash === hash
     );
 
-    const html = existingOverlay && existingOverlay.html || (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.domify)(_html);
+    const html = existingOverlay && existingOverlay.html || (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.domify)(_html);
 
     if (_contexts) {
       const contexts = _contexts();
@@ -1040,7 +1046,7 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
 
       const shownScopes = contexts.filter(c => this._scopeFilter.isShown(c.scope));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(html).toggle('hidden', shownScopes.length === 0);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(html).toggle('hidden', shownScopes.length === 0);
     }
 
     if (_hideContexts) {
@@ -1050,7 +1056,7 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
 
       const shownScopes = contexts.filter(c => this._scopeFilter.isShown(c.scope));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(html).toggle('hidden', shownScopes.length > 0);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(html).toggle('hidden', shownScopes.length > 0);
     }
 
     if (existingOverlay) {
@@ -1061,7 +1067,7 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
 
     if (_action) {
 
-      min_dom__WEBPACK_IMPORTED_MODULE_4__.event.bind(html, 'click', event => {
+      min_dom__WEBPACK_IMPORTED_MODULE_5__.event.bind(html, 'click', event => {
         event.preventDefault();
 
         const contexts = _contexts
@@ -1181,6 +1187,68 @@ ExclusiveGatewayHandler.prototype.createContextPads = function(element) {
 
 ExclusiveGatewayHandler.$inject = [
   'exclusiveGatewaySettings'
+];
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/InclusiveGatewayHandler.js":
+/*!************************************************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/InclusiveGatewayHandler.js ***!
+  \************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ InclusiveGatewayHandler)
+/* harmony export */ });
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../simulator/util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+
+
+
+
+
+function InclusiveGatewayHandler(inclusiveGatewaySettings) {
+  this._inclusiveGatewaySettings = inclusiveGatewaySettings;
+}
+
+InclusiveGatewayHandler.prototype.createContextPads = function(element) {
+  const outgoingFlows = element.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isSequenceFlow);
+
+  if (outgoingFlows.length < 2) {
+    return;
+  }
+
+  const nonDefaultFlows = outgoingFlows.filter(outgoing => {
+    const flowBo = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(outgoing),
+          gatewayBo = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(element);
+
+    return gatewayBo.default !== flowBo;
+  });
+
+  const html = `
+    <div class="bts-context-pad" title="Set Sequence Flow">
+      ${(0,_icons__WEBPACK_IMPORTED_MODULE_2__.ForkIcon)()}
+    </div>
+  `;
+
+  return nonDefaultFlows.map(sequenceFlow => {
+    const action = () => {
+      this._inclusiveGatewaySettings.toggleSequenceFlow(element, sequenceFlow);
+    };
+
+    return {
+      action,
+      element: sequenceFlow,
+      html
+    };
+  });
+};
+
+InclusiveGatewayHandler.$inject = [
+  'inclusiveGatewaySettings'
 ];
 
 /***/ }),
@@ -2015,7 +2083,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const UNSUPPORTED_ELEMENTS = [
-  'bpmn:InclusiveGateway',
   'bpmn:ComplexGateway'
 ];
 
@@ -2293,6 +2360,207 @@ __webpack_require__.r(__webpack_exports__);
     _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   exclusiveGatewaySettings: [ 'type', _ExclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_2__["default"] ]
+});
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/InclusiveGatewaySettings.js":
+/*!*******************************************************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/InclusiveGatewaySettings.js ***!
+  \*******************************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ InclusiveGatewaySettings)
+/* harmony export */ });
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var _simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../simulator/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../simulator/util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+
+
+
+const SELECTED_COLOR = '--token-simulation-grey-darken-30';
+const NOT_SELECTED_COLOR = '--token-simulation-grey-lighten-56';
+
+
+
+const COLOR_ID = 'inclusive-gateway-settings';
+
+
+function InclusiveGatewaySettings(
+    eventBus, elementRegistry,
+    elementColors, simulator, simulationStyles) {
+
+  this._elementRegistry = elementRegistry;
+  this._elementColors = elementColors;
+  this._simulator = simulator;
+  this._simulationStyles = simulationStyles;
+
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, event => {
+    if (event.active) {
+      this.setDefaults();
+    } else {
+      this.reset();
+    }
+  });
+}
+
+InclusiveGatewaySettings.prototype.setDefaults = function() {
+  const inclusiveGateways = this._elementRegistry.filter(element => {
+    return (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:InclusiveGateway');
+  });
+
+  inclusiveGateways.forEach(inclusiveGateway => {
+    if (inclusiveGateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isSequenceFlow).length > 1) {
+      this._setGatewayDefaults(inclusiveGateway);
+    }
+  });
+};
+
+InclusiveGatewaySettings.prototype.reset = function() {
+  const inclusiveGateways = this._elementRegistry.filter(element => {
+    return (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:InclusiveGateway');
+  });
+
+  inclusiveGateways.forEach(inclusiveGateway => {
+    if (inclusiveGateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isSequenceFlow).length > 1) {
+      this._resetGateway(inclusiveGateway);
+    }
+  });
+};
+
+InclusiveGatewaySettings.prototype.toggleSequenceFlow = function(gateway, sequenceFlow) {
+  const activeOutgoing = this._getActiveOutgoing(gateway),
+        defaultFlow = getDefaultFlow(gateway),
+        nonDefaultFlows = getNonDefaultFlows(gateway);
+
+  let newActiveOutgoing;
+  if (activeOutgoing.includes(sequenceFlow)) {
+    newActiveOutgoing = without(activeOutgoing, sequenceFlow);
+  } else {
+    newActiveOutgoing = without(activeOutgoing, defaultFlow).concat(sequenceFlow);
+  }
+
+  // make sure at least one flow is active
+  if (!newActiveOutgoing.length) {
+
+    // default flow if available
+    if (defaultFlow) {
+      newActiveOutgoing = [ defaultFlow ];
+    } else {
+
+      // or another flow which is not the one toggled
+      newActiveOutgoing = [ nonDefaultFlows.find(flow => flow !== sequenceFlow) ];
+    }
+  }
+
+  this._setActiveOutgoing(gateway, newActiveOutgoing);
+};
+
+InclusiveGatewaySettings.prototype._getActiveOutgoing = function(gateway) {
+  const {
+    activeOutgoing
+  } = this._simulator.getConfig(gateway);
+
+  return activeOutgoing;
+};
+
+InclusiveGatewaySettings.prototype._setActiveOutgoing = function(gateway, activeOutgoing) {
+  this._simulator.setConfig(gateway, { activeOutgoing });
+
+  const sequenceFlows = gateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isSequenceFlow);
+
+  // set colors
+  sequenceFlows.forEach(outgoing => {
+
+    const style = (!activeOutgoing || activeOutgoing.includes(outgoing)) ?
+      SELECTED_COLOR : NOT_SELECTED_COLOR;
+    const stroke = this._simulationStyles.get(style);
+
+    this._elementColors.add(outgoing, COLOR_ID, {
+      stroke
+    });
+  });
+};
+
+InclusiveGatewaySettings.prototype._setGatewayDefaults = function(gateway) {
+  const sequenceFlows = gateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isSequenceFlow);
+
+  const defaultFlow = getDefaultFlow(gateway);
+  const nonDefaultFlows = without(sequenceFlows, defaultFlow);
+
+  this._setActiveOutgoing(gateway, nonDefaultFlows);
+};
+
+InclusiveGatewaySettings.prototype._resetGateway = function(gateway) {
+  this._setActiveOutgoing(gateway, undefined);
+};
+
+InclusiveGatewaySettings.$inject = [
+  'eventBus',
+  'elementRegistry',
+  'elementColors',
+  'simulator',
+  'simulationStyles'
+];
+
+function getDefaultFlow(gateway) {
+  const defaultFlow = (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(gateway).default;
+
+  if (!defaultFlow) {
+    return;
+  }
+
+  return gateway.outgoing.find(flow => {
+    const flowBo = (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(flow);
+
+    return flowBo === defaultFlow;
+  });
+}
+
+function getNonDefaultFlows(gateway) {
+  const defaultFlow = getDefaultFlow(gateway);
+
+  return gateway.outgoing.filter(flow => {
+    const flowBo = (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(flow);
+
+    return flowBo !== defaultFlow;
+  });
+}
+
+function without(array, element) {
+  return array.filter(arrayElement => arrayElement !== element);
+}
+
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/index.js":
+/*!************************************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/index.js ***!
+  \************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _InclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./InclusiveGatewaySettings */ "./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/InclusiveGatewaySettings.js");
+/* harmony import */ var _element_colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js");
+/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
+
+
+
+
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  __depends__: [
+    _element_colors__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"]
+  ],
+  inclusiveGatewaySettings: [ 'type', _InclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_2__["default"] ]
 });
 
 /***/ }),
@@ -5344,19 +5612,18 @@ function Simulator(injector, eventBus, elementRegistry) {
 
       if (!ref) {
 
-        // start event in event sub-process compensates
-        // parent process (or participant)
         if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isStartEvent)(element) && (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isEventSubProcess)(element.parent)) {
+
+          // start event in event sub-process compensates
+          // parent process (or participant)
           ref = element.parent.parent;
-        } else
+        } else if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isBoundaryEvent)(element)) {
 
-        // boundary event compensates activity it is attached to
-        if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isBoundaryEvent)(element)) {
+          // boundary event compensates activity it is attached to
           ref = element.host;
-        }
+        } else {
 
-        // parent is cancel scope
-        else {
+          // parent is cancel scope
           ref = element.parent;
         }
       }
@@ -6565,6 +6832,213 @@ ExclusiveGatewayBehavior.$inject = [
 
 /***/ }),
 
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/InclusiveGatewayBehavior.js":
+/*!***************************************************************************************************!*\
+  !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/InclusiveGatewayBehavior.js ***!
+  \***************************************************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ InclusiveGatewayBehavior)
+/* harmony export */ });
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+
+
+
+function InclusiveGatewayBehavior(
+    simulator,
+    activityBehavior) {
+
+  this._simulator = simulator;
+  this._activityBehavior = activityBehavior;
+
+  simulator.registerBehavior('bpmn:InclusiveGateway', this);
+}
+
+InclusiveGatewayBehavior.prototype.enter = function(context) {
+  this._tryJoin(context);
+};
+
+InclusiveGatewayBehavior.prototype.exit = function(context) {
+
+  const {
+    element,
+    scope
+  } = context;
+
+  // depends on UI to properly configure activeOutgoing for
+  // each inclusive gateway
+
+  const outgoings = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.filterSequenceFlows)(element.outgoing);
+
+  // fork based on configured active outgoings
+  if (outgoings.length > 1) {
+
+    const {
+      activeOutgoing = []
+    } = this._simulator.getConfig(element);
+
+    if (!activeOutgoing.length) {
+      throw new Error('no outgoing configured');
+    }
+
+    for (const outgoing of activeOutgoing) {
+      this._simulator.enter({
+        element: outgoing,
+        scope: scope.parent
+      });
+    }
+
+  } else {
+
+    // exit like any activity
+    this._activityBehavior.exit(context);
+  }
+
+};
+
+InclusiveGatewayBehavior.prototype._tryJoin = function(context) {
+
+  const remainingScopes = this._getRemainingScopes(context);
+
+  const remainingElements = remainingScopes.map(scope => scope.element);
+
+  // join right away if possible
+  // this implies that there are no remaining scopes
+  // or non of the remaining scopes are reachable
+  if (!this._canReachAnyElement(remainingElements, context.element)) {
+    return this._join(context);
+  }
+
+  const elementScopes = this._getElementScopes(context);
+
+  const {
+    scope
+  } = context;
+
+  // only subscribe to changes with the first
+  // element scope; prevent unneeded computation
+  if (elementScopes[0] !== scope) {
+    return;
+  }
+
+  const event = this._simulator.waitForScopes(scope, remainingScopes);
+
+  const subscription = this._simulator.subscribe(scope, event, () => {
+    subscription.remove();
+
+    this._tryJoin(context);
+  });
+};
+
+/**
+ * Get scopes that may potentially be waited for,
+ * in the context of an inclusive gateway.
+ *
+ * @param {object} context
+ * @return {object[]}
+ */
+InclusiveGatewayBehavior.prototype._getRemainingScopes = function(context) {
+  const {
+    scope,
+    element
+  } = context;
+
+  const {
+    parent: parentScope
+  } = scope;
+
+  return this._simulator.findScopes(
+    scope => scope.parent === parentScope && scope.element !== element
+  );
+};
+
+InclusiveGatewayBehavior.prototype._join = function(context) {
+  const elementScopes = this._getElementScopes(context);
+
+  for (const childScope of elementScopes) {
+
+    if (childScope !== context.scope) {
+
+      // complete joining child scope
+      this._simulator.destroyScope(childScope.complete(), context.scope);
+    }
+  }
+
+  this._simulator.exit(context);
+};
+
+/**
+ * Get scopes on the element for the given context.
+ *
+ * @param {object} context
+ *
+ * @return {object[]} scopes
+ */
+InclusiveGatewayBehavior.prototype._getElementScopes = function(context) {
+  const {
+    element,
+    scope
+  } = context;
+
+  return this._simulator.findScopes({
+    parent: scope.parent,
+    element
+  });
+};
+
+/**
+ * Return true if any elements can be reached
+ * from the current element, searching the execution
+ * graph backwards.
+ *
+ * @param {object[]} elements
+ * @param {object} currentElement
+ * @param {Set<object>} traversed
+ *
+ * @return {boolean}
+ */
+InclusiveGatewayBehavior.prototype._canReachAnyElement = function(elements, currentElement, traversed = new Set()) {
+
+  if (!elements.length) {
+    return false;
+  }
+
+  // avoid infinite recursion
+  if (traversed.has(currentElement)) {
+    return false;
+  }
+
+  traversed.add(currentElement);
+
+  if (elements.some(e => e === currentElement)) {
+    return true;
+  }
+
+  if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isSequenceFlow)(currentElement)) {
+    return this._canReachAnyElement(elements, currentElement.source, traversed);
+  }
+
+  const incomingFlows = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.filterSequenceFlows)(currentElement.incoming);
+
+  for (const flow of incomingFlows) {
+    if (this._canReachAnyElement(elements, flow, traversed)) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+InclusiveGatewayBehavior.$inject = [
+  'simulator',
+  'activityBehavior'
+];
+
+/***/ }),
+
 /***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/IntermediateCatchEventBehavior.js":
 /*!*********************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/IntermediateCatchEventBehavior.js ***!
@@ -7640,14 +8114,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ExclusiveGatewayBehavior__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./ExclusiveGatewayBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ExclusiveGatewayBehavior.js");
 /* harmony import */ var _ParallelGatewayBehavior__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ParallelGatewayBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ParallelGatewayBehavior.js");
 /* harmony import */ var _EventBasedGatewayBehavior__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./EventBasedGatewayBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBasedGatewayBehavior.js");
-/* harmony import */ var _ActivityBehavior__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./ActivityBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ActivityBehavior.js");
-/* harmony import */ var _SubProcessBehavior__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./SubProcessBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SubProcessBehavior.js");
-/* harmony import */ var _TransactionBehavior__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./TransactionBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/TransactionBehavior.js");
-/* harmony import */ var _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./SequenceFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SequenceFlowBehavior.js");
-/* harmony import */ var _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./MessageFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/MessageFlowBehavior.js");
-/* harmony import */ var _EventBehaviors__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./EventBehaviors */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBehaviors.js");
-/* harmony import */ var _ScopeBehavior__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./ScopeBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ScopeBehavior.js");
-/* harmony import */ var _ProcessBehavior__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./ProcessBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ProcessBehavior.js");
+/* harmony import */ var _InclusiveGatewayBehavior__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./InclusiveGatewayBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/InclusiveGatewayBehavior.js");
+/* harmony import */ var _ActivityBehavior__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ActivityBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ActivityBehavior.js");
+/* harmony import */ var _SubProcessBehavior__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./SubProcessBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SubProcessBehavior.js");
+/* harmony import */ var _TransactionBehavior__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./TransactionBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/TransactionBehavior.js");
+/* harmony import */ var _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./SequenceFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SequenceFlowBehavior.js");
+/* harmony import */ var _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./MessageFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/MessageFlowBehavior.js");
+/* harmony import */ var _EventBehaviors__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./EventBehaviors */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBehaviors.js");
+/* harmony import */ var _ScopeBehavior__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./ScopeBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ScopeBehavior.js");
+/* harmony import */ var _ProcessBehavior__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ProcessBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ProcessBehavior.js");
+
 
 
 
@@ -7681,6 +8157,7 @@ __webpack_require__.r(__webpack_exports__);
     'exclusiveGatewayBehavior',
     'parallelGatewayBehavior',
     'eventBasedGatewayBehavior',
+    'inclusiveGatewayBehavior',
     'subProcessBehavior',
     'sequenceFlowBehavior',
     'messageFlowBehavior',
@@ -7694,14 +8171,15 @@ __webpack_require__.r(__webpack_exports__);
   exclusiveGatewayBehavior: [ 'type', _ExclusiveGatewayBehavior__WEBPACK_IMPORTED_MODULE_5__["default"] ],
   parallelGatewayBehavior: [ 'type', _ParallelGatewayBehavior__WEBPACK_IMPORTED_MODULE_6__["default"] ],
   eventBasedGatewayBehavior: [ 'type', _EventBasedGatewayBehavior__WEBPACK_IMPORTED_MODULE_7__["default"] ],
-  activityBehavior: [ 'type', _ActivityBehavior__WEBPACK_IMPORTED_MODULE_8__["default"] ],
-  subProcessBehavior: [ 'type', _SubProcessBehavior__WEBPACK_IMPORTED_MODULE_9__["default"] ],
-  sequenceFlowBehavior: [ 'type', _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_10__["default"] ],
-  messageFlowBehavior: [ 'type', _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_11__["default"] ],
-  eventBehaviors: [ 'type', _EventBehaviors__WEBPACK_IMPORTED_MODULE_12__["default"] ],
-  scopeBehavior: [ 'type', _ScopeBehavior__WEBPACK_IMPORTED_MODULE_13__["default"] ],
-  processBehavior: [ 'type', _ProcessBehavior__WEBPACK_IMPORTED_MODULE_14__["default"] ],
-  transactionBehavior: [ 'type', _TransactionBehavior__WEBPACK_IMPORTED_MODULE_15__["default"] ]
+  inclusiveGatewayBehavior: [ 'type', _InclusiveGatewayBehavior__WEBPACK_IMPORTED_MODULE_8__["default"] ],
+  activityBehavior: [ 'type', _ActivityBehavior__WEBPACK_IMPORTED_MODULE_9__["default"] ],
+  subProcessBehavior: [ 'type', _SubProcessBehavior__WEBPACK_IMPORTED_MODULE_10__["default"] ],
+  sequenceFlowBehavior: [ 'type', _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_11__["default"] ],
+  messageFlowBehavior: [ 'type', _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_12__["default"] ],
+  eventBehaviors: [ 'type', _EventBehaviors__WEBPACK_IMPORTED_MODULE_13__["default"] ],
+  scopeBehavior: [ 'type', _ScopeBehavior__WEBPACK_IMPORTED_MODULE_14__["default"] ],
+  processBehavior: [ 'type', _ProcessBehavior__WEBPACK_IMPORTED_MODULE_15__["default"] ],
+  transactionBehavior: [ 'type', _TransactionBehavior__WEBPACK_IMPORTED_MODULE_16__["default"] ]
 });
 
 /***/ }),
