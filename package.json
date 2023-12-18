@@ -1,6 +1,6 @@
 {
   "name": "camunda-modeler-token-simulation-plugin",
-  "version": "0.18.0",
+  "version": "0.19.0",
   "description": "BPMN Token Simulation for the Camunda Modeler",
   "main": "index.js",
   "scripts": {
