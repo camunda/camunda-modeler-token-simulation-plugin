@@ -6,6 +6,11 @@ All notable changes to the [camunda-modeler-token-simulation-plugin](https://git
 
 ___Note:__ Yet to be released changes appear here._
 
+## 0.20.0
+
+* `FEAT`: support implicit start events ([bpmn-io/bpmn-js-token-simulation#144](https://github.com/bpmn-io/bpmn-js-token-simulation/issues/144))
+* `DEPS`: bump to `bpmn-js-token-simulation@0.33.0`
+
 ## 0.19.0
 
 * `FEAT`: support inclusive gateways ([bpmn-io/bpmn-js-token-simulation#110](https://github.com/bpmn-io/bpmn-js-token-simulation/pull/110), [bpmn-io/bpmn-js-token-simulation#88](https://github.com/bpmn-io/bpmn-js-token-simulation/issues/88))
