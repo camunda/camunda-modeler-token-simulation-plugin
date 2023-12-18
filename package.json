@@ -26,7 +26,7 @@
   "license": "MIT",
   "devDependencies": {
     "bpmn-js": "^15.2.2",
-    "bpmn-js-token-simulation": "^0.32.0",
+    "bpmn-js-token-simulation": "^0.33.0",
     "camunda-modeler-plugin-helpers": "^5.1.0",
     "copy-webpack-plugin": "^11.0.0",
     "min-dom": "^4.1.0",
