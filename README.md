@@ -1,4 +1,4 @@
-# Token Simulation for the Camunda Modeler
+# Camunda Modeler Token Simulation Plug-in
 
 [![Build Status](https://github.com/camunda/camunda-modeler-token-simulation-plugin/workflows/CI/badge.svg)](https://github.com/camunda/camunda-modeler-token-simulation-plugin/actions?query=workflow%3ACI)
 [![Compatible with Camunda Modeler version 5](https://img.shields.io/badge/Modeler_Version-5.0.0+-blue.svg)](#) [![Plugin Type](https://img.shields.io/badge/Plugin_Type-BPMN-orange.svg)](#)
