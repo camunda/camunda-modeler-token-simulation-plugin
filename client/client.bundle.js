@@ -120,10 +120,12 @@ const EASE_IN_OUT = function(pos) {
 const TOKEN_SIZE = 20;
 
 
-function Animation(canvas, eventBus, scopeFilter) {
+function Animation(config, canvas, eventBus, scopeFilter) {
   this._eventBus = eventBus;
   this._scopeFilter = scopeFilter;
   this._canvas = canvas;
+
+  this._randomize = config && config.randomize !== false;
 
   this._animations = new Set();
   this._speed = 1;
@@ -185,7 +187,7 @@ Animation.prototype.createAnimation = function(connection, scope, done = noop) {
 
   const tokenGfx = this._createTokenGfx(group, scope);
 
-  const animation = new TokenAnimation(tokenGfx, connection.waypoints, () => {
+  const animation = new TokenAnimation(tokenGfx, connection.waypoints, this._randomize, () => {
     this._animations.delete(animation);
 
     done();
@@ -295,16 +297,18 @@ Animation.prototype._getGroup = function(scope) {
 };
 
 Animation.$inject = [
+  'config.animation',
   'canvas',
   'eventBus',
   'scopeFilter'
 ];
 
 
-function TokenAnimation(gfx, waypoints, done) {
+function TokenAnimation(gfx, waypoints, randomize, done) {
   this.gfx = gfx;
   this.waypoints = waypoints;
   this.done = done;
+  this.randomize = randomize;
 
   this._paused = true;
   this._t = 0;
@@ -420,7 +424,7 @@ TokenAnimation.prototype.create = function() {
     return d;
   }, []).flat().join(' ');
 
-  const totalDuration = getAnimationDuration(totalLength);
+  const totalDuration = getAnimationDuration(totalLength, this._randomize);
 
   this._parts = parts.reduce((parts, part, index) => {
     const duration = totalDuration / totalLength * part.length;
@@ -462,8 +466,8 @@ TokenAnimation.prototype.setSpeed = function(speed) {
   this._speed = speed;
 };
 
-function getAnimationDuration(length) {
-  return Math.log(length) * randomBetween(250, 300);
+function getAnimationDuration(length, randomize = false) {
+  return Math.log(length) * (randomize ? randomBetween(250, 300) : 250);
 }
 
 function randomBetween(min, max) {
@@ -849,9 +853,8 @@ function ContextPads(
 
   this.registerHandler('bpmn:Activity', _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
 
-  this.registerHandler('bpmn:StartEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
-  this.registerHandler('bpmn:IntermediateCatchEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
-  this.registerHandler('bpmn:BoundaryEvent', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
+  this.registerHandler('bpmn:Event', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
+  this.registerHandler('bpmn:Gateway', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
   this.registerHandler('bpmn:Activity', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
 
   eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.TOGGLE_MODE_EVENT, LOW_PRIORITY, context => {
@@ -1376,9 +1379,15 @@ TriggerHandler.prototype.createContextPads = function(element) {
 TriggerHandler.prototype.createTriggerContextPad = function(element) {
 
   const contexts = () => {
-    return this._findSubscriptions({
+    const subscriptions = this._findSubscriptions({
       element
     });
+
+    const sortedSubscriptions = subscriptions.slice().sort((a, b) => {
+      return a.event.type === 'none' ? 1 : -1;
+    });
+
+    return sortedSubscriptions;
   };
 
   const html = `
@@ -5246,6 +5255,19 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+/**
+ * @typedef { any } DiagramElement
+ *
+ * @typedef { {
+ *   element: DiagramElement,
+ *   interrupting: boolean,
+ *   boundary: boolean,
+ *   iref?: string,
+ *   ref: DiagramElement,
+ *   persistent?: boolean,
+ *   type: string
+ * } } SimulatorEvent
+ */
 
 function Simulator(injector, eventBus, elementRegistry) {
 
@@ -5310,14 +5332,13 @@ function Simulator(injector, eventBus, elementRegistry) {
     const {
       element,
       parentScope,
-      initiator = null
+      initiator = null,
+      scope = initializeScope({
+        element,
+        parent: parentScope,
+        initiator
+      })
     } = context;
-
-    const scope = context.scope || initializeScope({
-      element,
-      parent: parentScope,
-      initiator
-    });
 
     queue(scope, function() {
 
@@ -5371,7 +5392,9 @@ function Simulator(injector, eventBus, elementRegistry) {
         scope
       });
 
-      scopeChanged(parentScope);
+      if (scope.parent) {
+        scopeChanged(scope.parent);
+      }
     });
 
     return scope;
@@ -5513,6 +5536,26 @@ function Simulator(injector, eventBus, elementRegistry) {
     return null;
   }
 
+  /**
+   * @param { any } element
+   *
+   * @return {SimulatorEvent}
+   */
+  function getNoneEvent(element) {
+    return {
+      element,
+      interrupting: false,
+      boundary: false,
+      iref: element.id,
+      type: 'none'
+    };
+  }
+
+  /**
+   * @param { any } element
+   *
+   * @return {SimulatorEvent}
+   */
   function getEvent(element) {
 
     // do not double-return element
@@ -5863,6 +5906,8 @@ function Simulator(injector, eventBus, elementRegistry) {
 
       const startEvents = element.children.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isStartEvent);
 
+      const implicitStartEvents = element.children.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isImplicitStartEvent);
+
       for (const startEvent of startEvents) {
 
         const event = {
@@ -5873,9 +5918,23 @@ function Simulator(injector, eventBus, elementRegistry) {
         // start events can always be triggered
         subscribe(scope, event, initiator => signal({
           element,
-          startEvent,
+          startEvent: startEvent,
           initiator
         }));
+      }
+
+      if (!startEvents.length) {
+
+        for (const implicitStartEvent of implicitStartEvents) {
+
+          const event = getNoneEvent(implicitStartEvent);
+
+          // start events can always be triggered
+          subscribe(scope, event, initiator => signal({
+            element,
+            initiator
+          }));
+        }
       }
     });
 
@@ -7284,6 +7343,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ProcessBehavior)
 /* harmony export */ });
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+
+
+
 function ProcessBehavior(
     simulator,
     scopeBehavior) {
@@ -7298,18 +7361,31 @@ function ProcessBehavior(
 ProcessBehavior.prototype.signal = function(context) {
 
   const {
+    element,
     startEvent,
+    startNodes = this._findStarts(element, startEvent),
     scope
   } = context;
 
-  if (!startEvent) {
-    throw new Error('missing <startEvent>');
+  if (!startNodes.length) {
+    throw new Error('missing <startNodes> or <startEvent>');
   }
 
-  this._simulator.signal({
-    element: startEvent,
-    parentScope: scope
-  });
+  for (const startNode of startNodes) {
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isStartEvent)(startNode)) {
+      this._simulator.signal({
+        element: startNode,
+        parentScope: scope
+      });
+    } else {
+      this._simulator.enter({
+        element: startNode,
+        scope
+      });
+    }
+  }
+
 };
 
 ProcessBehavior.prototype.exit = function(context) {
@@ -7324,6 +7400,18 @@ ProcessBehavior.prototype.exit = function(context) {
   this._scopeBehavior.destroyChildren(scope, initiator);
 };
 
+ProcessBehavior.prototype._findStarts = function(element, startEvent) {
+
+  const isStartEvent = startEvent
+    ? (node) => startEvent === node
+    : (node) => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isNoneStartEvent)(node);
+
+  return element.children.filter(
+    node => (
+      isStartEvent(node) || (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isImplicitStartEvent)(node)
+    )
+  );
+};
 
 ProcessBehavior.$inject = [
   'simulator',
@@ -7706,50 +7794,42 @@ SubProcessBehavior.prototype._start = function(context) {
     this._scopeBehavior.interrupt(targetScope, scope);
   }
 
-  const startEvents = startEvent ? [ startEvent ] : this._findStarts(element);
+  const startNodes = this._findStarts(element, startEvent);
 
-  for (const element of startEvents) {
-    this._simulator.signal({
-      element,
-      parentScope: scope,
-      initiator: scope
-    });
+  for (const element of startNodes) {
+
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isStartEvent)(element)) {
+      this._simulator.signal({
+        element,
+        parentScope: scope,
+        initiator: scope
+      });
+    } else {
+      this._simulator.enter({
+        element,
+        scope,
+        initiator: scope
+      });
+    }
   }
 };
 
-SubProcessBehavior.prototype._findStarts = function(element) {
+SubProcessBehavior.prototype._findStarts = function(element, startEvent) {
 
   // ensure bpmn-js@9 compatibility
   //
   // sub-process may be collapsed, in this case operate on the plane
   element = this._elementRegistry.get(element.id + '_plane') || element;
 
-  return element.children.filter(child => {
+  const isStartEvent = startEvent
+    ? (node) => startEvent === node
+    : (node) => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isNoneStartEvent)(node);
 
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isLabel)(child)) {
-      return false;
-    }
-
-    const incoming = child.incoming.find(c => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(c, 'bpmn:SequenceFlow'));
-
-    if (incoming) {
-      return false;
-    }
-
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isCompensationActivity)(child)) {
-      return false;
-    }
-
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isEventSubProcess)(child)) {
-      return false;
-    }
-
-    return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isAny)(child, [
-      'bpmn:Activity',
-      'bpmn:StartEvent',
-      'bpmn:EndEvent'
-    ]);
-  });
+  return element.children.filter(
+    node => (
+      isStartEvent(node) || (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isImplicitStartEvent)(node)
+    )
+  );
 };
 
 function isTransaction(element) {
@@ -8256,11 +8336,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isCompensationActivity: () => (/* binding */ isCompensationActivity),
 /* harmony export */   isCompensationEvent: () => (/* binding */ isCompensationEvent),
 /* harmony export */   isEventSubProcess: () => (/* binding */ isEventSubProcess),
+/* harmony export */   isImplicitStartEvent: () => (/* binding */ isImplicitStartEvent),
 /* harmony export */   isInterrupting: () => (/* binding */ isInterrupting),
 /* harmony export */   isLabel: () => (/* binding */ isLabel),
 /* harmony export */   isLinkCatch: () => (/* binding */ isLinkCatch),
 /* harmony export */   isMessageCatch: () => (/* binding */ isMessageCatch),
 /* harmony export */   isMessageFlow: () => (/* binding */ isMessageFlow),
+/* harmony export */   isNoneStartEvent: () => (/* binding */ isNoneStartEvent),
 /* harmony export */   isSequenceFlow: () => (/* binding */ isSequenceFlow),
 /* harmony export */   isStartEvent: () => (/* binding */ isStartEvent),
 /* harmony export */   isTypedEvent: () => (/* binding */ isTypedEvent)
@@ -8313,6 +8395,46 @@ function isBoundaryEvent(element) {
   return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:BoundaryEvent') && !isLabel(element);
 }
 
+function isNoneStartEvent(element) {
+  return isStartEvent(element) && !isTypedEvent(element);
+}
+
+function isImplicitStartEvent(element) {
+  if (isLabel(element)) {
+    return false;
+  }
+
+  if (!isAny(element, [
+    'bpmn:Activity',
+    'bpmn:IntermediateCatchEvent',
+    'bpmn:IntermediateThrowEvent',
+    'bpmn:Gateway',
+    'bpmn:EndEvent'
+  ])) {
+    return false;
+  }
+
+  if (isLinkCatch(element)) {
+    return false;
+  }
+
+  const incoming = element.incoming.find(isSequenceFlow);
+
+  if (incoming) {
+    return false;
+  }
+
+  if (isCompensationActivity(element)) {
+    return false;
+  }
+
+  if (isEventSubProcess(element)) {
+    return false;
+  }
+
+  return true;
+}
+
 function isStartEvent(element) {
   return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:StartEvent') && !isLabel(element);
 }
@@ -8337,9 +8459,15 @@ function isAny(element, types) {
   return types.some(type => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, type));
 }
 
+/**
+ * @param { DiagramElement} event
+ * @param {string|undefined} [eventDefinitionType]
+ *
+ * @return {boolean}
+ */
 function isTypedEvent(event, eventDefinitionType) {
   return (0,min_dash__WEBPACK_IMPORTED_MODULE_1__.some)((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(event).eventDefinitions, definition => {
-    return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(definition, eventDefinitionType);
+    return eventDefinitionType ? (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(definition, eventDefinitionType) : true;
   });
 }
 
