@@ -25,7 +25,7 @@
   "author": "Philipp Fromme",
   "license": "MIT",
   "devDependencies": {
-    "bpmn-js": "^17.2.2",
+    "bpmn-js": "^17.3.0",
     "bpmn-js-token-simulation": "^0.34.0",
     "camunda-modeler-plugin-helpers": "^5.1.0",
     "copy-webpack-plugin": "^11.0.0",
