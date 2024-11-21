@@ -68,7 +68,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Animation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var tiny_svg__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! tiny-svg */ "./node_modules/tiny-svg/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
@@ -120,6 +120,12 @@ const EASE_IN_OUT = function(pos) {
 const TOKEN_SIZE = 20;
 
 
+/**
+ * @param { { randomize?: boolean } | null } [config]
+ * @param { import('diagram-js/lib/core/Canvas').default } canvas
+ * @param { import('diagram-js/lib/core/EventBus').default } eventBus
+ * @param { import('../features/scope-filter/ScopeFilter').default } scopeFilter
+ */
 function Animation(config, canvas, eventBus, scopeFilter) {
   this._eventBus = eventBus;
   this._scopeFilter = scopeFilter;
@@ -130,7 +136,10 @@ function Animation(config, canvas, eventBus, scopeFilter) {
   this._animations = new Set();
   this._speed = 1;
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.RESET_SIMULATION_EVENT, () => {
+  eventBus.on([
+    'diagram.destroy',
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.RESET_SIMULATION_EVENT
+  ], () => {
     this.clearAnimations();
   });
 
@@ -188,7 +197,7 @@ Animation.prototype.createAnimation = function(connection, scope, done = noop) {
   const tokenGfx = this._createTokenGfx(group, scope);
 
   const animation = new TokenAnimation(tokenGfx, connection.waypoints, this._randomize, () => {
-    this._animations.delete(animation);
+    this._clearAnimation(animation);
 
     done();
   });
@@ -230,9 +239,15 @@ Animation.prototype.getAnimationSpeed = function() {
 Animation.prototype.clearAnimations = function(scope) {
   this.each(animation => {
     if (!scope || animation.scope === scope) {
-      animation.remove();
+      this._clearAnimation(animation);
     }
   });
+};
+
+Animation.prototype._clearAnimation = function(animation) {
+  animation.remove();
+
+  this._animations.delete(animation);
 };
 
 Animation.prototype._createTokenGfx = function(group, scope) {
@@ -369,7 +384,7 @@ TokenAnimation.prototype.tick = function(tElapsed) {
 
   // completed
   if (!part) {
-    return this.remove();
+    return this.completed();
   }
 
   const segmentTime = t - part.startTime;
@@ -454,12 +469,14 @@ TokenAnimation.prototype.hide = function() {
   (0,tiny_svg__WEBPACK_IMPORTED_MODULE_1__.attr)(this.gfx, 'display', 'none');
 };
 
+TokenAnimation.prototype.completed = function() {
+  this.done();
+};
+
 TokenAnimation.prototype.remove = function() {
   this.pause();
 
   (0,tiny_svg__WEBPACK_IMPORTED_MODULE_1__.remove)(this.gfx);
-
-  this.done();
 };
 
 TokenAnimation.prototype.setSpeed = function(speed) {
@@ -808,9 +825,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js");
 /* harmony import */ var _handler_InclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handler/InclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/InclusiveGatewayHandler.js");
 /* harmony import */ var _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./handler/PauseHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js");
@@ -1017,6 +1032,8 @@ ContextPads.prototype.updateElementContextPads = function(element) {
 
 ContextPads.prototype._updateElementContextPads = function(element, handler) {
 
+  const canvas = this._canvas;
+
   const contextPads = (handler.createContextPads(element) || []).filter(p => p);
 
   const handlerHash = `${element.id}------${handler.hash}`;
@@ -1042,7 +1059,7 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
       o => o.hash === hash
     );
 
-    const html = existingOverlay && existingOverlay.html || min_dom__WEBPACK_IMPORTED_MODULE_7___default()(_html);
+    const html = existingOverlay && existingOverlay.html || (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.domify)(_html);
 
     if (_contexts) {
       const contexts = _contexts();
@@ -1080,6 +1097,10 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
           : null;
 
         _action(contexts);
+
+        if ('restoreFocus' in canvas) {
+          canvas.restoreFocus();
+        }
       });
     }
 
@@ -1975,8 +1996,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementNotifications)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -2017,7 +2037,7 @@ ElementNotifications.prototype.addElementNotification = function(element, option
     ? `style="color: ${colors.auxiliary}; background: ${colors.primary}"`
     : '';
 
-  const html = min_dom__WEBPACK_IMPORTED_MODULE_1___default()(`
+  const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
     <div class="bts-element-notification ${ type || '' }" ${colorMarkup}>
       ${ icon || '' }
       <span class="bts-text">${ text }</span>
@@ -2076,7 +2096,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementSupport)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
@@ -2701,9 +2721,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Log)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var diagram_js_lib_util_EscapeUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! diagram-js/lib/util/EscapeUtil */ "./node_modules/diagram-js/lib/util/EscapeUtil.js");
@@ -3039,7 +3057,7 @@ function Log(
 }
 
 Log.prototype._init = function() {
-  this._container = min_dom__WEBPACK_IMPORTED_MODULE_6___default()(`
+  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.domify)(`
     <div class="bts-log hidden djs-scrollable">
       <div class="bts-header">
         ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)('bts-log-icon') }
@@ -3076,7 +3094,7 @@ Log.prototype._init = function() {
 
   this._canvas.getContainer().appendChild(this._container);
 
-  this.paletteEntry = min_dom__WEBPACK_IMPORTED_MODULE_6___default()(`
+  this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.domify)(`
     <div class="bts-entry" title="Toggle Simulation Log">
       ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)() }
     </div>
@@ -3128,7 +3146,7 @@ Log.prototype.log = function(options) {
 
   const colorMarkup = colors ? `style="background: ${colors.primary}; color: ${colors.auxiliary}"` : '';
 
-  const logEntry = min_dom__WEBPACK_IMPORTED_MODULE_6___default()(`
+  const logEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.domify)(`
     <p class="bts-entry ${ type } ${
       scope && this._scopeFilter.isShown(scope) ? '' : 'inactive'
     }" ${
@@ -3164,7 +3182,7 @@ Log.prototype.clear = function() {
     this._content.removeChild(this._content.firstChild);
   }
 
-  this._placeholder = min_dom__WEBPACK_IMPORTED_MODULE_6___default()('<p class="bts-entry placeholder">No Entries</p>');
+  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.domify)('<p class="bts-entry placeholder">No Entries</p>');
 
   this._content.appendChild(this._placeholder);
 };
@@ -3297,8 +3315,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Notifications)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -3329,7 +3346,7 @@ function Notifications(eventBus, canvas, scopeFilter) {
 }
 
 Notifications.prototype._init = function() {
-  this.container = min_dom__WEBPACK_IMPORTED_MODULE_2___default()('<div class="bts-notifications"></div>');
+  this.container = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.domify)('<div class="bts-notifications"></div>');
 
   this._canvas.getContainer().appendChild(this.container);
 };
@@ -3356,7 +3373,7 @@ Notifications.prototype.showNotification = function(options) {
 
   const colorMarkup = colors ? `style="color: ${colors.auxiliary}; background: ${colors.primary}"` : '';
 
-  const notification = min_dom__WEBPACK_IMPORTED_MODULE_2___default()(`
+  const notification = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.domify)(`
     <div class="bts-notification ${type}">
       <span class="bts-icon">${iconMarkup}</span>
       <span class="bts-text" title="${ text }">${text}</span>
@@ -3427,9 +3444,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Palette)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -3457,7 +3472,7 @@ function Palette(eventBus, canvas) {
 }
 
 Palette.prototype._init = function() {
-  this.container = min_dom__WEBPACK_IMPORTED_MODULE_2___default()('<div class="bts-palette hidden"></div>');
+  this.container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)('<div class="bts-palette hidden"></div>');
 
   this._canvas.getContainer().appendChild(this.container);
 };
@@ -3517,9 +3532,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ PauseSimulation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -3570,13 +3583,13 @@ function PauseSimulation(
 }
 
 PauseSimulation.prototype._init = function() {
-  this.paletteEntry = min_dom__WEBPACK_IMPORTED_MODULE_2___default()(`
+  this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.domify)(`
     <div class="bts-entry disabled" title="Play/Pause Simulation">
       ${ PLAY_MARKUP }
     </div>
   `);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(this.paletteEntry, 'click', this.toggle.bind(this));
+  min_dom__WEBPACK_IMPORTED_MODULE_2__.event.bind(this.paletteEntry, 'click', this.toggle.bind(this));
 
   this._tokenSimulationPalette.addEntry(this.paletteEntry, 1);
 };
@@ -3594,8 +3607,8 @@ PauseSimulation.prototype.pause = function() {
     return;
   }
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.paletteEntry).remove('active');
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.canvasParent).add('paused');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.classes)(this.paletteEntry).remove('active');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.classes)(this.canvasParent).add('paused');
 
   this.paletteEntry.innerHTML = PLAY_MARKUP;
 
@@ -3614,8 +3627,8 @@ PauseSimulation.prototype.unpause = function() {
     return;
   }
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.paletteEntry).add('active');
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.canvasParent).remove('paused');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.classes)(this.paletteEntry).add('active');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.classes)(this.canvasParent).remove('paused');
 
   this.paletteEntry.innerHTML = PAUSE_MARKUP;
 
@@ -3631,14 +3644,14 @@ PauseSimulation.prototype.unpause = function() {
 PauseSimulation.prototype.activate = function() {
   this.isActive = true;
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.paletteEntry).remove('disabled');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.classes)(this.paletteEntry).remove('disabled');
 };
 
 PauseSimulation.prototype.deactivate = function() {
   this.isActive = false;
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.paletteEntry).remove('active');
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.paletteEntry).add('disabled');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.classes)(this.paletteEntry).remove('active');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.classes)(this.paletteEntry).add('disabled');
 };
 
 PauseSimulation.$inject = [
@@ -3690,11 +3703,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ResetSimulation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
 
@@ -3723,9 +3734,9 @@ function ResetSimulation(eventBus, tokenSimulationPalette, notifications) {
 }
 
 ResetSimulation.prototype._init = function() {
-  this._paletteEntry = min_dom__WEBPACK_IMPORTED_MODULE_2___default()(`
+  this._paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
     <div class="bts-entry disabled" title="Reset Simulation">
-      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_3__.ResetIcon)() }
+      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.ResetIcon)() }
     </div>
   `);
 
@@ -3922,11 +3933,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ SetAnimationSpeed)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
 
@@ -3967,16 +3976,16 @@ SetAnimationSpeed.prototype.getToggleSpeed = function(element) {
 };
 
 SetAnimationSpeed.prototype._init = function(animationSpeed) {
-  this._container = min_dom__WEBPACK_IMPORTED_MODULE_2___default()(`
+  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
     <div class="bts-set-animation-speed hidden">
-      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_3__.TachometerIcon)() }
+      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.TachometerIcon)() }
       <div class="bts-animation-speed-buttons">
         ${
           SPEEDS.map(([ label, speed ], idx) => `
             <button title="Set animation speed = ${ label }" data-speed="${ speed }" class="bts-animation-speed-button ${speed === animationSpeed ? 'active' : ''}">
               ${
                 Array.from({ length: idx + 1 }).map(
-                  () => (0,_icons__WEBPACK_IMPORTED_MODULE_3__.AngleRightIcon)()
+                  () => (0,_icons__WEBPACK_IMPORTED_MODULE_2__.AngleRightIcon)()
                 ).join('')
               }
             </button>
@@ -4050,9 +4059,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ShowScopes)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -4125,7 +4132,7 @@ function ShowScopes(
 }
 
 ShowScopes.prototype._init = function() {
-  this._container = min_dom__WEBPACK_IMPORTED_MODULE_2___default()('<div class="bts-scopes hidden"></div>');
+  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)('<div class="bts-scopes hidden"></div>');
 
   this._canvas.getContainer().appendChild(this._container);
 };
@@ -4150,7 +4157,7 @@ ShowScopes.prototype.addScope = function(scope) {
 
   const colorMarkup = colors ? `style="color: ${colors.auxiliary}; background: ${colors.primary}"` : '';
 
-  const html = min_dom__WEBPACK_IMPORTED_MODULE_2___default()(`
+  const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
     <div data-scope-id="${scope.id}" class="bts-scope"
          title="View Process Instance ${scope.id}" ${colorMarkup}>
       ${scope.getTokens()}
@@ -4468,11 +4475,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ToggleMode)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
 
@@ -4511,9 +4516,9 @@ function ToggleMode(
 }
 
 ToggleMode.prototype._init = function() {
-  this._container = min_dom__WEBPACK_IMPORTED_MODULE_1___default()(`
+  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.domify)(`
     <div class="bts-toggle-mode">
-      Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.ToggleOffIcon)() }</span>
+      Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.ToggleOffIcon)() }</span>
     </div>
   `);
 
@@ -4529,12 +4534,12 @@ ToggleMode.prototype.toggleMode = function(active = !this._active) {
   }
 
   if (active) {
-    this._container.innerHTML = `Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.ToggleOnIcon)() }</span>`;
+    this._container.innerHTML = `Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.ToggleOnIcon)() }</span>`;
 
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._canvasParent).add('simulation');
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._palette).add('hidden');
   } else {
-    this._container.innerHTML = `Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.ToggleOffIcon)() }</span>`;
+    this._container.innerHTML = `Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.ToggleOffIcon)() }</span>`;
 
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._canvasParent).remove('simulation');
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._palette).remove('hidden');
@@ -4546,7 +4551,7 @@ ToggleMode.prototype.toggleMode = function(active = !this._active) {
     }
   }
 
-  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.TOGGLE_MODE_EVENT, {
+  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TOGGLE_MODE_EVENT, {
     active
   });
 
@@ -4596,9 +4601,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ TokenCount)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(min_dom__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
@@ -4676,7 +4679,7 @@ TokenCount.prototype.addTokenCount = function(element, scopes) {
     return this._getTokenHTML(element, scope);
   }).join('');
 
-  const html = min_dom__WEBPACK_IMPORTED_MODULE_3___default()(`
+  const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
     <div class="bts-token-count-parent">
       ${tokenMarkup}
     </div>
@@ -5092,6 +5095,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   ScopeStates: () => (/* binding */ ScopeStates)
 /* harmony export */ });
 /* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
+/* eslint no-bitwise: off */
+
 
 
 const SELF = {};
@@ -5308,6 +5313,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   ScopeTraits: () => (/* binding */ ScopeTraits)
 /* harmony export */ });
+/* eslint no-bitwise: off */
+
 const ACTIVATED = 1;
 const RUNNING = 1 << 1;
 const ENDING = 1 << 2;
@@ -5560,9 +5567,21 @@ function Simulator(injector, eventBus, elementRegistry) {
 
     const subscriptions = scope.subscriptions;
 
-    const matchingSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(
+    let matchingSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(
       subscriptions, subscription => (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_2__.eventsMatch)(event, subscription.event)
     );
+
+    if (event.type === 'error' || event.type === 'escalation') {
+      const referenceSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(
+        matchingSubscriptions, subscription => (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_2__.refsMatch)(event, subscription.event)
+      );
+
+      if (matchingSubscriptions.every(subscription => subscription.event.boundary)
+          && referenceSubscriptions.some(subscription => subscription.event.boundary)
+          || referenceSubscriptions.some(subscription => !subscription.event.boundary)) {
+        matchingSubscriptions = referenceSubscriptions;
+      }
+    }
 
     const nonInterrupting = matchingSubscriptions.filter(
       subscription => !subscription.event.interrupting
@@ -6854,21 +6873,40 @@ EventBehaviors.prototype.get = function(element) {
 
     'bpmn:ErrorEventDefinition': (context) => {
 
-      // HINT: errors are handled in current scope only (does not bubble)
+      // HINT: errors are propagated up the scope
+      //       chain and caught by the first matching boundary event
+      //       or event sub-process
 
       const {
         element,
         scope
       } = context;
 
+      const scopes = this._simulator.findScopes({
+        subscribedTo: {
+          event: element
+        },
+        trait: _ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.ACTIVE
+      });
+
+      let triggerScope = scope;
+
       // TODO(nikku): ensure error always interrupts, also if no error
       //              catch is present
-      this._simulator.trigger({
-        event: element,
-        initiator: scope,
-        scope: findSubscriptionScope(scope)
-      });
+      while ((triggerScope = triggerScope.parent)) {
+
+        if (scopes.includes(triggerScope)) {
+          this._simulator.trigger({
+            event: element,
+            scope: triggerScope,
+            initiator: scope
+          });
+
+          break;
+        }
+      }
     },
+
     'bpmn:TerminateEventDefinition': (context) => {
       const {
         scope
@@ -7404,9 +7442,38 @@ function ParallelGatewayBehavior(
 ParallelGatewayBehavior.prototype.enter = function(context) {
 
   const {
+    scope
+  } = context;
+
+  const joiningScopes = this._findJoiningScopes(context);
+
+  if (joiningScopes.length) {
+
+    for (const childScope of joiningScopes) {
+
+      if (childScope !== scope) {
+
+        // complete joining child scope
+        this._simulator.destroyScope(childScope.complete(), scope);
+      }
+    }
+
+    this._simulator.exit(context);
+  }
+};
+
+/**
+ * Find scopes that will be joined by this transition.
+ *
+ * @param {Object} enterContext
+ * @return {Scope[]} scopes joined by this transition
+ */
+ParallelGatewayBehavior.prototype._findJoiningScopes = function(enterContext) {
+
+  const {
     scope,
     element
-  } = context;
+  } = enterContext;
 
   const sequenceFlows = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.filterSequenceFlows)(element.incoming);
 
@@ -7419,18 +7486,17 @@ ParallelGatewayBehavior.prototype.enter = function(context) {
     element: element
   });
 
-  if (elementScopes.length === sequenceFlows.length) {
+  const matchingScopes = sequenceFlows
+    .map(
+      flow => elementScopes
+        .find(scope => scope.initiator.element === flow)
+    )
+    .filter(scope => scope);
 
-    for (const childScope of elementScopes) {
-
-      if (childScope !== scope) {
-
-        // complete joining child scope
-        this._simulator.destroyScope(childScope.complete(), scope);
-      }
-    }
-
-    this._simulator.exit(context);
+  if (matchingScopes.length === sequenceFlows.length) {
+    return matchingScopes;
+  } else {
+    return [];
   }
 };
 
@@ -7749,6 +7815,7 @@ SequenceFlowBehavior.prototype.exit = function(context) {
   } = context;
 
   this._simulator.enter({
+    initiator: scope,
     element: element.target,
     scope: scope.parent
   });
@@ -8423,10 +8490,19 @@ const HIGH_PRIORITY = 5000;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   eventsMatch: () => (/* binding */ eventsMatch)
+/* harmony export */   eventsMatch: () => (/* binding */ eventsMatch),
+/* harmony export */   refsMatch: () => (/* binding */ refsMatch)
 /* harmony export */ });
 function eventsMatch(a, b) {
-  return [ 'type', 'name', 'ref', 'iref' ].every(attr => !(attr in a) || a[attr] === b[attr]);
+  const attrMatch = [ 'type', 'name', 'iref' ].every(attr => !(attr in a) || a[attr] === b[attr]);
+  const catchAllMatch = !b.ref && (b.type === 'error' || b.type === 'escalation');
+
+  return attrMatch && (catchAllMatch || refsMatch(a, b));
+}
+
+function refsMatch(a, b) {
+  const attr = 'ref';
+  return !(attr in a) || a[attr] === b[attr];
 }
 
 /***/ }),
@@ -8710,96 +8786,6 @@ const SCOPE_CREATE_EVENT = 'tokenSimulation.simulator.createScope';
 const SCOPE_FILTER_CHANGED_EVENT = 'tokenSimulation.scopeFilterChanged';
 const TRACE_EVENT = 'tokenSimulation.simulator.trace';
 
-
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js":
-/*!****************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js ***!
-  \****************************************************************************/
-/***/ ((module) => {
-
-const wrapMap = {
-	legend: [1, '<fieldset>', '</fieldset>'],
-	tr: [2, '<table><tbody>', '</tbody></table>'],
-	col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-	_default: [0, '', ''],
-};
-
-wrapMap.td
-= wrapMap.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
-
-wrapMap.option
-= wrapMap.optgroup = [1, '<select multiple="multiple">', '</select>'];
-
-wrapMap.thead
-= wrapMap.tbody
-= wrapMap.colgroup
-= wrapMap.caption
-= wrapMap.tfoot = [1, '<table>', '</table>'];
-
-wrapMap.polyline
-= wrapMap.ellipse
-= wrapMap.polygon
-= wrapMap.circle
-= wrapMap.text
-= wrapMap.line
-= wrapMap.path
-= wrapMap.rect
-= wrapMap.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">', '</svg>'];
-
-function domify(htmlString, document = globalThis.document) {
-	if (typeof htmlString !== 'string') {
-		throw new TypeError('String expected');
-	}
-
-	// Handle comment nodes
-	const commentMatch = /^<!--(.*?)-->$/s.exec(htmlString);
-	if (commentMatch) {
-		return document.createComment(commentMatch[1]);
-	}
-
-	const tagName = /<([\w:]+)/.exec(htmlString)?.[1];
-
-	if (!tagName) {
-		return document.createTextNode(htmlString);
-	}
-
-	htmlString = htmlString.trim();
-
-	// Body support
-	if (tagName === 'body') {
-		const element = document.createElement('html');
-		element.innerHTML = htmlString;
-		const {lastChild} = element;
-		lastChild.remove();
-		return lastChild;
-	}
-
-	// Wrap map
-	let [depth, prefix, suffix] = Object.hasOwn(wrapMap, tagName) ? wrapMap[tagName] : wrapMap._default;
-	let element = document.createElement('div');
-	element.innerHTML = prefix + htmlString + suffix;
-	while (depth--) {
-		element = element.lastChild;
-	}
-
-	// One element
-	if (element.firstChild === element.lastChild) {
-		const {firstChild} = element;
-		firstChild.remove();
-		return firstChild;
-	}
-
-	// Several elements
-	const fragment = document.createDocumentFragment();
-	fragment.append(...element.childNodes);
-
-	return fragment;
-}
-
-module.exports = domify;
 
 
 /***/ }),
@@ -11163,7 +11149,7 @@ function createTransform(matrix) {
  */
 
 var TEXT_ENTITIES = /([&<>]{1})/g;
-var ATTR_ENTITIES = /([\n\r"]{1})/g;
+var ATTR_ENTITIES = /([&<>\n\r"]{1})/g;
 
 var ENTITY_REPLACEMENT = {
   '&': '&amp;',
@@ -11423,414 +11409,6 @@ function transform(node, transforms) {
 }
 
 
-
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js":
-/*!**********************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js ***!
-  \**********************************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   assignStyle: () => (/* binding */ assign),
-/* harmony export */   attr: () => (/* binding */ attr),
-/* harmony export */   classes: () => (/* binding */ classes),
-/* harmony export */   clear: () => (/* binding */ clear),
-/* harmony export */   closest: () => (/* binding */ closest),
-/* harmony export */   delegate: () => (/* binding */ delegate),
-/* harmony export */   domify: () => (/* reexport default export from named module */ domify__WEBPACK_IMPORTED_MODULE_0__),
-/* harmony export */   event: () => (/* binding */ event),
-/* harmony export */   matches: () => (/* binding */ matches),
-/* harmony export */   query: () => (/* binding */ query),
-/* harmony export */   queryAll: () => (/* binding */ all),
-/* harmony export */   remove: () => (/* binding */ remove)
-/* harmony export */ });
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
-/* harmony import */ var domify__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! domify */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-
-
-
-function _mergeNamespaces(n, m) {
-  m.forEach(function (e) {
-    e && typeof e !== 'string' && !Array.isArray(e) && Object.keys(e).forEach(function (k) {
-      if (k !== 'default' && !(k in n)) {
-        var d = Object.getOwnPropertyDescriptor(e, k);
-        Object.defineProperty(n, k, d.get ? d : {
-          enumerable: true,
-          get: function () { return e[k]; }
-        });
-      }
-    });
-  });
-  return Object.freeze(n);
-}
-
-/**
- * Assigns style attributes in a style-src compliant way.
- *
- * @param {Element} element
- * @param {...Object} styleSources
- *
- * @return {Element} the element
- */
-function assign(element, ...styleSources) {
-  const target = element.style;
-
-  (0,min_dash__WEBPACK_IMPORTED_MODULE_1__.forEach)(styleSources, function(style) {
-    if (!style) {
-      return;
-    }
-
-    (0,min_dash__WEBPACK_IMPORTED_MODULE_1__.forEach)(style, function(value, key) {
-      target[key] = value;
-    });
-  });
-
-  return element;
-}
-
-/**
- * Set attribute `name` to `val`, or get attr `name`.
- *
- * @param {Element} el
- * @param {String} name
- * @param {String} [val]
- * @api public
- */
-function attr(el, name, val) {
-
-  // get
-  if (arguments.length == 2) {
-    return el.getAttribute(name);
-  }
-
-  // remove
-  if (val === null) {
-    return el.removeAttribute(name);
-  }
-
-  // set
-  el.setAttribute(name, val);
-
-  return el;
-}
-
-/**
- * Taken from https://github.com/component/classes
- *
- * Without the component bits.
- */
-
-/**
- * toString reference.
- */
-
-const toString = Object.prototype.toString;
-
-/**
- * Wrap `el` in a `ClassList`.
- *
- * @param {Element} el
- * @return {ClassList}
- * @api public
- */
-
-function classes(el) {
-  return new ClassList(el);
-}
-
-/**
- * Initialize a new ClassList for `el`.
- *
- * @param {Element} el
- * @api private
- */
-
-function ClassList(el) {
-  if (!el || !el.nodeType) {
-    throw new Error('A DOM element reference is required');
-  }
-  this.el = el;
-  this.list = el.classList;
-}
-
-/**
- * Add class `name` if not already present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.add = function(name) {
-  this.list.add(name);
-  return this;
-};
-
-/**
- * Remove class `name` when present, or
- * pass a regular expression to remove
- * any which match.
- *
- * @param {String|RegExp} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.remove = function(name) {
-  if ('[object RegExp]' == toString.call(name)) {
-    return this.removeMatching(name);
-  }
-
-  this.list.remove(name);
-  return this;
-};
-
-/**
- * Remove all classes matching `re`.
- *
- * @param {RegExp} re
- * @return {ClassList}
- * @api private
- */
-
-ClassList.prototype.removeMatching = function(re) {
-  const arr = this.array();
-  for (let i = 0; i < arr.length; i++) {
-    if (re.test(arr[i])) {
-      this.remove(arr[i]);
-    }
-  }
-  return this;
-};
-
-/**
- * Toggle class `name`, can force state via `force`.
- *
- * For browsers that support classList, but do not support `force` yet,
- * the mistake will be detected and corrected.
- *
- * @param {String} name
- * @param {Boolean} force
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.toggle = function(name, force) {
-  if ('undefined' !== typeof force) {
-    if (force !== this.list.toggle(name, force)) {
-      this.list.toggle(name); // toggle again to correct
-    }
-  } else {
-    this.list.toggle(name);
-  }
-  return this;
-};
-
-/**
- * Return an array of classes.
- *
- * @return {Array}
- * @api public
- */
-
-ClassList.prototype.array = function() {
-  return Array.from(this.list);
-};
-
-/**
- * Check if class `name` is present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.has =
-ClassList.prototype.contains = function(name) {
-  return this.list.contains(name);
-};
-
-/**
- * Remove all children from the given element.
- */
-function clear(el) {
-
-  var c;
-
-  while (el.childNodes.length) {
-    c = el.childNodes[0];
-    el.removeChild(c);
-  }
-
-  return el;
-}
-
-/**
- * @param { HTMLElement } element
- * @param { String } selector
- *
- * @return { boolean }
- */
-function matches(element, selector) {
-  return element && typeof element.matches === 'function' && element.matches(selector);
-}
-
-/**
- * Closest
- *
- * @param {Element} el
- * @param {String} selector
- * @param {Boolean} checkYourSelf (optional)
- */
-function closest(element, selector, checkYourSelf) {
-  var currentElem = checkYourSelf ? element : element.parentNode;
-
-  while (currentElem && currentElem.nodeType !== document.DOCUMENT_NODE &&
-      currentElem.nodeType !== document.DOCUMENT_FRAGMENT_NODE) {
-
-    if (matches(currentElem, selector)) {
-      return currentElem;
-    }
-
-    currentElem = currentElem.parentNode;
-  }
-
-  return matches(currentElem, selector) ? currentElem : null;
-}
-
-var componentEvent = {};
-
-var bind$1, unbind$1, prefix;
-
-function detect () {
-  bind$1 = window.addEventListener ? 'addEventListener' : 'attachEvent';
-  unbind$1 = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
-  prefix = bind$1 !== 'addEventListener' ? 'on' : '';
-}
-
-/**
- * Bind `el` event `type` to `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-var bind_1 = componentEvent.bind = function(el, type, fn, capture){
-  if (!bind$1) detect();
-  el[bind$1](prefix + type, fn, capture || false);
-  return fn;
-};
-
-/**
- * Unbind `el` event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-var unbind_1 = componentEvent.unbind = function(el, type, fn, capture){
-  if (!unbind$1) detect();
-  el[unbind$1](prefix + type, fn, capture || false);
-  return fn;
-};
-
-var event = /*#__PURE__*/_mergeNamespaces({
-  __proto__: null,
-  bind: bind_1,
-  default: componentEvent,
-  unbind: unbind_1
-}, [componentEvent]);
-
-/**
- * Module dependencies.
- */
-
-
-/**
- * Delegate event `type` to `selector`
- * and invoke `fn(e)`. A callback function
- * is returned which may be passed to `.unbind()`.
- *
- * @param {Element} el
- * @param {String} selector
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-// Some events don't bubble, so we want to bind to the capture phase instead
-// when delegating.
-var forceCaptureEvents = [ 'focus', 'blur' ];
-
-function bind(el, selector, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return event.bind(el, type, function(e) {
-    var target = e.target || e.srcElement;
-    e.delegateTarget = closest(target, selector, true);
-    if (e.delegateTarget) {
-      fn.call(el, e);
-    }
-  }, capture);
-}
-
-/**
- * Unbind event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @api public
- */
-function unbind(el, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return event.unbind(el, type, fn, capture);
-}
-
-var delegate = {
-  bind,
-  unbind
-};
-
-function query(selector, el) {
-  el = el || document;
-
-  return el.querySelector(selector);
-}
-
-function all(selector, el) {
-  el = el || document;
-
-  return el.querySelectorAll(selector);
-}
-
-function remove(el) {
-  el.parentNode && el.parentNode.removeChild(el);
-}
-
-
-//# sourceMappingURL=index.js.map
 
 
 /***/ }),
