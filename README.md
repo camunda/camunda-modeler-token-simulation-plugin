@@ -17,7 +17,7 @@
 
 Open a Terminal window and run the following commands:
 
-1. `cd ~/Library/Application Support/camunda-modeler`
+1. `cd ~/Library/Application\ Support/camunda-modeler`
 2. `mkdir -p resources/plugins`
 3. `cd resources/plugins`
 4. `git clone https://github.com/camunda/camunda-modeler-token-simulation-plugin`
