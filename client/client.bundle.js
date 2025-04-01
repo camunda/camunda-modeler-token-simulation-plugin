@@ -823,13 +823,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ ContextPads),
 /* harmony export */   isAncestor: () => (/* binding */ isAncestor)
 /* harmony export */ });
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! bpmn-js/lib/util/DrilldownUtil */ "./node_modules/bpmn-js/lib/util/DrilldownUtil.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
 /* harmony import */ var _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js");
 /* harmony import */ var _handler_InclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handler/InclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/InclusiveGatewayHandler.js");
 /* harmony import */ var _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./handler/PauseHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js");
 /* harmony import */ var _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./handler/TriggerHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js");
+
+
 
 
 
@@ -859,6 +862,8 @@ function ContextPads(
   this._canvas = canvas;
   this._scopeFilter = scopeFilter;
 
+  this._active = false;
+
   this._overlayCache = new Map();
 
   this._handlerIdx = 0;
@@ -875,9 +880,9 @@ function ContextPads(
   this.registerHandler('bpmn:Activity', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
 
   eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.TOGGLE_MODE_EVENT, LOW_PRIORITY, context => {
-    const active = context.active;
+    this._active = context.active;
 
-    if (active) {
+    if (this._active) {
       this.openContextPads();
     } else {
       this.closeContextPads();
@@ -889,10 +894,18 @@ function ContextPads(
     this.openContextPads();
   });
 
+  eventBus.on('root.set', LOW_PRIORITY, () => {
+    if (this._active) {
+      this.openContextPads();
+    } else {
+      this.closeContextPads();
+    }
+  });
+
   eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.SCOPE_FILTER_CHANGED_EVENT, event => {
 
     const showElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.queryAll)(
-      '.djs-overlay-ts-context-menu [data-scope-ids]',
+      '.djs-overlay-bts-context-menu [data-scope-ids]',
       overlays._overlayRoot
     );
 
@@ -906,7 +919,7 @@ function ContextPads(
     }
 
     const hideElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.queryAll)(
-      '.djs-overlay-ts-context-menu [data-hide-scope-ids]',
+      '.djs-overlay-bts-context-menu [data-hide-scope-ids]',
       overlays._overlayRoot
     );
 
@@ -948,7 +961,7 @@ ContextPads.prototype.getHandlers = function(element) {
 
   return (
     this._handlers.filter(
-      ({ type }) => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_6__.is)(element, type)
+      ({ type }) => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(element, type)
     ).map(
       ({ handler }) => handler
     )
@@ -962,7 +975,7 @@ ContextPads.prototype.openContextPads = function(parent) {
   }
 
   this._elementRegistry.forEach((element) => {
-    if (isAncestor(parent, element)) {
+    if (isAncestor(parent, element) && !(0,bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_7__.isPlane)(element)) {
       this.updateElementContextPads(element);
     }
   });
@@ -1171,7 +1184,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ExclusiveGatewayHandler)
 /* harmony export */ });
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
@@ -1185,7 +1198,7 @@ function ExclusiveGatewayHandler(exclusiveGatewaySettings) {
 ExclusiveGatewayHandler.prototype.createContextPads = function(element) {
 
   const outgoingFlows = element.outgoing.filter(function(outgoing) {
-    return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(outgoing, 'bpmn:SequenceFlow');
+    return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(outgoing, 'bpmn:SequenceFlow');
   });
 
   if (outgoingFlows.length < 2) {
@@ -1229,8 +1242,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ InclusiveGatewayHandler)
 /* harmony export */ });
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var _simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../simulator/util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+
 
 
 
@@ -1248,8 +1262,8 @@ InclusiveGatewayHandler.prototype.createContextPads = function(element) {
   }
 
   const nonDefaultFlows = outgoingFlows.filter(outgoing => {
-    const flowBo = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(outgoing),
-          gatewayBo = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(element);
+    const flowBo = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(outgoing),
+          gatewayBo = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(element);
 
     return gatewayBo.default !== flowBo;
   });
@@ -1290,9 +1304,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ PauseHandler)
 /* harmony export */ });
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../util/ElementHelper */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
 
@@ -1306,8 +1319,8 @@ function PauseHandler(simulator) {
 PauseHandler.prototype.createContextPads = function(element) {
 
   if (
-    (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask') || (
-      (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:SubProcess') && (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(element).triggeredByEvent
+    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask') || (
+      (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:SubProcess') && (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).triggeredByEvent
     )
   ) {
     return [];
@@ -1328,8 +1341,8 @@ PauseHandler.prototype.createPauseContextPad = function(element) {
 
   const html = `
     <div class="bts-context-pad ${ wait ? '' : 'show-hover' }" title="${ wait ? 'Remove' : 'Add' } pause point">
-      ${ (wait ? _icons__WEBPACK_IMPORTED_MODULE_2__.RemovePauseIcon : _icons__WEBPACK_IMPORTED_MODULE_2__.PauseIcon)('show-hover') }
-      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.PauseIcon)('hide-hover') }
+      ${ (wait ? _icons__WEBPACK_IMPORTED_MODULE_1__.RemovePauseIcon : _icons__WEBPACK_IMPORTED_MODULE_1__.PauseIcon)('show-hover') }
+      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.PauseIcon)('hide-hover') }
     </div>
   `;
 
@@ -1575,18 +1588,16 @@ function DisableModeling(
   intercept(editorActions, 'trigger', function(fn, args) {
     const action = args[0];
 
-    if (modelingDisabled && isAnyAction([
-      'undo',
-      'redo',
-      'copy',
-      'paste',
-      'removeSelection',
-      'spaceTool',
-      'lassoTool',
-      'globalConnectTool',
-      'distributeElements',
-      'alignElements',
-      'directEditing',
+    // allow list actions permitted,
+    // everything else is likely incompatible with
+    // token simulation mode
+    if (modelingDisabled && !isAnyAction([
+      'toggleTokenSimulation',
+      'toggleTokenSimulationLog',
+      'togglePauseTokenSimulation',
+      'resetTokenSimulation',
+      'stepZoom',
+      'zoom'
     ], action)) {
       return;
     }
@@ -2097,7 +2108,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ ElementSupport)
 /* harmony export */ });
 /* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
@@ -2153,7 +2164,7 @@ ElementSupport.prototype.enable = function() {
       return;
     }
 
-    if (!(0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__.is)(element, UNSUPPORTED_ELEMENTS)) {
+    if (!(0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isAny)(element, UNSUPPORTED_ELEMENTS)) {
       return;
     }
 
@@ -2238,7 +2249,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ExclusiveGatewaySettings)
 /* harmony export */ });
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -2261,7 +2272,7 @@ function getNext(gateway, sequenceFlow) {
 }
 
 function isSequenceFlow(connection) {
-  return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(connection, 'bpmn:SequenceFlow');
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(connection, 'bpmn:SequenceFlow');
 }
 
 const ID = 'exclusive-gateway-settings';
@@ -2289,7 +2300,7 @@ function ExclusiveGatewaySettings(
 
 ExclusiveGatewaySettings.prototype.setSequenceFlowsDefault = function() {
   const exclusiveGateways = this._elementRegistry.filter(element => {
-    return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ExclusiveGateway');
+    return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ExclusiveGateway');
   });
 
   for (const gateway of exclusiveGateways) {
@@ -2300,7 +2311,7 @@ ExclusiveGatewaySettings.prototype.setSequenceFlowsDefault = function() {
 ExclusiveGatewaySettings.prototype.resetSequenceFlows = function() {
 
   const exclusiveGateways = this._elementRegistry.filter(element => {
-    return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ExclusiveGateway');
+    return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ExclusiveGateway');
   });
 
   exclusiveGateways.forEach(exclusiveGateway => {
@@ -2659,7 +2670,7 @@ function KeyboardBindings(eventBus, injector) {
     keyboard.addListener(VERY_HIGH_PRIORITY, function(event) {
       var keyEvent = event.keyEvent;
 
-      handleKeyEvent(keyEvent);
+      return handleKeyEvent(keyEvent);
     });
 
   });
@@ -2721,11 +2732,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Log)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var diagram_js_lib_util_EscapeUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! diagram-js/lib/util/EscapeUtil */ "./node_modules/diagram-js/lib/util/EscapeUtil.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
@@ -2755,40 +2765,40 @@ function getIconForIntermediateEvent(element, throwOrCatch) {
 }
 
 function getEventTypeString(element) {
-  const bo = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__.getBusinessObject)(element);
+  const bo = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.getBusinessObject)(element);
   if (bo.get('eventDefinitions').length === 0) {
     return 'none';
   }
   const eventDefinition = bo.eventDefinitions[0];
 
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:MessageEventDefinition')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(eventDefinition, 'bpmn:MessageEventDefinition')) {
     return 'message';
   }
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:TimerEventDefinition')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(eventDefinition, 'bpmn:TimerEventDefinition')) {
     return 'timer';
   }
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:SignalEventDefinition')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(eventDefinition, 'bpmn:SignalEventDefinition')) {
     return 'signal';
   }
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:ErrorEventDefinition')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(eventDefinition, 'bpmn:ErrorEventDefinition')) {
     return 'error';
   }
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:EscalationEventDefinition')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(eventDefinition, 'bpmn:EscalationEventDefinition')) {
     return 'escalation';
   }
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:CompensateEventDefinition')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(eventDefinition, 'bpmn:CompensateEventDefinition')) {
     return 'compensation';
   }
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:ConditionalEventDefinition')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(eventDefinition, 'bpmn:ConditionalEventDefinition')) {
     return 'condition';
   }
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:LinkEventDefinition')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(eventDefinition, 'bpmn:LinkEventDefinition')) {
     return 'link';
   }
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:CancelEventDefinition')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(eventDefinition, 'bpmn:CancelEventDefinition')) {
     return 'cancel';
   }
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:TerminateEventDefinition')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(eventDefinition, 'bpmn:TerminateEventDefinition')) {
     return 'terminate';
   }
   return 'none';
@@ -2807,17 +2817,17 @@ function Log(
 
   this._init();
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.SCOPE_FILTER_CHANGED_EVENT, event => {
-    const allElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.queryAll)('.bts-entry[data-scope-id]', this._container);
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_FILTER_CHANGED_EVENT, event => {
+    const allElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.queryAll)('.bts-entry[data-scope-id]', this._container);
 
     for (const element of allElements) {
       const scopeId = element.dataset.scopeId;
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(element).toggle('inactive', !this._scopeFilter.isShown(scopeId));
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(element).toggle('inactive', !this._scopeFilter.isShown(scopeId));
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.SCOPE_DESTROYED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_DESTROYED_EVENT, event => {
     const {
       scope
     } = event;
@@ -2834,11 +2844,11 @@ function Log(
       'bpmn:SubProcess'
     ];
 
-    if (!processScopes.includes(scopeElement.type)) {
+    if (!(0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isAny)(scopeElement, processScopes)) {
       return;
     }
 
-    const isSubProcess = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(scopeElement, 'bpmn:SubProcess');
+    const isSubProcess = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(scopeElement, 'bpmn:SubProcess');
 
     const text = `${
       isSubProcess ? (getElementName(scopeElement) || 'SubProcess') : 'Process'
@@ -2853,7 +2863,7 @@ function Log(
     });
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.SCOPE_CREATE_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_CREATE_EVENT, event => {
     const {
       scope
     } = event;
@@ -2868,11 +2878,11 @@ function Log(
       'bpmn:SubProcess'
     ];
 
-    if (!processScopes.includes(scopeElement.type)) {
+    if (!(0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isAny)(scopeElement, processScopes)) {
       return;
     }
 
-    const isSubProcess = (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(scopeElement, 'bpmn:SubProcess');
+    const isSubProcess = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(scopeElement, 'bpmn:SubProcess');
 
     const text = `${
       isSubProcess ? (getElementName(scopeElement) || 'SubProcess') : 'Process'
@@ -2885,7 +2895,7 @@ function Log(
     });
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.TRACE_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.TRACE_EVENT, event => {
 
     const {
       action,
@@ -2903,7 +2913,7 @@ function Log(
 
     // log tasks ////////////
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ServiceTask')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ServiceTask')) {
       return this.log({
         text: elementName || 'Service Task',
         icon: 'bpmn-icon-service',
@@ -2911,7 +2921,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:UserTask')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:UserTask')) {
       return this.log({
         text: elementName || 'User Task',
         icon: 'bpmn-icon-user',
@@ -2919,7 +2929,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:CallActivity')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:CallActivity')) {
       return this.log({
         text: elementName || 'Call Activity',
         icon: 'bpmn-icon-call-activity',
@@ -2927,7 +2937,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ScriptTask')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ScriptTask')) {
       return this.log({
         text: elementName || 'Script Task',
         icon: 'bpmn-icon-script',
@@ -2935,7 +2945,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:BusinessRuleTask')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:BusinessRuleTask')) {
       return this.log({
         text: elementName || 'Business Rule Task',
         icon: 'bpmn-icon-business-rule',
@@ -2943,7 +2953,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ManualTask')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ManualTask')) {
       return this.log({
         text: elementName || 'Manual Task',
         icon: 'bpmn-icon-manual-task',
@@ -2951,7 +2961,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ReceiveTask')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ReceiveTask')) {
       return this.log({
         text: elementName || 'Receive Task',
         icon: 'bpmn-icon-receive',
@@ -2959,7 +2969,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:SendTask')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:SendTask')) {
       return this.log({
         text: elementName || 'Send Task',
         icon: 'bpmn-icon-send',
@@ -2967,7 +2977,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:Task')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:Task')) {
       return this.log({
         text: elementName || 'Task',
         icon: 'bpmn-icon-task',
@@ -2977,7 +2987,7 @@ function Log(
 
     // log gateways ////////////
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ExclusiveGateway')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ExclusiveGateway')) {
       return this.log({
         text: elementName || 'Exclusive Gateway',
         icon: 'bpmn-icon-gateway-xor',
@@ -2985,7 +2995,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ParallelGateway')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ParallelGateway')) {
       return this.log({
         text: elementName || 'Parallel Gateway',
         icon: 'bpmn-icon-gateway-parallel',
@@ -2993,7 +3003,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:InclusiveGateway')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:InclusiveGateway')) {
       return this.log({
         text: elementName || 'Inclusive Gateway',
         icon: 'bpmn-icon-gateway-or',
@@ -3003,7 +3013,7 @@ function Log(
 
     // log events /////////////
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:StartEvent')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:StartEvent')) {
       return this.log({
         text: elementName || 'Start Event',
         icon: `bpmn-icon-start-event-${getEventTypeString(element)}`,
@@ -3011,7 +3021,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:IntermediateCatchEvent')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:IntermediateCatchEvent')) {
       return this.log({
         text: elementName || 'Intermediate Event',
         icon: getIconForIntermediateEvent(element, 'catch'),
@@ -3019,7 +3029,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:IntermediateThrowEvent')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:IntermediateThrowEvent')) {
       return this.log({
         text: elementName || 'Intermediate Event',
         icon: getIconForIntermediateEvent(element, 'throw'),
@@ -3027,7 +3037,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:BoundaryEvent')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:BoundaryEvent')) {
       return this.log({
         text: elementName || 'Boundary Event',
         icon: getIconForIntermediateEvent(element, 'catch'),
@@ -3035,7 +3045,7 @@ function Log(
       });
     }
 
-    if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:EndEvent')) {
+    if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:EndEvent')) {
 
       // TODO: No trace event for terminate end events is emitted
       return this.log({
@@ -3048,8 +3058,8 @@ function Log(
 
 
   eventBus.on([
-    _util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.TOGGLE_MODE_EVENT,
-    _util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.RESET_SIMULATION_EVENT
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.TOGGLE_MODE_EVENT,
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.RESET_SIMULATION_EVENT
   ], event => {
     this.clear();
     this.toggle(false);
@@ -3057,7 +3067,7 @@ function Log(
 }
 
 Log.prototype._init = function() {
-  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.domify)(`
+  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.domify)(`
     <div class="bts-log hidden djs-scrollable">
       <div class="bts-header">
         ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)('bts-log-icon') }
@@ -3072,35 +3082,35 @@ Log.prototype._init = function() {
     </div>
   `);
 
-  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.query)('.bts-placeholder', this._container);
+  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.query)('.bts-placeholder', this._container);
 
-  this._content = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.query)('.bts-content', this._container);
+  this._content = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.query)('.bts-content', this._container);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_5__.event.bind(this._content, 'mousedown', event => {
+  min_dom__WEBPACK_IMPORTED_MODULE_4__.event.bind(this._content, 'mousedown', event => {
     event.stopPropagation();
   });
 
-  this._close = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.query)('.bts-close', this._container);
+  this._close = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.query)('.bts-close', this._container);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_5__.event.bind(this._close, 'click', () => {
+  min_dom__WEBPACK_IMPORTED_MODULE_4__.event.bind(this._close, 'click', () => {
     this.toggle(false);
   });
 
-  this._icon = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.query)('.bts-log-icon', this._container);
+  this._icon = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.query)('.bts-log-icon', this._container);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_5__.event.bind(this._icon, 'click', () => {
+  min_dom__WEBPACK_IMPORTED_MODULE_4__.event.bind(this._icon, 'click', () => {
     this.toggle();
   });
 
   this._canvas.getContainer().appendChild(this._container);
 
-  this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.domify)(`
+  this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.domify)(`
     <div class="bts-entry" title="Toggle Simulation Log">
       ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)() }
     </div>
   `);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_5__.event.bind(this.paletteEntry, 'click', () => {
+  min_dom__WEBPACK_IMPORTED_MODULE_4__.event.bind(this.paletteEntry, 'click', () => {
     this.toggle();
   });
 
@@ -3110,16 +3120,16 @@ Log.prototype._init = function() {
 Log.prototype.isShown = function() {
   const container = this._container;
 
-  return !(0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(container).has('hidden');
+  return !(0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(container).has('hidden');
 };
 
 Log.prototype.toggle = function(shown = !this.isShown()) {
   const container = this._container;
 
   if (shown) {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(container).remove('hidden');
+    (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(container).remove('hidden');
   } else {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(container).add('hidden');
+    (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(container).add('hidden');
   }
 };
 
@@ -3134,7 +3144,7 @@ Log.prototype.log = function(options) {
 
   const content = this._content;
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(this._placeholder).add('hidden');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(this._placeholder).add('hidden');
 
   if (!this.isShown()) {
     this._notifications.showNotification(options);
@@ -3146,7 +3156,7 @@ Log.prototype.log = function(options) {
 
   const colorMarkup = colors ? `style="background: ${colors.primary}; color: ${colors.auxiliary}"` : '';
 
-  const logEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.domify)(`
+  const logEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.domify)(`
     <p class="bts-entry ${ type } ${
       scope && this._scopeFilter.isShown(scope) ? '' : 'inactive'
     }" ${
@@ -3162,7 +3172,7 @@ Log.prototype.log = function(options) {
     </p>
   `);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_5__.delegate.bind(logEntry, '.bts-scope[data-scope-id]', 'click', event => {
+  min_dom__WEBPACK_IMPORTED_MODULE_4__.delegate.bind(logEntry, '.bts-scope[data-scope-id]', 'click', event => {
     this._scopeFilter.toggle(scope);
   });
 
@@ -3182,7 +3192,7 @@ Log.prototype.clear = function() {
     this._content.removeChild(this._content.firstChild);
   }
 
-  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.domify)('<p class="bts-entry placeholder">No Entries</p>');
+  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.domify)('<p class="bts-entry placeholder">No Entries</p>');
 
   this._content.appendChild(this._placeholder);
 };
@@ -3881,6 +3891,12 @@ ScopeFilter.prototype.isShown = function(scope) {
   return scope && this._filter(scope);
 };
 
+ScopeFilter.prototype.isFocused = function(scope) {
+  const id = scope.id || scope;
+
+  return this._scope?.id === id;
+};
+
 ScopeFilter.prototype.findScope = function(options) {
   return this._simulator.findScopes(options).filter(s => this.isShown(s))[0];
 };
@@ -4060,7 +4076,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ ShowScopes)
 /* harmony export */ });
 /* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+
+
 
 
 
@@ -4111,6 +4130,8 @@ function ShowScopes(
       const scopeId = element.dataset.scopeId;
 
       (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(element).toggle('inactive', !this._scopeFilter.isShown(scopeId));
+
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(element).toggle('focussed', this._scopeFilter.isFocused(scopeId));
     }
   });
 
@@ -4149,17 +4170,17 @@ ShowScopes.prototype.addScope = function(scope) {
     element: scopeElement
   } = scope;
 
-  if (!processElements.includes(scopeElement.type)) {
+  if (!(0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isAny)(scopeElement, processElements)) {
     return;
   }
 
   const colors = scope.colors;
 
-  const colorMarkup = colors ? `style="color: ${colors.auxiliary}; background: ${colors.primary}"` : '';
+  const colorMarkup = colors ? `style="color: ${colors.auxiliary}; background: ${colors.primary}; outline-color: ${colors.primary}"` : '';
 
   const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.domify)(`
     <div data-scope-id="${scope.id}" class="bts-scope"
-         title="View Process Instance ${scope.id}" ${colorMarkup}>
+         title="Focus process instance ${scope.id}" ${colorMarkup}>
       ${scope.getTokens()}
     </div>
   `);
@@ -4179,6 +4200,8 @@ ShowScopes.prototype.addScope = function(scope) {
   if (!this._scopeFilter.isShown(scope)) {
     (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(html).add('inactive');
   }
+
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(html).toggle('focussed', this._scopeFilter.isFocused(scope));
 
   this._container.appendChild(html);
 };
@@ -4602,7 +4625,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ TokenCount)
 /* harmony export */ });
 /* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
@@ -4656,14 +4679,14 @@ function TokenCount(
 
 TokenCount.prototype.addTokenCounts = function(element) {
 
-  if ((0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:MessageFlow') || (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:SequenceFlow')) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:MessageFlow') || (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:SequenceFlow')) {
     return;
   }
 
   const scopes = this._simulator.findScopes(scope => {
     return (
       !scope.destroyed &&
-      scope.children.some(c => !c.destroyed && c.element === element && !c.children.length)
+      scope.children.some(c => !c.destroyed && c.element === element)
     );
   });
 
@@ -4969,6 +4992,10 @@ class Scope {
     return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.FAILED);
   }
 
+  get active() {
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.ACTIVE);
+  }
+
   /**
    * @param {number} phase
    * @return {boolean}
@@ -5131,15 +5158,7 @@ class ScopeState {
    * @param {ScopeState} [transitions.terminate]
    * @param {ScopeState} [transitions.compensable]
    */
-  constructor(name, traits, {
-    start,
-    cancel,
-    complete,
-    destroy,
-    fail,
-    terminate,
-    compensable
-  } = {}) {
+  constructor(name, traits, transitions = {}) {
     this.name = name;
 
     /**
@@ -5150,6 +5169,28 @@ class ScopeState {
      */
     this.traits = traits;
 
+    this.setTransitions(transitions);
+  }
+
+  /**
+   * @param {object} transitions
+   * @param {ScopeState} [transitions.start]
+   * @param {ScopeState} [transitions.cancel]
+   * @param {ScopeState} [transitions.complete]
+   * @param {ScopeState} [transitions.destroy]
+   * @param {ScopeState} [transitions.fail]
+   * @param {ScopeState} [transitions.terminate]
+   * @param {ScopeState} [transitions.compensable]
+   */
+  setTransitions({
+    start,
+    cancel,
+    complete,
+    destroy,
+    fail,
+    terminate,
+    compensable
+  }) {
     this._start = orSelf(start, this);
     this._compensable = orSelf(compensable, this);
     this._cancel = orSelf(cancel, this);
@@ -5219,11 +5260,11 @@ class ScopeState {
 
 const FAILED = new ScopeState('failed', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.DESTROYED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.FAILED);
 
-const TERMINATED = new ScopeState('terminated', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.DESTROYED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.TERMINATED);
+const TERMINATED = new ScopeState('terminated', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.DESTROYED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.TERMINATED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED);
 
 const COMPLETED = new ScopeState('completed', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.DESTROYED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED);
 
-const TERMINATING = new ScopeState('terminating', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.TERMINATED, {
+const TERMINATING = new ScopeState('terminating', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.TERMINATED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED, {
   destroy: TERMINATED
 });
 
@@ -5246,22 +5287,24 @@ const FAILING = new ScopeState('failing', _ScopeTraits__WEBPACK_IMPORTED_MODULE_
   terminate: TERMINATING
 });
 
-const COMPENSABLE_FAILING = new ScopeState('compensable:failing', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.FAILED, {
-  complete: SELF,
-  terminate: TERMINATING,
-  destroy: FAILED
-});
-
-const COMPENSABLE_COMPLETED = new ScopeState('compensable:completed', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED, {
-  cancel: CANCELING,
-  fail: COMPENSABLE_FAILING,
-  destroy: COMPLETED,
-  compensable: SELF
-});
+const COMPENSABLE_COMPLETED = new ScopeState('compensable:completed', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDED | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED);
 
 const COMPENSABLE_COMPLETING = new ScopeState('compensable:completing', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED, {
   destroy: COMPENSABLE_COMPLETED,
   terminate: TERMINATING,
+  compensable: SELF
+});
+
+const COMPENSABLE_FAILING = new ScopeState('compensable:failing', _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ENDING | _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.FAILED, {
+  complete: COMPENSABLE_COMPLETING,
+  terminate: TERMINATING,
+  destroy: FAILED
+});
+
+COMPENSABLE_COMPLETED.setTransitions({
+  cancel: CANCELING,
+  fail: COMPENSABLE_FAILING,
+  destroy: COMPLETED,
   compensable: SELF
 });
 
@@ -5270,7 +5313,7 @@ const COMPENSABLE_RUNNING = new ScopeState('compensable:running', _ScopeTraits__
   complete: COMPENSABLE_COMPLETING,
   compensable: SELF,
   destroy: COMPENSABLE_COMPLETED,
-  fail: FAILING,
+  fail: COMPENSABLE_FAILING,
   terminate: TERMINATING
 });
 
@@ -6082,15 +6125,16 @@ function Simulator(injector, eventBus, elementRegistry) {
     const scope = createScope(context);
 
     const {
-      children = [],
       attachers = []
     } = element;
+
+    const children = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.getChildren)(element, elementRegistry);
 
     for (const childElement of children) {
 
       // event sub-process start events
       if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isEventSubProcess)(childElement)) {
-        const startEvents = childElement.children.filter(
+        const startEvents = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.getChildren)(childElement, elementRegistry).filter(
           element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isStartEvent)(element) && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isCompensationEvent)(element)
         );
 
@@ -6251,7 +6295,6 @@ function NoopBehavior() {
 
 function isRethrow(event, interrupt) {
   return (
-    event.type === interrupt.type &&
     event.boundary && !interrupt.boundary
   );
 }
@@ -6371,19 +6414,19 @@ ActivityBehavior.prototype.exit = function(context) {
   //              task has exclusive gateway semantics,
   //              else, task has parallel gateway semantics
 
-  const complete = !scope.failed;
+  const completing = scope.active && !scope.failed;
 
   // compensation is registered AFTER successful completion
   // of normal scope activities (non event sub-processes).
   //
   // we must register it now, not earlier
-  if (complete && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isEventSubProcess)(element)) {
+  if (completing && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isEventSubProcess)(element)) {
     this._transactionBehavior.registerCompensation(scope);
   }
 
   // if exception flow is active,
   // do not activate any outgoing flows
-  const activatedFlows = complete
+  const activatedFlows = completing
     ? element.outgoing.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isSequenceFlow)
     : [];
 
@@ -6786,8 +6829,9 @@ EventBehaviors.prototype.get = function(element) {
 
       const parentScope = scope.parent;
       const parentElement = parentScope.element;
+      const children = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getChildren)(parentElement, this._elementRegistry);
 
-      const linkTargets = parentElement.children.filter(element =>
+      const linkTargets = children.filter(element =>
         (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isLinkCatch)(element) &&
         getLinkDefinition(element).name === link.name
       );
@@ -7054,6 +7098,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ InclusiveGatewayBehavior)
 /* harmony export */ });
 /* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+
 
 
 
@@ -7111,30 +7157,62 @@ InclusiveGatewayBehavior.prototype.exit = function(context) {
 
 InclusiveGatewayBehavior.prototype._tryJoin = function(context) {
 
-  const remainingScopes = this._getRemainingScopes(context);
-
-  const remainingElements = remainingScopes.map(scope => scope.element);
-
-  // join right away if possible
-  // this implies that there are no remaining scopes
-  // or non of the remaining scopes are reachable
-  if (!this._canReachAnyElement(remainingElements, context.element)) {
-    return this._join(context);
-  }
-
-  const elementScopes = this._getElementScopes(context);
+  var exclude = context.exclude || [];
 
   const {
-    scope
+    scope,
+    element
   } = context;
+
+  const {
+    parent: parentScope
+  } = scope;
+
+  const incomingSequenceFlows = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.filterSequenceFlows)(element.incoming);
+
+  const gatewayScopes = this._simulator.findScopes({
+    parent: parentScope,
+    element
+  }).filter(s => !exclude.includes(s));
+
+  const incomingFlowsWithoutToken = incomingSequenceFlows.filter(
+    flow => !gatewayScopes.find(s => s.initiator.element === flow)
+  );
+
+  const incomingFlowsWithToken = incomingSequenceFlows.filter(
+    flow => gatewayScopes.find(s => s.initiator.element === flow)
+  );
+
+  const remainingScopes = this._getRemainingScopes(context);
+
+  const incomingScopes = remainingScopes.filter(
+    scope => incomingFlowsWithoutToken.some(
+      flow => this._canReachElement(context, scope.element, flow)
+    )
+  );
+
+  const requiredScopes = incomingScopes.filter(
+    scope => !incomingFlowsWithToken.some(
+      flow => this._canReachElement(context, scope.element, flow)
+    )
+  );
+
+  if (!requiredScopes.length) {
+    this._join(context, incomingFlowsWithToken, gatewayScopes, exclude);
+  }
+
+  const remainingReceivedScopes = this._simulator.findScopes({
+    parent: parentScope,
+    element
+  }).filter(s => !exclude.includes(s));
 
   // only subscribe to changes with the first
   // element scope; prevent unneeded computation
-  if (elementScopes[0] !== scope) {
+  if (remainingReceivedScopes[0] !== scope) {
     return;
   }
 
-  const event = this._simulator.waitForScopes(scope, remainingScopes);
+  const event = this._simulator.waitForScopes(scope, requiredScopes);
 
   const subscription = this._simulator.subscribe(scope, event, () => {
     subscription.remove();
@@ -7165,54 +7243,72 @@ InclusiveGatewayBehavior.prototype._getRemainingScopes = function(context) {
   );
 };
 
-InclusiveGatewayBehavior.prototype._join = function(context) {
-  const elementScopes = this._getElementScopes(context);
+/**
+ * Activates the inclusive gateway join.
+ *
+ * @param {object} context
+ * @param {object[]} incomingFlowsWithToken
+ * @param {object[]} gatewayScopes
+ * @param {object[]} exclude
+ *
+ * @return {object[]} scopes
+ */
+InclusiveGatewayBehavior.prototype._join = function(context, incomingFlowsWithToken, gatewayScopes, exclude) {
 
-  for (const childScope of elementScopes) {
+  const {
+    scope
+  } = context;
 
-    if (childScope !== context.scope) {
+  // only consume one token per flow
+  const consumeScopes = incomingFlowsWithToken.map(
+    flow => gatewayScopes.find(s => s.initiator.element === flow)
+  );
+
+  for (const childScope of consumeScopes) {
+
+    if (childScope !== scope) {
 
       // complete joining child scope
-      this._simulator.destroyScope(childScope.complete(), context.scope);
+      this._simulator.destroyScope(childScope.complete(), scope);
     }
   }
 
   this._simulator.exit(context);
+
+  // the current scope is still running, but has already
+  // participated in joining
+  exclude.push(scope);
+
+  const stayingScopes = gatewayScopes.filter(
+    s => !consumeScopes.includes(s)
+  );
+
+  if (stayingScopes.length) {
+    this._tryJoin({
+      initiator: stayingScopes[0].initiator,
+      element: stayingScopes[0].element,
+      scope: stayingScopes[0],
+      exclude
+    });
+  }
 };
 
 /**
- * Get scopes on the element for the given context.
- *
- * @param {object} context
- *
- * @return {object[]} scopes
- */
-InclusiveGatewayBehavior.prototype._getElementScopes = function(context) {
-  const {
-    element,
-    scope
-  } = context;
-
-  return this._simulator.findScopes({
-    parent: scope.parent,
-    element
-  });
-};
-
-/**
- * Return true if any elements can be reached
+ * Return true if the target element can be reached
  * from the current element, searching the execution
  * graph backwards.
  *
- * @param {object[]} elements
+ * @param {object[]} context
+ * @param {object} targetElement
  * @param {object} currentElement
  * @param {Set<object>} traversed
  *
  * @return {boolean}
  */
-InclusiveGatewayBehavior.prototype._canReachAnyElement = function(elements, currentElement, traversed = new Set()) {
+InclusiveGatewayBehavior.prototype._canReachElement = function(context, targetElement, currentElement, traversed = new Set()) {
 
-  if (!elements.length) {
+  // do not visit the gateway
+  if (context.element === currentElement) {
     return false;
   }
 
@@ -7223,24 +7319,44 @@ InclusiveGatewayBehavior.prototype._canReachAnyElement = function(elements, curr
 
   traversed.add(currentElement);
 
-  if (elements.some(e => e === currentElement)) {
+  if (targetElement === currentElement) {
     return true;
   }
 
   if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isSequenceFlow)(currentElement)) {
-    return this._canReachAnyElement(elements, currentElement.source, traversed);
+    return this._canReachElement(context, targetElement, currentElement.source, traversed);
+  }
+
+  if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isLinkCatch)(currentElement)) {
+    const linkThrowEvents = filterLinkThrowEvents(
+      currentElement.parent.children,
+      getLinkName(currentElement)
+    );
+
+    return linkThrowEvents.some(
+      linkThrowEvent => this._canReachElement(context, targetElement, linkThrowEvent, traversed)
+    );
   }
 
   const incomingFlows = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.filterSequenceFlows)(currentElement.incoming);
 
-  for (const flow of incomingFlows) {
-    if (this._canReachAnyElement(elements, flow, traversed)) {
-      return true;
-    }
-  }
-
-  return false;
+  return incomingFlows.some(
+    flow => this._canReachElement(context, targetElement, flow, traversed)
+  );
 };
+
+
+// helpers ///////////////
+
+function getLinkName(element) {
+  return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_1__.getEventDefinition)(element, 'bpmn:LinkEventDefinition').name;
+}
+
+function filterLinkThrowEvents(elements, linkName) {
+  return elements.filter(
+    e => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isLinkThrow)(e) && getLinkName(e) === linkName
+  );
+}
 
 InclusiveGatewayBehavior.$inject = [
   'simulator',
@@ -7992,20 +8108,18 @@ SubProcessBehavior.prototype._start = function(context) {
       });
     }
   }
+
+  if (!startNodes.length) {
+    this._simulator.exit(context);
+  }
 };
 
 SubProcessBehavior.prototype._findStarts = function(element, startEvent) {
-
-  // ensure bpmn-js@9 compatibility
-  //
-  // sub-process may be collapsed, in this case operate on the plane
-  element = this._elementRegistry.get(element.id + '_plane') || element;
-
   const isStartEvent = startEvent
     ? (node) => startEvent === node
     : (node) => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isNoneStartEvent)(node);
 
-  return element.children.filter(
+  return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getChildren)(element, this._elementRegistry).filter(
     node => (
       isStartEvent(node) || (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isImplicitStartEvent)(node)
     )
@@ -8052,14 +8166,16 @@ const CANCEL_EVENT = {
 };
 
 
-function TransactionBehavior(simulator, scopeBehavior) {
+function TransactionBehavior(simulator, scopeBehavior, elementRegistry) {
   this._simulator = simulator;
   this._scopeBehavior = scopeBehavior;
+  this._elementRegistry = elementRegistry;
 }
 
 TransactionBehavior.$inject = [
   'simulator',
-  'scopeBehavior'
+  'scopeBehavior',
+  'elementRegistry'
 ];
 
 TransactionBehavior.prototype.setup = function(context) {
@@ -8150,10 +8266,12 @@ TransactionBehavior.prototype.registerCompensation = function(scope) {
   // * embedded compensation event sub-processes
   // * compensation boundary events
 
-  const compensateStartEvents = element.children.filter(
+  const children = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getChildren)(element, this._elementRegistry);
+
+  const compensateStartEvents = children.filter(
     _util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isEventSubProcess
   ).map(
-    element => element.children.find(
+    element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getChildren)(element, this._elementRegistry).find(
       element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isStartEvent)(element) && (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isCompensationEvent)(element)
     )
   ).filter(s => s);
@@ -8164,8 +8282,7 @@ TransactionBehavior.prototype.registerCompensation = function(scope) {
     return;
   }
 
-  // always register on parent scope
-  const transactionScope = this.findTransactionScope(scope.parent);
+  const transactionScope = this.findTransactionScope(scope);
 
   // sub processes may enter a <compensable> state
   // in that state they are kept alive on exit
@@ -8518,6 +8635,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   filterSequenceFlows: () => (/* binding */ filterSequenceFlows),
 /* harmony export */   getBusinessObject: () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject),
+/* harmony export */   getChildren: () => (/* binding */ getChildren),
 /* harmony export */   is: () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is),
 /* harmony export */   isAny: () => (/* binding */ isAny),
 /* harmony export */   isBoundaryEvent: () => (/* binding */ isBoundaryEvent),
@@ -8529,6 +8647,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isInterrupting: () => (/* binding */ isInterrupting),
 /* harmony export */   isLabel: () => (/* binding */ isLabel),
 /* harmony export */   isLinkCatch: () => (/* binding */ isLinkCatch),
+/* harmony export */   isLinkThrow: () => (/* binding */ isLinkThrow),
 /* harmony export */   isMessageCatch: () => (/* binding */ isMessageCatch),
 /* harmony export */   isMessageFlow: () => (/* binding */ isMessageFlow),
 /* harmony export */   isNoneStartEvent: () => (/* binding */ isNoneStartEvent),
@@ -8536,8 +8655,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isStartEvent: () => (/* binding */ isStartEvent),
 /* harmony export */   isTypedEvent: () => (/* binding */ isTypedEvent)
 /* harmony export */ });
+/* harmony import */ var bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! bpmn-js/lib/util/DrilldownUtil */ "./node_modules/bpmn-js/lib/util/DrilldownUtil.js");
 /* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 /* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
+
+
 
 
 
@@ -8563,6 +8685,10 @@ function isMessageCatch(element) {
 
 function isLinkCatch(element) {
   return isCatchEvent(element) && isTypedEvent(element, 'bpmn:LinkEventDefinition');
+}
+
+function isLinkThrow(element) {
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:IntermediateThrowEvent') && isTypedEvent(element, 'bpmn:LinkEventDefinition');
 }
 
 function isCompensationEvent(element) {
@@ -8660,6 +8786,22 @@ function isTypedEvent(event, eventDefinitionType) {
   });
 }
 
+function getChildren(element, elementRegistry) {
+  if (element.children && element.children.length !== 0) {
+    return element.children;
+  }
+
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:SubProcess') && !element.di.isExpanded) {
+
+    // ensure bpmn-js@9 compatibility
+    //
+    // sub-process may be collapsed, in this case operate on the plane
+    return elementRegistry.get((0,bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_2__.getPlaneIdFromShape)(element)).children;
+  }
+
+  return [];
+}
+
 
 /***/ }),
 
@@ -8710,44 +8852,26 @@ function findSet(set, matchFn) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   getBusinessObject: () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject),
 /* harmony export */   getEventDefinition: () => (/* binding */ getEventDefinition),
-/* harmony export */   is: () => (/* binding */ is),
 /* harmony export */   isTypedEvent: () => (/* binding */ isTypedEvent)
 /* harmony export */ });
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
-/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.esm.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
 
-
-function is(element, types) {
-  if (element.type === 'label') {
-    return false;
-  }
-
-  if (!Array.isArray(types)) {
-    types = [ types ];
-  }
-
-  return types.some(function(type) {
-    return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, type);
-  });
-}
 
 function getEventDefinition(event, eventDefinitionType) {
-  return (0,min_dash__WEBPACK_IMPORTED_MODULE_1__.find)((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(event).eventDefinitions, definition => {
-    return is(definition, eventDefinitionType);
+  return (0,min_dash__WEBPACK_IMPORTED_MODULE_0__.find)((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(event).eventDefinitions, definition => {
+    return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(definition, eventDefinitionType);
   });
 }
 
 function isTypedEvent(event, eventDefinitionType) {
-  return (0,min_dash__WEBPACK_IMPORTED_MODULE_1__.some)((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(event).eventDefinitions, definition => {
-    return is(definition, eventDefinitionType);
+  return (0,min_dash__WEBPACK_IMPORTED_MODULE_0__.some)((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(event).eventDefinitions, definition => {
+    return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(definition, eventDefinitionType);
   });
 }
-
-
 
 /***/ }),
 
@@ -8787,6 +8911,95 @@ const SCOPE_FILTER_CHANGED_EVENT = 'tokenSimulation.scopeFilterChanged';
 const TRACE_EVENT = 'tokenSimulation.simulator.trace';
 
 
+
+/***/ }),
+
+/***/ "./node_modules/bpmn-js/lib/util/DrilldownUtil.js":
+/*!********************************************************!*\
+  !*** ./node_modules/bpmn-js/lib/util/DrilldownUtil.js ***!
+  \********************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   getPlaneIdFromShape: () => (/* binding */ getPlaneIdFromShape),
+/* harmony export */   getShapeIdFromPlane: () => (/* binding */ getShapeIdFromPlane),
+/* harmony export */   isPlane: () => (/* binding */ isPlane),
+/* harmony export */   planeSuffix: () => (/* binding */ planeSuffix),
+/* harmony export */   toPlaneId: () => (/* binding */ toPlaneId)
+/* harmony export */ });
+/* harmony import */ var _ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+
+
+/**
+ * @typedef {import('../model/Types').Element} Element
+ * @typedef {import('../model/Types').ModdleElement} ModdleElement
+ */
+
+var planeSuffix = '_plane';
+
+/**
+ * Get primary shape ID for a plane.
+ *
+ * @param  {Element|ModdleElement} element
+ *
+ * @return {string}
+ */
+function getShapeIdFromPlane(element) {
+  var id = element.id;
+
+  return removePlaneSuffix(id);
+}
+
+/**
+ * Get plane ID for a primary shape.
+ *
+ * @param  {Element|ModdleElement} element
+ *
+ * @return {string}
+ */
+function getPlaneIdFromShape(element) {
+  var id = element.id;
+
+  if ((0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:SubProcess')) {
+    return addPlaneSuffix(id);
+  }
+
+  return id;
+}
+
+/**
+ * Get plane ID for primary shape ID.
+ *
+ * @param {string} id
+ *
+ * @return {string}
+ */
+function toPlaneId(id) {
+  return addPlaneSuffix(id);
+}
+
+/**
+ * Check wether element is plane.
+ *
+ * @param  {Element|ModdleElement} element
+ *
+ * @return {boolean}
+ */
+function isPlane(element) {
+  var di = (0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getDi)(element);
+
+  return (0,_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(di, 'bpmndi:BPMNPlane');
+}
+
+function addPlaneSuffix(id) {
+  return id + planeSuffix;
+}
+
+function removePlaneSuffix(id) {
+  return id.replace(new RegExp(planeSuffix + '$'), '');
+}
 
 /***/ }),
 
@@ -11545,7 +11758,7 @@ function ensureArray(obj) {
  * @return {Boolean}
  */
 function has(target, key) {
-  return nativeHasOwnProperty.call(target, key);
+  return !isNil(target) && nativeHasOwnProperty.call(target, key);
 }
 
 /**
@@ -11634,7 +11847,7 @@ function find(collection, matcher) {
  * @param {Collection<T>} collection
  * @param {Matcher<T>} matcher
  *
- * @return {number}
+ * @return {number | string | undefined}
  */
 function findIndex(collection, matcher) {
 
