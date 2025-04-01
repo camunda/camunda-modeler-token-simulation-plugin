@@ -6,6 +6,12 @@ All notable changes to the [camunda-modeler-token-simulation-plugin](https://git
 
 ___Note:__ Yet to be released changes appear here._
 
+## 0.22.0
+
+* `FEAT`: improve collapsed sub-process support ([#58](https://github.com/camunda/camunda-modeler-token-simulation-plugin/issues/58))
+* `FEAT`: make parallel gateway join spec compliant ([#84](https://github.com/camunda/camunda-modeler-token-simulation-plugin/issues/84))
+* `DEPS`: bump to `bpmn-js-token-simulation@0.38.1`
+
 ## 0.21.0
 
 * `FEAT`: support Camunda Modeler `v5.29.0`
