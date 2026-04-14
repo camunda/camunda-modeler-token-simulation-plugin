@@ -31,6 +31,7 @@
 .bts-context-pad {
   cursor: pointer;
   background-color: var(--token-simulation-grey-lighten-56, #909090);
+  border: none;
   border-radius: 2px;
   margin: 0;
   font-size: 16px;
@@ -45,15 +46,22 @@
   box-sizing: border-box;
 }
 
-.bts-context-pad:not(.disabled):hover {
+.bts-context-pad:not(.disabled):hover,
+.bts-context-pad:not(.disabled):focus-visible {
   background-color: var(--token-simulation-green-base-44, #10D070);
   opacity: 1;
   color: var(--token-simulation-white, #FFFFFF);
 }
 
-.djs-overlays:not(.hover) .bts-context-pad:not(:hover).show-hover,
-.bts-context-pad:not(:hover) .show-hover,
-.bts-context-pad:hover .hide-hover {
+/* button hidden until hovered or keyboard-focused; kept in accessibility tree via opacity */
+.djs-overlays:not(.hover) .bts-context-pad:not(:hover):not(:focus).show-hover {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.bts-context-pad:not(:hover):not(:focus) .show-hover,
+.bts-context-pad:hover .hide-hover,
+.bts-context-pad:focus .hide-hover {
   display: none;
 }
 
@@ -260,7 +268,7 @@
 
 .bjs-container.simulation .djs-overlay:not(.djs-overlay-bts-context-menu, .djs-overlay-bts-element-notification, .djs-overlay-bts-token-count, .djs-overlay-drilldown) {
   display: none !important;
-} 
+}
 
 .bts-palette {
   position: absolute;
@@ -275,6 +283,7 @@
 .bts-palette .bts-entry {
   cursor: pointer;
   background-color: var(--token-simulation-silver-darken-94, #EFEFEF);
+  border: none;
   border-radius: 2px;
   padding: 6px 0;
   margin-bottom: 6px;
@@ -304,8 +313,8 @@
 }
 
 .bts-palette .bts-entry.disabled {
-  pointer-events: none;
   color: var(--token-simulation-grey-base-40, #666666);
+  cursor: not-allowed;
 }
 
 .bts-log {
@@ -454,13 +463,14 @@
   line-height: 25px;
   text-align: center;
   background-color: var(--token-simulation-silver-darken-94, #EFEFEF);
+  border: none;
   margin-right: 10px;
   cursor: pointer;
-  outline: none;
 }
 
-.bts-scopes .bts-scope.inactive:hover {
-  opacity: 1
+.bts-scopes .bts-scope.inactive:hover,
+.bts-scopes .bts-scope.inactive:focus-visible {
+  opacity: 1;
 }
 
 .bts-scopes .bts-scope.inactive {
@@ -468,9 +478,7 @@
 }
 
 .bts-scopes .bts-scope.focussed {
-  outline-offset: 2px;
-  outline-width: 2px;
-  outline-style: solid;
+  box-shadow: 0 0 0 2px white, 0 0 0 4px var(--scope-color);
 }
 
 .djs-container.highlight {
