@@ -20,6 +20,7 @@ export default function HideModelerElements(eventBus, toggleMode) {
   head.appendChild(style);
 
   eventBus.on('saveXML.start', 5000, function() {
+
     // disable simulation before saving
     if (toggleMode.active) {
       toggleMode.toggleMode();
@@ -30,6 +31,10 @@ export default function HideModelerElements(eventBus, toggleMode) {
     var active = context.active;
 
     var propertiesPanel = domQuery('.properties');
+
+    if (!propertiesPanel) {
+      return;
+    }
 
     if (active) {
       domClasses(propertiesPanel).add('hidden');
