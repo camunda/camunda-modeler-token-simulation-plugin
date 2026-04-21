@@ -7,6 +7,9 @@ All notable changes to the [camunda-modeler-token-simulation-plugin](https://git
 ___Note:__ Yet to be released changes appear here._
 
 * `FIX`: hide panels and panel toggle buttons when activating token simulation ([#149](https://github.com/camunda/camunda-modeler-token-simulation-plugin/pull/149))
+* `DEPS`: bump to `bpmn-js@18.14.0`
+* `DEPS`: bump to `bpmn-js-token-simulation@0.39.3`
+* `DEPS`: bump to `camunda-modeler-plugin-helpers@6.0.0`
 
 ## 0.22.0
 
