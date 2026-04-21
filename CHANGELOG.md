@@ -6,6 +6,8 @@ All notable changes to the [camunda-modeler-token-simulation-plugin](https://git
 
 ___Note:__ Yet to be released changes appear here._
 
+* `FIX`: hide panels and panel toggle buttons when activating token simulation ([#149](https://github.com/camunda/camunda-modeler-token-simulation-plugin/pull/149))
+
 ## 0.22.0
 
 * `FEAT`: improve collapsed sub-process support ([#58](https://github.com/camunda/camunda-modeler-token-simulation-plugin/issues/58))

@@ -9,7 +9,9 @@ import {
 
 
 export default function HideModelerElements(eventBus, toggleMode) {
-  var css = '.properties.hidden { display: none; } .tabs .tab.hidden { display: none; }',
+
+  // use visibility + pointer-events for toggle buttons to prevent layout shift
+  var css = '.properties.hidden, .side-panel.hidden, .variables-side-panel.hidden { display: none !important; } .tabs-container + div.hidden { visibility: hidden; pointer-events: none; }',
       head = document.head,
       style = document.createElement('style');
 
@@ -20,6 +22,7 @@ export default function HideModelerElements(eventBus, toggleMode) {
   head.appendChild(style);
 
   eventBus.on('saveXML.start', 5000, function() {
+
     // disable simulation before saving
     if (toggleMode.active) {
       toggleMode.toggleMode();
@@ -30,12 +33,19 @@ export default function HideModelerElements(eventBus, toggleMode) {
     var active = context.active;
 
     var propertiesPanel = domQuery('.properties');
+    var sidePanel = domQuery('.side-panel');
+    var variablesSidePanel = domQuery('.variables-side-panel');
+    var panelToggleButtons = domQuery('.tabs-container + div');
 
-    if (active) {
-      domClasses(propertiesPanel).add('hidden');
-    } else {
-      domClasses(propertiesPanel).remove('hidden');
-    }
+    var elements = [ propertiesPanel, sidePanel, variablesSidePanel, panelToggleButtons ].filter(Boolean);
+
+    elements.forEach(function(el) {
+      if (active) {
+        domClasses(el).add('hidden');
+      } else {
+        domClasses(el).remove('hidden');
+      }
+    });
   });
 }
 
