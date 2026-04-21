@@ -30,7 +30,8 @@ Restart Camunda Modeler.
 | Plugin Version | Compatible With Camunda Modeler |
 |-|-|
 | 0.8.0 - 0.15.0 | 2.2 - 4.x |
-| 0.16.0+ | 5.0.0+ |
+| 0.16.0 - 0.22.0 | 5.0.0 - 5.45.x |
+| 0.23.0+ | 5.46.0+ |
 
 ## Additional Resources
 
