@@ -1541,124 +1541,46 @@ __webpack_require__.r(__webpack_exports__);
 
 const HIGH_PRIORITY = 10001;
 
+// editor actions that must stay available while the canvas is locked
+const SIMULATION_EDITOR_ACTIONS = [
+  'toggleTokenSimulation',
+  'toggleTokenSimulationLog',
+  'togglePauseTokenSimulation',
+  'resetTokenSimulation'
+];
 
-function DisableModeling(
-    eventBus,
-    contextPad,
-    dragging,
-    directEditing,
-    editorActions,
-    modeling,
-    palette) {
 
-  let modelingDisabled = false;
-
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, HIGH_PRIORITY, event => {
-
-    modelingDisabled = event.active;
-
-    if (modelingDisabled) {
-      directEditing.cancel();
-      dragging.cancel();
+/**
+ * Locks the canvas while token simulation is active by delegating to the
+ * `canvasLock` service. Keeps token simulation's own editor actions available
+ * while the canvas is locked.
+ *
+ * @param {import('diagram-js/lib/core/EventBus').default} eventBus
+ * @param {import('@bpmn-io/diagram-js-canvas-lock').CanvasLock} canvasLock
+ */
+function DisableModeling(eventBus, canvasLock) {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, function(event) {
+    if (event.active) {
+      canvasLock.lock();
+    } else {
+      canvasLock.unlock();
     }
-
-    palette._update();
   });
 
-  function intercept(obj, fnName, cb) {
-    const fn = obj[fnName];
-    obj[fnName] = function() {
-      return cb.call(this, fn, arguments);
-    };
-  }
-
-  function ignoreIfModelingDisabled(obj, fnName) {
-    intercept(obj, fnName, function(fn, args) {
-      if (modelingDisabled) {
-        return;
-      }
-
-      return fn.apply(this, args);
-    });
-  }
-
-  function throwIfModelingDisabled(obj, fnName) {
-    intercept(obj, fnName, function(fn, args) {
-      if (modelingDisabled) {
-        throw new Error('model is read-only');
-      }
-
-      return fn.apply(this, args);
-    });
-  }
-
-  ignoreIfModelingDisabled(dragging, 'init');
-
-  ignoreIfModelingDisabled(directEditing, 'activate');
-
-  ignoreIfModelingDisabled(dragging, 'init');
-
-  ignoreIfModelingDisabled(directEditing, 'activate');
-
-  throwIfModelingDisabled(modeling, 'moveShape');
-  throwIfModelingDisabled(modeling, 'updateAttachment');
-  throwIfModelingDisabled(modeling, 'moveElements');
-  throwIfModelingDisabled(modeling, 'moveConnection');
-  throwIfModelingDisabled(modeling, 'layoutConnection');
-  throwIfModelingDisabled(modeling, 'createConnection');
-  throwIfModelingDisabled(modeling, 'createShape');
-  throwIfModelingDisabled(modeling, 'createLabel');
-  throwIfModelingDisabled(modeling, 'appendShape');
-  throwIfModelingDisabled(modeling, 'removeElements');
-  throwIfModelingDisabled(modeling, 'distributeElements');
-  throwIfModelingDisabled(modeling, 'removeShape');
-  throwIfModelingDisabled(modeling, 'removeConnection');
-  throwIfModelingDisabled(modeling, 'replaceShape');
-  throwIfModelingDisabled(modeling, 'pasteElements');
-  throwIfModelingDisabled(modeling, 'alignElements');
-  throwIfModelingDisabled(modeling, 'resizeShape');
-  throwIfModelingDisabled(modeling, 'createSpace');
-  throwIfModelingDisabled(modeling, 'updateWaypoints');
-  throwIfModelingDisabled(modeling, 'reconnectStart');
-  throwIfModelingDisabled(modeling, 'reconnectEnd');
-
-  intercept(editorActions, 'trigger', function(fn, args) {
-    const action = args[0];
-
-    // allow list actions permitted,
-    // everything else is likely incompatible with
-    // token simulation mode
-    if (modelingDisabled && !isAnyAction([
-      'toggleTokenSimulation',
-      'toggleTokenSimulationLog',
-      'togglePauseTokenSimulation',
-      'resetTokenSimulation',
-      'stepZoom',
-      'zoom'
-    ], action)) {
-      return;
+  // run before canvasLock's blocker (priority 10000); returning `true` halts
+  // propagation and keeps the simulation's own actions available while locked
+  eventBus.on('editorActions.allowed', HIGH_PRIORITY, function(event) {
+    if (SIMULATION_EDITOR_ACTIONS.includes(event.action)) {
+      return true;
     }
-
-    return fn.apply(this, args);
   });
 }
 
 DisableModeling.$inject = [
   'eventBus',
-  'contextPad',
-  'dragging',
-  'directEditing',
-  'editorActions',
-  'modeling',
-  'palette'
+  'canvasLock'
 ];
 
-
-// helpers //////////
-
-function isAnyAction(actions, action) {
-  return actions.indexOf(action) > -1;
-}
 
 /***/ }),
 
@@ -4942,11 +4864,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base */ "./node_modules/bpmn-js-token-simulation/lib/base.js");
-/* harmony import */ var _features_disable_modeling__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./features/disable-modeling */ "./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/index.js");
-/* harmony import */ var _features_toggle_mode_modeler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./features/toggle-mode/modeler */ "./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/index.js");
-/* harmony import */ var _features_editor_actions__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./features/editor-actions */ "./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/index.js");
-/* harmony import */ var _features_keyboard_bindings__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./features/keyboard-bindings */ "./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/index.js");
+/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./base */ "./node_modules/bpmn-js-token-simulation/lib/base.js");
+/* harmony import */ var _bpmn_io_diagram_js_canvas_lock__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @bpmn-io/diagram-js-canvas-lock */ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/index.js");
+/* harmony import */ var _features_disable_modeling__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./features/disable-modeling */ "./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/index.js");
+/* harmony import */ var _features_toggle_mode_modeler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./features/toggle-mode/modeler */ "./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/index.js");
+/* harmony import */ var _features_editor_actions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./features/editor-actions */ "./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/index.js");
+/* harmony import */ var _features_keyboard_bindings__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./features/keyboard-bindings */ "./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/index.js");
+
 
 
 
@@ -4956,11 +4880,12 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _base__WEBPACK_IMPORTED_MODULE_0__["default"],
-    _features_disable_modeling__WEBPACK_IMPORTED_MODULE_1__["default"],
-    _features_toggle_mode_modeler__WEBPACK_IMPORTED_MODULE_2__["default"],
-    _features_editor_actions__WEBPACK_IMPORTED_MODULE_3__["default"],
-    _features_keyboard_bindings__WEBPACK_IMPORTED_MODULE_4__["default"]
+    _base__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _bpmn_io_diagram_js_canvas_lock__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _features_disable_modeling__WEBPACK_IMPORTED_MODULE_2__["default"],
+    _features_toggle_mode_modeler__WEBPACK_IMPORTED_MODULE_3__["default"],
+    _features_editor_actions__WEBPACK_IMPORTED_MODULE_4__["default"],
+    _features_keyboard_bindings__WEBPACK_IMPORTED_MODULE_5__["default"]
   ]
 });
 
@@ -10685,6 +10610,234 @@ function remove(el) {
 }
   return randomColor;
 }));
+
+
+/***/ }),
+
+/***/ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLock.js":
+/*!************************************************************************!*\
+  !*** ./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLock.js ***!
+  \************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ CanvasLock)
+/* harmony export */ });
+/**
+ * @typedef {import('diagram-js/lib/core/EventBus').default} EventBus
+ * @typedef {import('diagram-js/lib/core/Canvas').default} Canvas
+ */
+
+/**
+ * A service that allows to temporarily lock user interactions
+ * while still allowing programmatic changes via modeling APIs.
+ *
+ * Pan/zoom (navigation) remains enabled even while locked.
+ *
+ * @param {EventBus} eventBus
+ * @param {Canvas} canvas
+ */
+function CanvasLock(eventBus, canvas) {
+  this._eventBus = eventBus;
+  this._canvas = canvas;
+  this._locked = false;
+}
+
+CanvasLock.$inject = [ 'eventBus', 'canvas' ];
+
+/**
+ * Lock user interactions.
+ */
+CanvasLock.prototype.lock = function() {
+  if (this._locked) {
+    return;
+  }
+
+  this._locked = true;
+
+  var container = this._canvas.getContainer();
+  container.classList.add('djs-canvas-locked');
+
+  this._eventBus.fire('canvasLock.changed', { locked: true });
+};
+
+/**
+ * Unlock user interactions.
+ */
+CanvasLock.prototype.unlock = function() {
+  if (!this._locked) {
+    return;
+  }
+
+  this._locked = false;
+
+  var container = this._canvas.getContainer();
+  container.classList.remove('djs-canvas-locked');
+
+  this._eventBus.fire('canvasLock.changed', { locked: false });
+};
+
+/**
+ * Check whether interactions are currently locked.
+ *
+ * @return {boolean}
+ */
+CanvasLock.prototype.isLocked = function() {
+  return this._locked;
+};
+
+
+/***/ }),
+
+/***/ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLockBehavior.js":
+/*!********************************************************************************!*\
+  !*** ./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLockBehavior.js ***!
+  \********************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (/* binding */ CanvasLockBehavior)
+/* harmony export */ });
+/**
+ * @typedef {import('diagram-js/lib/core/EventBus').default} EventBus
+ * @typedef {import('./CanvasLock').default} CanvasLock
+ * @typedef {import('didi').Injector} Injector
+ */
+
+var VERY_HIGH_PRIORITY = 10000;
+
+/**
+ * Blocked interaction events.
+ *
+ * These are events that initiate user-driven interactions
+ * but should be suppressed when the canvas lock is active.
+ */
+var BLOCKED_EVENTS = [
+
+  // block any user-initiated drag, including move, create, connect, etc.
+  'drag.init',
+
+  // block any user-initiated open of context pad or popup menu
+  'contextPad.open.allowed',
+  'popupMenu.open.allowed',
+
+  // block direct editing activation
+  'directEditing.activate.allowed'
+];
+
+/**
+ * Editor actions that are allowed while locked
+ * because they only affect navigation, not diagram content.
+ */
+var ALLOWED_EDITOR_ACTIONS = [
+  'stepZoom',
+  'zoom',
+  'moveCanvas'
+];
+
+
+/**
+ * A behavior that blocks user-initiated interaction events
+ * when the canvas lock is active.
+ *
+ * Navigation events (canvas.move, canvas.zoom) are explicitly
+ * not blocked to allow pan/zoom while locked. Keyboard-triggered
+ * navigation editor actions (stepZoom, zoom, moveCanvas) are also
+ * allowed through.
+ *
+ * @param {EventBus} eventBus
+ * @param {CanvasLock} canvasLock
+ * @param {Injector} injector
+ */
+function CanvasLockBehavior(eventBus, canvasLock, injector) {
+
+  BLOCKED_EVENTS.forEach(function(event) {
+    eventBus.on(event, VERY_HIGH_PRIORITY, function(e) {
+      if (canvasLock.isLocked()) {
+        return false;
+      }
+    });
+  });
+
+  // block non-navigation editor actions when locked
+  eventBus.on('editorActions.allowed', VERY_HIGH_PRIORITY, function(event) {
+    if (canvasLock.isLocked() && !ALLOWED_EDITOR_ACTIONS.includes(event.action)) {
+      return false;
+    }
+  });
+
+  // close open overlays when locking; restore context pad on unlock
+  eventBus.on('canvasLock.changed', function(event) {
+    var contextPad = injector.get('contextPad', false);
+    var directEditing = injector.get('directEditing', false);
+    var dragging = injector.get('dragging', false);
+    var popupMenu = injector.get('popupMenu', false);
+
+    if (event.locked) {
+      if (contextPad && contextPad.isOpen()) {
+        contextPad.close();
+      }
+
+      if (directEditing && directEditing.isActive()) {
+        directEditing.cancel();
+      }
+
+      if (dragging && dragging.context()) {
+        dragging.cancel();
+      }
+
+      if (popupMenu && popupMenu.isOpen()) {
+        popupMenu.close();
+      }
+    } else {
+
+      // restore context pad for current selection
+      var selection = injector.get('selection', false);
+
+      if (contextPad && selection) {
+        var selectedElements = selection.get();
+
+        if (selectedElements.length) {
+          contextPad.open(selectedElements.length === 1 ? selectedElements[0] : selectedElements);
+        }
+      }
+    }
+  });
+}
+
+CanvasLockBehavior.$inject = [ 'eventBus', 'canvasLock', 'injector' ];
+
+
+/***/ }),
+
+/***/ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/index.js":
+/*!*******************************************************************!*\
+  !*** ./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/index.js ***!
+  \*******************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var _CanvasLock_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./CanvasLock.js */ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLock.js");
+/* harmony import */ var _CanvasLockBehavior_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CanvasLockBehavior.js */ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLockBehavior.js");
+
+
+
+/**
+ * @type { import('didi').ModuleDeclaration }
+ */
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  __init__: [ 'canvasLock', 'canvasLockBehavior' ],
+  canvasLock: [ 'type', _CanvasLock_js__WEBPACK_IMPORTED_MODULE_0__["default"] ],
+  canvasLockBehavior: [ 'type', _CanvasLockBehavior_js__WEBPACK_IMPORTED_MODULE_1__["default"] ]
+});
 
 
 /***/ }),
