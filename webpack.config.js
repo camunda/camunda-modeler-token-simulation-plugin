@@ -14,6 +14,10 @@ module.exports = {
         {
           from: 'node_modules/bpmn-js-token-simulation/assets',
           to: 'assets/bpmn-js-token-simulation'
+        },
+        {
+          from: 'node_modules/@bpmn-io/diagram-js-canvas-lock/assets',
+          to: 'assets/diagram-js-canvas-lock'
         }
       ],
     })

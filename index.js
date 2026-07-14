@@ -3,6 +3,6 @@
 module.exports = {
   name: 'bpmn-js Token Simulation',
   script: './client/client.bundle.js',
-  style: './client/assets/bpmn-js-token-simulation/css/bpmn-js-token-simulation.css',
+  style: './client/style.css',
   menu: './menu.js'
 };
