@@ -6,7 +6,9 @@ All notable changes to the [camunda-modeler-token-simulation-plugin](https://git
 
 ___Note:__ Yet to be released changes appear here._
 
-* `DEPS`: bump to `bpmn-js@18.15.0`
+* `DEPS`: bump to `bpmn-js-token-simulation@0.40.0`
+* `DEPS`: bump to `bpmn-js@18.22.1`
+* `CHORE`: require Camunda Modeler `v5.50.0+`
 
 ## 0.23.0
 
