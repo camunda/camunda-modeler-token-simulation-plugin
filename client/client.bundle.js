@@ -12870,8 +12870,9 @@ function toNum(arg) {
 }
 
 /**
+ * @template {(...args: any[]) => any} T
  * @typedef { {
- *   (...args: any[]): any;
+ *   (...args: Parameters<T>): void;
  *   flush: () => void;
  *   cancel: () => void;
  * } } DebouncedFunction
@@ -12884,10 +12885,12 @@ function toNum(arg) {
  * Lodash-style the function exposes methods to `#clear`
  * and `#flush` to control internal behavior.
  *
- * @param  {Function} fn
- * @param  {Number} timeout
+ * @template {(...args: any[]) => any} T
  *
- * @return {DebouncedFunction} debounced function
+ * @param  {T} fn
+ * @param  {number} timeout
+ *
+ * @return {DebouncedFunction<T>} debounced function
  */
 function debounce(fn, timeout) {
 
@@ -12934,7 +12937,7 @@ function debounce(fn, timeout) {
   }
 
   /**
-   * @type { DebouncedFunction }
+   * @type {DebouncedFunction<T>}
    */
   function callback(...args) {
     lastNow = Date.now();
@@ -12958,10 +12961,12 @@ function debounce(fn, timeout) {
  * Throttle fn, calling at most once
  * in the given interval.
  *
- * @param  {Function} fn
- * @param  {Number} interval
+ * @template {(...args: any[]) => any} T
  *
- * @return {Function} throttled function
+ * @param  {T} fn
+ * @param  {number} interval
+ *
+ * @return {(...args: Parameters<T>) => void} throttled function
  */
 function throttle(fn, interval) {
   let throttling = false;
