@@ -88,10 +88,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const STYLE = getComputedStyle(document.documentElement);
-
-const DEFAULT_PRIMARY_COLOR = STYLE.getPropertyValue('--token-simulation-green-base-44');
-const DEFAULT_AUXILIARY_COLOR = STYLE.getPropertyValue('--token-simulation-white');
+const DEFAULT_PRIMARY_COLOR = '--token-simulation-primary';
+const DEFAULT_AUXILIARY_COLOR = '--token-simulation-control-surface';
 
 function noop() {}
 
@@ -136,11 +134,13 @@ const TOKEN_SIZE = 20;
  * @param { import('diagram-js/lib/core/Canvas').default } canvas
  * @param { import('diagram-js/lib/core/EventBus').default } eventBus
  * @param { import('../features/scope-filter/ScopeFilter').default } scopeFilter
+ * @param { import('../features/simulation-styles/SimulationStyles').default } simulationStyles
  */
-function Animation(config, canvas, eventBus, scopeFilter) {
+function Animation(config, canvas, eventBus, scopeFilter, simulationStyles) {
   this._eventBus = eventBus;
   this._scopeFilter = scopeFilter;
   this._canvas = canvas;
+  this._simulationStyles = simulationStyles;
 
   this._randomize = config && config.randomize !== false;
 
@@ -270,8 +270,8 @@ Animation.prototype._createTokenGfx = function(group, scope) {
 Animation.prototype._getTokenSVG = function(scope) {
 
   const colors = scope.colors || {
-    primary: DEFAULT_PRIMARY_COLOR,
-    auxiliary: DEFAULT_AUXILIARY_COLOR
+    primary: this._simulationStyles.get(DEFAULT_PRIMARY_COLOR),
+    auxiliary: this._simulationStyles.get(DEFAULT_AUXILIARY_COLOR)
   };
 
   return `
@@ -326,7 +326,8 @@ Animation.$inject = [
   'config.animation',
   'canvas',
   'eventBus',
-  'scopeFilter'
+  'scopeFilter',
+  'simulationStyles'
 ];
 
 
@@ -635,8 +636,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var _behaviors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./behaviors */ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/index.js");
 /* harmony import */ var _features_scope_filter__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../features/scope-filter */ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js");
+/* harmony import */ var _features_simulation_styles__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../features/simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
 /* harmony import */ var _simulator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../simulator */ "./node_modules/bpmn-js-token-simulation/lib/simulator/index.js");
-/* harmony import */ var _Animation__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Animation */ "./node_modules/bpmn-js-token-simulation/lib/animation/Animation.js");
+/* harmony import */ var _Animation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Animation */ "./node_modules/bpmn-js-token-simulation/lib/animation/Animation.js");
+
 
 
 
@@ -647,10 +650,12 @@ __webpack_require__.r(__webpack_exports__);
   __depends__: [
     _simulator__WEBPACK_IMPORTED_MODULE_0__["default"],
     _behaviors__WEBPACK_IMPORTED_MODULE_1__["default"],
-    _features_scope_filter__WEBPACK_IMPORTED_MODULE_2__["default"]
+    _features_scope_filter__WEBPACK_IMPORTED_MODULE_2__["default"],
+    _features_simulation_styles__WEBPACK_IMPORTED_MODULE_3__["default"]
   ],
-  animation: [ 'type', _Animation__WEBPACK_IMPORTED_MODULE_3__["default"] ]
+  animation: [ 'type', _Animation__WEBPACK_IMPORTED_MODULE_4__["default"] ]
 });
+
 
 /***/ }),
 
@@ -2215,8 +2220,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const SELECTED_COLOR = '--token-simulation-grey-darken-30';
-const NOT_SELECTED_COLOR = '--token-simulation-grey-lighten-56';
+const SELECTED_COLOR = '--token-simulation-active-outgoing-flow-stroke-color';
+const NOT_SELECTED_COLOR = '--token-simulation-inactive-outgoing-flow-stroke-color';
 
 function getNext(gateway, sequenceFlow) {
   var outgoing = gateway.outgoing.filter(isSequenceFlow);
@@ -2378,8 +2383,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const SELECTED_COLOR = '--token-simulation-grey-darken-30';
-const NOT_SELECTED_COLOR = '--token-simulation-grey-lighten-56';
+const SELECTED_COLOR = '--token-simulation-active-outgoing-flow-stroke-color';
+const NOT_SELECTED_COLOR = '--token-simulation-inactive-outgoing-flow-stroke-color';
 
 
 
@@ -3216,11 +3221,15 @@ __webpack_require__.r(__webpack_exports__);
 
 const ID = 'neutral-element-colors';
 
+const STROKE_COLOR = '--token-simulation-element-stroke-color';
+const FILL_COLOR = '--token-simulation-element-fill-color';
+
 function NeutralElementColors(
-    eventBus, elementRegistry, elementColors) {
+    eventBus, elementRegistry, elementColors, simulationStyles) {
 
   this._elementRegistry = elementRegistry;
   this._elementColors = elementColors;
+  this._simulationStyles = simulationStyles;
 
   eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, event => {
     const { active } = event;
@@ -3232,10 +3241,13 @@ function NeutralElementColors(
 }
 
 NeutralElementColors.prototype._setNeutralColors = function() {
+  const stroke = this._simulationStyles.get(STROKE_COLOR),
+        fill = this._simulationStyles.get(FILL_COLOR);
+
   this._elementRegistry.forEach(element => {
     this._elementColors.add(element, ID, {
-      stroke: '#212121',
-      fill: '#fff'
+      stroke,
+      fill
     });
   });
 };
@@ -3243,7 +3255,8 @@ NeutralElementColors.prototype._setNeutralColors = function() {
 NeutralElementColors.$inject = [
   'eventBus',
   'elementRegistry',
-  'elementColors'
+  'elementColors',
+  'simulationStyles'
 ];
 
 /***/ }),
@@ -3259,17 +3272,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _NeutralElementColors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./NeutralElementColors */ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/NeutralElementColors.js");
+/* harmony import */ var _NeutralElementColors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./NeutralElementColors */ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/NeutralElementColors.js");
 /* harmony import */ var _element_colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js");
+/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
+
 
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  __depends__: [ _element_colors__WEBPACK_IMPORTED_MODULE_0__["default"] ],
+  __depends__: [ _element_colors__WEBPACK_IMPORTED_MODULE_0__["default"], _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"] ],
   __init__: [
     'neutralElementColors'
   ],
-  neutralElementColors: [ 'type', _NeutralElementColors__WEBPACK_IMPORTED_MODULE_1__["default"] ]
+  neutralElementColors: [ 'type', _NeutralElementColors__WEBPACK_IMPORTED_MODULE_2__["default"] ]
 });
 
 /***/ }),
@@ -4053,8 +4068,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const FILL_COLOR = '--token-simulation-silver-base-97';
-const STROKE_COLOR = '--token-simulation-green-base-44';
+const FILL_COLOR = '--token-simulation-highlighted-scope-fill-color';
+const STROKE_COLOR = '--token-simulation-highlighted-scope-stroke-color';
 
 const ID = 'show-scopes';
 
@@ -4388,13 +4403,29 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   CONTAINER_CLASS: () => (/* binding */ CONTAINER_CLASS),
 /* harmony export */   "default": () => (/* binding */ SimulationStyles)
 /* harmony export */ });
-function SimulationStyles() {
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
+
+
+const CONTAINER_CLASS = 'bts-container';
+
+/**
+ * Owns the extension's styling root: marks the canvas container so the
+ * stylesheet declares its variables on a class this extension owns, and
+ * resolves them from there.
+ *
+ * @param { import('diagram-js/lib/core/Canvas').default } canvas
+ */
+function SimulationStyles(canvas) {
+  this._canvas = canvas;
   this._cache = {};
+
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(canvas.getContainer()).add(CONTAINER_CLASS);
 }
 
-SimulationStyles.$inject = [];
+SimulationStyles.$inject = [ 'canvas' ];
 
 
 SimulationStyles.prototype.get = function(prop) {
@@ -4418,11 +4449,8 @@ SimulationStyles.prototype._getComputedStyle = function() {
     ? getComputedStyle
     : getComputedStyleMock;
 
-  const element = typeof document !== 'undefined'
-    ? document.documentElement
-    : {};
-
-  return get(element);
+  // the variables are declared on the bpmn-js container
+  return get(this._canvas.getContainer());
 };
 
 
@@ -4453,6 +4481,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  __init__: [ 'simulationStyles' ],
   simulationStyles: [ 'type', _SimulationStyles__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
@@ -4612,8 +4641,8 @@ const OFFSET_LEFT = -15;
 
 const LOW_PRIORITY = 500;
 
-const DEFAULT_PRIMARY_COLOR = '--token-simulation-green-base-44';
-const DEFAULT_AUXILIARY_COLOR = '--token-simulation-white';
+const DEFAULT_PRIMARY_COLOR = '--token-simulation-primary';
+const DEFAULT_AUXILIARY_COLOR = '--token-simulation-control-surface';
 
 
 function TokenCount(
