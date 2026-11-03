@@ -1,19 +1,19 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ "./client/HideModelerElements.js":
+/***/ "./client/HideModelerElements.js"
 /*!***************************************!*\
   !*** ./client/HideModelerElements.js ***!
   \***************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ HideModelerElements)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.esm.js");
-/* harmony import */ var bpmn_js_token_simulation_lib_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js-token-simulation/lib/util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var bpmn_js_token_simulation_lib_util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js-token-simulation/lib/util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
 
@@ -40,21 +40,21 @@ function HideModelerElements(eventBus, toggleMode) {
     }
   });
 
-  eventBus.on(bpmn_js_token_simulation_lib_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, function(context) {
+  eventBus.on(bpmn_js_token_simulation_lib_util_EventHelper__WEBPACK_IMPORTED_MODULE_1__.TOGGLE_MODE_EVENT, function(context) {
     var active = context.active;
 
-    var propertiesPanel = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.query)('.properties');
-    var sidePanel = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.query)('.side-panel');
-    var variablesSidePanel = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.query)('.variables-side-panel');
-    var panelToggleButtons = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.query)('.tabs-container + div');
+    var propertiesPanel = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.properties');
+    var sidePanel = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.side-panel');
+    var variablesSidePanel = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.variables-side-panel');
+    var panelToggleButtons = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.tabs-container + div');
 
     var elements = [ propertiesPanel, sidePanel, variablesSidePanel, panelToggleButtons ].filter(Boolean);
 
     elements.forEach(function(el) {
       if (active) {
-        (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(el).add('hidden');
+        (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(el).add('hidden');
       } else {
-        (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(el).remove('hidden');
+        (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(el).remove('hidden');
       }
     });
   });
@@ -66,22 +66,22 @@ HideModelerElements.$inject = [
 ];
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/animation/Animation.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/animation/Animation.js"
 /*!**************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/animation/Animation.js ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Animation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
 /* harmony import */ var tiny_svg__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! tiny-svg */ "./node_modules/tiny-svg/dist/index.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
 
@@ -149,20 +149,20 @@ function Animation(config, canvas, eventBus, scopeFilter, simulationStyles) {
 
   eventBus.on([
     'diagram.destroy',
-    _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.RESET_SIMULATION_EVENT
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.RESET_SIMULATION_EVENT
   ], () => {
     this.clearAnimations();
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.PAUSE_SIMULATION_EVENT, () => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.PAUSE_SIMULATION_EVENT, () => {
     this.pause();
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.PLAY_SIMULATION_EVENT, () => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.PLAY_SIMULATION_EVENT, () => {
     this.play();
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_FILTER_CHANGED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.SCOPE_FILTER_CHANGED_EVENT, event => {
 
     this.each(animation => {
       if (this._scopeFilter.isShown(animation.scope)) {
@@ -173,7 +173,7 @@ function Animation(config, canvas, eventBus, scopeFilter, simulationStyles) {
     });
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_DESTROYED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.SCOPE_DESTROYED_EVENT, event => {
     const {
       scope
     } = event;
@@ -224,7 +224,7 @@ Animation.prototype.createAnimation = function(connection, scope, done = noop) {
 
   this._animations.add(animation);
 
-  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.ANIMATION_CREATED_EVENT, {
+  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.ANIMATION_CREATED_EVENT, {
     animation
   });
 
@@ -238,7 +238,7 @@ Animation.prototype.setAnimationSpeed = function(speed) {
 
   this.each(animation => animation.setSpeed(speed));
 
-  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.ANIMATION_SPEED_CHANGED_EVENT, {
+  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.ANIMATION_SPEED_CHANGED_EVENT, {
     speed
   });
 };
@@ -305,10 +305,10 @@ Animation.prototype._getGroup = function(scope) {
     root = canvas.findRoot(scope.element);
     layer = canvas._findPlaneForRoot(root).layer;
   } else {
-    layer = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.query)('.viewport', canvas._svg);
+    layer = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.viewport', canvas._svg);
   }
 
-  var group = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__.query)('.bts-animation-tokens', layer);
+  var group = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-animation-tokens', layer);
 
   if (!group) {
     group = (0,tiny_svg__WEBPACK_IMPORTED_MODULE_1__.create)('<g class="bts-animation-tokens" />');
@@ -507,13 +507,13 @@ function distance(a, b) {
   return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/AnimatedMessageFlowBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/AnimatedMessageFlowBehavior.js"
 /*!******************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/AnimatedMessageFlowBehavior.js ***!
   \******************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -533,7 +533,7 @@ function AnimatedMessageFlowBehavior(injector, animation) {
   this._animation = animation;
 }
 
-(0,inherits_browser__WEBPACK_IMPORTED_MODULE_1__["default"])(AnimatedMessageFlowBehavior, _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"]);
+;(0,inherits_browser__WEBPACK_IMPORTED_MODULE_1__["default"])(AnimatedMessageFlowBehavior, _simulator_behaviors_MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 AnimatedMessageFlowBehavior.$inject = [
   'injector',
@@ -553,13 +553,13 @@ AnimatedMessageFlowBehavior.prototype.signal = function(context) {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/AnimatedSequenceFlowBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/AnimatedSequenceFlowBehavior.js"
 /*!*******************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/AnimatedSequenceFlowBehavior.js ***!
   \*******************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -579,7 +579,7 @@ function AnimatedSequenceFlowBehavior(injector, animation) {
   this._animation = animation;
 }
 
-(0,inherits_browser__WEBPACK_IMPORTED_MODULE_1__["default"])(AnimatedSequenceFlowBehavior, _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"]);
+;(0,inherits_browser__WEBPACK_IMPORTED_MODULE_1__["default"])(AnimatedSequenceFlowBehavior, _simulator_behaviors_SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"]);
 
 AnimatedSequenceFlowBehavior.$inject = [
   'injector',
@@ -598,46 +598,46 @@ AnimatedSequenceFlowBehavior.prototype.enter = function(context) {
   });
 };
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/index.js"
 /*!********************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/index.js ***!
   \********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _AnimatedMessageFlowBehavior__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AnimatedMessageFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/AnimatedMessageFlowBehavior.js");
-/* harmony import */ var _AnimatedSequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AnimatedSequenceFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/AnimatedSequenceFlowBehavior.js");
+/* harmony import */ var _AnimatedMessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AnimatedMessageFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/AnimatedMessageFlowBehavior.js");
+/* harmony import */ var _AnimatedSequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./AnimatedSequenceFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/AnimatedSequenceFlowBehavior.js");
 
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  sequenceFlowBehavior: [ 'type', _AnimatedSequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"] ],
-  messageFlowBehavior: [ 'type', _AnimatedMessageFlowBehavior__WEBPACK_IMPORTED_MODULE_1__["default"] ]
+  sequenceFlowBehavior: [ 'type', _AnimatedSequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_1__["default"] ],
+  messageFlowBehavior: [ 'type', _AnimatedMessageFlowBehavior__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/animation/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/animation/index.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/animation/index.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _behaviors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./behaviors */ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/index.js");
-/* harmony import */ var _features_scope_filter__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../features/scope-filter */ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js");
-/* harmony import */ var _features_simulation_styles__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../features/simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
-/* harmony import */ var _simulator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../simulator */ "./node_modules/bpmn-js-token-simulation/lib/simulator/index.js");
+/* harmony import */ var _behaviors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./behaviors */ "./node_modules/bpmn-js-token-simulation/lib/animation/behaviors/index.js");
+/* harmony import */ var _features_scope_filter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../features/scope-filter */ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js");
+/* harmony import */ var _features_simulation_styles__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../features/simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
+/* harmony import */ var _simulator__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../simulator */ "./node_modules/bpmn-js-token-simulation/lib/simulator/index.js");
 /* harmony import */ var _Animation__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Animation */ "./node_modules/bpmn-js-token-simulation/lib/animation/Animation.js");
 
 
@@ -648,22 +648,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _simulator__WEBPACK_IMPORTED_MODULE_0__["default"],
-    _behaviors__WEBPACK_IMPORTED_MODULE_1__["default"],
-    _features_scope_filter__WEBPACK_IMPORTED_MODULE_2__["default"],
-    _features_simulation_styles__WEBPACK_IMPORTED_MODULE_3__["default"]
+    _simulator__WEBPACK_IMPORTED_MODULE_3__["default"],
+    _behaviors__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _features_scope_filter__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _features_simulation_styles__WEBPACK_IMPORTED_MODULE_2__["default"]
   ],
   animation: [ 'type', _Animation__WEBPACK_IMPORTED_MODULE_4__["default"] ]
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/base.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/base.js"
 /*!***********************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/base.js ***!
   \***********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -725,13 +725,13 @@ __webpack_require__.r(__webpack_exports__);
   ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/colored-scopes/ColoredScopes.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/colored-scopes/ColoredScopes.js"
 /*!********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/colored-scopes/ColoredScopes.js ***!
   \********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -802,13 +802,13 @@ ColoredScopes.$inject = [
   'eventBus'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/colored-scopes/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/colored-scopes/index.js"
 /*!************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/colored-scopes/index.js ***!
   \************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -825,13 +825,13 @@ __webpack_require__.r(__webpack_exports__);
   coloredScopes: [ 'type', _ColoredScopes__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/ContextPads.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/ContextPads.js"
 /*!****************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/ContextPads.js ***!
   \****************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -840,15 +840,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isAncestor: () => (/* binding */ isAncestor),
 /* harmony export */   isKeyboardTrigger: () => (/* binding */ isKeyboardTrigger)
 /* harmony export */ });
-/* harmony import */ var bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! bpmn-js/lib/util/DrilldownUtil */ "./node_modules/bpmn-js/lib/util/DrilldownUtil.js");
-/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js");
-/* harmony import */ var _handler_InclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./handler/InclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/InclusiveGatewayHandler.js");
-/* harmony import */ var _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./handler/PauseHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js");
-/* harmony import */ var _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./handler/TriggerHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js");
+/* harmony import */ var bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/DrilldownUtil */ "./node_modules/bpmn-js/lib/util/DrilldownUtil.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
+/* harmony import */ var _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./handler/ExclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js");
+/* harmony import */ var _handler_InclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./handler/InclusiveGatewayHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/InclusiveGatewayHandler.js");
+/* harmony import */ var _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./handler/PauseHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js");
+/* harmony import */ var _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./handler/TriggerHandler */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js");
 
 
 
@@ -888,16 +888,16 @@ function ContextPads(
 
   this._handlers = [];
 
-  this.registerHandler('bpmn:ExclusiveGateway', _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_0__["default"]);
-  this.registerHandler('bpmn:InclusiveGateway', _handler_InclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_1__["default"]);
+  this.registerHandler('bpmn:ExclusiveGateway', _handler_ExclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_5__["default"]);
+  this.registerHandler('bpmn:InclusiveGateway', _handler_InclusiveGatewayHandler__WEBPACK_IMPORTED_MODULE_6__["default"]);
 
-  this.registerHandler('bpmn:Activity', _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_2__["default"]);
+  this.registerHandler('bpmn:Activity', _handler_PauseHandler__WEBPACK_IMPORTED_MODULE_7__["default"]);
 
-  this.registerHandler('bpmn:Event', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
-  this.registerHandler('bpmn:Gateway', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
-  this.registerHandler('bpmn:Activity', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_3__["default"]);
+  this.registerHandler('bpmn:Event', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_8__["default"]);
+  this.registerHandler('bpmn:Gateway', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_8__["default"]);
+  this.registerHandler('bpmn:Activity', _handler_TriggerHandler__WEBPACK_IMPORTED_MODULE_8__["default"]);
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.TOGGLE_MODE_EVENT, LOW_PRIORITY, context => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TOGGLE_MODE_EVENT, LOW_PRIORITY, context => {
     this._active = context.active;
 
     if (this._active) {
@@ -907,7 +907,7 @@ function ContextPads(
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.RESET_SIMULATION_EVENT, LOW_PRIORITY, () => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.RESET_SIMULATION_EVENT, LOW_PRIORITY, () => {
     this.closeContextPads();
     this.openContextPads();
   });
@@ -920,9 +920,9 @@ function ContextPads(
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.SCOPE_FILTER_CHANGED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.SCOPE_FILTER_CHANGED_EVENT, event => {
 
-    const showElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.queryAll)(
+    const showElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.queryAll)(
       '.djs-overlay-bts-context-menu [data-scope-ids]',
       overlays._overlayRoot
     );
@@ -933,10 +933,10 @@ function ContextPads(
 
       const shown = scopeIds.some(id => scopeFilter.isShown(id));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(element).toggle('hidden', !shown);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(element).toggle('hidden', !shown);
     }
 
-    const hideElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.queryAll)(
+    const hideElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.queryAll)(
       '.djs-overlay-bts-context-menu [data-hide-scope-ids]',
       overlays._overlayRoot
     );
@@ -947,11 +947,11 @@ function ContextPads(
 
       const shown = scopeIds.some(id => scopeFilter.isShown(id));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(element).toggle('hidden', shown);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(element).toggle('hidden', shown);
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_4__.ELEMENT_CHANGED_EVENT, LOW_PRIORITY, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.ELEMENT_CHANGED_EVENT, LOW_PRIORITY, event => {
     const {
       element
     } = event;
@@ -979,7 +979,7 @@ ContextPads.prototype.getHandlers = function(element) {
 
   return (
     this._handlers.filter(
-      ({ type }) => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(element, type)
+      ({ type }) => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, type)
     ).map(
       ({ handler }) => handler
     )
@@ -993,7 +993,7 @@ ContextPads.prototype.openContextPads = function(parent) {
   }
 
   this._elementRegistry.forEach((element) => {
-    if (isAncestor(parent, element) && !(0,bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_7__.isPlane)(element)) {
+    if (isAncestor(parent, element) && !(0,bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_0__.isPlane)(element)) {
       this.updateElementContextPads(element);
     }
   });
@@ -1080,7 +1080,8 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
       contexts: _contexts,
       hideContexts: _hideContexts,
       action: _action,
-      html: _html
+      html: _html,
+      title
     } = contextPad;
 
 
@@ -1090,7 +1091,11 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
       o => o.hash === hash
     );
 
-    const html = existingOverlay && existingOverlay.html || (0,min_dom__WEBPACK_IMPORTED_MODULE_8__["default"])(_html);
+    const html = existingOverlay && existingOverlay.html || (0,min_dom__WEBPACK_IMPORTED_MODULE_4__["default"])(_html);
+
+    if (title) {
+      html.setAttribute('title', title);
+    }
 
     if (_contexts) {
       const contexts = _contexts();
@@ -1099,7 +1104,7 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
 
       const shownScopes = contexts.filter(c => this._scopeFilter.isShown(c.scope));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(html).toggle('hidden', shownScopes.length === 0);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(html).toggle('hidden', shownScopes.length === 0);
     }
 
     if (_hideContexts) {
@@ -1109,7 +1114,7 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
 
       const shownScopes = contexts.filter(c => this._scopeFilter.isShown(c.scope));
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_5__.classes)(html).toggle('hidden', shownScopes.length > 0);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(html).toggle('hidden', shownScopes.length > 0);
     }
 
     if (existingOverlay) {
@@ -1134,7 +1139,7 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
       // this allows users to use global keyboard bindings, i.e.
       // <SPACE> to toggle pause/play
 
-      min_dom__WEBPACK_IMPORTED_MODULE_5__.event.bind(html, 'click', event => {
+      min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(html, 'click', event => {
         event.preventDefault();
 
         triggerAction();
@@ -1144,7 +1149,7 @@ ContextPads.prototype._updateElementContextPads = function(element, handler) {
         }
       });
 
-      min_dom__WEBPACK_IMPORTED_MODULE_5__.event.bind(html, 'keydown', event => {
+      min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(html, 'keydown', event => {
         if (!isKeyboardTrigger(event)) {
           return;
         }
@@ -1213,13 +1218,13 @@ function isKeyboardTrigger(event) {
   return [ 'Enter', ' ', 'Spacebar' ].includes(event.key);
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js"
 /*!************************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/ExclusiveGatewayHandler.js ***!
   \************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -1233,8 +1238,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function ExclusiveGatewayHandler(exclusiveGatewaySettings) {
+function ExclusiveGatewayHandler(exclusiveGatewaySettings, translate) {
   this._exclusiveGatewaySettings = exclusiveGatewaySettings;
+  this._translate = translate;
 }
 
 ExclusiveGatewayHandler.prototype.createContextPads = function(element) {
@@ -1248,10 +1254,12 @@ ExclusiveGatewayHandler.prototype.createContextPads = function(element) {
   }
 
   const html = `
-    <button class="bts-context-pad" title="Set Sequence Flow">
+    <button class="bts-context-pad">
       ${(0,_icons__WEBPACK_IMPORTED_MODULE_1__.ForkIcon)()}
     </button>
   `;
+
+  const title = this._translate('Set Sequence Flow');
 
   const action = () => {
     this._exclusiveGatewaySettings.setSequenceFlow(element);
@@ -1261,43 +1269,46 @@ ExclusiveGatewayHandler.prototype.createContextPads = function(element) {
     {
       action,
       element,
-      html
+      html,
+      title
     }
   ];
 };
 
 ExclusiveGatewayHandler.$inject = [
-  'exclusiveGatewaySettings'
+  'exclusiveGatewaySettings',
+  'translate'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/InclusiveGatewayHandler.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/InclusiveGatewayHandler.js"
 /*!************************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/InclusiveGatewayHandler.js ***!
   \************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ InclusiveGatewayHandler)
 /* harmony export */ });
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 /* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../simulator/util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+/* harmony import */ var _simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../simulator/util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
 
 
 
 
 
 
-function InclusiveGatewayHandler(inclusiveGatewaySettings) {
+function InclusiveGatewayHandler(inclusiveGatewaySettings, translate) {
   this._inclusiveGatewaySettings = inclusiveGatewaySettings;
+  this._translate = translate;
 }
 
 InclusiveGatewayHandler.prototype.createContextPads = function(element) {
-  const outgoingFlows = element.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isSequenceFlow);
+  const outgoingFlows = element.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isSequenceFlow);
 
   if (outgoingFlows.length < 2) {
     return;
@@ -1311,10 +1322,12 @@ InclusiveGatewayHandler.prototype.createContextPads = function(element) {
   });
 
   const html = `
-    <button class="bts-context-pad" title="Set Sequence Flow">
-      ${(0,_icons__WEBPACK_IMPORTED_MODULE_2__.ForkIcon)()}
+    <button class="bts-context-pad">
+      ${(0,_icons__WEBPACK_IMPORTED_MODULE_0__.ForkIcon)()}
     </button>
   `;
+
+  const title = this._translate('Set Sequence Flow');
 
   return nonDefaultFlows.map(sequenceFlow => {
     const action = () => {
@@ -1324,45 +1337,48 @@ InclusiveGatewayHandler.prototype.createContextPads = function(element) {
     return {
       action,
       element: sequenceFlow,
-      html
+      html,
+      title
     };
   });
 };
 
 InclusiveGatewayHandler.$inject = [
-  'inclusiveGatewaySettings'
+  'inclusiveGatewaySettings',
+  'translate'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js"
 /*!*************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/PauseHandler.js ***!
   \*************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ PauseHandler)
 /* harmony export */ });
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
-/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
 
 
 
 
-function PauseHandler(simulator) {
+function PauseHandler(simulator, translate) {
   this._simulator = simulator;
+  this._translate = translate;
 }
 
 PauseHandler.prototype.createContextPads = function(element) {
 
   if (
-    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask') || (
-      (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:SubProcess') && (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).triggeredByEvent
+    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:ReceiveTask') || (
+      (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:SubProcess') && (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(element).triggeredByEvent
     )
   ) {
     return [];
@@ -1381,10 +1397,12 @@ PauseHandler.prototype.createPauseContextPad = function(element) {
 
   const wait = this._isPaused(element);
 
+  const title = this._translate(wait ? 'Remove pause point' : 'Add pause point');
+
   const html = `
-    <button class="bts-context-pad ${ wait ? '' : 'show-hover' }" title="${ wait ? 'Remove' : 'Add' } pause point">
-      ${ (wait ? _icons__WEBPACK_IMPORTED_MODULE_1__.RemovePauseIcon : _icons__WEBPACK_IMPORTED_MODULE_1__.PauseIcon)('show-hover') }
-      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_1__.PauseIcon)('hide-hover') }
+    <button class="bts-context-pad ${ wait ? '' : 'show-hover' }">
+      ${ (wait ? _icons__WEBPACK_IMPORTED_MODULE_0__.RemovePauseIcon : _icons__WEBPACK_IMPORTED_MODULE_0__.PauseIcon)('show-hover') }
+      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.PauseIcon)('hide-hover') }
     </button>
   `;
 
@@ -1396,7 +1414,8 @@ PauseHandler.prototype.createPauseContextPad = function(element) {
     action,
     element,
     hideContexts: contexts,
-    html
+    html,
+    title
   };
 };
 
@@ -1420,16 +1439,17 @@ PauseHandler.prototype._findSubscriptions = function(options) {
 };
 
 PauseHandler.$inject = [
-  'simulator'
+  'simulator',
+  'translate'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js"
 /*!***************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/handler/TriggerHandler.js ***!
   \***************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -1440,12 +1460,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function TriggerHandler(simulator) {
+function TriggerHandler(simulator, translate) {
   this._simulator = simulator;
+  this._translate = translate;
 }
 
 TriggerHandler.$inject = [
-  'simulator'
+  'simulator',
+  'translate'
 ];
 
 TriggerHandler.prototype.createContextPads = function(element) {
@@ -1469,10 +1491,12 @@ TriggerHandler.prototype.createTriggerContextPad = function(element) {
   };
 
   const html = `
-    <button class="bts-context-pad" title="Trigger Event">
+    <button class="bts-context-pad">
       ${(0,_icons__WEBPACK_IMPORTED_MODULE_0__.PlayIcon)()}
     </button>
   `;
+
+  const title = this._translate('Trigger Event');
 
   const action = (subscriptions) => {
 
@@ -1491,6 +1515,7 @@ TriggerHandler.prototype.createTriggerContextPad = function(element) {
     action,
     element,
     html,
+    title,
     contexts
   };
 };
@@ -1499,42 +1524,42 @@ TriggerHandler.prototype._findSubscriptions = function(options) {
   return this._simulator.findSubscriptions(options);
 };
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/index.js"
 /*!**********************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/context-pads/index.js ***!
   \**********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _ContextPads__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ContextPads */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/ContextPads.js");
-/* harmony import */ var _scope_filter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scope-filter */ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js");
+/* harmony import */ var _ContextPads__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ContextPads */ "./node_modules/bpmn-js-token-simulation/lib/features/context-pads/ContextPads.js");
+/* harmony import */ var _scope_filter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../scope-filter */ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js");
 
 
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _scope_filter__WEBPACK_IMPORTED_MODULE_0__["default"]
+    _scope_filter__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   __init__: [
     'contextPads'
   ],
-  contextPads: [ 'type', _ContextPads__WEBPACK_IMPORTED_MODULE_1__["default"] ]
+  contextPads: [ 'type', _ContextPads__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/DisableModeling.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/DisableModeling.js"
 /*!************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/DisableModeling.js ***!
   \************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -1587,13 +1612,13 @@ DisableModeling.$inject = [
 ];
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/index.js"
 /*!**************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/index.js ***!
   \**************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -1610,13 +1635,13 @@ __webpack_require__.r(__webpack_exports__);
   disableModeling: [ 'type', _DisableModeling__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/EditorActions.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/EditorActions.js"
 /*!********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/EditorActions.js ***!
   \********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -1676,13 +1701,13 @@ EditorActions.$inject = [
   'injector'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/index.js"
 /*!************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/index.js ***!
   \************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -1699,21 +1724,21 @@ __webpack_require__.r(__webpack_exports__);
   tokenSimulationEditorActions: [ 'type', _EditorActions__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/ElementColors.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/ElementColors.js"
 /*!********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/element-colors/ElementColors.js ***!
   \********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementColors)
 /* harmony export */ });
-/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
 
@@ -1741,7 +1766,7 @@ function ElementColors(elementRegistry, eventBus, graphicsFactory) {
   this._originalColors = {};
   this._customColors = {};
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, VERY_HIGH_PRIORITY, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_1__.TOGGLE_MODE_EVENT, VERY_HIGH_PRIORITY, event => {
     const active = event.active;
 
     if (active) {
@@ -1814,7 +1839,7 @@ ElementColors.prototype.remove = function(element, id) {
 };
 
 ElementColors.prototype._get = function(element) {
-  const di = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getDi)(element);
+  const di = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getDi)(element);
 
   if (!di) {
     return undefined;
@@ -1826,7 +1851,7 @@ ElementColors.prototype._get = function(element) {
     return {
       stroke: di.label && di.label.get('color')
     };
-  } else if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isAny)(di, [ 'bpmndi:BPMNEdge', 'bpmndi:BPMNShape' ])) {
+  } else if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isAny)(di, [ 'bpmndi:BPMNEdge', 'bpmndi:BPMNShape' ])) {
     return {
       fill: di.get('background-color'),
       stroke: di.get('border-color')
@@ -1840,7 +1865,7 @@ ElementColors.prototype._set = function(element, colors = {}) {
     stroke
   } = colors;
 
-  const di = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getDi)(element);
+  const di = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getDi)(element);
 
   if (!di) {
     return;
@@ -1850,7 +1875,7 @@ ElementColors.prototype._set = function(element, colors = {}) {
   // BPMN-in-Color specification
   if (isLabel(element)) {
     di.label && di.label.set('color', stroke);
-  } else if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isAny)(di, [ 'bpmndi:BPMNEdge', 'bpmndi:BPMNShape' ])) {
+  } else if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isAny)(di, [ 'bpmndi:BPMNEdge', 'bpmndi:BPMNShape' ])) {
     di.set('background-color', fill);
     di.set('border-color', stroke);
   }
@@ -1938,13 +1963,13 @@ function getColorsWithHighestPriority(colors = {}) {
   }
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js"
 /*!************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js ***!
   \************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -1958,21 +1983,22 @@ __webpack_require__.r(__webpack_exports__);
   elementColors: [ 'type', _ElementColors__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/ElementNotifications.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/ElementNotifications.js"
 /*!**********************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/ElementNotifications.js ***!
   \**********************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementNotifications)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
 
@@ -1985,9 +2011,9 @@ function ElementNotifications(overlays, eventBus) {
   this._overlays = overlays;
 
   eventBus.on([
-    _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.RESET_SIMULATION_EVENT,
-    _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_CREATE_EVENT,
-    _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.RESET_SIMULATION_EVENT,
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.SCOPE_CREATE_EVENT,
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TOGGLE_MODE_EVENT
   ], () => {
     this.clear();
   });
@@ -2015,9 +2041,11 @@ ElementNotifications.prototype.addElementNotification = function(element, option
   const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
     <div class="bts-element-notification ${ type || '' }" ${colorMarkup}>
       ${ icon || '' }
-      <span class="bts-text">${ text }</span>
+      <span class="bts-text"></span>
     </div>
   `);
+
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-text', html).textContent = text;
 
   this._overlays.add(element, 'bts-element-notification', {
     position,
@@ -2038,13 +2066,13 @@ ElementNotifications.prototype.removeElementNotification = function(element) {
 
 ElementNotifications.$inject = [ 'overlays', 'eventBus' ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js"
 /*!*******************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js ***!
   \*******************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2058,23 +2086,23 @@ __webpack_require__.r(__webpack_exports__);
   elementNotifications: [ 'type', _ElementNotifications__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-support/ElementSupport.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-support/ElementSupport.js"
 /*!**********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/element-support/ElementSupport.js ***!
   \**********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ElementSupport)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
 /* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
 
@@ -2095,16 +2123,18 @@ function isLabel(element) {
 
 function ElementSupport(
     eventBus, elementRegistry, canvas,
-    notifications, elementNotifications) {
+    notifications, elementNotifications,
+    translate) {
 
   this._eventBus = eventBus;
   this._elementRegistry = elementRegistry;
   this._elementNotifications = elementNotifications;
   this._notifications = notifications;
+  this._translate = translate;
 
   this._canvasParent = canvas.getContainer().parentNode;
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TOGGLE_MODE_EVENT, event => {
 
     if (event.active) {
       this.enable();
@@ -2140,8 +2170,8 @@ ElementSupport.prototype.enable = function() {
   if (unsupportedElements.length) {
 
     this._notifications.showNotification({
-      text: 'Found unsupported elements',
-      icon: (0,_icons__WEBPACK_IMPORTED_MODULE_2__.ExclamationTriangleIcon)(),
+      text: this._translate('Found unsupported elements'),
+      icon: (0,_icons__WEBPACK_IMPORTED_MODULE_3__.ExclamationTriangleIcon)(),
       type: 'warning',
       ttl: 5000
     });
@@ -2151,14 +2181,14 @@ ElementSupport.prototype.enable = function() {
 };
 
 ElementSupport.prototype.clear = function() {
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this._canvasParent).remove('warning');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._canvasParent).remove('warning');
 };
 
 ElementSupport.prototype.showWarning = function(element) {
   this._elementNotifications.addElementNotification(element, {
     type: 'warning',
-    icon: (0,_icons__WEBPACK_IMPORTED_MODULE_2__.ExclamationTriangleIcon)(),
-    text: 'Not supported'
+    icon: (0,_icons__WEBPACK_IMPORTED_MODULE_3__.ExclamationTriangleIcon)(),
+    text: this._translate('Not supported')
   });
 };
 
@@ -2167,46 +2197,47 @@ ElementSupport.$inject = [
   'elementRegistry',
   'canvas',
   'notifications',
-  'elementNotifications'
+  'elementNotifications',
+  'translate'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-support/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/element-support/index.js"
 /*!*************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/element-support/index.js ***!
   \*************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _ElementSupport__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ElementSupport */ "./node_modules/bpmn-js-token-simulation/lib/features/element-support/ElementSupport.js");
-/* harmony import */ var _element_notifications__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../element-notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js");
-/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js");
+/* harmony import */ var _ElementSupport__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ElementSupport */ "./node_modules/bpmn-js-token-simulation/lib/features/element-support/ElementSupport.js");
+/* harmony import */ var _element_notifications__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../element-notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js");
+/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js");
 
 
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _element_notifications__WEBPACK_IMPORTED_MODULE_0__["default"],
-    _notifications__WEBPACK_IMPORTED_MODULE_1__["default"]
+    _element_notifications__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _notifications__WEBPACK_IMPORTED_MODULE_2__["default"]
   ],
   __init__: [ 'elementSupport' ],
-  elementSupport: [ 'type', _ElementSupport__WEBPACK_IMPORTED_MODULE_2__["default"] ]
+  elementSupport: [ 'type', _ElementSupport__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/ExclusiveGatewaySettings.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/ExclusiveGatewaySettings.js"
 /*!*******************************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/ExclusiveGatewaySettings.js ***!
   \*******************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2336,41 +2367,41 @@ ExclusiveGatewaySettings.$inject = [
   'simulationStyles'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/index.js"
 /*!************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/index.js ***!
   \************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _ExclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ExclusiveGatewaySettings */ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/ExclusiveGatewaySettings.js");
-/* harmony import */ var _element_colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js");
-/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
+/* harmony import */ var _ExclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ExclusiveGatewaySettings */ "./node_modules/bpmn-js-token-simulation/lib/features/exclusive-gateway-settings/ExclusiveGatewaySettings.js");
+/* harmony import */ var _element_colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js");
+/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
 
 
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _element_colors__WEBPACK_IMPORTED_MODULE_0__["default"],
-    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"]
+    _element_colors__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _simulation_styles__WEBPACK_IMPORTED_MODULE_2__["default"]
   ],
-  exclusiveGatewaySettings: [ 'type', _ExclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_2__["default"] ]
+  exclusiveGatewaySettings: [ 'type', _ExclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/InclusiveGatewaySettings.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/InclusiveGatewaySettings.js"
 /*!*******************************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/InclusiveGatewaySettings.js ***!
   \*******************************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2378,8 +2409,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ InclusiveGatewaySettings)
 /* harmony export */ });
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var _simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../simulator/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../simulator/util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+/* harmony import */ var _simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../simulator/util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+/* harmony import */ var _simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../simulator/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
 
@@ -2411,11 +2442,11 @@ function InclusiveGatewaySettings(
 
 InclusiveGatewaySettings.prototype.setDefaults = function() {
   const inclusiveGateways = this._elementRegistry.filter(element => {
-    return (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:InclusiveGateway');
+    return (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:InclusiveGateway');
   });
 
   inclusiveGateways.forEach(inclusiveGateway => {
-    if (inclusiveGateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isSequenceFlow).length > 1) {
+    if (inclusiveGateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isSequenceFlow).length > 1) {
       this._setGatewayDefaults(inclusiveGateway);
     }
   });
@@ -2423,11 +2454,11 @@ InclusiveGatewaySettings.prototype.setDefaults = function() {
 
 InclusiveGatewaySettings.prototype.reset = function() {
   const inclusiveGateways = this._elementRegistry.filter(element => {
-    return (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:InclusiveGateway');
+    return (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:InclusiveGateway');
   });
 
   inclusiveGateways.forEach(inclusiveGateway => {
-    if (inclusiveGateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isSequenceFlow).length > 1) {
+    if (inclusiveGateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isSequenceFlow).length > 1) {
       this._resetGateway(inclusiveGateway);
     }
   });
@@ -2472,7 +2503,7 @@ InclusiveGatewaySettings.prototype._getActiveOutgoing = function(gateway) {
 InclusiveGatewaySettings.prototype._setActiveOutgoing = function(gateway, activeOutgoing) {
   this._simulator.setConfig(gateway, { activeOutgoing });
 
-  const sequenceFlows = gateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isSequenceFlow);
+  const sequenceFlows = gateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isSequenceFlow);
 
   // set colors
   sequenceFlows.forEach(outgoing => {
@@ -2488,7 +2519,7 @@ InclusiveGatewaySettings.prototype._setActiveOutgoing = function(gateway, active
 };
 
 InclusiveGatewaySettings.prototype._setGatewayDefaults = function(gateway) {
-  const sequenceFlows = gateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isSequenceFlow);
+  const sequenceFlows = gateway.outgoing.filter(_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.isSequenceFlow);
 
   const defaultFlow = getDefaultFlow(gateway);
   const nonDefaultFlows = without(sequenceFlows, defaultFlow);
@@ -2509,14 +2540,14 @@ InclusiveGatewaySettings.$inject = [
 ];
 
 function getDefaultFlow(gateway) {
-  const defaultFlow = (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(gateway).default;
+  const defaultFlow = (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.getBusinessObject)(gateway).default;
 
   if (!defaultFlow) {
     return;
   }
 
   return gateway.outgoing.find(flow => {
-    const flowBo = (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(flow);
+    const flowBo = (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.getBusinessObject)(flow);
 
     return flowBo === defaultFlow;
   });
@@ -2526,7 +2557,7 @@ function getNonDefaultFlows(gateway) {
   const defaultFlow = getDefaultFlow(gateway);
 
   return gateway.outgoing.filter(flow => {
-    const flowBo = (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(flow);
+    const flowBo = (0,_simulator_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.getBusinessObject)(flow);
 
     return flowBo !== defaultFlow;
   });
@@ -2537,41 +2568,41 @@ function without(array, element) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/index.js"
 /*!************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/index.js ***!
   \************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _InclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./InclusiveGatewaySettings */ "./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/InclusiveGatewaySettings.js");
-/* harmony import */ var _element_colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js");
-/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
+/* harmony import */ var _InclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./InclusiveGatewaySettings */ "./node_modules/bpmn-js-token-simulation/lib/features/inclusive-gateway-settings/InclusiveGatewaySettings.js");
+/* harmony import */ var _element_colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js");
+/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
 
 
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _element_colors__WEBPACK_IMPORTED_MODULE_0__["default"],
-    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"]
+    _element_colors__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _simulation_styles__WEBPACK_IMPORTED_MODULE_2__["default"]
   ],
-  inclusiveGatewaySettings: [ 'type', _InclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_2__["default"] ]
+  inclusiveGatewaySettings: [ 'type', _InclusiveGatewaySettings__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/KeyboardBindings.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/KeyboardBindings.js"
 /*!**************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/KeyboardBindings.js ***!
   \**************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2660,13 +2691,13 @@ function isKey(keys, event) {
   return keys.indexOf(event.key) > -1;
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/index.js"
 /*!***************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/keyboard-bindings/index.js ***!
   \***************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -2683,25 +2714,24 @@ __webpack_require__.r(__webpack_exports__);
   tokenSimulationKeyboardBindings: [ 'type', _KeyboardBindings__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/log/Log.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/log/Log.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/log/Log.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Log)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
 /* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var diagram_js_lib_util_EscapeUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! diagram-js/lib/util/EscapeUtil */ "./node_modules/diagram-js/lib/util/EscapeUtil.js");
 /* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
 
@@ -2711,14 +2741,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-
-const ICON_INFO = (0,_icons__WEBPACK_IMPORTED_MODULE_0__.InfoIcon)();
+const ICON_INFO = (0,_icons__WEBPACK_IMPORTED_MODULE_4__.InfoIcon)();
 
 function getElementName(element) {
-  const name = element && element.businessObject.name;
-
-  return name && (0,diagram_js_lib_util_EscapeUtil__WEBPACK_IMPORTED_MODULE_1__.escapeHTML)(name);
+  return element && element.businessObject.name;
 }
 
 function getIconForIntermediateEvent(element, throwOrCatch) {
@@ -2773,22 +2799,23 @@ function getEventTypeString(element) {
 function Log(
     eventBus, notifications,
     tokenSimulationPalette, canvas,
-    scopeFilter, simulator) {
+    scopeFilter, translate) {
 
   this._notifications = notifications;
   this._tokenSimulationPalette = tokenSimulationPalette;
   this._canvas = canvas;
   this._scopeFilter = scopeFilter;
+  this._translate = translate;
 
   this._init();
 
   eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_FILTER_CHANGED_EVENT, event => {
-    const allElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.queryAll)('.bts-entry[data-scope-id]', this._container);
+    const allElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.queryAll)('.bts-entry[data-scope-id]', this._container);
 
     for (const element of allElements) {
       const scopeId = element.dataset.scopeId;
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(element).toggle('inactive', !this._scopeFilter.isShown(scopeId));
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(element).toggle('inactive', !this._scopeFilter.isShown(scopeId));
     }
   });
 
@@ -2815,15 +2842,23 @@ function Log(
 
     const isSubProcess = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(scopeElement, 'bpmn:SubProcess');
 
-    const text = `${
-      isSubProcess ? (getElementName(scopeElement) || 'SubProcess') : 'Process'
-    } ${
-      completed ? 'finished' : 'canceled'
-    }`;
+    const scopeName = isSubProcess && getElementName(scopeElement);
+
+    let text;
+
+    if (scopeName) {
+      text = this._translate(completed ? '{name} finished' : '{name} canceled', {
+        name: scopeName
+      });
+    } else if (isSubProcess) {
+      text = this._translate(completed ? 'SubProcess finished' : 'SubProcess canceled');
+    } else {
+      text = this._translate(completed ? 'Process finished' : 'Process canceled');
+    }
 
     this.log({
       text,
-      icon: completed ? (0,_icons__WEBPACK_IMPORTED_MODULE_0__.CheckCircleIcon)() : (0,_icons__WEBPACK_IMPORTED_MODULE_0__.TimesCircleIcon)(),
+      icon: completed ? (0,_icons__WEBPACK_IMPORTED_MODULE_4__.CheckCircleIcon)() : (0,_icons__WEBPACK_IMPORTED_MODULE_4__.TimesCircleIcon)(),
       scope
     });
   });
@@ -2849,13 +2884,14 @@ function Log(
 
     const isSubProcess = (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(scopeElement, 'bpmn:SubProcess');
 
-    const text = `${
-      isSubProcess ? (getElementName(scopeElement) || 'SubProcess') : 'Process'
-    } started`;
+    const scopeName = isSubProcess && getElementName(scopeElement);
+    const text = scopeName
+      ? this._translate('{name} started', { name: scopeName })
+      : this._translate(isSubProcess ? 'SubProcess started' : 'Process started');
 
     this.log({
       text,
-      icon: (0,_icons__WEBPACK_IMPORTED_MODULE_0__.CheckCircleIcon)(),
+      icon: (0,_icons__WEBPACK_IMPORTED_MODULE_4__.CheckCircleIcon)(),
       scope
     });
   });
@@ -2876,11 +2912,13 @@ function Log(
 
     const elementName = getElementName(element);
 
+    const translate = this._translate;
+
     // log tasks ////////////
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ServiceTask')) {
       return this.log({
-        text: elementName || 'Service Task',
+        text: elementName || translate('Service Task'),
         icon: 'bpmn-icon-service',
         scope
       });
@@ -2888,7 +2926,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:UserTask')) {
       return this.log({
-        text: elementName || 'User Task',
+        text: elementName || translate('User Task'),
         icon: 'bpmn-icon-user',
         scope
       });
@@ -2896,7 +2934,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:CallActivity')) {
       return this.log({
-        text: elementName || 'Call Activity',
+        text: elementName || translate('Call Activity'),
         icon: 'bpmn-icon-call-activity',
         scope
       });
@@ -2904,7 +2942,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ScriptTask')) {
       return this.log({
-        text: elementName || 'Script Task',
+        text: elementName || translate('Script Task'),
         icon: 'bpmn-icon-script',
         scope
       });
@@ -2912,7 +2950,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:BusinessRuleTask')) {
       return this.log({
-        text: elementName || 'Business Rule Task',
+        text: elementName || translate('Business Rule Task'),
         icon: 'bpmn-icon-business-rule',
         scope
       });
@@ -2920,7 +2958,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ManualTask')) {
       return this.log({
-        text: elementName || 'Manual Task',
+        text: elementName || translate('Manual Task'),
         icon: 'bpmn-icon-manual-task',
         scope
       });
@@ -2928,7 +2966,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ReceiveTask')) {
       return this.log({
-        text: elementName || 'Receive Task',
+        text: elementName || translate('Receive Task'),
         icon: 'bpmn-icon-receive',
         scope
       });
@@ -2936,7 +2974,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:SendTask')) {
       return this.log({
-        text: elementName || 'Send Task',
+        text: elementName || translate('Send Task'),
         icon: 'bpmn-icon-send',
         scope
       });
@@ -2944,7 +2982,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:Task')) {
       return this.log({
-        text: elementName || 'Task',
+        text: elementName || translate('Task'),
         icon: 'bpmn-icon-task',
         scope
       });
@@ -2954,7 +2992,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ExclusiveGateway')) {
       return this.log({
-        text: elementName || 'Exclusive Gateway',
+        text: elementName || translate('Exclusive Gateway'),
         icon: 'bpmn-icon-gateway-xor',
         scope
       });
@@ -2962,7 +3000,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:ParallelGateway')) {
       return this.log({
-        text: elementName || 'Parallel Gateway',
+        text: elementName || translate('Parallel Gateway'),
         icon: 'bpmn-icon-gateway-parallel',
         scope
       });
@@ -2970,7 +3008,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:InclusiveGateway')) {
       return this.log({
-        text: elementName || 'Inclusive Gateway',
+        text: elementName || translate('Inclusive Gateway'),
         icon: 'bpmn-icon-gateway-or',
         scope
       });
@@ -2980,7 +3018,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:StartEvent')) {
       return this.log({
-        text: elementName || 'Start Event',
+        text: elementName || translate('Start Event'),
         icon: `bpmn-icon-start-event-${getEventTypeString(element)}`,
         scope
       });
@@ -2988,7 +3026,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:IntermediateCatchEvent')) {
       return this.log({
-        text: elementName || 'Intermediate Event',
+        text: elementName || translate('Intermediate Event'),
         icon: getIconForIntermediateEvent(element, 'catch'),
         scope
       });
@@ -2996,7 +3034,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:IntermediateThrowEvent')) {
       return this.log({
-        text: elementName || 'Intermediate Event',
+        text: elementName || translate('Intermediate Event'),
         icon: getIconForIntermediateEvent(element, 'throw'),
         scope
       });
@@ -3004,7 +3042,7 @@ function Log(
 
     if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.is)(element, 'bpmn:BoundaryEvent')) {
       return this.log({
-        text: elementName || 'Boundary Event',
+        text: elementName || translate('Boundary Event'),
         icon: getIconForIntermediateEvent(element, 'catch'),
         scope
       });
@@ -3014,7 +3052,7 @@ function Log(
 
       // TODO: No trace event for terminate end events is emitted
       return this.log({
-        text: elementName || 'End Event',
+        text: elementName || translate('End Event'),
         icon: `bpmn-icon-end-event-${getEventTypeString(element)}`,
         scope
       });
@@ -3032,50 +3070,56 @@ function Log(
 }
 
 Log.prototype._init = function() {
-  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__["default"])(`
+  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
     <div class="bts-log hidden djs-scrollable">
       <div class="bts-header">
-        ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)('bts-log-icon') }
-        Simulation Log
-        <button class="bts-close" aria-label="Close">
-          ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.TimesIcon)() }
+        ${ (0,_icons__WEBPACK_IMPORTED_MODULE_4__.LogIcon)('bts-log-icon') }
+        <span class="bts-log-title"></span>
+        <button class="bts-close">
+          ${ (0,_icons__WEBPACK_IMPORTED_MODULE_4__.TimesIcon)() }
         </button>
       </div>
       <div class="bts-content">
-        <p class="bts-entry placeholder">No Entries</p>
+        <p class="bts-entry placeholder"></p>
       </div>
     </div>
   `);
 
-  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.query)('.bts-placeholder', this._container);
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-log-title', this._container).textContent = this._translate('Simulation Log');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-close', this._container).setAttribute('aria-label', this._translate('Close'));
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-entry.placeholder', this._container).textContent = this._translate('No Entries');
 
-  this._content = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.query)('.bts-content', this._container);
+  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-entry.placeholder', this._container);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_4__.event.bind(this._content, 'mousedown', event => {
+  this._content = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-content', this._container);
+
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.event.bind(this._content, 'mousedown', event => {
     event.stopPropagation();
   });
 
-  this._close = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.query)('.bts-close', this._container);
+  this._close = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-close', this._container);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_4__.event.bind(this._close, 'click', () => {
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.event.bind(this._close, 'click', () => {
     this.toggle(false);
   });
 
-  this._icon = (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.query)('.bts-log-icon', this._container);
+  this._icon = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-log-icon', this._container);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_4__.event.bind(this._icon, 'click', () => {
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.event.bind(this._icon, 'click', () => {
     this.toggle();
   });
 
   this._canvas.getContainer().appendChild(this._container);
 
-  this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__["default"])(`
-    <button class="bts-entry" title="Toggle Simulation Log">
-      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_0__.LogIcon)() }
+  this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
+    <button class="bts-entry">
+      ${ (0,_icons__WEBPACK_IMPORTED_MODULE_4__.LogIcon)() }
     </button>
   `);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_4__.event.bind(this.paletteEntry, 'click', () => {
+  this.paletteEntry.setAttribute('title', this._translate('Toggle Simulation Log'));
+
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.event.bind(this.paletteEntry, 'click', () => {
     this.toggle();
   });
 
@@ -3085,16 +3129,16 @@ Log.prototype._init = function() {
 Log.prototype.isShown = function() {
   const container = this._container;
 
-  return !(0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(container).has('hidden');
+  return !(0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(container).has('hidden');
 };
 
 Log.prototype.toggle = function(shown = !this.isShown()) {
   const container = this._container;
 
   if (shown) {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(container).remove('hidden');
+    (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(container).remove('hidden');
   } else {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(container).add('hidden');
+    (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(container).add('hidden');
   }
 };
 
@@ -3109,7 +3153,7 @@ Log.prototype.log = function(options) {
 
   const content = this._content;
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_4__.classes)(this._placeholder).add('hidden');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._placeholder).add('hidden');
 
   if (!this.isShown()) {
     this._notifications.showNotification(options);
@@ -3121,14 +3165,14 @@ Log.prototype.log = function(options) {
 
   const colorMarkup = colors ? `style="background: ${colors.primary}; color: ${colors.auxiliary}"` : '';
 
-  const logEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__["default"])(`
+  const logEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
     <p class="bts-entry ${ type } ${
       scope && this._scopeFilter.isShown(scope) ? '' : 'inactive'
     }" ${
       scope ? `data-scope-id="${scope.id}"` : ''
     }>
       <span class="bts-icon">${iconMarkup}</span>
-      <span class="bts-text" title="${ text }">${text}</span>
+      <span class="bts-text"></span>
       ${
         scope
           ? `<span class="bts-scope" data-scope-id="${scope.id}" ${colorMarkup}>${scope.id}</span>`
@@ -3137,7 +3181,11 @@ Log.prototype.log = function(options) {
     </p>
   `);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_4__.delegate.bind(logEntry, '.bts-scope[data-scope-id]', 'click', event => {
+  const textElement = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-text', logEntry);
+  textElement.textContent = text;
+  textElement.setAttribute('title', text);
+
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.delegate.bind(logEntry, '.bts-scope[data-scope-id]', 'click', event => {
     this._scopeFilter.toggle(scope);
   });
 
@@ -3157,7 +3205,8 @@ Log.prototype.clear = function() {
     this._content.removeChild(this._content.firstChild);
   }
 
-  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_5__["default"])('<p class="bts-entry placeholder">No Entries</p>');
+  this._placeholder = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])('<p class="bts-entry placeholder"></p>');
+  this._placeholder.textContent = this._translate('No Entries');
 
   this._content.appendChild(this._placeholder);
 };
@@ -3168,25 +3217,25 @@ Log.$inject = [
   'tokenSimulationPalette',
   'canvas',
   'scopeFilter',
-  'simulator'
+  'translate'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/log/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/log/index.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/log/index.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./Log */ "./node_modules/bpmn-js-token-simulation/lib/features/log/Log.js");
+/* harmony import */ var _Log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Log */ "./node_modules/bpmn-js-token-simulation/lib/features/log/Log.js");
 /* harmony import */ var _scope_filter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../scope-filter */ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js");
-/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js");
+/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js");
 
 
 
@@ -3194,22 +3243,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _notifications__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _notifications__WEBPACK_IMPORTED_MODULE_2__["default"],
     _scope_filter__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   __init__: [
     'log'
   ],
-  log: [ 'type', _Log__WEBPACK_IMPORTED_MODULE_2__["default"] ]
+  log: [ 'type', _Log__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/NeutralElementColors.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/NeutralElementColors.js"
 /*!***********************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/NeutralElementColors.js ***!
   \***********************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -3259,50 +3308,51 @@ NeutralElementColors.$inject = [
   'simulationStyles'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/index.js"
 /*!********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/index.js ***!
   \********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _NeutralElementColors__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./NeutralElementColors */ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/NeutralElementColors.js");
-/* harmony import */ var _element_colors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js");
-/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
+/* harmony import */ var _NeutralElementColors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./NeutralElementColors */ "./node_modules/bpmn-js-token-simulation/lib/features/neutral-element-colors/NeutralElementColors.js");
+/* harmony import */ var _element_colors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../element-colors */ "./node_modules/bpmn-js-token-simulation/lib/features/element-colors/index.js");
+/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
 
 
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
-  __depends__: [ _element_colors__WEBPACK_IMPORTED_MODULE_0__["default"], _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"] ],
+  __depends__: [ _element_colors__WEBPACK_IMPORTED_MODULE_1__["default"], _simulation_styles__WEBPACK_IMPORTED_MODULE_2__["default"] ],
   __init__: [
     'neutralElementColors'
   ],
-  neutralElementColors: [ 'type', _NeutralElementColors__WEBPACK_IMPORTED_MODULE_2__["default"] ]
+  neutralElementColors: [ 'type', _NeutralElementColors__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/Notifications.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/Notifications.js"
 /*!*******************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/notifications/Notifications.js ***!
   \*******************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Notifications)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
 
@@ -3312,7 +3362,7 @@ __webpack_require__.r(__webpack_exports__);
 
 const NOTIFICATION_TIME_TO_LIVE = 2000; // ms
 
-const INFO_ICON = (0,_icons__WEBPACK_IMPORTED_MODULE_0__.InfoIcon)();
+const INFO_ICON = (0,_icons__WEBPACK_IMPORTED_MODULE_3__.InfoIcon)();
 
 
 function Notifications(eventBus, canvas, scopeFilter) {
@@ -3323,15 +3373,15 @@ function Notifications(eventBus, canvas, scopeFilter) {
   this._init();
 
   eventBus.on([
-    _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__.TOGGLE_MODE_EVENT,
-    _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__.RESET_SIMULATION_EVENT
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TOGGLE_MODE_EVENT,
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.RESET_SIMULATION_EVENT
   ], event => {
     this.clear();
   });
 }
 
 Notifications.prototype._init = function() {
-  this.container = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__["default"])('<div class="bts-notifications"></div>');
+  this.container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])('<div class="bts-notifications"></div>');
 
   this._canvas.getContainer().appendChild(this.container);
 };
@@ -3358,13 +3408,17 @@ Notifications.prototype.showNotification = function(options) {
 
   const colorMarkup = colors ? `style="color: ${colors.auxiliary}; background: ${colors.primary}"` : '';
 
-  const notification = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__["default"])(`
+  const notification = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
     <div class="bts-notification ${type}">
       <span class="bts-icon">${iconMarkup}</span>
-      <span class="bts-text" title="${ text }">${text}</span>
+      <span class="bts-text"></span>
       ${ scope ? `<span class="bts-scope" ${colorMarkup}>${scope.id}</span>` : '' }
     </div>
   `);
+
+  const textElement = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-text', notification);
+  textElement.textContent = text;
+  textElement.setAttribute('title', text);
 
   this.container.appendChild(notification);
 
@@ -3390,13 +3444,13 @@ Notifications.$inject = [
   'scopeFilter'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js"
 /*!***********************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js ***!
   \***********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -3416,22 +3470,22 @@ __webpack_require__.r(__webpack_exports__);
   notifications: [ 'type', _Notifications__WEBPACK_IMPORTED_MODULE_1__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/palette/Palette.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/palette/Palette.js"
 /*!*******************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/palette/Palette.js ***!
   \*******************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Palette)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
 
@@ -3446,19 +3500,19 @@ function Palette(eventBus, canvas) {
 
   this._init();
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, function(context) {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TOGGLE_MODE_EVENT, function(context) {
     var active = context.active;
 
     if (active) {
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(self.container).remove('hidden');
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(self.container).remove('hidden');
     } else {
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(self.container).add('hidden');
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(self.container).add('hidden');
     }
   });
 }
 
 Palette.prototype._init = function() {
-  this.container = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__["default"])('<div class="bts-palette hidden"></div>');
+  this.container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])('<div class="bts-palette hidden"></div>');
 
   this._canvas.getContainer().appendChild(this.container);
 };
@@ -3482,13 +3536,13 @@ Palette.prototype.addEntry = function(entry, index) {
 
 Palette.$inject = [ 'eventBus', 'canvas' ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/palette/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/palette/index.js"
 /*!*****************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/palette/index.js ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -3505,23 +3559,23 @@ __webpack_require__.r(__webpack_exports__);
   tokenSimulationPalette: [ 'type', _Palette__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/PauseSimulation.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/PauseSimulation.js"
 /*!************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/PauseSimulation.js ***!
   \************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ PauseSimulation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
 
@@ -3529,19 +3583,20 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const PLAY_MARKUP = (0,_icons__WEBPACK_IMPORTED_MODULE_0__.PlayIcon)();
-const PAUSE_MARKUP = (0,_icons__WEBPACK_IMPORTED_MODULE_0__.PauseIcon)();
+const PLAY_MARKUP = (0,_icons__WEBPACK_IMPORTED_MODULE_3__.PlayIcon)();
+const PAUSE_MARKUP = (0,_icons__WEBPACK_IMPORTED_MODULE_3__.PauseIcon)();
 
 const HIGH_PRIORITY = 1500;
 
 
 function PauseSimulation(
     eventBus, tokenSimulationPalette,
-    notifications, canvas) {
+    notifications, canvas, translate) {
 
   this._eventBus = eventBus;
   this._tokenSimulationPalette = tokenSimulationPalette;
   this._notifications = notifications;
+  this._translate = translate;
 
   this.canvasParent = canvas.getContainer().parentNode;
 
@@ -3551,32 +3606,33 @@ function PauseSimulation(
   this._init();
 
   // unpause on simulation start
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_1__.SCOPE_CREATE_EVENT, HIGH_PRIORITY, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.SCOPE_CREATE_EVENT, HIGH_PRIORITY, event => {
     this.activate();
     this.unpause();
   });
 
   eventBus.on([
-    _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__.RESET_SIMULATION_EVENT,
-    _util_EventHelper__WEBPACK_IMPORTED_MODULE_1__.TOGGLE_MODE_EVENT
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.RESET_SIMULATION_EVENT,
+    _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TOGGLE_MODE_EVENT
   ], () => {
     this.deactivate();
     this.pause();
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_1__.TRACE_EVENT, HIGH_PRIORITY, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TRACE_EVENT, HIGH_PRIORITY, event => {
     this.unpause();
   });
 }
 
 PauseSimulation.prototype._init = function() {
-  this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__["default"])(`
-    <button class="bts-entry disabled" title="Play/Pause Simulation" disabled>
+  this.paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
+    <button class="bts-entry disabled" disabled>
       ${ PLAY_MARKUP }
     </button>
   `);
+  this.paletteEntry.setAttribute('title', this._translate('Play/Pause Simulation'));
 
-  min_dom__WEBPACK_IMPORTED_MODULE_3__.event.bind(this.paletteEntry, 'click', this.toggle.bind(this));
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.event.bind(this.paletteEntry, 'click', this.toggle.bind(this));
 
   this._tokenSimulationPalette.addEntry(this.paletteEntry, 1);
 };
@@ -3594,15 +3650,15 @@ PauseSimulation.prototype.pause = function() {
     return;
   }
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.paletteEntry).remove('active');
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.canvasParent).add('paused');
+  ;(0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this.paletteEntry).remove('active');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this.canvasParent).add('paused');
 
   this.paletteEntry.innerHTML = PLAY_MARKUP;
 
-  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_1__.PAUSE_SIMULATION_EVENT);
+  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.PAUSE_SIMULATION_EVENT);
 
   this._notifications.showNotification({
-    text: 'Pause Simulation'
+    text: this._translate('Pause Simulation')
   });
 
   this.isPaused = true;
@@ -3614,15 +3670,15 @@ PauseSimulation.prototype.unpause = function() {
     return;
   }
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.paletteEntry).add('active');
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.canvasParent).remove('paused');
+  ;(0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this.paletteEntry).add('active');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this.canvasParent).remove('paused');
 
   this.paletteEntry.innerHTML = PAUSE_MARKUP;
 
-  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_1__.PLAY_SIMULATION_EVENT);
+  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.PLAY_SIMULATION_EVENT);
 
   this._notifications.showNotification({
-    text: 'Play Simulation'
+    text: this._translate('Play Simulation')
   });
 
   this.isPaused = false;
@@ -3631,15 +3687,15 @@ PauseSimulation.prototype.unpause = function() {
 PauseSimulation.prototype.activate = function() {
   this.isActive = true;
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.paletteEntry).remove('disabled');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this.paletteEntry).remove('disabled');
   this.paletteEntry.removeAttribute('disabled');
 };
 
 PauseSimulation.prototype.deactivate = function() {
   this.isActive = false;
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.paletteEntry).remove('active');
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_3__.classes)(this.paletteEntry).add('disabled');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this.paletteEntry).remove('active');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this.paletteEntry).add('disabled');
   this.paletteEntry.setAttribute('disabled', '');
 };
 
@@ -3647,54 +3703,55 @@ PauseSimulation.$inject = [
   'eventBus',
   'tokenSimulationPalette',
   'notifications',
-  'canvas'
+  'canvas',
+  'translate'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/index.js"
 /*!**************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/index.js ***!
   \**************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _PauseSimulation__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./PauseSimulation */ "./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/PauseSimulation.js");
-/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js");
+/* harmony import */ var _PauseSimulation__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./PauseSimulation */ "./node_modules/bpmn-js-token-simulation/lib/features/pause-simulation/PauseSimulation.js");
+/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js");
 
 
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _notifications__WEBPACK_IMPORTED_MODULE_0__["default"]
+    _notifications__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   __init__: [
     'pauseSimulation'
   ],
-  pauseSimulation: [ 'type', _PauseSimulation__WEBPACK_IMPORTED_MODULE_1__["default"] ]
+  pauseSimulation: [ 'type', _PauseSimulation__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/ResetSimulation.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/ResetSimulation.js"
 /*!************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/ResetSimulation.js ***!
   \************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ResetSimulation)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
@@ -3703,19 +3760,20 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function ResetSimulation(eventBus, tokenSimulationPalette, notifications) {
+function ResetSimulation(eventBus, tokenSimulationPalette, notifications, translate) {
   this._eventBus = eventBus;
   this._tokenSimulationPalette = tokenSimulationPalette;
   this._notifications = notifications;
+  this._translate = translate;
 
   this._init();
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_CREATE_EVENT, () => {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(this._paletteEntry).remove('disabled');
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.SCOPE_CREATE_EVENT, () => {
+    (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._paletteEntry).remove('disabled');
     this._paletteEntry.removeAttribute('disabled');
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, (event) => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TOGGLE_MODE_EVENT, (event) => {
     const active = this._active = event.active;
 
     if (!active) {
@@ -3725,17 +3783,18 @@ function ResetSimulation(eventBus, tokenSimulationPalette, notifications) {
 }
 
 ResetSimulation.prototype._init = function() {
-  this._paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__["default"])(`
-    <button class="bts-entry disabled" title="Reset Simulation" disabled>
+  this._paletteEntry = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
+    <button class="bts-entry disabled" disabled>
       ${ (0,_icons__WEBPACK_IMPORTED_MODULE_3__.ResetIcon)() }
     </button>
   `);
+  this._paletteEntry.setAttribute('title', this._translate('Reset Simulation'));
 
-  min_dom__WEBPACK_IMPORTED_MODULE_1__.event.bind(this._paletteEntry, 'click', () => {
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.event.bind(this._paletteEntry, 'click', () => {
     this.resetSimulation();
 
     this._notifications.showNotification({
-      text: 'Reset Simulation',
+      text: this._translate('Reset Simulation'),
       type: 'info'
     });
   });
@@ -3744,54 +3803,55 @@ ResetSimulation.prototype._init = function() {
 };
 
 ResetSimulation.prototype.resetSimulation = function() {
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(this._paletteEntry).add('disabled');
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._paletteEntry).add('disabled');
   this._paletteEntry.setAttribute('disabled', '');
 
-  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.RESET_SIMULATION_EVENT);
+  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.RESET_SIMULATION_EVENT);
 };
 
 ResetSimulation.$inject = [
   'eventBus',
   'tokenSimulationPalette',
-  'notifications'
+  'notifications',
+  'translate'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/index.js"
 /*!**************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/index.js ***!
   \**************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _ResetSimulation__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ResetSimulation */ "./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/ResetSimulation.js");
-/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js");
+/* harmony import */ var _ResetSimulation__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ResetSimulation */ "./node_modules/bpmn-js-token-simulation/lib/features/reset-simulation/ResetSimulation.js");
+/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js");
 
 
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _notifications__WEBPACK_IMPORTED_MODULE_0__["default"]
+    _notifications__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   __init__: [
     'resetSimulation'
   ],
-  resetSimulation: [ 'type', _ResetSimulation__WEBPACK_IMPORTED_MODULE_1__["default"] ]
+  resetSimulation: [ 'type', _ResetSimulation__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/ScopeFilter.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/ScopeFilter.js"
 /*!****************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/ScopeFilter.js ***!
   \****************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -3898,13 +3958,13 @@ function isAncestor(parent, scope) {
   return false;
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js"
 /*!**********************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js ***!
   \**********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -3918,22 +3978,22 @@ __webpack_require__.r(__webpack_exports__);
   scopeFilter: [ 'type', _ScopeFilter__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/SetAnimationSpeed.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/SetAnimationSpeed.js"
 /*!*****************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/SetAnimationSpeed.js ***!
   \*****************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ SetAnimationSpeed)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 /* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
@@ -3948,24 +4008,25 @@ const SPEEDS = [
 
 
 
-function SetAnimationSpeed(canvas, animation, eventBus) {
+function SetAnimationSpeed(canvas, animation, eventBus, translate) {
   this._canvas = canvas;
   this._animation = animation;
   this._eventBus = eventBus;
+  this._translate = translate;
 
   this._init(animation.getAnimationSpeed());
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TOGGLE_MODE_EVENT, event => {
     const active = event.active;
 
     if (!active) {
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(this._container).add('hidden');
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._container).add('hidden');
     } else {
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(this._container).remove('hidden');
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._container).remove('hidden');
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.ANIMATION_SPEED_CHANGED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.ANIMATION_SPEED_CHANGED_EVENT, event => {
     this.setActive(event.speed);
   });
 }
@@ -3975,13 +4036,13 @@ SetAnimationSpeed.prototype.getToggleSpeed = function(element) {
 };
 
 SetAnimationSpeed.prototype._init = function(animationSpeed) {
-  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__["default"])(`
+  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
     <div class="bts-set-animation-speed hidden">
       ${ (0,_icons__WEBPACK_IMPORTED_MODULE_3__.TachometerIcon)() }
       <div class="bts-animation-speed-buttons">
         ${
           SPEEDS.map(([ label, speed ], idx) => `
-            <button title="Set animation speed = ${ label }" data-speed="${ speed }" class="bts-animation-speed-button ${speed === animationSpeed ? 'active' : ''}">
+            <button data-speed="${ speed }" class="bts-animation-speed-button ${speed === animationSpeed ? 'active' : ''}">
               ${
                 Array.from({ length: idx + 1 }).map(
                   () => (0,_icons__WEBPACK_IMPORTED_MODULE_3__.AngleRightIcon)()
@@ -3994,7 +4055,17 @@ SetAnimationSpeed.prototype._init = function(animationSpeed) {
     </div>
   `);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_1__.delegate.bind(this._container, '[data-speed]', 'click', event => {
+  const buttons = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.queryAll)('.bts-animation-speed-button', this._container);
+  const translate = this._translate;
+  buttons.forEach((button, idx) => {
+    const [ label ] = SPEEDS[idx];
+    button.setAttribute(
+      'title',
+      translate('Set animation speed = {speed}', { speed: translate(label) })
+    );
+  });
+
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.delegate.bind(this._container, '[data-speed]', 'click', event => {
 
     const toggle = event.delegateTarget;
 
@@ -4007,28 +4078,29 @@ SetAnimationSpeed.prototype._init = function(animationSpeed) {
 };
 
 SetAnimationSpeed.prototype.setActive = function(speed) {
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.queryAll)('[data-speed]', this._container).forEach(toggle => {
+  (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.queryAll)('[data-speed]', this._container).forEach(toggle => {
 
     const active = this.getToggleSpeed(toggle) === speed;
 
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(toggle)[active ? 'add' : 'remove']('active');
+    (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(toggle)[active ? 'add' : 'remove']('active');
   });
 };
 
 SetAnimationSpeed.$inject = [
   'canvas',
   'animation',
-  'eventBus'
+  'eventBus',
+  'translate'
 ];
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/index.js"
 /*!*****************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/set-animation-speed/index.js ***!
   \*****************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -4045,23 +4117,23 @@ __webpack_require__.r(__webpack_exports__);
   setAnimationSpeed: [ 'type', _SetAnimationSpeed__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/show-scopes/ShowScopes.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/show-scopes/ShowScopes.js"
 /*!**************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/show-scopes/ShowScopes.js ***!
   \**************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ShowScopes)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
 
@@ -4081,63 +4153,65 @@ function ShowScopes(
     canvas,
     scopeFilter,
     elementColors,
-    simulationStyles) {
+    simulationStyles,
+    translate) {
 
   this._eventBus = eventBus;
   this._canvas = canvas;
   this._scopeFilter = scopeFilter;
   this._elementColors = elementColors;
   this._simulationStyles = simulationStyles;
+  this._translate = translate;
 
   this._highlight = null;
 
   this._init();
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.TOGGLE_MODE_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.TOGGLE_MODE_EVENT, event => {
     const active = event.active;
 
     if (active) {
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(this._container).remove('hidden');
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._container).remove('hidden');
     } else {
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(this._container).add('hidden');
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.clear)(this._container);
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._container).add('hidden');
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.clear)(this._container);
 
       this.unhighlightScope();
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_FILTER_CHANGED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_FILTER_CHANGED_EVENT, event => {
 
     const allElements = this.getScopeElements();
 
     for (const element of allElements) {
       const scopeId = element.dataset.scopeId;
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(element).toggle('inactive', !this._scopeFilter.isShown(scopeId));
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(element).toggle('focussed', this._scopeFilter.isFocused(scopeId));
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(element).toggle('inactive', !this._scopeFilter.isShown(scopeId));
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(element).toggle('focussed', this._scopeFilter.isFocused(scopeId));
       element.setAttribute('aria-pressed', String(this._scopeFilter.isFocused(scopeId)));
     }
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_CREATE_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_CREATE_EVENT, event => {
     this.addScope(event.scope);
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_DESTROYED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_DESTROYED_EVENT, event => {
     this.removeScope(event.scope);
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_CHANGED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_CHANGED_EVENT, event => {
     this.updateScope(event.scope);
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.RESET_SIMULATION_EVENT, () => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.RESET_SIMULATION_EVENT, () => {
     this.removeAllInstances();
   });
 }
 
 ShowScopes.prototype._init = function() {
-  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__["default"])('<div class="bts-scopes hidden"></div>');
+  this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])('<div class="bts-scopes hidden"></div>');
 
   this._canvas.getContainer().appendChild(this._container);
 };
@@ -4154,7 +4228,7 @@ ShowScopes.prototype.addScope = function(scope) {
     element: scopeElement
   } = scope;
 
-  if (!(0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.isAny)(scopeElement, processElements)) {
+  if (!(0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isAny)(scopeElement, processElements)) {
     return;
   }
 
@@ -4162,42 +4236,46 @@ ShowScopes.prototype.addScope = function(scope) {
 
   const colorMarkup = colors ? `style="color: ${colors.auxiliary}; background: ${colors.primary}; --scope-color: ${colors.primary}"` : '';
 
-  const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_2__["default"])(`
+  const title = this._translate('Focus process instance {scopeId}', {
+    scopeId: scope.id
+  });
+  const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
     <button data-scope-id="${scope.id}" class="bts-scope"
          aria-pressed="false"
-         title="Focus process instance ${scope.id}" ${colorMarkup}>
+         ${colorMarkup}>
       ${scope.getTokens()}
     </button>
   `);
+  html.setAttribute('title', title);
 
-  min_dom__WEBPACK_IMPORTED_MODULE_1__.event.bind(html, 'click', () => {
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.event.bind(html, 'click', () => {
     this._scopeFilter.toggle(scope);
   });
 
-  min_dom__WEBPACK_IMPORTED_MODULE_1__.event.bind(html, 'mouseenter', () => {
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.event.bind(html, 'mouseenter', () => {
     this.highlightScope(scopeElement);
   });
 
-  min_dom__WEBPACK_IMPORTED_MODULE_1__.event.bind(html, 'mouseleave', () => {
+  min_dom__WEBPACK_IMPORTED_MODULE_0__.event.bind(html, 'mouseleave', () => {
     this.unhighlightScope();
   });
 
   if (!this._scopeFilter.isShown(scope)) {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(html).add('inactive');
+    (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(html).add('inactive');
   }
 
-  (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(html).toggle('focussed', this._scopeFilter.isFocused(scope));
+  ;(0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(html).toggle('focussed', this._scopeFilter.isFocused(scope));
   html.setAttribute('aria-pressed', String(this._scopeFilter.isFocused(scope)));
 
   this._container.appendChild(html);
 };
 
 ShowScopes.prototype.getScopeElements = function() {
-  return (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.queryAll)('[data-scope-id]', this._container);
+  return (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.queryAll)('[data-scope-id]', this._container);
 };
 
 ShowScopes.prototype.getScopeElement = function(scope) {
-  return (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.query)(`[data-scope-id="${scope.id}"]`, this._container);
+  return (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)(`[data-scope-id="${scope.id}"]`, this._container);
 };
 
 ShowScopes.prototype.updateScope = function(scope) {
@@ -4229,7 +4307,7 @@ ShowScopes.prototype.highlightScope = function(element) {
   this._elementColors.add(element, ID, this._getHighlightColors(), VERY_HIGH_PRIORITY);
 
   if (!element.parent) {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(this._canvas.getContainer()).add('highlight');
+    (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._canvas.getContainer()).add('highlight');
   }
 };
 
@@ -4244,7 +4322,7 @@ ShowScopes.prototype.unhighlightScope = function() {
   this._elementColors.remove(element, ID);
 
   if (!element.parent) {
-    (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(this._canvas.getContainer()).remove('highlight');
+    (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._canvas.getContainer()).remove('highlight');
   }
 
   this._highlight = null;
@@ -4262,25 +4340,26 @@ ShowScopes.$inject = [
   'canvas',
   'scopeFilter',
   'elementColors',
-  'simulationStyles'
+  'simulationStyles',
+  'translate'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/show-scopes/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/show-scopes/index.js"
 /*!*********************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/show-scopes/index.js ***!
   \*********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _ShowScopes__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ShowScopes */ "./node_modules/bpmn-js-token-simulation/lib/features/show-scopes/ShowScopes.js");
-/* harmony import */ var _scope_filter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scope-filter */ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js");
-/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
+/* harmony import */ var _ShowScopes__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ShowScopes */ "./node_modules/bpmn-js-token-simulation/lib/features/show-scopes/ShowScopes.js");
+/* harmony import */ var _scope_filter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../scope-filter */ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js");
+/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
 
 
 
@@ -4288,22 +4367,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _scope_filter__WEBPACK_IMPORTED_MODULE_0__["default"],
-    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"]
+    _scope_filter__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _simulation_styles__WEBPACK_IMPORTED_MODULE_2__["default"]
   ],
   __init__: [
     'showScopes'
   ],
-  showScopes: [ 'type', _ShowScopes__WEBPACK_IMPORTED_MODULE_2__["default"] ]
+  showScopes: [ 'type', _ShowScopes__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/SimulationState.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/SimulationState.js"
 /*!************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/SimulationState.js ***!
   \************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -4320,7 +4399,8 @@ __webpack_require__.r(__webpack_exports__);
 function SimulationState(
     eventBus,
     simulator,
-    elementNotifications) {
+    elementNotifications,
+    translate) {
 
   eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_DESTROYED_EVENT, event => {
     const {
@@ -4348,7 +4428,7 @@ function SimulationState(
     elementNotifications.addElementNotification(destroyInitiator.element, {
       type: 'success',
       icon: (0,_icons__WEBPACK_IMPORTED_MODULE_1__.CheckCircleIcon)(),
-      text: 'Finished',
+      text: translate('Finished'),
       scope
     });
   });
@@ -4357,25 +4437,26 @@ function SimulationState(
 SimulationState.$inject = [
   'eventBus',
   'simulator',
-  'elementNotifications'
+  'elementNotifications',
+  'translate'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/index.js"
 /*!**************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/index.js ***!
   \**************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _SimulationState__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./SimulationState */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/SimulationState.js");
-/* harmony import */ var _element_notifications__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../element-notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js");
-/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js");
+/* harmony import */ var _SimulationState__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./SimulationState */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-state/SimulationState.js");
+/* harmony import */ var _element_notifications__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../element-notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/element-notifications/index.js");
+/* harmony import */ var _notifications__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../notifications */ "./node_modules/bpmn-js-token-simulation/lib/features/notifications/index.js");
 
 
 
@@ -4383,22 +4464,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _element_notifications__WEBPACK_IMPORTED_MODULE_0__["default"],
-    _notifications__WEBPACK_IMPORTED_MODULE_1__["default"]
+    _element_notifications__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _notifications__WEBPACK_IMPORTED_MODULE_2__["default"]
   ],
   __init__: [
     'simulationState'
   ],
-  simulationState: [ 'type', _SimulationState__WEBPACK_IMPORTED_MODULE_2__["default"] ]
+  simulationState: [ 'type', _SimulationState__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/SimulationStyles.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/SimulationStyles.js"
 /*!**************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/SimulationStyles.js ***!
   \**************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -4406,7 +4487,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   CONTAINER_CLASS: () => (/* binding */ CONTAINER_CLASS),
 /* harmony export */   "default": () => (/* binding */ SimulationStyles)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
 
 
 const CONTAINER_CLASS = 'bts-container';
@@ -4464,13 +4545,13 @@ function getComputedStyleMock() {
   };
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js"
 /*!***************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js ***!
   \***************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -4485,23 +4566,23 @@ __webpack_require__.r(__webpack_exports__);
   simulationStyles: [ 'type', _SimulationStyles__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/ToggleMode.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/ToggleMode.js"
 /*!**********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/ToggleMode.js ***!
   \**********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ ToggleMode)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
-/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var _icons__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../icons */ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js");
 
 
 
@@ -4511,12 +4592,13 @@ __webpack_require__.r(__webpack_exports__);
 
 function ToggleMode(
     eventBus, canvas, selection,
-    contextPad) {
+    contextPad, translate) {
 
   this._eventBus = eventBus;
   this._canvas = canvas;
   this._selection = selection;
   this._contextPad = contextPad;
+  this._translate = translate;
 
   this._active = false;
 
@@ -4542,13 +4624,22 @@ function ToggleMode(
 ToggleMode.prototype._init = function() {
   this._container = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
     <div class="bts-toggle-mode">
-      Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.ToggleOffIcon)() }</span>
+      <span class="bts-label"></span> <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_3__.ToggleOffIcon)() }</span>
     </div>
   `);
+
+  this._label = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-label', this._container);
+  this._label.textContent = this._translate('Token Simulation');
+
+  this._toggle = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.query)('.bts-toggle', this._container);
 
   min_dom__WEBPACK_IMPORTED_MODULE_0__.event.bind(this._container, 'click', () => this.toggleMode());
 
   this._canvas.getContainer().appendChild(this._container);
+};
+
+ToggleMode.prototype._toggleIcon = function(active) {
+  this._toggle.innerHTML = active ? (0,_icons__WEBPACK_IMPORTED_MODULE_3__.ToggleOnIcon)() : (0,_icons__WEBPACK_IMPORTED_MODULE_3__.ToggleOffIcon)();
 };
 
 ToggleMode.prototype.toggleMode = function(active = !this._active) {
@@ -4558,13 +4649,9 @@ ToggleMode.prototype.toggleMode = function(active = !this._active) {
   }
 
   if (active) {
-    this._container.innerHTML = `Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.ToggleOnIcon)() }</span>`;
-
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._canvasParent).add('simulation');
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._palette).add('hidden');
   } else {
-    this._container.innerHTML = `Token Simulation <span class="bts-toggle">${ (0,_icons__WEBPACK_IMPORTED_MODULE_2__.ToggleOffIcon)() }</span>`;
-
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._canvasParent).remove('simulation');
     (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(this._palette).remove('hidden');
 
@@ -4575,7 +4662,9 @@ ToggleMode.prototype.toggleMode = function(active = !this._active) {
     }
   }
 
-  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.TOGGLE_MODE_EVENT, {
+  this._toggleIcon(active);
+
+  this._eventBus.fire(_util_EventHelper__WEBPACK_IMPORTED_MODULE_2__.TOGGLE_MODE_EVENT, {
     active
   });
 
@@ -4586,16 +4675,17 @@ ToggleMode.$inject = [
   'eventBus',
   'canvas',
   'selection',
-  'contextPad'
+  'contextPad',
+  'translate'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/index.js"
 /*!*****************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/index.js ***!
   \*****************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -4612,23 +4702,23 @@ __webpack_require__.r(__webpack_exports__);
   toggleMode: [ 'type', _ToggleMode__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/token-count/TokenCount.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/token-count/TokenCount.js"
 /*!**************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/token-count/TokenCount.js ***!
   \**************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ TokenCount)
 /* harmony export */ });
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js");
-/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! min-dom */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dom */ "./node_modules/min-dom/dist/index.js");
+/* harmony import */ var min_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dom */ "./node_modules/domify/index.js");
 /* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
+/* harmony import */ var _util_EventHelper__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../util/EventHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js");
 
 
 
@@ -4657,7 +4747,7 @@ function TokenCount(
 
   this.overlayIds = {};
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.ELEMENT_CHANGED_EVENT, LOW_PRIORITY, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.ELEMENT_CHANGED_EVENT, LOW_PRIORITY, event => {
 
     const {
       element
@@ -4667,14 +4757,14 @@ function TokenCount(
     this.addTokenCounts(element);
   });
 
-  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_0__.SCOPE_FILTER_CHANGED_EVENT, event => {
+  eventBus.on(_util_EventHelper__WEBPACK_IMPORTED_MODULE_3__.SCOPE_FILTER_CHANGED_EVENT, event => {
 
-    const allElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.queryAll)('.bts-token-count[data-scope-id]', overlays._overlayRoot);
+    const allElements = (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.queryAll)('.bts-token-count[data-scope-id]', overlays._overlayRoot);
 
     for (const element of allElements) {
       const scopeId = element.dataset.scopeId;
 
-      (0,min_dom__WEBPACK_IMPORTED_MODULE_1__.classes)(element).toggle('inactive', !this._scopeFilter.isShown(scopeId));
+      (0,min_dom__WEBPACK_IMPORTED_MODULE_0__.classes)(element).toggle('inactive', !this._scopeFilter.isShown(scopeId));
     }
   });
 }
@@ -4704,7 +4794,7 @@ TokenCount.prototype.addTokenCount = function(element, scopes) {
     return this._getTokenHTML(element, scope);
   }).join('');
 
-  const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_3__["default"])(`
+  const html = (0,min_dom__WEBPACK_IMPORTED_MODULE_1__["default"])(`
     <div class="bts-token-count-parent">
       ${tokenMarkup}
     </div>
@@ -4766,22 +4856,22 @@ TokenCount.$inject = [
   'simulationStyles'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/features/token-count/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/features/token-count/index.js"
 /*!*********************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/features/token-count/index.js ***!
   \*********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _TokenCount__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./TokenCount */ "./node_modules/bpmn-js-token-simulation/lib/features/token-count/TokenCount.js");
-/* harmony import */ var _scope_filter__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../scope-filter */ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js");
-/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
+/* harmony import */ var _TokenCount__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TokenCount */ "./node_modules/bpmn-js-token-simulation/lib/features/token-count/TokenCount.js");
+/* harmony import */ var _scope_filter__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../scope-filter */ "./node_modules/bpmn-js-token-simulation/lib/features/scope-filter/index.js");
+/* harmony import */ var _simulation_styles__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../simulation-styles */ "./node_modules/bpmn-js-token-simulation/lib/features/simulation-styles/index.js");
 
 
 
@@ -4789,22 +4879,22 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _scope_filter__WEBPACK_IMPORTED_MODULE_0__["default"],
-    _simulation_styles__WEBPACK_IMPORTED_MODULE_1__["default"]
+    _scope_filter__WEBPACK_IMPORTED_MODULE_1__["default"],
+    _simulation_styles__WEBPACK_IMPORTED_MODULE_2__["default"]
   ],
   __init__: [
     'tokenCount'
   ],
-  tokenCount: [ 'type', _TokenCount__WEBPACK_IMPORTED_MODULE_2__["default"] ]
+  tokenCount: [ 'type', _TokenCount__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/icons/index.js"
 /*!******************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/icons/index.js ***!
   \******************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -4880,21 +4970,21 @@ const ToggleOnIcon = createIcon(ToggleOnSVG);
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/modeler.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/modeler.js"
 /*!**************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/modeler.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./base */ "./node_modules/bpmn-js-token-simulation/lib/base.js");
-/* harmony import */ var _bpmn_io_diagram_js_canvas_lock__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @bpmn-io/diagram-js-canvas-lock */ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/index.js");
+/* harmony import */ var _base__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./base */ "./node_modules/bpmn-js-token-simulation/lib/base.js");
+/* harmony import */ var _bpmn_io_diagram_js_canvas_lock__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @bpmn-io/diagram-js-canvas-lock */ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/index.js");
 /* harmony import */ var _features_disable_modeling__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./features/disable-modeling */ "./node_modules/bpmn-js-token-simulation/lib/features/disable-modeling/index.js");
 /* harmony import */ var _features_toggle_mode_modeler__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./features/toggle-mode/modeler */ "./node_modules/bpmn-js-token-simulation/lib/features/toggle-mode/modeler/index.js");
 /* harmony import */ var _features_editor_actions__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./features/editor-actions */ "./node_modules/bpmn-js-token-simulation/lib/features/editor-actions/index.js");
@@ -4909,8 +4999,8 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _base__WEBPACK_IMPORTED_MODULE_1__["default"],
-    _bpmn_io_diagram_js_canvas_lock__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _base__WEBPACK_IMPORTED_MODULE_0__["default"],
+    _bpmn_io_diagram_js_canvas_lock__WEBPACK_IMPORTED_MODULE_1__["default"],
     _features_disable_modeling__WEBPACK_IMPORTED_MODULE_2__["default"],
     _features_toggle_mode_modeler__WEBPACK_IMPORTED_MODULE_3__["default"],
     _features_editor_actions__WEBPACK_IMPORTED_MODULE_4__["default"],
@@ -4918,21 +5008,21 @@ __webpack_require__.r(__webpack_exports__);
   ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/Scope.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/Scope.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/Scope.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ Scope)
 /* harmony export */ });
-/* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
-/* harmony import */ var _ScopeStates__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ScopeStates */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeStates.js");
+/* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
+/* harmony import */ var _ScopeStates__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ScopeStates */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeStates.js");
 
 
 
@@ -4959,46 +5049,46 @@ class Scope {
     this.subscriptions = new Set();
 
     this.children = [];
-    this.state = _ScopeStates__WEBPACK_IMPORTED_MODULE_0__.ScopeStates.ACTIVATED;
+    this.state = _ScopeStates__WEBPACK_IMPORTED_MODULE_1__.ScopeStates.ACTIVATED;
   }
 
   /**
    * @return {boolean}
    */
   get running() {
-    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.RUNNING);
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.RUNNING);
   }
 
   /**
    * @return {boolean}
    */
   get destroyed() {
-    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.DESTROYED);
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.DESTROYED);
   }
 
   /**
    * @return {boolean}
    */
   get completed() {
-    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.COMPLETED);
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.COMPLETED);
   }
 
   /**
    * @return {boolean}
    */
   get canceled() {
-    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.CANCELED);
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.CANCELED);
   }
 
   /**
    * @return {boolean}
    */
   get failed() {
-    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.FAILED);
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.FAILED);
   }
 
   get active() {
-    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_1__.ScopeTraits.ACTIVE);
+    return this.hasTrait(_ScopeTraits__WEBPACK_IMPORTED_MODULE_0__.ScopeTraits.ACTIVE);
   }
 
   /**
@@ -5112,13 +5202,13 @@ class Scope {
 
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeStates.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeStates.js"
 /*!****************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeStates.js ***!
   \****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -5348,13 +5438,13 @@ const ScopeStates = Object.freeze({
   TERMINATED,
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js"
 /*!****************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js ***!
   \****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -5392,13 +5482,13 @@ const ScopeTraits = Object.freeze({
   NOT_DEAD
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/Simulator.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/Simulator.js"
 /*!**************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/Simulator.js ***!
   \**************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -5406,12 +5496,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "default": () => (/* binding */ Simulator)
 /* harmony export */ });
 /* harmony import */ var ids__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ids */ "./node_modules/ids/dist/index.js");
-/* harmony import */ var _Scope__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./Scope */ "./node_modules/bpmn-js-token-simulation/lib/simulator/Scope.js");
-/* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
-/* harmony import */ var _util_SetUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./util/SetUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js");
-/* harmony import */ var _util_EventsUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./util/EventsUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js");
-/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+/* harmony import */ var _Scope__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Scope */ "./node_modules/bpmn-js-token-simulation/lib/simulator/Scope.js");
+/* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
+/* harmony import */ var _util_SetUtil__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./util/SetUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js");
+/* harmony import */ var _util_EventsUtil__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./util/EventsUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
 
@@ -5615,13 +5705,13 @@ function Simulator(injector, eventBus, elementRegistry) {
 
     const subscriptions = scope.subscriptions;
 
-    let matchingSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(
-      subscriptions, subscription => (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_2__.eventsMatch)(event, subscription.event)
+    let matchingSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_3__.filterSet)(
+      subscriptions, subscription => (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_4__.eventsMatch)(event, subscription.event)
     );
 
     if (event.type === 'error' || event.type === 'escalation') {
-      const referenceSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(
-        matchingSubscriptions, subscription => (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_2__.refsMatch)(event, subscription.event)
+      const referenceSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_3__.filterSet)(
+        matchingSubscriptions, subscription => (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_4__.refsMatch)(event, subscription.event)
       );
 
       if (matchingSubscriptions.every(subscription => subscription.event.boundary)
@@ -5647,7 +5737,7 @@ function Simulator(injector, eventBus, elementRegistry) {
 
     const interrupt = interrupting.find(subscription => !subscription.event.boundary) || interrupting[0];
 
-    const remainingSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(
+    const remainingSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_3__.filterSet)(
       subscriptions,
       subscription => subscription.event.persistent || isRethrow(subscription.event, interrupt.event)
     );
@@ -5705,12 +5795,12 @@ function Simulator(injector, eventBus, elementRegistry) {
 
   function createInternalRef(element) {
     if (
-      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:StartEvent') ||
-      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:IntermediateCatchEvent') ||
-      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ReceiveTask') ||
+      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(element, 'bpmn:StartEvent') ||
+      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(element, 'bpmn:IntermediateCatchEvent') ||
+      (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(element, 'bpmn:ReceiveTask') ||
       isSpecialBoundaryEvent(element)
     ) {
-      return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.getBusinessObject)(element).name || element.id;
+      return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.getBusinessObject)(element).name || element.id;
     }
 
     return null;
@@ -5743,8 +5833,8 @@ function Simulator(injector, eventBus, elementRegistry) {
       return element;
     }
 
-    const interrupting = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isInterrupting)(element);
-    const boundary = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isBoundaryEvent)(element);
+    const interrupting = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isInterrupting)(element);
+    const boundary = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isBoundaryEvent)(element);
 
     // we do create an internal reference for
     // catch-like events to ensure these can
@@ -5768,7 +5858,7 @@ function Simulator(injector, eventBus, elementRegistry) {
       };
     }
 
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:LinkEventDefinition')) {
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(eventDefinition, 'bpmn:LinkEventDefinition')) {
       return {
         ...baseEvent,
         type: 'link',
@@ -5776,7 +5866,7 @@ function Simulator(injector, eventBus, elementRegistry) {
       };
     }
 
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:SignalEventDefinition')) {
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(eventDefinition, 'bpmn:SignalEventDefinition')) {
       return {
         ...baseEvent,
         type: 'signal',
@@ -5784,21 +5874,21 @@ function Simulator(injector, eventBus, elementRegistry) {
       };
     }
 
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:TimerEventDefinition')) {
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(eventDefinition, 'bpmn:TimerEventDefinition')) {
       return {
         ...baseEvent,
         type: 'timer'
       };
     }
 
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:ConditionalEventDefinition')) {
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(eventDefinition, 'bpmn:ConditionalEventDefinition')) {
       return {
         ...baseEvent,
         type: 'condition',
       };
     }
 
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:EscalationEventDefinition')) {
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(eventDefinition, 'bpmn:EscalationEventDefinition')) {
       return {
         ...baseEvent,
         type: 'escalation',
@@ -5806,14 +5896,14 @@ function Simulator(injector, eventBus, elementRegistry) {
       };
     }
 
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:CancelEventDefinition')) {
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(eventDefinition, 'bpmn:CancelEventDefinition')) {
       return {
         ...baseEvent,
         type: 'cancel'
       };
     }
 
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:ErrorEventDefinition')) {
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(eventDefinition, 'bpmn:ErrorEventDefinition')) {
       return {
         ...baseEvent,
         type: 'error',
@@ -5821,7 +5911,7 @@ function Simulator(injector, eventBus, elementRegistry) {
       };
     }
 
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:MessageEventDefinition')) {
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(eventDefinition, 'bpmn:MessageEventDefinition')) {
       return {
         ...baseEvent,
         type: 'message',
@@ -5829,18 +5919,18 @@ function Simulator(injector, eventBus, elementRegistry) {
       };
     }
 
-    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(eventDefinition, 'bpmn:CompensateEventDefinition')) {
+    if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(eventDefinition, 'bpmn:CompensateEventDefinition')) {
 
       let ref = eventDefinition.activityRef && elementRegistry.get(eventDefinition.activityRef.id);
 
       if (!ref) {
 
-        if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isStartEvent)(element) && (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isEventSubProcess)(element.parent)) {
+        if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isStartEvent)(element) && (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isEventSubProcess)(element.parent)) {
 
           // start event in event sub-process compensates
           // parent process (or participant)
           ref = element.parent.parent;
-        } else if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isBoundaryEvent)(element)) {
+        } else if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isBoundaryEvent)(element)) {
 
           // boundary event compensates activity it is attached to
           ref = element.host;
@@ -5875,7 +5965,7 @@ function Simulator(injector, eventBus, elementRegistry) {
       scope: parentScope
     });
 
-    const scope = new _Scope__WEBPACK_IMPORTED_MODULE_5__["default"](ids.next(), element, parentScope, initiator);
+    const scope = new _Scope__WEBPACK_IMPORTED_MODULE_1__["default"](ids.next(), element, parentScope, initiator);
 
     if (parentScope) {
       parentScope.children.push(scope);
@@ -5913,7 +6003,7 @@ function Simulator(injector, eventBus, elementRegistry) {
 
     return (
       (subscription) =>
-        (!event || (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_2__.eventsMatch)(event, subscription.event)) &&
+        (!event || (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_4__.eventsMatch)(event, subscription.event)) &&
         (!elements || elements.includes(subscription.element)) &&
         (!scope || scope === subscription.scope)
     );
@@ -5937,7 +6027,7 @@ function Simulator(injector, eventBus, elementRegistry) {
       element,
       waitsOnElement,
       parent,
-      trait = _ScopeTraits__WEBPACK_IMPORTED_MODULE_6__.ScopeTraits.RUNNING,
+      trait = _ScopeTraits__WEBPACK_IMPORTED_MODULE_2__.ScopeTraits.RUNNING,
       subscribedTo
     } = filter;
 
@@ -5954,19 +6044,19 @@ function Simulator(injector, eventBus, elementRegistry) {
   }
 
   function findSubscriptions(filter) {
-    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(subscriptions, subscriptionFilter(filter));
+    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_3__.filterSet)(subscriptions, subscriptionFilter(filter));
   }
 
   function findSubscription(filter) {
-    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.findSet)(subscriptions, subscriptionFilter(filter));
+    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_3__.findSet)(subscriptions, subscriptionFilter(filter));
   }
 
   function findScopes(filter) {
-    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.filterSet)(scopes, scopeFilter(filter));
+    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_3__.filterSet)(scopes, scopeFilter(filter));
   }
 
   function findScope(filter) {
-    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_1__.findSet)(scopes, scopeFilter(filter));
+    return (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_3__.findSet)(scopes, scopeFilter(filter));
   }
 
   function destroyScope(scope, initiator = null) {
@@ -5979,7 +6069,7 @@ function Simulator(injector, eventBus, elementRegistry) {
 
     // remove outdated subscriptions
     for (const subscription of scope.subscriptions) {
-      const trait = subscription.event.traits || _ScopeTraits__WEBPACK_IMPORTED_MODULE_6__.ScopeTraits.ACTIVE;
+      const trait = subscription.event.traits || _ScopeTraits__WEBPACK_IMPORTED_MODULE_2__.ScopeTraits.ACTIVE;
 
       if (!scope.hasTrait(trait)) {
         unsubscribe(subscription);
@@ -6074,7 +6164,7 @@ function Simulator(injector, eventBus, elementRegistry) {
 
     elementRegistry.forEach(element => {
 
-      if (!(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isAny)(element, [ 'bpmn:Process', 'bpmn:Participant' ])) {
+      if (!(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isAny)(element, [ 'bpmn:Process', 'bpmn:Participant' ])) {
         return;
       }
 
@@ -6084,9 +6174,9 @@ function Simulator(injector, eventBus, elementRegistry) {
 
       rootScopes.push(scope);
 
-      const startEvents = element.children.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isStartEvent);
+      const startEvents = element.children.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isStartEvent);
 
-      const implicitStartEvents = element.children.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isImplicitStartEvent);
+      const implicitStartEvents = element.children.filter(_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isImplicitStartEvent);
 
       for (const startEvent of startEvents) {
 
@@ -6133,14 +6223,14 @@ function Simulator(injector, eventBus, elementRegistry) {
       attachers = []
     } = element;
 
-    const children = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.getChildren)(element, elementRegistry);
+    const children = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.getChildren)(element, elementRegistry);
 
     for (const childElement of children) {
 
       // event sub-process start events
-      if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isEventSubProcess)(childElement)) {
-        const startEvents = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.getChildren)(childElement, elementRegistry).filter(
-          element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isStartEvent)(element) && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isCompensationEvent)(element)
+      if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isEventSubProcess)(childElement)) {
+        const startEvents = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.getChildren)(childElement, elementRegistry).filter(
+          element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isStartEvent)(element) && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isCompensationEvent)(element)
         );
 
         for (const startEvent of startEvents) {
@@ -6160,7 +6250,7 @@ function Simulator(injector, eventBus, elementRegistry) {
     for (const attacher of attachers) {
 
       // boundary events
-      if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isBoundaryEvent)(attacher) && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isCompensationEvent)(attacher)) {
+      if ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isBoundaryEvent)(attacher) && !(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isCompensationEvent)(attacher)) {
 
         subscribe(scope, attacher, initiator => {
           return signal({
@@ -6305,17 +6395,17 @@ function isRethrow(event, interrupt) {
 }
 
 function isImplicitMessageCatch(element) {
-  return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:ReceiveTask') || element.incoming.some(element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_3__.is)(element, 'bpmn:MessageFlow'));
+  return (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(element, 'bpmn:ReceiveTask') || element.incoming.some(element => (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_6__.is)(element, 'bpmn:MessageFlow'));
 }
 
 function isSpecialBoundaryEvent(element) {
-  if (!(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isBoundaryEvent)(element)) {
+  if (!(0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isBoundaryEvent)(element)) {
     return false;
   }
 
   const eventDefinitions = getEventDefinitions(element);
 
-  return !eventDefinitions[0] || (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_4__.isAny)(eventDefinitions[0], [
+  return !eventDefinitions[0] || (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_5__.isAny)(eventDefinitions[0], [
     'bpmn:ConditionalEventDefinition', 'bpmn:TimerEventDefinition'
   ]);
 }
@@ -6325,13 +6415,13 @@ function getEventDefinitions(element) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ActivityBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ActivityBehavior.js"
 /*!*******************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ActivityBehavior.js ***!
   \*******************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6585,13 +6675,13 @@ function last(arr) {
   return arr && arr[arr.length - 1];
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/BoundaryEventBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/BoundaryEventBehavior.js"
 /*!************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/BoundaryEventBehavior.js ***!
   \************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6661,13 +6751,13 @@ BoundaryEventBehavior.$inject = [
   'scopeBehavior'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EndEventBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EndEventBehavior.js"
 /*!*******************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EndEventBehavior.js ***!
   \*******************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6708,13 +6798,13 @@ EndEventBehavior.prototype.exit = function(context) {
   this._scopeBehavior.tryExit(scope.parent, scope);
 };
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBasedGatewayBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBasedGatewayBehavior.js"
 /*!****************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBasedGatewayBehavior.js ***!
   \****************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -6780,22 +6870,22 @@ function getTriggers(element) {
   ]));
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBehaviors.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBehaviors.js"
 /*!*****************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBehaviors.js ***!
   \*****************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ EventBehaviors)
 /* harmony export */ });
-/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
+/* harmony import */ var _util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../../util/ElementHelper */ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js");
 /* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
-/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
+/* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
 
 
 
@@ -6834,10 +6924,10 @@ EventBehaviors.prototype.get = function(element) {
 
       const parentScope = scope.parent;
       const parentElement = parentScope.element;
-      const children = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getChildren)(parentElement, this._elementRegistry);
+      const children = (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.getChildren)(parentElement, this._elementRegistry);
 
       const linkTargets = children.filter(element =>
-        (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isLinkCatch)(element) &&
+        (0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isLinkCatch)(element) &&
         getLinkDefinition(element).name === link.name
       );
 
@@ -6998,7 +7088,7 @@ EventBehaviors.prototype.get = function(element) {
   };
 
   const entry = Object.entries(behaviors).find(
-    entry => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__.isTypedEvent)(element, entry[0])
+    entry => (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.isTypedEvent)(element, entry[0])
   );
 
   return entry && entry[1];
@@ -7008,26 +7098,26 @@ EventBehaviors.prototype.get = function(element) {
 // helpers ///////////////
 
 function getLinkDefinition(element) {
-  return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_2__.getEventDefinition)(element, 'bpmn:LinkEventDefinition');
+  return (0,_util_ElementHelper__WEBPACK_IMPORTED_MODULE_0__.getEventDefinition)(element, 'bpmn:LinkEventDefinition');
 }
 
 function findSubscriptionScope(scope) {
 
   // the scope is the first non event sub-process
-  while ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.isEventSubProcess)(scope.parent.element)) {
+  while ((0,_util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__.isEventSubProcess)(scope.parent.element)) {
     scope = scope.parent;
   }
 
   return scope.parent;
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ExclusiveGatewayBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ExclusiveGatewayBehavior.js"
 /*!***************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ExclusiveGatewayBehavior.js ***!
   \***************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7089,13 +7179,13 @@ ExclusiveGatewayBehavior.$inject = [
   'scopeBehavior'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/InclusiveGatewayBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/InclusiveGatewayBehavior.js"
 /*!***************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/InclusiveGatewayBehavior.js ***!
   \***************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7368,13 +7458,13 @@ InclusiveGatewayBehavior.$inject = [
   'activityBehavior'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/IntermediateCatchEventBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/IntermediateCatchEventBehavior.js"
 /*!*********************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/IntermediateCatchEventBehavior.js ***!
   \*********************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7415,13 +7505,13 @@ IntermediateCatchEventBehavior.prototype.exit = function(context) {
   this._activityBehavior.exit(context);
 };
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/IntermediateThrowEventBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/IntermediateThrowEventBehavior.js"
 /*!*********************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/IntermediateThrowEventBehavior.js ***!
   \*********************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7473,13 +7563,13 @@ IntermediateThrowEventBehavior.$inject = [
   'eventBehaviors'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/MessageFlowBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/MessageFlowBehavior.js"
 /*!**********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/MessageFlowBehavior.js ***!
   \**********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7533,13 +7623,13 @@ MessageFlowBehavior.prototype.exit = function(context) {
   }
 };
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ParallelGatewayBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ParallelGatewayBehavior.js"
 /*!**************************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ParallelGatewayBehavior.js ***!
   \**************************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7630,13 +7720,13 @@ ParallelGatewayBehavior.$inject = [
   'activityBehavior'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ProcessBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ProcessBehavior.js"
 /*!******************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ProcessBehavior.js ***!
   \******************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7718,13 +7808,13 @@ ProcessBehavior.$inject = [
   'scopeBehavior'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ScopeBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ScopeBehavior.js"
 /*!****************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ScopeBehavior.js ***!
   \****************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7902,13 +7992,13 @@ function matchScope(fnOrScope) {
   return (scope) => scope === fnOrScope;
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SequenceFlowBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SequenceFlowBehavior.js"
 /*!***********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SequenceFlowBehavior.js ***!
   \***********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7947,13 +8037,13 @@ SequenceFlowBehavior.$inject = [
   'scopeBehavior'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/StartEventBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/StartEventBehavior.js"
 /*!*********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/StartEventBehavior.js ***!
   \*********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -7983,13 +8073,13 @@ StartEventBehavior.$inject = [
   'activityBehavior'
 ];
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SubProcessBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SubProcessBehavior.js"
 /*!*********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SubProcessBehavior.js ***!
   \*********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8136,13 +8226,13 @@ function isTransaction(element) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/TransactionBehavior.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/TransactionBehavior.js"
 /*!**********************************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/TransactionBehavior.js ***!
   \**********************************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8152,8 +8242,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ScopeTraits__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../ScopeTraits */ "./node_modules/bpmn-js-token-simulation/lib/simulator/ScopeTraits.js");
 /* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js");
 /* harmony import */ var _util_ModelUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var _util_EventsUtil__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/EventsUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js");
-/* harmony import */ var _util_SetUtil__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../util/SetUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js");
+/* harmony import */ var _util_EventsUtil__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../util/EventsUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js");
+/* harmony import */ var _util_SetUtil__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../util/SetUtil */ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js");
 
 
 
@@ -8446,9 +8536,9 @@ TransactionBehavior.prototype.compensate = function(context) {
   } = context;
 
   // compensate all
-  const compensateSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_3__.filterSet)(
+  const compensateSubscriptions = (0,_util_SetUtil__WEBPACK_IMPORTED_MODULE_4__.filterSet)(
     scope.subscriptions,
-    subscription => (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_4__.eventsMatch)({ type: 'compensate' }, subscription.event)
+    subscription => (0,_util_EventsUtil__WEBPACK_IMPORTED_MODULE_3__.eventsMatch)({ type: 'compensate' }, subscription.event)
   );
 
   const localSubscriptions = compensateSubscriptions.filter(subscription => subscription.event.ref === element);
@@ -8475,13 +8565,13 @@ function noTransactionContext(scope) {
   throw new Error(`no transaction context for <${scope.id}>`);
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/index.js"
 /*!********************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/index.js ***!
   \********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8499,12 +8589,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _InclusiveGatewayBehavior__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./InclusiveGatewayBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/InclusiveGatewayBehavior.js");
 /* harmony import */ var _ActivityBehavior__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./ActivityBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ActivityBehavior.js");
 /* harmony import */ var _SubProcessBehavior__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./SubProcessBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SubProcessBehavior.js");
-/* harmony import */ var _TransactionBehavior__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./TransactionBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/TransactionBehavior.js");
-/* harmony import */ var _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./SequenceFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SequenceFlowBehavior.js");
-/* harmony import */ var _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./MessageFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/MessageFlowBehavior.js");
-/* harmony import */ var _EventBehaviors__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./EventBehaviors */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBehaviors.js");
-/* harmony import */ var _ScopeBehavior__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./ScopeBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ScopeBehavior.js");
-/* harmony import */ var _ProcessBehavior__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ProcessBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ProcessBehavior.js");
+/* harmony import */ var _TransactionBehavior__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./TransactionBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/TransactionBehavior.js");
+/* harmony import */ var _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./SequenceFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/SequenceFlowBehavior.js");
+/* harmony import */ var _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./MessageFlowBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/MessageFlowBehavior.js");
+/* harmony import */ var _EventBehaviors__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./EventBehaviors */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/EventBehaviors.js");
+/* harmony import */ var _ScopeBehavior__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./ScopeBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ScopeBehavior.js");
+/* harmony import */ var _ProcessBehavior__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./ProcessBehavior */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/ProcessBehavior.js");
 
 
 
@@ -8556,29 +8646,29 @@ __webpack_require__.r(__webpack_exports__);
   inclusiveGatewayBehavior: [ 'type', _InclusiveGatewayBehavior__WEBPACK_IMPORTED_MODULE_8__["default"] ],
   activityBehavior: [ 'type', _ActivityBehavior__WEBPACK_IMPORTED_MODULE_9__["default"] ],
   subProcessBehavior: [ 'type', _SubProcessBehavior__WEBPACK_IMPORTED_MODULE_10__["default"] ],
-  sequenceFlowBehavior: [ 'type', _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_11__["default"] ],
-  messageFlowBehavior: [ 'type', _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_12__["default"] ],
-  eventBehaviors: [ 'type', _EventBehaviors__WEBPACK_IMPORTED_MODULE_13__["default"] ],
-  scopeBehavior: [ 'type', _ScopeBehavior__WEBPACK_IMPORTED_MODULE_14__["default"] ],
-  processBehavior: [ 'type', _ProcessBehavior__WEBPACK_IMPORTED_MODULE_15__["default"] ],
-  transactionBehavior: [ 'type', _TransactionBehavior__WEBPACK_IMPORTED_MODULE_16__["default"] ]
+  sequenceFlowBehavior: [ 'type', _SequenceFlowBehavior__WEBPACK_IMPORTED_MODULE_12__["default"] ],
+  messageFlowBehavior: [ 'type', _MessageFlowBehavior__WEBPACK_IMPORTED_MODULE_13__["default"] ],
+  eventBehaviors: [ 'type', _EventBehaviors__WEBPACK_IMPORTED_MODULE_14__["default"] ],
+  scopeBehavior: [ 'type', _ScopeBehavior__WEBPACK_IMPORTED_MODULE_15__["default"] ],
+  processBehavior: [ 'type', _ProcessBehavior__WEBPACK_IMPORTED_MODULE_16__["default"] ],
+  transactionBehavior: [ 'type', _TransactionBehavior__WEBPACK_IMPORTED_MODULE_11__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/index.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/index.js"
 /*!**********************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/index.js ***!
   \**********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var _Simulator__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Simulator */ "./node_modules/bpmn-js-token-simulation/lib/simulator/Simulator.js");
-/* harmony import */ var _behaviors__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./behaviors */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/index.js");
+/* harmony import */ var _Simulator__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Simulator */ "./node_modules/bpmn-js-token-simulation/lib/simulator/Simulator.js");
+/* harmony import */ var _behaviors__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./behaviors */ "./node_modules/bpmn-js-token-simulation/lib/simulator/behaviors/index.js");
 
 
 
@@ -8586,7 +8676,7 @@ const HIGH_PRIORITY = 5000;
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   __depends__: [
-    _behaviors__WEBPACK_IMPORTED_MODULE_0__["default"]
+    _behaviors__WEBPACK_IMPORTED_MODULE_1__["default"]
   ],
   __init__: [
     [ 'eventBus', 'simulator', function(eventBus, simulator) {
@@ -8598,16 +8688,16 @@ const HIGH_PRIORITY = 5000;
       });
     } ]
   ],
-  simulator: [ 'type', _Simulator__WEBPACK_IMPORTED_MODULE_1__["default"] ]
+  simulator: [ 'type', _Simulator__WEBPACK_IMPORTED_MODULE_0__["default"] ]
 });
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js"
 /*!********************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/util/EventsUtil.js ***!
   \********************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8627,21 +8717,21 @@ function refsMatch(a, b) {
   return !(attr in a) || a[attr] === b[attr];
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js"
 /*!*******************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/util/ModelUtil.js ***!
   \*******************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   filterSequenceFlows: () => (/* binding */ filterSequenceFlows),
-/* harmony export */   getBusinessObject: () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject),
+/* harmony export */   getBusinessObject: () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject),
 /* harmony export */   getChildren: () => (/* binding */ getChildren),
-/* harmony export */   is: () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is),
+/* harmony export */   is: () => (/* reexport safe */ bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is),
 /* harmony export */   isAny: () => (/* binding */ isAny),
 /* harmony export */   isBoundaryEvent: () => (/* binding */ isBoundaryEvent),
 /* harmony export */   isCatchEvent: () => (/* binding */ isCatchEvent),
@@ -8660,9 +8750,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   isStartEvent: () => (/* binding */ isStartEvent),
 /* harmony export */   isTypedEvent: () => (/* binding */ isTypedEvent)
 /* harmony export */ });
-/* harmony import */ var bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! bpmn-js/lib/util/DrilldownUtil */ "./node_modules/bpmn-js/lib/util/DrilldownUtil.js");
-/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.js");
+/* harmony import */ var bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! bpmn-js/lib/util/DrilldownUtil */ "./node_modules/bpmn-js/lib/util/DrilldownUtil.js");
+/* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.js");
 
 
 
@@ -8673,15 +8763,15 @@ __webpack_require__.r(__webpack_exports__);
 
 
 function filterSequenceFlows(flows) {
-  return flows.filter(f => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(f, 'bpmn:SequenceFlow'));
+  return flows.filter(f => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(f, 'bpmn:SequenceFlow'));
 }
 
 function isMessageFlow(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:MessageFlow');
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:MessageFlow');
 }
 
 function isSequenceFlow(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:SequenceFlow');
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:SequenceFlow');
 }
 
 function isMessageCatch(element) {
@@ -8693,7 +8783,7 @@ function isLinkCatch(element) {
 }
 
 function isLinkThrow(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:IntermediateThrowEvent') && isTypedEvent(element, 'bpmn:LinkEventDefinition');
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:IntermediateThrowEvent') && isTypedEvent(element, 'bpmn:LinkEventDefinition');
 }
 
 function isCompensationEvent(element) {
@@ -8701,18 +8791,18 @@ function isCompensationEvent(element) {
 }
 
 function isCompensationActivity(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:Activity') && element.businessObject.isForCompensation;
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:Activity') && element.businessObject.isForCompensation;
 }
 
 function isCatchEvent(element) {
   return (
-    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:CatchEvent') ||
-    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:ReceiveTask')
+    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:CatchEvent') ||
+    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:ReceiveTask')
   ) && !isLabel(element);
 }
 
 function isBoundaryEvent(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:BoundaryEvent') && !isLabel(element);
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:BoundaryEvent') && !isLabel(element);
 }
 
 function isNoneStartEvent(element) {
@@ -8756,7 +8846,7 @@ function isImplicitStartEvent(element) {
 }
 
 function isStartEvent(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:StartEvent') && !isLabel(element);
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:StartEvent') && !isLabel(element);
 }
 
 function isLabel(element) {
@@ -8764,19 +8854,19 @@ function isLabel(element) {
 }
 
 function isEventSubProcess(element) {
-  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).triggeredByEvent;
+  return (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(element).triggeredByEvent;
 }
 
 function isInterrupting(element) {
   return (
-    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:StartEvent') && (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).isInterrupting
+    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:StartEvent') && (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(element).isInterrupting
   ) || (
-    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:BoundaryEvent') && (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(element).cancelActivity
+    (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:BoundaryEvent') && (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(element).cancelActivity
   );
 }
 
 function isAny(element, types) {
-  return types.some(type => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, type));
+  return types.some(type => (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, type));
 }
 
 /**
@@ -8786,8 +8876,8 @@ function isAny(element, types) {
  * @return {boolean}
  */
 function isTypedEvent(event, eventDefinitionType) {
-  return (0,min_dash__WEBPACK_IMPORTED_MODULE_1__.some)((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.getBusinessObject)(event).eventDefinitions, definition => {
-    return eventDefinitionType ? (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(definition, eventDefinitionType) : true;
+  return (0,min_dash__WEBPACK_IMPORTED_MODULE_2__.some)((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.getBusinessObject)(event).eventDefinitions, definition => {
+    return eventDefinitionType ? (0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(definition, eventDefinitionType) : true;
   });
 }
 
@@ -8796,25 +8886,25 @@ function getChildren(element, elementRegistry) {
     return element.children;
   }
 
-  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_0__.is)(element, 'bpmn:SubProcess') && !element.di.isExpanded) {
+  if ((0,bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__.is)(element, 'bpmn:SubProcess') && !element.di.isExpanded) {
 
     // ensure bpmn-js@9 compatibility
     //
     // sub-process may be collapsed, in this case operate on the plane
-    return elementRegistry.get((0,bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_2__.getPlaneIdFromShape)(element)).children;
+    return elementRegistry.get((0,bpmn_js_lib_util_DrilldownUtil__WEBPACK_IMPORTED_MODULE_0__.getPlaneIdFromShape)(element)).children;
   }
 
   return [];
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js"
 /*!*****************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/simulator/util/SetUtil.js ***!
   \*****************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8846,13 +8936,13 @@ function findSet(set, matchFn) {
   return null;
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js"
 /*!*************************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/util/ElementHelper.js ***!
   \*************************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8860,7 +8950,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   getEventDefinition: () => (/* binding */ getEventDefinition),
 /* harmony export */   isTypedEvent: () => (/* binding */ isTypedEvent)
 /* harmony export */ });
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dash */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.js");
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.js");
 /* harmony import */ var bpmn_js_lib_util_ModelUtil__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js/lib/util/ModelUtil */ "./node_modules/bpmn-js/lib/util/ModelUtil.js");
 
 
@@ -8878,13 +8968,13 @@ function isTypedEvent(event, eventDefinitionType) {
   });
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js":
+/***/ "./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js"
 /*!***********************************************************************!*\
   !*** ./node_modules/bpmn-js-token-simulation/lib/util/EventHelper.js ***!
   \***********************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -8917,13 +9007,13 @@ const TRACE_EVENT = 'tokenSimulation.simulator.trace';
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js/lib/util/DrilldownUtil.js":
+/***/ "./node_modules/bpmn-js/lib/util/DrilldownUtil.js"
 /*!********************************************************!*\
   !*** ./node_modules/bpmn-js/lib/util/DrilldownUtil.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -9006,13 +9096,13 @@ function removePlaneSuffix(id) {
   return id.replace(new RegExp(planeSuffix + '$'), '');
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js/lib/util/ModelUtil.js":
+/***/ "./node_modules/bpmn-js/lib/util/ModelUtil.js"
 /*!****************************************************!*\
   !*** ./node_modules/bpmn-js/lib/util/ModelUtil.js ***!
   \****************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -9022,7 +9112,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   is: () => (/* binding */ is),
 /* harmony export */   isAny: () => (/* binding */ isAny)
 /* harmony export */ });
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dash */ "./node_modules/bpmn-js/node_modules/min-dash/dist/index.js");
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.js");
 
 
 /**
@@ -9081,13 +9171,13 @@ function getDi(element) {
   return element && element.di;
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/camunda-modeler-plugin-helpers/index.js":
+/***/ "./node_modules/camunda-modeler-plugin-helpers/index.js"
 /*!**************************************************************!*\
   !*** ./node_modules/camunda-modeler-plugin-helpers/index.js ***!
   \**************************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -9380,7 +9470,7 @@ function registerPlatformDmnJSModdleExtension(descriptor) {
 function registerDmnJSPlugin(module, components) {
 
   if (!Array.isArray(components)) {
-    components = [ components ]
+    components = [ components ];
   }
 
   components.forEach(c => registerClientPlugin(module, `dmn.modeler.${c}.additionalModules`));
@@ -9408,7 +9498,7 @@ function registerDmnJSPlugin(module, components) {
 function registerCloudDmnJSPlugin(module, components) {
 
   if (!Array.isArray(components)) {
-    components = [ components ]
+    components = [ components ];
   }
 
   components.forEach(c => registerClientPlugin(module, `dmn.cloud.modeler.${c}.additionalModules`));
@@ -9436,7 +9526,7 @@ function registerCloudDmnJSPlugin(module, components) {
 function registerPlatformDmnJSPlugin(module, components) {
 
   if (!Array.isArray(components)) {
-    components = [ components ]
+    components = [ components ];
   }
 
   components.forEach(c => registerClientPlugin(module, `dmn.platform.modeler.${c}.additionalModules`));
@@ -9464,58 +9554,13 @@ function getPluginsDirectory() {
   return window.getPluginsDirectory();
 }
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/diagram-js/lib/util/EscapeUtil.js":
-/*!********************************************************!*\
-  !*** ./node_modules/diagram-js/lib/util/EscapeUtil.js ***!
-  \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   escapeCSS: () => (/* binding */ escapeCSS),
-/* harmony export */   escapeHTML: () => (/* binding */ escapeHTML)
-/* harmony export */ });
-/**
- * @param {string} str
- *
- * @return {string}
- */
-function escapeCSS(str) {
-  return CSS.escape(str);
-}
-
-var HTML_ESCAPE_MAP = {
-  '&': '&amp;',
-  '<': '&lt;',
-  '>': '&gt;',
-  '"': '&quot;',
-  '\'': '&#39;'
-};
-
-/**
- * @param {string} str
- *
- * @return {string}
- */
-function escapeHTML(str) {
-  str = '' + str;
-
-  return str && str.replace(/[&<>"']/g, function(match) {
-    return HTML_ESCAPE_MAP[match];
-  });
-}
-
-
-/***/ }),
-
-/***/ "./node_modules/inherits-browser/dist/index.es.js":
+/***/ "./node_modules/inherits-browser/dist/index.es.js"
 /*!********************************************************!*\
   !*** ./node_modules/inherits-browser/dist/index.es.js ***!
   \********************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack_module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -9526,603 +9571,13 @@ function e(e,t){t&&(e.super_=t,e.prototype=Object.create(t.prototype,{constructo
 //# sourceMappingURL=index.es.js.map
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/min-dom/dist/index.esm.js":
-/*!************************************************!*\
-  !*** ./node_modules/min-dom/dist/index.esm.js ***!
-  \************************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   assignStyle: () => (/* binding */ assign),
-/* harmony export */   attr: () => (/* binding */ attr),
-/* harmony export */   classes: () => (/* binding */ classes),
-/* harmony export */   clear: () => (/* binding */ clear),
-/* harmony export */   closest: () => (/* binding */ closest),
-/* harmony export */   delegate: () => (/* binding */ delegate),
-/* harmony export */   domify: () => (/* binding */ domify$1),
-/* harmony export */   event: () => (/* binding */ event),
-/* harmony export */   matches: () => (/* binding */ matches),
-/* harmony export */   query: () => (/* binding */ query),
-/* harmony export */   queryAll: () => (/* binding */ all),
-/* harmony export */   remove: () => (/* binding */ remove)
-/* harmony export */ });
-function _mergeNamespaces(n, m) {
-  m.forEach(function (e) {
-    e && typeof e !== 'string' && !Array.isArray(e) && Object.keys(e).forEach(function (k) {
-      if (k !== 'default' && !(k in n)) {
-        var d = Object.getOwnPropertyDescriptor(e, k);
-        Object.defineProperty(n, k, d.get ? d : {
-          enumerable: true,
-          get: function () { return e[k]; }
-        });
-      }
-    });
-  });
-  return Object.freeze(n);
-}
-
-/**
- * Flatten array, one level deep.
- *
- * @template T
- *
- * @param {T[][] | T[] | null} [arr]
- *
- * @return {T[]}
- */
-
-const nativeToString = Object.prototype.toString;
-const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
-
-function isUndefined(obj) {
-  return obj === undefined;
-}
-
-function isArray(obj) {
-  return nativeToString.call(obj) === '[object Array]';
-}
-
-/**
- * Return true, if target owns a property with the given key.
- *
- * @param {Object} target
- * @param {String} key
- *
- * @return {Boolean}
- */
-function has(target, key) {
-  return nativeHasOwnProperty.call(target, key);
-}
-
-
-/**
- * Iterate over collection; returning something
- * (non-undefined) will stop iteration.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
- *
- * @return {T} return result that stopped the iteration
- */
-function forEach(collection, iterator) {
-
-  let val,
-      result;
-
-  if (isUndefined(collection)) {
-    return;
-  }
-
-  const convertKey = isArray(collection) ? toNum : identity;
-
-  for (let key in collection) {
-
-    if (has(collection, key)) {
-      val = collection[key];
-
-      result = iterator(val, convertKey(key));
-
-      if (result === false) {
-        return val;
-      }
-    }
-  }
-}
-
-
-function identity(arg) {
-  return arg;
-}
-
-function toNum(arg) {
-  return Number(arg);
-}
-
-/**
- * Assigns style attributes in a style-src compliant way.
- *
- * @param {Element} element
- * @param {...Object} styleSources
- *
- * @return {Element} the element
- */
-function assign(element, ...styleSources) {
-  const target = element.style;
-
-  forEach(styleSources, function(style) {
-    if (!style) {
-      return;
-    }
-
-    forEach(style, function(value, key) {
-      target[key] = value;
-    });
-  });
-
-  return element;
-}
-
-/**
- * Set attribute `name` to `val`, or get attr `name`.
- *
- * @param {Element} el
- * @param {String} name
- * @param {String} [val]
- * @api public
- */
-function attr(el, name, val) {
-
-  // get
-  if (arguments.length == 2) {
-    return el.getAttribute(name);
-  }
-
-  // remove
-  if (val === null) {
-    return el.removeAttribute(name);
-  }
-
-  // set
-  el.setAttribute(name, val);
-
-  return el;
-}
-
-/**
- * Taken from https://github.com/component/classes
- *
- * Without the component bits.
- */
-
-/**
- * toString reference.
- */
-
-const toString = Object.prototype.toString;
-
-/**
- * Wrap `el` in a `ClassList`.
- *
- * @param {Element} el
- * @return {ClassList}
- * @api public
- */
-
-function classes(el) {
-  return new ClassList(el);
-}
-
-/**
- * Initialize a new ClassList for `el`.
- *
- * @param {Element} el
- * @api private
- */
-
-function ClassList(el) {
-  if (!el || !el.nodeType) {
-    throw new Error('A DOM element reference is required');
-  }
-  this.el = el;
-  this.list = el.classList;
-}
-
-/**
- * Add class `name` if not already present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.add = function(name) {
-  this.list.add(name);
-  return this;
-};
-
-/**
- * Remove class `name` when present, or
- * pass a regular expression to remove
- * any which match.
- *
- * @param {String|RegExp} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.remove = function(name) {
-  if ('[object RegExp]' == toString.call(name)) {
-    return this.removeMatching(name);
-  }
-
-  this.list.remove(name);
-  return this;
-};
-
-/**
- * Remove all classes matching `re`.
- *
- * @param {RegExp} re
- * @return {ClassList}
- * @api private
- */
-
-ClassList.prototype.removeMatching = function(re) {
-  const arr = this.array();
-  for (let i = 0; i < arr.length; i++) {
-    if (re.test(arr[i])) {
-      this.remove(arr[i]);
-    }
-  }
-  return this;
-};
-
-/**
- * Toggle class `name`, can force state via `force`.
- *
- * For browsers that support classList, but do not support `force` yet,
- * the mistake will be detected and corrected.
- *
- * @param {String} name
- * @param {Boolean} force
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.toggle = function(name, force) {
-  if ('undefined' !== typeof force) {
-    if (force !== this.list.toggle(name, force)) {
-      this.list.toggle(name); // toggle again to correct
-    }
-  } else {
-    this.list.toggle(name);
-  }
-  return this;
-};
-
-/**
- * Return an array of classes.
- *
- * @return {Array}
- * @api public
- */
-
-ClassList.prototype.array = function() {
-  return Array.from(this.list);
-};
-
-/**
- * Check if class `name` is present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.has =
-ClassList.prototype.contains = function(name) {
-  return this.list.contains(name);
-};
-
-/**
- * Clear utility
- */
-
-/**
- * Removes all children from the given element
- *
- * @param {Element} element
- *
- * @return {Element} the element (for chaining)
- */
-function clear(element) {
-  var child;
-
-  while ((child = element.firstChild)) {
-    element.removeChild(child);
-  }
-
-  return element;
-}
-
-/**
- * Closest
- *
- * @param {Element} el
- * @param {string} selector
- * @param {boolean} checkYourSelf (optional)
- */
-function closest(element, selector, checkYourSelf) {
-  var actualElement = checkYourSelf ? element : element.parentNode;
-
-  return actualElement && typeof actualElement.closest === 'function' && actualElement.closest(selector) || null;
-}
-
-var componentEvent = {};
-
-var bind$1, unbind$1, prefix;
-
-function detect () {
-  bind$1 = window.addEventListener ? 'addEventListener' : 'attachEvent';
-  unbind$1 = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
-  prefix = bind$1 !== 'addEventListener' ? 'on' : '';
-}
-
-/**
- * Bind `el` event `type` to `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-var bind_1 = componentEvent.bind = function(el, type, fn, capture){
-  if (!bind$1) detect();
-  el[bind$1](prefix + type, fn, capture || false);
-  return fn;
-};
-
-/**
- * Unbind `el` event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-var unbind_1 = componentEvent.unbind = function(el, type, fn, capture){
-  if (!unbind$1) detect();
-  el[unbind$1](prefix + type, fn, capture || false);
-  return fn;
-};
-
-var event = /*#__PURE__*/_mergeNamespaces({
-  __proto__: null,
-  bind: bind_1,
-  unbind: unbind_1,
-  'default': componentEvent
-}, [componentEvent]);
-
-/**
- * Module dependencies.
- */
-
-/**
- * Delegate event `type` to `selector`
- * and invoke `fn(e)`. A callback function
- * is returned which may be passed to `.unbind()`.
- *
- * @param {Element} el
- * @param {String} selector
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
- */
-
-// Some events don't bubble, so we want to bind to the capture phase instead
-// when delegating.
-var forceCaptureEvents = [ 'focus', 'blur' ];
-
-function bind(el, selector, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return event.bind(el, type, function(e) {
-    var target = e.target || e.srcElement;
-    e.delegateTarget = closest(target, selector, true);
-    if (e.delegateTarget) {
-      fn.call(el, e);
-    }
-  }, capture);
-}
-
-/**
- * Unbind event `type`'s callback `fn`.
- *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @api public
- */
-function unbind(el, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return event.unbind(el, type, fn, capture);
-}
-
-var delegate = {
-  bind,
-  unbind
-};
-
-/**
- * Expose `parse`.
- */
-
-var domify = parse;
-
-/**
- * Tests for browser support.
- */
-
-var innerHTMLBug = false;
-var bugTestDiv;
-if (typeof document !== 'undefined') {
-  bugTestDiv = document.createElement('div');
-  // Setup
-  bugTestDiv.innerHTML = '  <link/><table></table><a href="/a">a</a><input type="checkbox"/>';
-  // Make sure that link elements get serialized correctly by innerHTML
-  // This requires a wrapper element in IE
-  innerHTMLBug = !bugTestDiv.getElementsByTagName('link').length;
-  bugTestDiv = undefined;
-}
-
-/**
- * Wrap map from jquery.
- */
-
-var map = {
-  legend: [1, '<fieldset>', '</fieldset>'],
-  tr: [2, '<table><tbody>', '</tbody></table>'],
-  col: [2, '<table><tbody></tbody><colgroup>', '</colgroup></table>'],
-  // for script/link/style tags to work in IE6-8, you have to wrap
-  // in a div with a non-whitespace character in front, ha!
-  _default: innerHTMLBug ? [1, 'X<div>', '</div>'] : [0, '', '']
-};
-
-map.td =
-map.th = [3, '<table><tbody><tr>', '</tr></tbody></table>'];
-
-map.option =
-map.optgroup = [1, '<select multiple="multiple">', '</select>'];
-
-map.thead =
-map.tbody =
-map.colgroup =
-map.caption =
-map.tfoot = [1, '<table>', '</table>'];
-
-map.polyline =
-map.ellipse =
-map.polygon =
-map.circle =
-map.text =
-map.line =
-map.path =
-map.rect =
-map.g = [1, '<svg xmlns="http://www.w3.org/2000/svg" version="1.1">','</svg>'];
-
-/**
- * Parse `html` and return a DOM Node instance, which could be a TextNode,
- * HTML DOM Node of some kind (<div> for example), or a DocumentFragment
- * instance, depending on the contents of the `html` string.
- *
- * @param {String} html - HTML string to "domify"
- * @param {Document} doc - The `document` instance to create the Node for
- * @return {DOMNode} the TextNode, DOM Node, or DocumentFragment instance
- * @api private
- */
-
-function parse(html, doc) {
-  if ('string' != typeof html) throw new TypeError('String expected');
-
-  // default to the global `document` object
-  if (!doc) doc = document;
-
-  // tag name
-  var m = /<([\w:]+)/.exec(html);
-  if (!m) return doc.createTextNode(html);
-
-  html = html.replace(/^\s+|\s+$/g, ''); // Remove leading/trailing whitespace
-
-  var tag = m[1];
-
-  // body support
-  if (tag == 'body') {
-    var el = doc.createElement('html');
-    el.innerHTML = html;
-    return el.removeChild(el.lastChild);
-  }
-
-  // wrap map
-  var wrap = Object.prototype.hasOwnProperty.call(map, tag) ? map[tag] : map._default;
-  var depth = wrap[0];
-  var prefix = wrap[1];
-  var suffix = wrap[2];
-  var el = doc.createElement('div');
-  el.innerHTML = prefix + html + suffix;
-  while (depth--) el = el.lastChild;
-
-  // one element
-  if (el.firstChild == el.lastChild) {
-    return el.removeChild(el.firstChild);
-  }
-
-  // several elements
-  var fragment = doc.createDocumentFragment();
-  while (el.firstChild) {
-    fragment.appendChild(el.removeChild(el.firstChild));
-  }
-
-  return fragment;
-}
-
-var domify$1 = domify;
-
-/**
- * @param { HTMLElement } element
- * @param { String } selector
- *
- * @return { boolean }
- */
-function matches(element, selector) {
-  return element && typeof element.matches === 'function' && element.matches(selector) || false;
-}
-
-function query(selector, el) {
-  el = el || document;
-
-  return el.querySelector(selector);
-}
-
-function all(selector, el) {
-  el = el || document;
-
-  return el.querySelectorAll(selector);
-}
-
-function remove(el) {
-  el.parentNode && el.parentNode.removeChild(el);
-}
-
-
-//# sourceMappingURL=index.esm.js.map
-
-
-/***/ }),
-
-/***/ "./node_modules/randomcolor/randomColor.js":
+/***/ "./node_modules/randomcolor/randomColor.js"
 /*!*************************************************!*\
   !*** ./node_modules/randomcolor/randomColor.js ***!
   \*************************************************/
-/***/ (function(module, exports, __webpack_require__) {
+(module, exports, __webpack_require__) {
 
 /* module decorator */ module = __webpack_require__.nmd(module);
 // randomColor by David Merfield under the CC0 license
@@ -10143,7 +9598,8 @@ function remove(el) {
     exports.randomColor = randomColor;
 
   // Support AMD
-  } else {}
+  } else // removed by dead control flow
+{}
 
 }(this, function() {
 
@@ -10641,13 +10097,13 @@ function remove(el) {
 }));
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLock.js":
+/***/ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLock.js"
 /*!************************************************************************!*\
   !*** ./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLock.js ***!
   \************************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -10718,13 +10174,13 @@ CanvasLock.prototype.isLocked = function() {
 };
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLockBehavior.js":
+/***/ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLockBehavior.js"
 /*!********************************************************************************!*\
   !*** ./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/CanvasLockBehavior.js ***!
   \********************************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -10841,13 +10297,13 @@ function CanvasLockBehavior(eventBus, canvasLock, injector) {
 CanvasLockBehavior.$inject = [ 'eventBus', 'canvasLock', 'injector' ];
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/index.js":
+/***/ "./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/index.js"
 /*!*******************************************************************!*\
   !*** ./node_modules/@bpmn-io/diagram-js-canvas-lock/lib/index.js ***!
   \*******************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -10869,13 +10325,13 @@ __webpack_require__.r(__webpack_exports__);
 });
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js":
-/*!****************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js ***!
-  \****************************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+/***/ "./node_modules/domify/index.js"
+/*!**************************************!*\
+  !*** ./node_modules/domify/index.js ***!
+  \**************************************/
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -10964,1350 +10420,204 @@ function domify(htmlString, document = globalThis.document) {
 }
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.js":
-/*!***********************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.js ***!
-  \***********************************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+/***/ "./node_modules/ids/dist/index.js"
+/*!****************************************!*\
+  !*** ./node_modules/ids/dist/index.js ***!
+  \****************************************/
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   assign: () => (/* binding */ assign),
-/* harmony export */   bind: () => (/* binding */ bind),
-/* harmony export */   debounce: () => (/* binding */ debounce),
-/* harmony export */   ensureArray: () => (/* binding */ ensureArray),
-/* harmony export */   every: () => (/* binding */ every),
-/* harmony export */   filter: () => (/* binding */ filter),
-/* harmony export */   find: () => (/* binding */ find),
-/* harmony export */   findIndex: () => (/* binding */ findIndex),
-/* harmony export */   flatten: () => (/* binding */ flatten),
-/* harmony export */   forEach: () => (/* binding */ forEach),
-/* harmony export */   get: () => (/* binding */ get),
-/* harmony export */   groupBy: () => (/* binding */ groupBy),
-/* harmony export */   has: () => (/* binding */ has),
-/* harmony export */   isArray: () => (/* binding */ isArray),
-/* harmony export */   isDefined: () => (/* binding */ isDefined),
-/* harmony export */   isFunction: () => (/* binding */ isFunction),
-/* harmony export */   isNil: () => (/* binding */ isNil),
-/* harmony export */   isNumber: () => (/* binding */ isNumber),
-/* harmony export */   isObject: () => (/* binding */ isObject),
-/* harmony export */   isString: () => (/* binding */ isString),
-/* harmony export */   isUndefined: () => (/* binding */ isUndefined),
-/* harmony export */   keys: () => (/* binding */ keys),
-/* harmony export */   map: () => (/* binding */ map),
-/* harmony export */   matchPattern: () => (/* binding */ matchPattern),
-/* harmony export */   merge: () => (/* binding */ merge),
-/* harmony export */   omit: () => (/* binding */ omit),
-/* harmony export */   pick: () => (/* binding */ pick),
-/* harmony export */   reduce: () => (/* binding */ reduce),
-/* harmony export */   set: () => (/* binding */ set),
-/* harmony export */   size: () => (/* binding */ size),
-/* harmony export */   some: () => (/* binding */ some),
-/* harmony export */   sortBy: () => (/* binding */ sortBy),
-/* harmony export */   throttle: () => (/* binding */ throttle),
-/* harmony export */   unionBy: () => (/* binding */ unionBy),
-/* harmony export */   uniqueBy: () => (/* binding */ uniqueBy),
-/* harmony export */   values: () => (/* binding */ values),
-/* harmony export */   without: () => (/* binding */ without)
+/* harmony export */   Ids: () => (/* binding */ Ids)
 /* harmony export */ });
-/**
- * Flatten array, one level deep.
- *
- * @template T
- *
- * @param {T[][] | T[] | null} [arr]
- *
- * @return {T[]}
- */
-function flatten(arr) {
-  return Array.prototype.concat.apply([], arr);
-}
-
-const nativeToString = Object.prototype.toString;
-const nativeHasOwnProperty = Object.prototype.hasOwnProperty;
-
-function isUndefined(obj) {
-  return obj === undefined;
-}
-
-function isDefined(obj) {
-  return obj !== undefined;
-}
-
-function isNil(obj) {
-  return obj == null;
-}
-
-function isArray(obj) {
-  return nativeToString.call(obj) === '[object Array]';
-}
-
-function isObject(obj) {
-  return nativeToString.call(obj) === '[object Object]';
-}
-
-function isNumber(obj) {
-  return nativeToString.call(obj) === '[object Number]';
-}
-
-/**
- * @param {any} obj
- *
- * @return {boolean}
- */
-function isFunction(obj) {
-  const tag = nativeToString.call(obj);
-
-  return (
-    tag === '[object Function]' ||
-    tag === '[object AsyncFunction]' ||
-    tag === '[object GeneratorFunction]' ||
-    tag === '[object AsyncGeneratorFunction]' ||
-    tag === '[object Proxy]'
-  );
-}
-
-function isString(obj) {
-  return nativeToString.call(obj) === '[object String]';
-}
-
-
-/**
- * Ensure collection is an array.
- *
- * @param {Object} obj
- */
-function ensureArray(obj) {
-
-  if (isArray(obj)) {
-    return;
-  }
-
-  throw new Error('must supply array');
-}
-
-/**
- * Return true, if target owns a property with the given key.
- *
- * @param {Object} target
- * @param {String} key
- *
- * @return {Boolean}
- */
-function has(target, key) {
-  return !isNil(target) && nativeHasOwnProperty.call(target, key);
-}
-
-/**
- * @template T
- * @typedef { (
- *   ((e: T) => boolean) |
- *   ((e: T, idx: number) => boolean) |
- *   ((e: T, key: string) => boolean) |
- *   string |
- *   number
- * ) } Matcher
- */
-
-/**
- * @template T
- * @template U
- *
- * @typedef { (
- *   ((e: T) => U) | string | number
- * ) } Extractor
- */
-
-
-/**
- * @template T
- * @typedef { (val: T, key: any) => boolean } MatchFn
- */
-
-/**
- * @template T
- * @typedef { T[] } ArrayCollection
- */
-
-/**
- * @template T
- * @typedef { { [key: string]: T } } StringKeyValueCollection
- */
-
-/**
- * @template T
- * @typedef { { [key: number]: T } } NumberKeyValueCollection
- */
-
-/**
- * @template T
- * @typedef { StringKeyValueCollection<T> | NumberKeyValueCollection<T> } KeyValueCollection
- */
-
-/**
- * @template T
- * @typedef { KeyValueCollection<T> | ArrayCollection<T> } Collection
- */
-
-/**
- * Find element in collection.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param {Matcher<T>} matcher
- *
- * @return {Object}
- */
-function find(collection, matcher) {
-
-  const matchFn = toMatcher(matcher);
-
-  let match;
-
-  forEach(collection, function(val, key) {
-    if (matchFn(val, key)) {
-      match = val;
-
-      return false;
-    }
-  });
-
-  return match;
-
-}
-
-
-/**
- * Find element index in collection.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param {Matcher<T>} matcher
- *
- * @return {number | string | undefined}
- */
-function findIndex(collection, matcher) {
-
-  const matchFn = toMatcher(matcher);
-
-  let idx = isArray(collection) ? -1 : undefined;
-
-  forEach(collection, function(val, key) {
-    if (matchFn(val, key)) {
-      idx = key;
-
-      return false;
-    }
-  });
-
-  return idx;
-}
-
-
-/**
- * Filter elements in collection.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param {Matcher<T>} matcher
- *
- * @return {T[]} result
- */
-function filter(collection, matcher) {
-
-  const matchFn = toMatcher(matcher);
-
-  let result = [];
-
-  forEach(collection, function(val, key) {
-    if (matchFn(val, key)) {
-      result.push(val);
-    }
-  });
-
-  return result;
-}
-
-
-/**
- * Iterate over collection; returning something
- * (non-undefined) will stop iteration.
- *
- * @template T
- * @param {Collection<T>} collection
- * @param { ((item: T, idx: number) => (boolean|void)) | ((item: T, key: string) => (boolean|void)) } iterator
- *
- * @return {T} return result that stopped the iteration
- */
-function forEach(collection, iterator) {
-
-  let val,
-      result;
-
-  if (isUndefined(collection)) {
-    return;
-  }
-
-  const convertKey = isArray(collection) ? toNum : identity;
-
-  for (let key in collection) {
-
-    if (has(collection, key)) {
-      val = collection[key];
-
-      result = iterator(val, convertKey(key));
-
-      if (result === false) {
-        return val;
-      }
-    }
-  }
-}
-
-/**
- * Return collection without element.
- *
- * @template T
- * @param {ArrayCollection<T>} arr
- * @param {Matcher<T>} matcher
- *
- * @return {T[]}
- */
-function without(arr, matcher) {
-
-  if (isUndefined(arr)) {
-    return [];
-  }
-
-  ensureArray(arr);
-
-  const matchFn = toMatcher(matcher);
-
-  return arr.filter(function(el, idx) {
-    return !matchFn(el, idx);
-  });
-
-}
-
-
-/**
- * Reduce collection, returning a single result.
- *
- * @template T
- * @template V
- *
- * @param {Collection<T>} collection
- * @param {(result: V, entry: T, index: any) => V} iterator
- * @param {V} result
- *
- * @return {V} result returned from last iterator
- */
-function reduce(collection, iterator, result) {
-
-  forEach(collection, function(value, idx) {
-    result = iterator(result, value, idx);
-  });
-
-  return result;
-}
-
-
-/**
- * Return true if every element in the collection
- * matches the criteria.
- *
- * @param  {Object|Array} collection
- * @param  {Function} matcher
- *
- * @return {Boolean}
- */
-function every(collection, matcher) {
-
-  return !!reduce(collection, function(matches, val, key) {
-    return matches && matcher(val, key);
-  }, true);
-}
-
-
-/**
- * Return true if some elements in the collection
- * match the criteria.
- *
- * @param  {Object|Array} collection
- * @param  {Function} matcher
- *
- * @return {Boolean}
- */
-function some(collection, matcher) {
-
-  return !!find(collection, matcher);
-}
-
-
-/**
- * Transform a collection into another collection
- * by piping each member through the given fn.
- *
- * @param  {Object|Array}   collection
- * @param  {Function} fn
- *
- * @return {Array} transformed collection
- */
-function map(collection, fn) {
-
-  let result = [];
-
-  forEach(collection, function(val, key) {
-    result.push(fn(val, key));
-  });
-
-  return result;
-}
-
-
-/**
- * Get the collections keys.
- *
- * @param  {Object|Array} collection
- *
- * @return {Array}
- */
-function keys(collection) {
-  return collection && Object.keys(collection) || [];
-}
-
-
-/**
- * Shorthand for `keys(o).length`.
- *
- * @param  {Object|Array} collection
- *
- * @return {Number}
- */
-function size(collection) {
-  return keys(collection).length;
-}
-
-
-/**
- * Get the values in the collection.
- *
- * @param  {Object|Array} collection
- *
- * @return {Array}
- */
-function values(collection) {
-  return map(collection, (val) => val);
-}
-
-
-/**
- * Group collection members by attribute.
- *
- * @param {Object|Array} collection
- * @param {Extractor} extractor
- *
- * @return {Object} map with { attrValue => [ a, b, c ] }
- */
-function groupBy(collection, extractor, grouped = {}) {
-
-  extractor = toExtractor(extractor);
-
-  forEach(collection, function(val) {
-    let discriminator = extractor(val) || '_';
-
-    let group = grouped[discriminator];
-
-    if (!group) {
-      group = grouped[discriminator] = [];
-    }
-
-    group.push(val);
-  });
-
-  return grouped;
-}
-
-
-function uniqueBy(extractor, ...collections) {
-
-  extractor = toExtractor(extractor);
-
-  let grouped = {};
-
-  forEach(collections, (c) => groupBy(c, extractor, grouped));
-
-  let result = map(grouped, function(val, key) {
-    return val[0];
-  });
-
-  return result;
-}
-
-
-const unionBy = uniqueBy;
-
-
-
-/**
- * Sort collection by criteria.
- *
- * @template T
- *
- * @param {Collection<T>} collection
- * @param {Extractor<T, number | string>} extractor
- *
- * @return {Array}
- */
-function sortBy(collection, extractor) {
-
-  extractor = toExtractor(extractor);
-
-  let sorted = [];
-
-  forEach(collection, function(value, key) {
-    let disc = extractor(value, key);
-
-    let entry = {
-      d: disc,
-      v: value
-    };
-
-    for (var idx = 0; idx < sorted.length; idx++) {
-      let { d } = sorted[idx];
-
-      if (disc < d) {
-        sorted.splice(idx, 0, entry);
-        return;
-      }
-    }
-
-    // not inserted, append (!)
-    sorted.push(entry);
-  });
-
-  return map(sorted, (e) => e.v);
-}
-
-
-/**
- * Create an object pattern matcher.
- *
- * @example
- *
- * ```javascript
- * const matcher = matchPattern({ id: 1 });
- *
- * let element = find(elements, matcher);
- * ```
- *
- * @template T
- *
- * @param {T} pattern
- *
- * @return { (el: any) =>  boolean } matcherFn
- */
-function matchPattern(pattern) {
-
-  return function(el) {
-
-    return every(pattern, function(val, key) {
-      return el[key] === val;
-    });
-
-  };
-}
-
-
-/**
- * @param {string | ((e: any) => any) } extractor
- *
- * @return { (e: any) => any }
- */
-function toExtractor(extractor) {
-
-  /**
-   * @satisfies { (e: any) => any }
-   */
-  return isFunction(extractor) ? extractor : (e) => {
-
-    // @ts-ignore: just works
-    return e[extractor];
-  };
-}
-
-
-/**
- * @template T
- * @param {Matcher<T>} matcher
- *
- * @return {MatchFn<T>}
- */
-function toMatcher(matcher) {
-  return isFunction(matcher) ? matcher : (e) => {
-    return e === matcher;
-  };
-}
-
-
-function identity(arg) {
-  return arg;
-}
-
-function toNum(arg) {
-  return Number(arg);
-}
-
-/**
- * @typedef { {
- *   (...args: any[]): any;
- *   flush: () => void;
- *   cancel: () => void;
- * } } DebouncedFunction
- */
-
-/**
- * Debounce fn, calling it only once if the given time
- * elapsed between calls.
- *
- * Lodash-style the function exposes methods to `#clear`
- * and `#flush` to control internal behavior.
- *
- * @param  {Function} fn
- * @param  {Number} timeout
- *
- * @return {DebouncedFunction} debounced function
- */
-function debounce(fn, timeout) {
-
-  let timer;
-
-  let lastArgs;
-  let lastThis;
-
-  let lastNow;
-
-  function fire(force) {
-
-    let now = Date.now();
-
-    let scheduledDiff = force ? 0 : (lastNow + timeout) - now;
-
-    if (scheduledDiff > 0) {
-      return schedule(scheduledDiff);
-    }
-
-    fn.apply(lastThis, lastArgs);
-
-    clear();
-  }
-
-  function schedule(timeout) {
-    timer = setTimeout(fire, timeout);
-  }
-
-  function clear() {
-    if (timer) {
-      clearTimeout(timer);
-    }
-
-    timer = lastNow = lastArgs = lastThis = undefined;
-  }
-
-  function flush() {
-    if (timer) {
-      fire(true);
-    }
-
-    clear();
-  }
-
-  /**
-   * @type { DebouncedFunction }
-   */
-  function callback(...args) {
-    lastNow = Date.now();
-
-    lastArgs = args;
-    lastThis = this;
-
-    // ensure an execution is scheduled
-    if (!timer) {
-      schedule(timeout);
-    }
-  }
-
-  callback.flush = flush;
-  callback.cancel = clear;
-
-  return callback;
-}
-
-/**
- * Throttle fn, calling at most once
- * in the given interval.
- *
- * @param  {Function} fn
- * @param  {Number} interval
- *
- * @return {Function} throttled function
- */
-function throttle(fn, interval) {
-  let throttling = false;
-
-  return function(...args) {
-
-    if (throttling) {
-      return;
-    }
-
-    fn(...args);
-    throttling = true;
-
-    setTimeout(() => {
-      throttling = false;
-    }, interval);
-  };
-}
-
-/**
- * Bind function against target <this>.
- *
- * @param  {Function} fn
- * @param  {Object}   target
- *
- * @return {Function} bound function
- */
-function bind(fn, target) {
-  return fn.bind(target);
-}
-
-/**
- * Convenience wrapper for `Object.assign`.
- *
- * @param {Object} target
- * @param {...Object} others
- *
- * @return {Object} the target
- */
-function assign(target, ...others) {
-  return Object.assign(target, ...others);
-}
-
-/**
- * Sets a nested property of a given object to the specified value.
- *
- * This mutates the object and returns it.
- *
- * @template T
- *
- * @param {T} target The target of the set operation.
- * @param {(string|number)[]} path The path to the nested value.
- * @param {any} value The value to set.
- *
- * @return {T}
- */
-function set(target, path, value) {
-
-  let currentTarget = target;
-
-  forEach(path, function(key, idx) {
-
-    if (typeof key !== 'number' && typeof key !== 'string') {
-      throw new Error('illegal key type: ' + typeof key + '. Key should be of type number or string.');
-    }
-
-    if (key === 'constructor') {
-      throw new Error('illegal key: constructor');
-    }
-
-    if (key === '__proto__') {
-      throw new Error('illegal key: __proto__');
-    }
-
-    let nextKey = path[idx + 1];
-    let nextTarget = currentTarget[key];
-
-    if (isDefined(nextKey) && isNil(nextTarget)) {
-      nextTarget = currentTarget[key] = isNaN(+nextKey) ? {} : [];
-    }
-
-    if (isUndefined(nextKey)) {
-      if (isUndefined(value)) {
-        delete currentTarget[key];
-      } else {
-        currentTarget[key] = value;
-      }
-    } else {
-      currentTarget = nextTarget;
-    }
-  });
-
-  return target;
-}
-
-
-/**
- * Gets a nested property of a given object.
- *
- * @param {Object} target The target of the get operation.
- * @param {(string|number)[]} path The path to the nested value.
- * @param {any} [defaultValue] The value to return if no value exists.
- *
- * @return {any}
- */
-function get(target, path, defaultValue) {
-
-  let currentTarget = target;
-
-  forEach(path, function(key) {
-
-    // accessing nil property yields <undefined>
-    if (isNil(currentTarget)) {
-      currentTarget = undefined;
-
-      return false;
-    }
-
-    currentTarget = currentTarget[key];
-  });
-
-  return isUndefined(currentTarget) ? defaultValue : currentTarget;
-}
-
-/**
- * Pick properties from the given target.
- *
- * @template T
- * @template {any[]} V
- *
- * @param {T} target
- * @param {V} properties
- *
- * @return Pick<T, V>
- */
-function pick(target, properties) {
-
-  let result = {};
-
-  let obj = Object(target);
-
-  forEach(properties, function(prop) {
-
-    if (prop in obj) {
-      result[prop] = target[prop];
-    }
-  });
-
-  return result;
-}
-
-/**
- * Pick all target properties, excluding the given ones.
- *
- * @template T
- * @template {any[]} V
- *
- * @param {T} target
- * @param {V} properties
- *
- * @return {Omit<T, V>} target
- */
-function omit(target, properties) {
-
-  let result = {};
-
-  let obj = Object(target);
-
-  forEach(obj, function(prop, key) {
-
-    if (properties.indexOf(key) === -1) {
-      result[key] = prop;
-    }
-  });
-
-  return result;
-}
-
-/**
- * Recursively merge `...sources` into given target.
- *
- * Does support merging objects; does not support merging arrays.
- *
- * @param {Object} target
- * @param {...Object} sources
- *
- * @return {Object} the target
- */
-function merge(target, ...sources) {
-
-  if (!sources.length) {
-    return target;
-  }
-
-  forEach(sources, function(source) {
-
-    // skip non-obj sources, i.e. null
-    if (!source || !isObject(source)) {
-      return;
-    }
-
-    forEach(source, function(sourceVal, key) {
-
-      if (key === '__proto__') {
-        return;
-      }
-
-      let targetVal = target[key];
-
-      if (isObject(sourceVal)) {
-
-        if (!isObject(targetVal)) {
-
-          // override target[key] with object
-          targetVal = {};
-        }
-
-        target[key] = merge(targetVal, sourceVal);
-      } else {
-        target[key] = sourceVal;
-      }
-
-    });
-  });
-
-  return target;
-}
-
-
-
-
-/***/ }),
-
-/***/ "./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js":
-/*!**********************************************************************************!*\
-  !*** ./node_modules/bpmn-js-token-simulation/node_modules/min-dom/dist/index.js ***!
-  \**********************************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   assignStyle: () => (/* binding */ assign),
-/* harmony export */   attr: () => (/* binding */ attr),
-/* harmony export */   classes: () => (/* binding */ classes),
-/* harmony export */   clear: () => (/* binding */ clear),
-/* harmony export */   closest: () => (/* binding */ closest),
-/* harmony export */   delegate: () => (/* binding */ delegate),
-/* harmony export */   domify: () => (/* reexport safe */ domify__WEBPACK_IMPORTED_MODULE_0__["default"]),
-/* harmony export */   event: () => (/* binding */ event),
-/* harmony export */   matches: () => (/* binding */ matches),
-/* harmony export */   query: () => (/* binding */ query),
-/* harmony export */   queryAll: () => (/* binding */ all),
-/* harmony export */   remove: () => (/* binding */ remove)
-/* harmony export */ });
-/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! min-dash */ "./node_modules/bpmn-js-token-simulation/node_modules/min-dash/dist/index.js");
-/* harmony import */ var domify__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! domify */ "./node_modules/bpmn-js-token-simulation/node_modules/domify/index.js");
-
-
-
-function _mergeNamespaces(n, m) {
-  m.forEach(function (e) {
-    e && typeof e !== 'string' && !Array.isArray(e) && Object.keys(e).forEach(function (k) {
-      if (k !== 'default' && !(k in n)) {
-        var d = Object.getOwnPropertyDescriptor(e, k);
-        Object.defineProperty(n, k, d.get ? d : {
-          enumerable: true,
-          get: function () { return e[k]; }
-        });
-      }
-    });
-  });
-  return Object.freeze(n);
-}
-
-/**
- * Assigns style attributes in a style-src compliant way.
- *
- * @param {Element} element
- * @param {...Object} styleSources
- *
- * @return {Element} the element
- */
-function assign(element, ...styleSources) {
-  const target = element.style;
-
-  (0,min_dash__WEBPACK_IMPORTED_MODULE_1__.forEach)(styleSources, function(style) {
-    if (!style) {
-      return;
-    }
-
-    (0,min_dash__WEBPACK_IMPORTED_MODULE_1__.forEach)(style, function(value, key) {
-      target[key] = value;
-    });
-  });
-
-  return element;
-}
-
-/**
- * Set attribute `name` to `val`, or get attr `name`.
- *
- * @param {Element} el
- * @param {String} name
- * @param {String} [val]
- * @api public
- */
-function attr(el, name, val) {
-
-  // get
-  if (arguments.length == 2) {
-    return el.getAttribute(name);
-  }
-
-  // remove
-  if (val === null) {
-    return el.removeAttribute(name);
-  }
-
-  // set
-  el.setAttribute(name, val);
-
-  return el;
-}
-
-/**
- * Taken from https://github.com/component/classes
- *
- * Without the component bits.
- */
-
-/**
- * toString reference.
- */
-
-const toString = Object.prototype.toString;
-
-/**
- * Wrap `el` in a `ClassList`.
- *
- * @param {Element} el
- * @return {ClassList}
- * @api public
- */
-
-function classes(el) {
-  return new ClassList(el);
-}
-
-/**
- * Initialize a new ClassList for `el`.
- *
- * @param {Element} el
- * @api private
- */
-
-function ClassList(el) {
-  if (!el || !el.nodeType) {
-    throw new Error('A DOM element reference is required');
-  }
-  this.el = el;
-  this.list = el.classList;
-}
-
-/**
- * Add class `name` if not already present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.add = function(name) {
-  this.list.add(name);
-  return this;
-};
-
-/**
- * Remove class `name` when present, or
- * pass a regular expression to remove
- * any which match.
- *
- * @param {String|RegExp} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.remove = function(name) {
-  if ('[object RegExp]' == toString.call(name)) {
-    return this.removeMatching(name);
-  }
-
-  this.list.remove(name);
-  return this;
-};
-
-/**
- * Remove all classes matching `re`.
- *
- * @param {RegExp} re
- * @return {ClassList}
- * @api private
- */
-
-ClassList.prototype.removeMatching = function(re) {
-  const arr = this.array();
-  for (let i = 0; i < arr.length; i++) {
-    if (re.test(arr[i])) {
-      this.remove(arr[i]);
-    }
-  }
-  return this;
-};
-
-/**
- * Toggle class `name`, can force state via `force`.
- *
- * For browsers that support classList, but do not support `force` yet,
- * the mistake will be detected and corrected.
- *
- * @param {String} name
- * @param {Boolean} force
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.toggle = function(name, force) {
-  if ('undefined' !== typeof force) {
-    if (force !== this.list.toggle(name, force)) {
-      this.list.toggle(name); // toggle again to correct
-    }
-  } else {
-    this.list.toggle(name);
-  }
-  return this;
-};
-
-/**
- * Return an array of classes.
- *
- * @return {Array}
- * @api public
- */
-
-ClassList.prototype.array = function() {
-  return Array.from(this.list);
-};
-
-/**
- * Check if class `name` is present.
- *
- * @param {String} name
- * @return {ClassList}
- * @api public
- */
-
-ClassList.prototype.has =
-ClassList.prototype.contains = function(name) {
-  return this.list.contains(name);
-};
-
-/**
- * Clear utility
- */
-
-/**
- * Removes all children from the given element
- *
- * @param {Element} element
- *
- * @return {Element} the element (for chaining)
- */
-function clear(element) {
-  var child;
-
-  while ((child = element.firstChild)) {
-    element.removeChild(child);
-  }
-
-  return element;
-}
-
-/**
- * Closest
- *
- * @param {Element} el
- * @param {string} selector
- * @param {boolean} checkYourSelf (optional)
- */
-function closest(element, selector, checkYourSelf) {
-  var actualElement = checkYourSelf ? element : element.parentNode;
-
-  return actualElement && typeof actualElement.closest === 'function' && actualElement.closest(selector) || null;
-}
-
 function getDefaultExportFromCjs (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
 
-var componentEvent = {};
+var hat$1 = {exports: {}};
 
-var hasRequiredComponentEvent;
+var hasRequiredHat;
 
-function requireComponentEvent () {
-	if (hasRequiredComponentEvent) return componentEvent;
-	hasRequiredComponentEvent = 1;
-	var bind, unbind, prefix;
-
-	function detect () {
-	  bind = window.addEventListener ? 'addEventListener' : 'attachEvent';
-	  unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
-	  prefix = bind !== 'addEventListener' ? 'on' : '';
-	}
-
-	/**
-	 * Bind `el` event `type` to `fn`.
-	 *
-	 * @param {Element} el
-	 * @param {String} type
-	 * @param {Function} fn
-	 * @param {Boolean} capture
-	 * @return {Function}
-	 * @api public
-	 */
-
-	componentEvent.bind = function(el, type, fn, capture){
-	  if (!bind) detect();
-	  el[bind](prefix + type, fn, capture || false);
-	  return fn;
+function requireHat () {
+	if (hasRequiredHat) return hat$1.exports;
+	hasRequiredHat = 1;
+	var hat = hat$1.exports = function (bits, base) {
+	    if (!base) base = 16;
+	    if (bits === undefined) bits = 128;
+	    if (bits <= 0) return '0';
+	    
+	    var digits = Math.log(Math.pow(2, bits)) / Math.log(base);
+	    for (var i = 2; digits === Infinity; i *= 2) {
+	        digits = Math.log(Math.pow(2, bits / i)) / Math.log(base) * i;
+	    }
+	    
+	    var rem = digits - Math.floor(digits);
+	    
+	    var res = '';
+	    
+	    for (var i = 0; i < Math.floor(digits); i++) {
+	        var x = Math.floor(Math.random() * base).toString(base);
+	        res = x + res;
+	    }
+	    
+	    if (rem) {
+	        var b = Math.pow(base, rem);
+	        var x = Math.floor(Math.random() * b).toString(base);
+	        res = x + res;
+	    }
+	    
+	    var parsed = parseInt(res, base);
+	    if (parsed !== Infinity && parsed >= Math.pow(2, bits)) {
+	        return hat(bits, base)
+	    }
+	    else return res;
 	};
 
-	/**
-	 * Unbind `el` event `type`'s callback `fn`.
-	 *
-	 * @param {Element} el
-	 * @param {String} type
-	 * @param {Function} fn
-	 * @param {Boolean} capture
-	 * @return {Function}
-	 * @api public
-	 */
-
-	componentEvent.unbind = function(el, type, fn, capture){
-	  if (!unbind) detect();
-	  el[unbind](prefix + type, fn, capture || false);
-	  return fn;
+	hat.rack = function (bits, base, expandBy) {
+	    var fn = function (data) {
+	        var iters = 0;
+	        do {
+	            if (iters ++ > 10) {
+	                if (expandBy) bits += expandBy;
+	                else throw new Error('too many ID collisions, use more bits')
+	            }
+	            
+	            var id = hat(bits, base);
+	        } while (Object.hasOwnProperty.call(hats, id));
+	        
+	        hats[id] = data;
+	        return id;
+	    };
+	    var hats = fn.hats = {};
+	    
+	    fn.get = function (id) {
+	        return fn.hats[id];
+	    };
+	    
+	    fn.set = function (id, value) {
+	        fn.hats[id] = value;
+	        return fn;
+	    };
+	    
+	    fn.bits = bits || 128;
+	    fn.base = base || 16;
+	    return fn;
 	};
-	return componentEvent;
+	return hat$1.exports;
 }
 
-var componentEventExports = requireComponentEvent();
-var index = /*@__PURE__*/getDefaultExportFromCjs(componentEventExports);
-
-var event = /*#__PURE__*/_mergeNamespaces({
-  __proto__: null,
-  default: index
-}, [componentEventExports]);
+var hatExports = requireHat();
+var hat = /*@__PURE__*/getDefaultExportFromCjs(hatExports);
 
 /**
- * Module dependencies.
+ * @typedef { [ number, number ] | [ number, number, number ] } Seed
  */
 
-
 /**
- * Delegate event `type` to `selector`
- * and invoke `fn(e)`. A callback function
- * is returned which may be passed to `.unbind()`.
+ * Create a new id generator / cache instance.
  *
- * @param {Element} el
- * @param {String} selector
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @return {Function}
- * @api public
+ * You may optionally provide a seed that is used internally.
+ *
+ * @param {Seed} [seed]
  */
+function Ids(seed) {
 
-// Some events don't bubble, so we want to bind to the capture phase instead
-// when delegating.
-var forceCaptureEvents = [ 'focus', 'blur' ];
-
-function bind(el, selector, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) {
-    capture = true;
+  if (!(this instanceof Ids)) {
+    return new Ids(seed);
   }
 
-  return event.bind(el, type, function(e) {
-    var target = e.target || e.srcElement;
-    e.delegateTarget = closest(target, selector, true);
-    if (e.delegateTarget) {
-      fn.call(el, e);
-    }
-  }, capture);
+  seed = seed || [ 128, 36, 1 ];
+  this._seed = seed.length ? hat.rack(seed[0], seed[1], seed[2]) : seed;
 }
 
 /**
- * Unbind event `type`'s callback `fn`.
+ * Generate a next id.
  *
- * @param {Element} el
- * @param {String} type
- * @param {Function} fn
- * @param {Boolean} capture
- * @api public
+ * @param {Object} [element] element to bind the id to
+ *
+ * @return {string} id
  */
-function unbind(el, type, fn, capture) {
-  if (forceCaptureEvents.indexOf(type) !== -1) {
-    capture = true;
-  }
-
-  return event.unbind(el, type, fn, capture);
-}
-
-var delegate = {
-  bind,
-  unbind
+Ids.prototype.next = function(element) {
+  return this._seed(element || true);
 };
 
 /**
- * @param { HTMLElement } element
- * @param { String } selector
+ * Generate a next id with a given prefix.
  *
- * @return { boolean }
+ * @param {Object} [element] element to bind the id to
+ *
+ * @return {string} id
  */
-function matches(element, selector) {
-  return element && typeof element.matches === 'function' && element.matches(selector) || false;
-}
+Ids.prototype.nextPrefixed = function(prefix, element) {
+  var id;
 
-function query(selector, el) {
-  el = el || document;
+  do {
+    id = prefix + this.next(true);
+  } while (this.assigned(id));
 
-  return el.querySelector(selector);
-}
+  // claim {prefix}{random}
+  this.claim(id, element);
 
-function all(selector, el) {
-  el = el || document;
+  // return
+  return id;
+};
 
-  return el.querySelectorAll(selector);
-}
+/**
+ * Manually claim an existing id.
+ *
+ * @param {string} id
+ * @param {any} [element] element the id is claimed by
+ */
+Ids.prototype.claim = function(id, element) {
+  this._seed.set(id, element || true);
+};
 
-function remove(el) {
-  el.parentNode && el.parentNode.removeChild(el);
-}
+/**
+ * Returns true if the given id has already been assigned.
+ *
+ * @param  {string} id
+ * @return {boolean}
+ */
+Ids.prototype.assigned = function(id) {
+  return this._seed.get(id) || false;
+};
+
+/**
+ * Unclaim an id.
+ *
+ * @param  {string} id the id to unclaim
+ */
+Ids.prototype.unclaim = function(id) {
+  delete this._seed.hats[id];
+};
 
 
-//# sourceMappingURL=index.js.map
+/**
+ * Clear all claimed ids.
+ */
+Ids.prototype.clear = function() {
+
+  var hats = this._seed.hats,
+      id;
+
+  for (id in hats) {
+    this.unclaim(id);
+  }
+};
 
 
-/***/ }),
 
-/***/ "./node_modules/bpmn-js/node_modules/min-dash/dist/index.js":
-/*!******************************************************************!*\
-  !*** ./node_modules/bpmn-js/node_modules/min-dash/dist/index.js ***!
-  \******************************************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+/***/ },
+
+/***/ "./node_modules/min-dash/dist/index.js"
+/*!*********************************************!*\
+  !*** ./node_modules/min-dash/dist/index.js ***!
+  \*********************************************/
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -13227,204 +11537,429 @@ function merge(target, ...sources) {
 
 
 
-/***/ }),
+/***/ },
 
-/***/ "./node_modules/ids/dist/index.js":
-/*!****************************************!*\
-  !*** ./node_modules/ids/dist/index.js ***!
-  \****************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+/***/ "./node_modules/min-dom/dist/index.js"
+/*!********************************************!*\
+  !*** ./node_modules/min-dom/dist/index.js ***!
+  \********************************************/
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   Ids: () => (/* binding */ Ids)
+/* harmony export */   assignStyle: () => (/* binding */ assign),
+/* harmony export */   attr: () => (/* binding */ attr),
+/* harmony export */   classes: () => (/* binding */ classes),
+/* harmony export */   clear: () => (/* binding */ clear),
+/* harmony export */   closest: () => (/* binding */ closest),
+/* harmony export */   delegate: () => (/* binding */ delegate),
+/* harmony export */   domify: () => (/* reexport safe */ domify__WEBPACK_IMPORTED_MODULE_1__["default"]),
+/* harmony export */   event: () => (/* binding */ event),
+/* harmony export */   matches: () => (/* binding */ matches),
+/* harmony export */   query: () => (/* binding */ query),
+/* harmony export */   queryAll: () => (/* binding */ all),
+/* harmony export */   remove: () => (/* binding */ remove)
 /* harmony export */ });
+/* harmony import */ var min_dash__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! min-dash */ "./node_modules/min-dash/dist/index.js");
+/* harmony import */ var domify__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! domify */ "./node_modules/domify/index.js");
+
+
+
+function _mergeNamespaces(n, m) {
+  m.forEach(function (e) {
+    e && typeof e !== 'string' && !Array.isArray(e) && Object.keys(e).forEach(function (k) {
+      if (k !== 'default' && !(k in n)) {
+        var d = Object.getOwnPropertyDescriptor(e, k);
+        Object.defineProperty(n, k, d.get ? d : {
+          enumerable: true,
+          get: function () { return e[k]; }
+        });
+      }
+    });
+  });
+  return Object.freeze(n);
+}
+
+/**
+ * Assigns style attributes in a style-src compliant way.
+ *
+ * @param {Element} element
+ * @param {...Object} styleSources
+ *
+ * @return {Element} the element
+ */
+function assign(element, ...styleSources) {
+  const target = element.style;
+
+  (0,min_dash__WEBPACK_IMPORTED_MODULE_0__.forEach)(styleSources, function(style) {
+    if (!style) {
+      return;
+    }
+
+    ;(0,min_dash__WEBPACK_IMPORTED_MODULE_0__.forEach)(style, function(value, key) {
+      target[key] = value;
+    });
+  });
+
+  return element;
+}
+
+/**
+ * Set attribute `name` to `val`, or get attr `name`.
+ *
+ * @param {Element} el
+ * @param {String} name
+ * @param {String} [val]
+ * @api public
+ */
+function attr(el, name, val) {
+
+  // get
+  if (arguments.length == 2) {
+    return el.getAttribute(name);
+  }
+
+  // remove
+  if (val === null) {
+    return el.removeAttribute(name);
+  }
+
+  // set
+  el.setAttribute(name, val);
+
+  return el;
+}
+
+/**
+ * Taken from https://github.com/component/classes
+ *
+ * Without the component bits.
+ */
+
+/**
+ * toString reference.
+ */
+
+const toString = Object.prototype.toString;
+
+/**
+ * Wrap `el` in a `ClassList`.
+ *
+ * @param {Element} el
+ * @return {ClassList}
+ * @api public
+ */
+
+function classes(el) {
+  return new ClassList(el);
+}
+
+/**
+ * Initialize a new ClassList for `el`.
+ *
+ * @param {Element} el
+ * @api private
+ */
+
+function ClassList(el) {
+  if (!el || !el.nodeType) {
+    throw new Error('A DOM element reference is required');
+  }
+  this.el = el;
+  this.list = el.classList;
+}
+
+/**
+ * Add class `name` if not already present.
+ *
+ * @param {String} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.add = function(name) {
+  this.list.add(name);
+  return this;
+};
+
+/**
+ * Remove class `name` when present, or
+ * pass a regular expression to remove
+ * any which match.
+ *
+ * @param {String|RegExp} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.remove = function(name) {
+  if ('[object RegExp]' == toString.call(name)) {
+    return this.removeMatching(name);
+  }
+
+  this.list.remove(name);
+  return this;
+};
+
+/**
+ * Remove all classes matching `re`.
+ *
+ * @param {RegExp} re
+ * @return {ClassList}
+ * @api private
+ */
+
+ClassList.prototype.removeMatching = function(re) {
+  const arr = this.array();
+  for (let i = 0; i < arr.length; i++) {
+    if (re.test(arr[i])) {
+      this.remove(arr[i]);
+    }
+  }
+  return this;
+};
+
+/**
+ * Toggle class `name`, can force state via `force`.
+ *
+ * For browsers that support classList, but do not support `force` yet,
+ * the mistake will be detected and corrected.
+ *
+ * @param {String} name
+ * @param {Boolean} force
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.toggle = function(name, force) {
+  if ('undefined' !== typeof force) {
+    if (force !== this.list.toggle(name, force)) {
+      this.list.toggle(name); // toggle again to correct
+    }
+  } else {
+    this.list.toggle(name);
+  }
+  return this;
+};
+
+/**
+ * Return an array of classes.
+ *
+ * @return {Array}
+ * @api public
+ */
+
+ClassList.prototype.array = function() {
+  return Array.from(this.list);
+};
+
+/**
+ * Check if class `name` is present.
+ *
+ * @param {String} name
+ * @return {ClassList}
+ * @api public
+ */
+
+ClassList.prototype.has =
+ClassList.prototype.contains = function(name) {
+  return this.list.contains(name);
+};
+
+/**
+ * Clear utility
+ */
+
+/**
+ * Removes all children from the given element
+ *
+ * @param {Element} element
+ *
+ * @return {Element} the element (for chaining)
+ */
+function clear(element) {
+  var child;
+
+  while ((child = element.firstChild)) {
+    element.removeChild(child);
+  }
+
+  return element;
+}
+
+/**
+ * Closest
+ *
+ * @param {Element} el
+ * @param {string} selector
+ * @param {boolean} checkYourSelf (optional)
+ */
+function closest(element, selector, checkYourSelf) {
+  var actualElement = checkYourSelf ? element : element.parentNode;
+
+  return actualElement && typeof actualElement.closest === 'function' && actualElement.closest(selector) || null;
+}
+
 function getDefaultExportFromCjs (x) {
 	return x && x.__esModule && Object.prototype.hasOwnProperty.call(x, 'default') ? x['default'] : x;
 }
 
-var hat$1 = {exports: {}};
+var componentEvent = {};
 
-var hasRequiredHat;
+var hasRequiredComponentEvent;
 
-function requireHat () {
-	if (hasRequiredHat) return hat$1.exports;
-	hasRequiredHat = 1;
-	var hat = hat$1.exports = function (bits, base) {
-	    if (!base) base = 16;
-	    if (bits === undefined) bits = 128;
-	    if (bits <= 0) return '0';
-	    
-	    var digits = Math.log(Math.pow(2, bits)) / Math.log(base);
-	    for (var i = 2; digits === Infinity; i *= 2) {
-	        digits = Math.log(Math.pow(2, bits / i)) / Math.log(base) * i;
-	    }
-	    
-	    var rem = digits - Math.floor(digits);
-	    
-	    var res = '';
-	    
-	    for (var i = 0; i < Math.floor(digits); i++) {
-	        var x = Math.floor(Math.random() * base).toString(base);
-	        res = x + res;
-	    }
-	    
-	    if (rem) {
-	        var b = Math.pow(base, rem);
-	        var x = Math.floor(Math.random() * b).toString(base);
-	        res = x + res;
-	    }
-	    
-	    var parsed = parseInt(res, base);
-	    if (parsed !== Infinity && parsed >= Math.pow(2, bits)) {
-	        return hat(bits, base)
-	    }
-	    else return res;
+function requireComponentEvent () {
+	if (hasRequiredComponentEvent) return componentEvent;
+	hasRequiredComponentEvent = 1;
+	var bind, unbind, prefix;
+
+	function detect () {
+	  bind = window.addEventListener ? 'addEventListener' : 'attachEvent';
+	  unbind = window.removeEventListener ? 'removeEventListener' : 'detachEvent';
+	  prefix = bind !== 'addEventListener' ? 'on' : '';
+	}
+
+	/**
+	 * Bind `el` event `type` to `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	componentEvent.bind = function(el, type, fn, capture){
+	  if (!bind) detect();
+	  el[bind](prefix + type, fn, capture || false);
+	  return fn;
 	};
 
-	hat.rack = function (bits, base, expandBy) {
-	    var fn = function (data) {
-	        var iters = 0;
-	        do {
-	            if (iters ++ > 10) {
-	                if (expandBy) bits += expandBy;
-	                else throw new Error('too many ID collisions, use more bits')
-	            }
-	            
-	            var id = hat(bits, base);
-	        } while (Object.hasOwnProperty.call(hats, id));
-	        
-	        hats[id] = data;
-	        return id;
-	    };
-	    var hats = fn.hats = {};
-	    
-	    fn.get = function (id) {
-	        return fn.hats[id];
-	    };
-	    
-	    fn.set = function (id, value) {
-	        fn.hats[id] = value;
-	        return fn;
-	    };
-	    
-	    fn.bits = bits || 128;
-	    fn.base = base || 16;
-	    return fn;
+	/**
+	 * Unbind `el` event `type`'s callback `fn`.
+	 *
+	 * @param {Element} el
+	 * @param {String} type
+	 * @param {Function} fn
+	 * @param {Boolean} capture
+	 * @return {Function}
+	 * @api public
+	 */
+
+	componentEvent.unbind = function(el, type, fn, capture){
+	  if (!unbind) detect();
+	  el[unbind](prefix + type, fn, capture || false);
+	  return fn;
 	};
-	return hat$1.exports;
+	return componentEvent;
 }
 
-var hatExports = requireHat();
-var hat = /*@__PURE__*/getDefaultExportFromCjs(hatExports);
+var componentEventExports = requireComponentEvent();
+var index = /*@__PURE__*/getDefaultExportFromCjs(componentEventExports);
+
+var event = /*#__PURE__*/_mergeNamespaces({
+  __proto__: null,
+  default: index
+}, [componentEventExports]);
 
 /**
- * @typedef { [ number, number ] | [ number, number, number ] } Seed
+ * Module dependencies.
  */
+
 
 /**
- * Create a new id generator / cache instance.
+ * Delegate event `type` to `selector`
+ * and invoke `fn(e)`. A callback function
+ * is returned which may be passed to `.unbind()`.
  *
- * You may optionally provide a seed that is used internally.
- *
- * @param {Seed} [seed]
+ * @param {Element} el
+ * @param {String} selector
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @return {Function}
+ * @api public
  */
-function Ids(seed) {
 
-  if (!(this instanceof Ids)) {
-    return new Ids(seed);
+// Some events don't bubble, so we want to bind to the capture phase instead
+// when delegating.
+var forceCaptureEvents = [ 'focus', 'blur' ];
+
+function bind(el, selector, type, fn, capture) {
+  if (forceCaptureEvents.indexOf(type) !== -1) {
+    capture = true;
   }
 
-  seed = seed || [ 128, 36, 1 ];
-  this._seed = seed.length ? hat.rack(seed[0], seed[1], seed[2]) : seed;
+  return event.bind(el, type, function(e) {
+    var target = e.target || e.srcElement;
+    e.delegateTarget = closest(target, selector, true);
+    if (e.delegateTarget) {
+      fn.call(el, e);
+    }
+  }, capture);
 }
 
 /**
- * Generate a next id.
+ * Unbind event `type`'s callback `fn`.
  *
- * @param {Object} [element] element to bind the id to
- *
- * @return {string} id
+ * @param {Element} el
+ * @param {String} type
+ * @param {Function} fn
+ * @param {Boolean} capture
+ * @api public
  */
-Ids.prototype.next = function(element) {
-  return this._seed(element || true);
-};
-
-/**
- * Generate a next id with a given prefix.
- *
- * @param {Object} [element] element to bind the id to
- *
- * @return {string} id
- */
-Ids.prototype.nextPrefixed = function(prefix, element) {
-  var id;
-
-  do {
-    id = prefix + this.next(true);
-  } while (this.assigned(id));
-
-  // claim {prefix}{random}
-  this.claim(id, element);
-
-  // return
-  return id;
-};
-
-/**
- * Manually claim an existing id.
- *
- * @param {string} id
- * @param {any} [element] element the id is claimed by
- */
-Ids.prototype.claim = function(id, element) {
-  this._seed.set(id, element || true);
-};
-
-/**
- * Returns true if the given id has already been assigned.
- *
- * @param  {string} id
- * @return {boolean}
- */
-Ids.prototype.assigned = function(id) {
-  return this._seed.get(id) || false;
-};
-
-/**
- * Unclaim an id.
- *
- * @param  {string} id the id to unclaim
- */
-Ids.prototype.unclaim = function(id) {
-  delete this._seed.hats[id];
-};
-
-
-/**
- * Clear all claimed ids.
- */
-Ids.prototype.clear = function() {
-
-  var hats = this._seed.hats,
-      id;
-
-  for (id in hats) {
-    this.unclaim(id);
+function unbind(el, type, fn, capture) {
+  if (forceCaptureEvents.indexOf(type) !== -1) {
+    capture = true;
   }
+
+  return event.unbind(el, type, fn, capture);
+}
+
+var delegate = {
+  bind,
+  unbind
 };
 
+/**
+ * @param { HTMLElement } element
+ * @param { String } selector
+ *
+ * @return { boolean }
+ */
+function matches(element, selector) {
+  return element && typeof element.matches === 'function' && element.matches(selector) || false;
+}
+
+function query(selector, el) {
+  el = el || document;
+
+  return el.querySelector(selector);
+}
+
+function all(selector, el) {
+  el = el || document;
+
+  return el.querySelectorAll(selector);
+}
+
+function remove(el) {
+  el.parentNode && el.parentNode.removeChild(el);
+}
 
 
+//# sourceMappingURL=index.js.map
 
-/***/ }),
 
-/***/ "./node_modules/tiny-svg/dist/index.js":
+/***/ },
+
+/***/ "./node_modules/tiny-svg/dist/index.js"
 /*!*********************************************!*\
   !*** ./node_modules/tiny-svg/dist/index.js ***!
   \*********************************************/
-/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+(__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
@@ -14235,28 +12770,34 @@ function transform(node, transforms) {
 //# sourceMappingURL=index.js.map
 
 
-/***/ })
+/***/ }
 
 /******/ 	});
 /************************************************************************/
 /******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
+/******/ 	const __webpack_module_cache__ = {};
 /******/ 	
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		const cachedModule = __webpack_module_cache__[moduleId];
 /******/ 		if (cachedModule !== undefined) {
 /******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 		const module = __webpack_module_cache__[moduleId] = {
 /******/ 			id: moduleId,
 /******/ 			loaded: false,
 /******/ 			exports: {}
 /******/ 		};
 /******/ 	
 /******/ 		// Execute the module function
+/******/ 		if (!(moduleId in __webpack_modules__)) {
+/******/ 			delete __webpack_module_cache__[moduleId];
+/******/ 			const e = new Error("Cannot find module '" + moduleId + "'");
+/******/ 			e.code = 'MODULE_NOT_FOUND';
+/******/ 			throw e;
+/******/ 		}
 /******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
 /******/ 	
 /******/ 		// Flag the module as loaded
@@ -14268,57 +12809,45 @@ function transform(node, transforms) {
 /******/ 	
 /************************************************************************/
 /******/ 	/* webpack/runtime/compat get default export */
-/******/ 	(() => {
-/******/ 		// getDefaultExport function for compatibility with non-harmony modules
-/******/ 		__webpack_require__.n = (module) => {
-/******/ 			var getter = module && module.__esModule ?
-/******/ 				() => (module['default']) :
-/******/ 				() => (module);
-/******/ 			__webpack_require__.d(getter, { a: getter });
-/******/ 			return getter;
-/******/ 		};
-/******/ 	})();
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__webpack_require__.n = (module) => {
+/******/ 		const getter = module && module.__esModule ?
+/******/ 			() => (module['default']) :
+/******/ 			() => (module);
+/******/ 		__webpack_require__.d(getter, { a: getter });
+/******/ 		return getter;
+/******/ 	};
 /******/ 	
 /******/ 	/* webpack/runtime/define property getters */
-/******/ 	(() => {
-/******/ 		// define getter functions for harmony exports
-/******/ 		__webpack_require__.d = (exports, definition) => {
-/******/ 			for(var key in definition) {
-/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
-/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 				}
+/******/ 	// define getter/value functions for harmony exports
+/******/ 	__webpack_require__.d = (exports, definition) => {
+/******/ 		for(var key in definition) {
+/******/ 			if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
 /******/ 			}
-/******/ 		};
-/******/ 	})();
+/******/ 		}
+/******/ 	};
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
-/******/ 	(() => {
-/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ 	})();
+/******/ 	__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop));
 /******/ 	
 /******/ 	/* webpack/runtime/make namespace object */
-/******/ 	(() => {
-/******/ 		// define __esModule on exports
-/******/ 		__webpack_require__.r = (exports) => {
-/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 			}
-/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 		};
-/******/ 	})();
+/******/ 	// define __esModule on exports
+/******/ 	__webpack_require__.r = (exports) => {
+/******/ 		Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
 /******/ 	
 /******/ 	/* webpack/runtime/node module decorator */
-/******/ 	(() => {
-/******/ 		__webpack_require__.nmd = (module) => {
-/******/ 			module.paths = [];
-/******/ 			if (!module.children) module.children = [];
-/******/ 			return module;
-/******/ 		};
-/******/ 	})();
+/******/ 	__webpack_require__.nmd = (module) => {
+/******/ 		module.paths = [];
+/******/ 		if (!module.children) module.children = [];
+/******/ 		return module;
+/******/ 	};
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be in strict mode.
+let __webpack_exports__ = {};
+// This entry needs to be wrapped in an IIFE because it needs to be in strict mode.
 (() => {
 "use strict";
 /*!**************************!*\
@@ -14326,8 +12855,8 @@ var __webpack_exports__ = {};
   \**************************/
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var camunda_modeler_plugin_helpers__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! camunda-modeler-plugin-helpers */ "./node_modules/camunda-modeler-plugin-helpers/index.js");
-/* harmony import */ var bpmn_js_token_simulation__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! bpmn-js-token-simulation */ "./node_modules/bpmn-js-token-simulation/lib/modeler.js");
-/* harmony import */ var _HideModelerElements__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./HideModelerElements */ "./client/HideModelerElements.js");
+/* harmony import */ var bpmn_js_token_simulation__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! bpmn-js-token-simulation */ "./node_modules/bpmn-js-token-simulation/lib/modeler.js");
+/* harmony import */ var _HideModelerElements__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./HideModelerElements */ "./client/HideModelerElements.js");
 
 
 
@@ -14335,10 +12864,10 @@ __webpack_require__.r(__webpack_exports__);
 
 const TokenSimulationPluginModule = {
   __init__: [ 'hideModelerElements' ],
-  hideModelerElements: [ 'type', _HideModelerElements__WEBPACK_IMPORTED_MODULE_1__["default"] ]
+  hideModelerElements: [ 'type', _HideModelerElements__WEBPACK_IMPORTED_MODULE_2__["default"] ]
 };
 
-(0,camunda_modeler_plugin_helpers__WEBPACK_IMPORTED_MODULE_0__.registerBpmnJSPlugin)(bpmn_js_token_simulation__WEBPACK_IMPORTED_MODULE_2__["default"]);
+(0,camunda_modeler_plugin_helpers__WEBPACK_IMPORTED_MODULE_0__.registerBpmnJSPlugin)(bpmn_js_token_simulation__WEBPACK_IMPORTED_MODULE_1__["default"]);
 (0,camunda_modeler_plugin_helpers__WEBPACK_IMPORTED_MODULE_0__.registerBpmnJSPlugin)(TokenSimulationPluginModule);
 
 })();
