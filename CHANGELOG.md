@@ -6,6 +6,8 @@ All notable changes to the [camunda-modeler-token-simulation-plugin](https://git
 
 ___Note:__ Yet to be released changes appear here._
 
+## 0.25.0
+
 * `FEAT`: source colors from `@bpmn-io/theme`, following the Camunda Modeler theme
 * `DEPS`: bump to `bpmn-js-token-simulation@1.1.0`
 * `DEPS`: bump to `bpmn-js@18.31.1`
