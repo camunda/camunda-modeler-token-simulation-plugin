@@ -6,18 +6,14 @@ All notable changes to the [camunda-modeler-token-simulation-plugin](https://git
 
 ___Note:__ Yet to be released changes appear here._
 
-## 0.25.0
+## 0.24.0
 
+* `FEAT`: lock the canvas during simulation ([#161](https://github.com/camunda/camunda-modeler-token-simulation-plugin/pull/161))
 * `FEAT`: source colors from `@bpmn-io/theme`, following the Camunda Modeler theme
 * `DEPS`: bump to `bpmn-js-token-simulation@1.1.0`
 * `DEPS`: bump to `bpmn-js@18.31.1`
 * `DEPS`: bump to `camunda-modeler-plugin-helpers@7.0.0`
-
-## 0.24.0
-
-* `DEPS`: bump to `bpmn-js-token-simulation@0.40.0`
-* `DEPS`: bump to `bpmn-js@18.22.1`
-* `CHORE`: require Camunda Modeler `v5.50.0+`
+* `CHORE`: require Camunda Modeler `v5.53.0+`
 
 ## 0.23.0
 
